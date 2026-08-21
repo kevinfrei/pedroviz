@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { describe, expect, test } from 'bun:test';
+import * as path from 'node:path';
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 
 import { MakeMultiMap } from '@freik/containers';
 import { Pickle, Unpickle } from '@freik/typechk';
@@ -9,6 +10,18 @@ import { chkPathDatabase } from '../../IpcTypeCheck';
 import { Team } from '../../IpcTypes';
 import { RescanSourceCode, ResetDatabase } from '../full-database';
 import { LoadDatabase, LoadPath, SaveDatabase } from '../web-interface';
+
+const originalCwd = process.cwd();
+
+beforeEach(() => {
+  // Change to a specific test directory before each test
+  process.chdir(path.join(__dirname, 'test-repo-root', 'docs'));
+});
+
+afterEach(() => {
+  // Always restore the original working directory so subsequent tests aren't broken
+  process.chdir(originalCwd);
+});
 
 describe('The basic web interfaces', () => {
   test('LoadDatabase', async () => {
@@ -22,7 +35,7 @@ describe('The basic web interfaces', () => {
     if (!chkPathDatabase(data)) {
       return false;
     }
-    expect(data.TeamPaths.size()).toEqual(5);
+    expect(data.TeamPaths.size()).toEqual(2);
     const dbRes2 = await LoadDatabase();
     expect(dbRes2.ok).toBeTrue();
     expect(dbRes2.status).toEqual(200);
@@ -75,6 +88,6 @@ describe('The basic web interfaces', () => {
     if (!chkPathDatabase(data)) {
       return false;
     }
-    expect(data.TeamPaths.size()).toEqual(5);
+    expect(data.TeamPaths.size()).toEqual(2);
   });
 });

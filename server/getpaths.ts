@@ -10,9 +10,17 @@ import { Path, PathKey, Team, TeamPaths } from '../IpcTypes';
 import { firstFtcSrc, isDirectory } from './utility';
 
 export async function GetTeamPaths(): Promise<TeamPaths> {
-  const repoRoot = await getRelativeRepoRoot(
-    Bun.fileURLToPath(new URL('.', import.meta.url)),
-  );
+  let repoRoot: string | null;
+  try {
+    repoRoot = await getRelativeRepoRoot(
+      Bun.fileURLToPath(new URL('.', import.meta.url)),
+    );
+  } catch {
+    repoRoot = await getRelativeRepoRoot(process.cwd());
+  }
+  if (repoRoot === null) {
+    throw new Error('Unable to find repository root');
+  }
   // Get the list of all team code roots
   const teamDirs = await getTeamDirectories(repoRoot);
   // Next, look for paths in each team directory

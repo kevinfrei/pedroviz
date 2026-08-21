@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import path from 'node:path';
-import { describe, expect, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 
 import { isMultiMapOf } from '@freik/containers';
 import { isString } from '@freik/typechk';
@@ -18,16 +18,27 @@ import {
 function getTestRepoPath(): string {
   return path.resolve(__dirname, 'test-repo-root');
 }
+const originalCwd = process.cwd();
+
+beforeEach(() => {
+  // Change to a specific test directory before each test
+  process.chdir(path.resolve(__dirname, 'test-repo-root', 'docs'));
+});
+
+afterEach(() => {
+  // Always restore the original working directory so subsequent tests aren't broken
+  process.chdir(originalCwd);
+});
 
 describe('team path exploration', () => {
   test('getRelativeRepoRoot finds the repo root', async () => {
-    const currentPath = path.resolve(__dirname, '../../..');
+    const currentPath = getTestRepoPath();
     const repoRoot = await getRelativeRepoRoot(currentPath);
     expect(repoRoot).toBe(currentPath);
   });
 
   test('getRelativeRepoRoot throws if no repo root found', async () => {
-    const invalidPath = path.resolve(__dirname, '../../../../nonexistent/path');
+    const invalidPath = path.resolve(__dirname, '../nonexistent/path');
     await expect(getRelativeRepoRoot(invalidPath)).rejects.toThrow(
       'Could not find repository root',
     );
@@ -65,6 +76,7 @@ describe('team path exploration', () => {
   });
 
   test('GetTeamPaths', async () => {
+    console.log(process.cwd());
     const tp = await GetTeamPaths();
     expect(tp).toBeDefined();
     expect(isMultiMapOf(tp, isString, chkPathKey)).toBeTrue();

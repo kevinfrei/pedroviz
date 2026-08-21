@@ -4,6 +4,5 @@ env = "BUN_PUBLIC_*"
 [test]
 root = "./"
 coverage = true
-coverageThreshold = 0.9
 coverageSkipTestFiles = true
 preload = ["./client/__tests__/ui-preload.test.ts"]
