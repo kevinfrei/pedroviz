@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { isNumber, isString } from '@freik/typechk';
 
 import {

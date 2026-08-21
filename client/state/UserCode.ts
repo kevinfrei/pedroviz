@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { atom, WritableAtom } from 'jotai';
 import { atomFamily } from 'jotai-family';
 import { focusAtom } from 'jotai-optics';

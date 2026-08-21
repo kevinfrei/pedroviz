@@ -1,16 +1,19 @@
 {
-  "name": "pedro-viz",
-  "repository": "https://github.com/technototes/Decode2025.git",
+  "name": "@freik/pedro-viz",
+  "version": "0.1.0",
+  "repository": "https://github.com/kevinfrei/pedroviz.git",
   "author": "Kevin Frei <kevinfrei@hotmail.com>",
-  "license": "CC0-1.0",
+  "license": "AGPL-3.0-or-later",
   "type": "module",
   "scripts": {
     "format": "prettier -w \"*.ts*\" \"client/**/*.tsx\"  \"client/**/*.ts\" \"server/**/*.ts\" \"*.md\" \"*.json\" \"*.html\" \"server/**/*.java\"",
     "types": "tsc --noEmit",
-    "pvdev": "bun --hot index.tsx",
-    "pvbld": "bun build ./index.html --outdir=dist --sourcemap --target=browser --minify --define:process.env.NODE_ENV='\"production\"' --env='BUN_PUBLIC_*'",
-    "pvstart": "NODE_ENV=production bun index.tsx",
-    "dead": "knip"
+    "check": "bun run types && bun test",
+    "dev": "bun --hot index.tsx",
+    "bld": "bun build ./index.html --outdir=dist --sourcemap --target=browser --minify --define:process.env.NODE_ENV='\"production\"' --env='BUN_PUBLIC_*'",
+    "start": "NODE_ENV=production bun index.tsx",
+    "dead": "knip",
+    "prepare": "simple-git-hooks"
   },
   "dependencies": {
     "@fluentui/react-components": "^9.74.6",
@@ -38,8 +41,10 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "knip": "^6.32.2",
+    "lint-staged": "^17.3.0",
     "prettier": "^3.9.6",
     "prettier-plugin-java": "^2.10.3",
+    "simple-git-hooks": "^2.13.1",
     "typescript": "^7.0.2"
   },
   " //-1": "Configuration stuff for Prettier:",
@@ -91,6 +96,16 @@
     "ignore": [
       "client/__tests__/**/*",
       "server/__tests__/**/*"
+    ]
+  },
+  " //-3": "Hook configuration stuff:",
+  "simple-git-hooks": {
+    "pre-commit": "bunx lint-staged",
+    "pre-push": "bun run check"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,json,java,md}": [
+      "prettier --write"
     ]
   }
 }

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { beforeEach, describe, expect, test } from 'bun:test';
 import { useAtom, useAtomValue } from 'jotai';
 

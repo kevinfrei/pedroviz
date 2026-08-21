@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { Point } from '../ConcreteEvalTypes';
 
 // Note to self: A lof of this stuff looks like a bit of memoization

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import * as child_proc from 'node:child_process';
 
 type BufStr = string | Buffer;

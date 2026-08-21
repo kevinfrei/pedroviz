@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 export type Point = { x: number; y: number; h?: number };
 
 export const ConcreteHeadingType = Object.freeze({

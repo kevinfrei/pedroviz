@@ -2,7 +2,7 @@
 
 The **goal** is for this to be a _local_ application that let's you vizualize
 and edit PedroPath's. The _reasons_ for this as opposed to just using
-[vizualizer.pedropathing.com](https://visualizer.pedropathing.com/) are twofold:
+[visualizer.pedropathing.com](https://visualizer.pedropathing.com/) are twofold:
 
 1. When you're connected to the bot (for deployment, debugging, or using a
    panel) you can't use the Visualizer, so you have to launch it, then switch
@@ -12,6 +12,19 @@ and edit PedroPath's. The _reasons_ for this as opposed to just using
    instead of just having random numerical names. Honestly, using Panels to
    update things live would be _amazing_: Your code and the bot on the field are
    kept in sync!
+
+# Current status
+
+Reading, rendering poses, curves, and paths, and animating paths including
+_most_ headings works. You can't currently do anything fancier than
+`Math.toRadians(...)` in a numeric expression, and I'm certain that folks have
+patterns that I don't properly handle, but if you started using the
+[PP Visualizer](https://visualizer.pedropathing.com) and then added a bunch more
+straight forward code from there, this thing will probably show you your paths.
+
+That's all well and good, but you can't use it without using it as a git
+submodule yet, so I need to publish what I have to NPM so that average humans
+can actually use it...
 
 **Tasks, in order:**
 
@@ -23,6 +36,8 @@ and edit PedroPath's. The _reasons_ for this as opposed to just using
   - [ ] Specify robot dimensions
 - [x] Put the field graphic under the canvas
 - [x] Have a grid key near/under the canvas
+- [ ] Publish to NPM to enable use without using it as a git submodule
+- [ ] Support more complex math expression evaluation
 - [ ] Edit existing:
   - [ ] Named values
   - [ ] Named poses
@@ -45,7 +60,7 @@ and edit PedroPath's. The _reasons_ for this as opposed to just using
 - [ ] Support additional parts of the path builder
   - [x] multiple paths
   - [x] path headings (global and last)
-  - [ ] max velocity
+  - [ ] max velocity (or, you know, any velocity/acceleration model)
   - [ ] braking strength
   - [ ] tValues
 - [ ] Maintain any code that I don't actually parse from the source code (keep

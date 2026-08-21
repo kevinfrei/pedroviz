@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 package org.firstinspires.ftc.sixteen750.commands.auto;
 
 import com.pedropathing.follower.Follower;

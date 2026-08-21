@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
 import { useAtomValue } from 'node_modules/jotai/esm/react.mjs';
 

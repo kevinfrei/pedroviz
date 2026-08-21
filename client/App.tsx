@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { ReactElement, Suspense } from 'react';
 import { Provider, useAtomValue } from 'jotai';
 

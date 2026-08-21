@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { CSSProperties, ReactElement, useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 
