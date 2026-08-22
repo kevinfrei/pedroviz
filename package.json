@@ -5,13 +5,18 @@
   "author": "Kevin Frei <kevinfrei@hotmail.com>",
   "license": "AGPL-3.0-or-later",
   "type": "module",
+  "bin": {
+    "pedroviz": "./dist/main.js"
+  },
   "scripts": {
     "format": "prettier -w \"*.ts*\" \"client/**/*.tsx\"  \"client/**/*.ts\" \"server/**/*.ts\" \"*.md\" \"*.json\" \"*.html\" \"server/**/*.java\"",
     "types": "tsc --noEmit",
     "check": "bun run types && bun test",
-    "dev": "bun --hot index.tsx",
+    "dev": "bun --hot main.tsx",
     "bld": "bun build ./index.html --outdir=dist --sourcemap --target=browser --minify --define:process.env.NODE_ENV='\"production\"' --env='BUN_PUBLIC_*'",
-    "start": "NODE_ENV=production bun index.tsx",
+    "bundle": "bun build ./main.tsx --outdir=dist --target bun && echo '#!/usr/bin/env bun' | cat - ./dist/main.js > ./dist/temp && mv ./dist/temp ./dist/main.js",
+    "start": "NODE_ENV=production bun main.tsx",
+    "startbin": "bun run ./dist/main.js",
     "dead": "knip",
     "prepare": "simple-git-hooks"
   },
@@ -90,7 +95,7 @@
   " //-2": "Configuration stuff for knip:",
   "knip": {
     "entry": [
-      "index.tsx",
+      "main.tsx",
       "client/frontend.tsx"
     ],
     "ignore": [
