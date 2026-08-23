@@ -2,7 +2,7 @@
 env = "BUN_PUBLIC_*"
 
 [test]
-root = "./"
+root = "./src"
 coverage = true
 coverageSkipTestFiles = true
-preload = ["./client/__tests__/ui-preload.test.ts"]
+preload = ["./src/client/__tests__/ui-preload.test.ts"]

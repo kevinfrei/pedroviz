@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-/// <reference path="../../node_modules/@testing-library/jest-dom/types/bun.d.ts" />
+/// <reference path="../../../node_modules/@testing-library/jest-dom/types/bun.d.ts" />
 import { expect } from 'bun:test';
 
 import * as matchers from '@testing-library/jest-dom/matchers';

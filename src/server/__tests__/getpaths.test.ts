@@ -38,7 +38,11 @@ describe('team path exploration', () => {
   });
 
   test('getRelativeRepoRoot fails if no repo root found', async () => {
-    const invalidPath = path.resolve(__dirname, '../nonexistent/path');
+    const invalidPath = path.resolve(
+      __dirname,
+      '../../../../../nonexistent/path',
+    );
+    console.log(invalidPath);
     expect(await getRelativeRepoRoot(invalidPath)).toBeNull();
   });
 

@@ -8,15 +8,17 @@
   "bin": {
     "pedroviz": "./dist/main.js"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "format": "prettier -w \"*.ts*\" \"client/**/*.tsx\"  \"client/**/*.ts\" \"server/**/*.ts\" \"*.md\" \"*.json\" \"*.html\" \"server/**/*.java\"",
+    "format": "prettier -w \"src/**/*.ts\" \"src/**/*.tsx\" \"*.md\" \"*.json\" \"src/**/*.md\" \"src/**/*.json\" \"src/*.html\" \"src/server/**/*.java\"",
     "types": "tsc --noEmit",
     "check": "bun run types && bun test",
-    "dev": "bun --hot main.tsx",
-    "bld": "bun build ./index.html --outdir=dist --sourcemap --target=browser --minify --define:process.env.NODE_ENV='\"production\"' --env='BUN_PUBLIC_*'",
-    "brundle": "bun build ./main.tsx --outdir=dist --target bun && echo '#!/usr/bin/env bun' | cat - ./dist/main.js > ./dist/temp && mv ./dist/temp ./dist/main.js",
-    "bundle": "bun build ./main.tsx --outdir=dist --target bun",
-    "start": "NODE_ENV=production bun main.tsx",
+    "dev": "bun --hot src/main.tsx",
+    "bld": "bun build ./src/index.html --outdir=dist --sourcemap --target=browser --minify --define:process.env.NODE_ENV='\"production\"' --env='BUN_PUBLIC_*'",
+    "bundle": "bun build ./src/main.tsx --outdir=dist --sourcemap --target=bun --define:process.env.NODE_ENV='\"production\"' --env='BUN_PUBLIC_*'",
+    "start": "NODE_ENV=production bun src/main.tsx",
     "startbin": "cd ./dist && bun run ./main.js",
     "dead": "knip",
     "prepare": "simple-git-hooks"

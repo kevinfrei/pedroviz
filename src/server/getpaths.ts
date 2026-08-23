@@ -13,11 +13,7 @@ import { firstFtcSrc, isDirectory } from './utility';
 let dirsToCheck: string[] = [Bun.fileURLToPath(new URL('.', import.meta.url))];
 
 export function registerDirectory(dirs: string | string[]) {
-  if (isString(dirs)) {
-    dirsToCheck = [dirs, ...dirsToCheck];
-  } else {
-    dirsToCheck = [...dirs, ...dirsToCheck];
-  }
+  dirsToCheck = isString(dirs) ? [dirs] : [...dirs];
 }
 
 export async function GetTeamPaths(): Promise<TeamPaths> {
