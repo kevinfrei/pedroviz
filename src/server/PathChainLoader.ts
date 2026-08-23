@@ -1057,11 +1057,12 @@ export function anyItems(pc: ParsedClass): boolean {
   });
   return anyItem;
 }
-/* Good for debugging just this file:
-if (import.meta.main) {
-  MakeParsedClass(
-    '../LearnBot/src/main/java/org/firstinspires/ftc/learnbot/TestPaths.java',
-  )
-    .then((strOrPc) => console.log(strOrPc))
-    .catch((err) => console.error(err));
-} */
+
+// Good for debugging just this file:
+// if (import.meta.main) {
+//   MakeParsedClass(
+//     '../LearnBot/src/main/java/org/firstinspires/ftc/learnbot/TestPaths.java',
+//   )
+//     .then((strOrPc) => console.log(strOrPc))
+//     .catch((err) => console.error(err));
+// }

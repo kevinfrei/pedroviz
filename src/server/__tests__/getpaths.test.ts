@@ -9,8 +9,8 @@ import { isString } from '@freik/typechk';
 import { chkPathKey } from '../../IpcTypeCheck';
 import { Path, Team } from '../../IpcTypes';
 import {
+  findRelativeRepoRoot,
   getPathFiles,
-  getRelativeRepoRoot,
   getTeamDirectories,
   GetTeamPaths,
 } from '../getpaths';
@@ -33,7 +33,7 @@ afterEach(() => {
 describe('team path exploration', () => {
   test('getRelativeRepoRoot finds the repo root', async () => {
     const currentPath = getTestRepoPath();
-    const repoRoot = await getRelativeRepoRoot(currentPath);
+    const repoRoot = await findRelativeRepoRoot(currentPath);
     expect(repoRoot).toBe(currentPath);
   });
 
@@ -43,20 +43,21 @@ describe('team path exploration', () => {
       '../../../../../nonexistent/path',
     );
     console.log(invalidPath);
-    expect(await getRelativeRepoRoot(invalidPath)).toBeNull();
+    expect(await findRelativeRepoRoot(invalidPath)).toBeNull();
   });
 
   test('getRelativeRoot finds the test repository root', async () => {
     const testRepoPath = getTestRepoPath();
-    const repoRoot = await getRelativeRepoRoot(
+    const repoRoot = await findRelativeRepoRoot(
       path.join(testRepoPath, 'some', 'nested', 'directory'),
+      8,
     );
     expect(repoRoot).toBe(testRepoPath);
   });
 
   test('getTeamDirectories finds team directories', async () => {
     const repoRoot = await getTestRepoPath();
-    const teamDirs = await getTeamDirectories(repoRoot);
+    const teamDirs = await getTeamDirectories();
     expect(teamDirs).toContain('TeamA' as Team);
     expect(teamDirs).toContain('TeamB' as Team);
   });

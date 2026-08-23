@@ -17,3 +17,13 @@ declare module '*.module.css' {
   const classes: { readonly [key: string]: string };
   export = classes;
 }
+
+declare module '*.jpg' {
+  const content: string;
+  export default content;
+}
+
+declare module '*.png' {
+  const content: string;
+  export default content;
+}

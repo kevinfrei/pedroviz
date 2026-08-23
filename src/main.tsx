@@ -3,6 +3,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { serve } from 'bun';
 
+import darkField from './assets/field-dark.jpg';
+import lightField from './assets/field-light.jpg';
 import index from './index.html';
 import { main } from './server/main';
 import { SavePath } from './server/savepath';
@@ -14,12 +16,8 @@ const server = serve({
     '/*': index,
     // We could just do "/foo.jpg": Bun.file("file.jpg") but this way keeps them in memory
     // which seems good for the canvas backgrounds...
-    '/assets/field-light.jpg': new Response(
-      await Bun.file('./field-light.jpg').bytes(),
-    ),
-    '/assets/field-dark.jpg': new Response(
-      await Bun.file('./field-dark.jpg').bytes(),
-    ),
+    '/assets/field-light.jpg': new Response(await Bun.file(lightField).bytes()),
+    '/assets/field-dark.jpg': new Response(await Bun.file(darkField).bytes()),
     '/api/loadpath/:team/:path': async (req) =>
       LoadPath(
         decodeURIComponent(req.params.team),

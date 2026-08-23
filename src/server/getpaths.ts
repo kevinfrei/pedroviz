@@ -4,37 +4,82 @@ import fs, { promises as fsp } from 'node:fs';
 import path from 'node:path';
 
 import { MakeMultiMap } from '@freik/containers';
-import { isString } from '@freik/typechk';
+import { isNull, isString } from '@freik/typechk';
 
 import { getPathKey } from '../IpcTypeCheck';
 import { Path, PathKey, Team, TeamPaths } from '../IpcTypes';
 import { firstFtcSrc, isDirectory } from './utility';
 
-let dirsToCheck: string[] = [Bun.fileURLToPath(new URL('.', import.meta.url))];
+let RepoRoot: string | null = null;
 
-export function registerDirectory(dirs: string | string[]) {
-  dirsToCheck = isString(dirs) ? [dirs] : [...dirs];
+export async function setRepoRoot(repoRoot: string): Promise<boolean> {
+  if (await isRepoRoot(repoRoot)) {
+    RepoRoot = repoRoot;
+    return true;
+  }
+  return false;
+}
+
+export async function obliterateRepoRoot() {
+  RepoRoot = null;
+}
+
+function getRelativeRepoRoot(): string {
+  if (isNull(RepoRoot)) {
+    throw new Error('Unable to find FtcRobotController/TeamCode home');
+  }
+  return RepoRoot;
+}
+
+export async function findRelativeRepoRoot(
+  dirsToCheck: string | string[],
+  maxParent: number = 4,
+): Promise<string | null> {
+  let prevPath = '';
+  const checking = isString(dirsToCheck) ? [dirsToCheck] : dirsToCheck;
+  for (let currentPath of checking) {
+    let parent = maxParent;
+    while (currentPath != prevPath && parent > 0) {
+      if (await setRepoRoot(currentPath)) {
+        console.log('Found directory', currentPath);
+        return currentPath;
+      }
+      prevPath = currentPath;
+      currentPath = path.dirname(currentPath);
+      parent--;
+    }
+  }
+  return null;
+}
+
+async function isRepoRoot(currentPath: string) {
+  return (
+    (await fsp.exists(path.join(currentPath, 'settings.gradle'))) &&
+    (await fsp.exists(path.join(currentPath, 'build.gradle'))) &&
+    (await fsp.exists(path.join(currentPath, 'FtcRobotController'))) &&
+    (await isDirectory(path.join(currentPath, 'FtcRobotController')))
+  );
 }
 
 export async function GetTeamPaths(): Promise<TeamPaths> {
-  let repoRoot: string | null = null;
-  for (const dir of [...dirsToCheck, process.cwd()]) {
-    repoRoot = await getRelativeRepoRoot(dir);
-    if (isString(repoRoot)) {
-      break;
-    }
+  if (isNull(RepoRoot)) {
+    await findRelativeRepoRoot([
+      ...process.argv.slice(2),
+      process.cwd(),
+      import.meta.dirname,
+    ]);
   }
-  if (repoRoot === null) {
+  if (isNull(RepoRoot)) {
     throw new Error('Unable to find repository root');
   }
   // Get the list of all team code roots
-  const teamDirs = await getTeamDirectories(repoRoot);
+  const teamDirs = await getTeamDirectories();
   // Next, look for paths in each team directory
   const filePaths: TeamPaths = MakeMultiMap<Team, PathKey>();
   for (const teamName of teamDirs) {
     filePaths.add(
       teamName,
-      (await getPathFiles(repoRoot, teamName)).map((val) =>
+      (await getPathFiles(RepoRoot, teamName)).map((val) =>
         getPathKey(teamName, val),
       ),
     );
@@ -99,30 +144,13 @@ async function isPathFile(entry: fs.Dirent): Promise<boolean> {
   return matches.length !== 0;
 }
 
-export async function getRelativeRepoRoot(
-  currentPath: string,
-): Promise<string | null> {
-  let prevPath = '';
-  while (currentPath != prevPath) {
-    if (
-      (await fsp.exists(path.join(currentPath, 'settings.gradle'))) &&
-      (await fsp.exists(path.join(currentPath, 'build.gradle'))) &&
-      (await fsp.exists(path.join(currentPath, 'FtcRobotController'))) &&
-      (await isDirectory(path.join(currentPath, 'FtcRobotController')))
-    ) {
-      console.log('Found directory', currentPath);
-      return currentPath;
-    }
-    prevPath = currentPath;
-    currentPath = path.dirname(currentPath);
+export async function getTeamDirectories(): Promise<Team[]> {
+  if (isNull(RepoRoot)) {
+    throw new Error('Unknonw repository location');
   }
-  return null;
-}
-
-export async function getTeamDirectories(repoRoot: string): Promise<Team[]> {
-  const entries = await fsp.readdir(`${repoRoot}`, { withFileTypes: true });
+  const entries = await fsp.readdir(RepoRoot, { withFileTypes: true });
   const teamDirs = entries
-    .filter((dir) => isTeamDirectory(repoRoot, dir))
+    .filter((dir) => isTeamDirectory(RepoRoot!, dir))
     .map((dir) => dir.name as Team);
   return teamDirs;
 }

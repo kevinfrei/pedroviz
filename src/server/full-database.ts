@@ -144,10 +144,9 @@ export function WebGetParsedClassRoot(
   return res;
 }
 
-/*
-if (import.meta.main) {
-  PopulateDatabase()
-    .then(() => console.log('done'))
-    .catch(console.error);
-}
-*/
+// Useful for debugging:
+// if (import.meta.main) {
+//   PopulateDatabase()
+//     .then(() => console.log('done'))
+//     .catch(console.error);
+// }
