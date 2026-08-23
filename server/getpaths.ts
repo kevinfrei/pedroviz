@@ -4,19 +4,29 @@ import fs, { promises as fsp } from 'node:fs';
 import path from 'node:path';
 
 import { MakeMultiMap } from '@freik/containers';
+import { isString } from '@freik/typechk';
 
 import { getPathKey } from '../IpcTypeCheck';
 import { Path, PathKey, Team, TeamPaths } from '../IpcTypes';
 import { firstFtcSrc, isDirectory } from './utility';
 
+let dirsToCheck: string[] = [Bun.fileURLToPath(new URL('.', import.meta.url))];
+
+export function registerDirectory(dirs: string | string[]) {
+  if (isString(dirs)) {
+    dirsToCheck = [dirs, ...dirsToCheck];
+  } else {
+    dirsToCheck = [...dirs, ...dirsToCheck];
+  }
+}
+
 export async function GetTeamPaths(): Promise<TeamPaths> {
-  let repoRoot: string | null;
-  try {
-    repoRoot = await getRelativeRepoRoot(
-      Bun.fileURLToPath(new URL('.', import.meta.url)),
-    );
-  } catch {
-    repoRoot = await getRelativeRepoRoot(process.cwd());
+  let repoRoot: string | null = null;
+  for (const dir of [...dirsToCheck, process.cwd()]) {
+    repoRoot = await getRelativeRepoRoot(dir);
+    if (isString(repoRoot)) {
+      break;
+    }
   }
   if (repoRoot === null) {
     throw new Error('Unable to find repository root');
@@ -95,7 +105,7 @@ async function isPathFile(entry: fs.Dirent): Promise<boolean> {
 
 export async function getRelativeRepoRoot(
   currentPath: string,
-): Promise<string> {
+): Promise<string | null> {
   let prevPath = '';
   while (currentPath != prevPath) {
     if (
@@ -104,12 +114,13 @@ export async function getRelativeRepoRoot(
       (await fsp.exists(path.join(currentPath, 'FtcRobotController'))) &&
       (await isDirectory(path.join(currentPath, 'FtcRobotController')))
     ) {
+      console.log('Found directory', currentPath);
       return currentPath;
     }
     prevPath = currentPath;
     currentPath = path.dirname(currentPath);
   }
-  throw new Error('Could not find repository root');
+  return null;
 }
 
 export async function getTeamDirectories(repoRoot: string): Promise<Team[]> {

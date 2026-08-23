@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import path from 'node:path';
 
 import { isMultiMapOf } from '@freik/containers';
 import { isString } from '@freik/typechk';
@@ -37,11 +37,9 @@ describe('team path exploration', () => {
     expect(repoRoot).toBe(currentPath);
   });
 
-  test('getRelativeRepoRoot throws if no repo root found', async () => {
+  test('getRelativeRepoRoot fails if no repo root found', async () => {
     const invalidPath = path.resolve(__dirname, '../nonexistent/path');
-    await expect(getRelativeRepoRoot(invalidPath)).rejects.toThrow(
-      'Could not find repository root',
-    );
+    expect(await getRelativeRepoRoot(invalidPath)).toBeNull();
   });
 
   test('getRelativeRoot finds the test repository root', async () => {

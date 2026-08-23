@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
-import { useAtomValue } from 'node_modules/jotai/esm/react.mjs';
+import { useAtomValue } from 'jotai';
 
-import { FieldVizPercentAtom, ThemeAtom } from 'client/state/SavedSettings';
-import { FieldConfigHashAtom } from 'client/state/UserCode';
-import { isNull, isUndefined } from 'node_modules/@freik/typechk/lib/esm';
+import { isNull, isUndefined } from '@freik/typechk';
 
+import { FieldVizPercentAtom, ThemeAtom } from '../state/SavedSettings';
+import { FieldConfigHashAtom } from '../state/UserCode';
 import {
   Offset,
   ResponsiveAnchor,

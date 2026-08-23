@@ -1,5 +1,6 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+#!/usr/bin/env bun
 
+// SPDX-License-Identifier: AGPL-3.0-or-later
 import { serve } from 'bun';
 
 import index from './index.html';
