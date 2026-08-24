@@ -56,4 +56,6 @@ const server = serve({
   },
 });
 
-main(server.url).then(console.log).catch(console.error);
+main(server.url)
+  .then(() => {})
+  .catch(console.error);

@@ -20,8 +20,6 @@ export function OpenBrowser(url: string): void {
   child_proc.exec(
     command + ' ' + url,
     (err, stdout: BufStr, stderr: BufStr) => {
-      console.log('stdout: ' + stdout.toString());
-      console.log('stderr: ' + stderr.toString());
       if (err !== null && err !== undefined) {
         console.log(`exec error: ${JSON.stringify(err)}`);
       }
