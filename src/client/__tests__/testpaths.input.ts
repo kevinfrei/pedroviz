@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+import { MakeMultiMap } from '@freik/containers';
 import { isNumber, isString } from '@freik/typechk';
 
+import { EmptyParsedClass } from '../../CodeTypeCheck';
 import {
   AnonymousBezier,
   AnonymousFacing,
@@ -32,8 +34,9 @@ import {
   ValueName,
   ValueRef,
 } from '../../CodeTypes';
+import { ClassKey, PathDatabase, PathKey, Team } from '../../IpcTypes';
 
-export function mkValueRef(val: number | string): ValueRef {
+function mkValueRef(val: number | string): ValueRef {
   if (isString(val)) {
     return val as ValueName;
   } else if (Number.isInteger(val)) {
@@ -43,19 +46,19 @@ export function mkValueRef(val: number | string): ValueRef {
   }
 }
 
-export function mkNamedValue(name: string, val: number | string): NamedValue {
+function mkNamedValue(name: string, val: number | string): NamedValue {
   return { name: name as ValueName, value: mkValueRef(val) };
 }
 
-export function mkRadiansRef(val: number | string): RadiansRef {
+function mkRadiansRef(val: number | string): RadiansRef {
   return { radians: mkValueRef(val as ValueName) };
 }
 
-export function mkNamedRadians(name: string, val: number | string): NamedValue {
+function mkNamedRadians(name: string, val: number | string): NamedValue {
   return { name: name as ValueName, value: mkRadiansRef(val) };
 }
 
-export function mkPoseRef(
+function mkPoseRef(
   x: number | string,
   y: number | string,
   heading?: number | string,
@@ -70,7 +73,7 @@ export function mkPoseRef(
   return pose;
 }
 
-export function mkNamedPose(
+function mkNamedPose(
   name: string,
   x: number | string,
   y: number | string,
@@ -86,7 +89,7 @@ export function mkNamedPose(
   return { name: name as PoseName, pose };
 }
 
-export function mkNamedPoseRad(
+function mkNamedPoseRad(
   name: string,
   x: number | string,
   y: number | string,
@@ -100,7 +103,7 @@ export function mkNamedPoseRad(
   return { name: name as PoseName, pose };
 }
 
-export function mkNamedLine(
+function mkNamedLine(
   name: string,
   start: string | AnonymousPose,
   end: string | AnonymousPose,
@@ -114,7 +117,7 @@ export function mkNamedLine(
   };
 }
 
-export function mkAnonymousBezier(
+function mkAnonymousBezier(
   ...points: (string | AnonymousPose)[]
 ): AnonymousBezier {
   return {
@@ -123,7 +126,7 @@ export function mkAnonymousBezier(
   };
 }
 
-export function mkNamedCurve(
+function mkNamedCurve(
   name: string,
   points: (string | AnonymousPose)[],
 ): NamedBezier {
@@ -133,7 +136,7 @@ export function mkNamedCurve(
   };
 }
 
-export function mkNamedPathChain(
+function mkNamedPathChain(
   name: string,
   paths: (string | AnonymousBezier)[],
   heading: AnonymousFacing,
@@ -145,13 +148,15 @@ export function mkNamedPathChain(
   };
 }
 
-export function mkFacingTangent(): FacingTangent {
+function mkFacingTangent(): FacingTangent {
   return { type: FacingType.Tangent };
 }
-export function mkFacingConstant(heading: string | HeadingRef): FacingConstant {
+
+function mkFacingConstant(heading: string | HeadingRef): FacingConstant {
   return { type: FacingType.Constant, heading: heading as HeadingRef };
 }
-export function mkFacingLinear(
+
+function mkFacingLinear(
   start: HeadingRef | string,
   end: HeadingRef | string,
 ): FacingLinear {
@@ -161,13 +166,16 @@ export function mkFacingLinear(
     end: end as HeadingRef,
   };
 }
-export function mkFacingPoint(point: PoseRef | string): FacingPoint {
+
+function mkFacingPoint(point: PoseRef | string): FacingPoint {
   return { type: FacingType.Point, point: point as PoseRef };
 }
-export function mkFacingReversed(facing: FacingReversible): FacingReversed {
+
+function mkFacingReversed(facing: FacingReversible): FacingReversed {
   return { type: FacingType.Reversed, facing };
 }
-export function mkFacingPiece(
+
+function mkFacingPiece(
   heading: FacingSimple,
   start: number | ValueRef,
   end: number | ValueRef,
@@ -180,7 +188,8 @@ export function mkFacingPiece(
     },
   };
 }
-export function mkFacingPiecewise(...pieces: FacingPiece[]): FacingPieceWise {
+
+function mkFacingPiecewise(...pieces: FacingPiece[]): FacingPieceWise {
   return { type: FacingType.Piecewise, pieces };
 }
 
@@ -347,4 +356,312 @@ export const TestPathsParsed: ParsedClass = {
       }),
     ),
   ],
+};
+
+// Mocks & phony data for my tests:
+const teams: Team[] = ['team1' as Team, 'team2' as Team];
+//   ['team1' as Team]: ['path1.java' as Path, 'path2.java' as Path],
+//   ['team2' as Team]: ['path3.java' as Path, 'path4.java' as Path],
+// };
+
+const testParsedClass: ParsedClass = {
+  values: [],
+  poses: [],
+  beziers: [],
+  pathChainHelpers: [],
+  pathChains: [],
+  container: { fileName: '' },
+  children: {},
+  name: 'path1.java',
+  fullName: 'test.path1',
+  imports: [],
+};
+
+const simpleBez: AnonymousBezier = {
+  type: BezierType.Curve,
+  points: [
+    { x: 'val1' as ValueName, y: 'val1' as ValueName },
+    'pose4' as PoseName,
+    'pose2' as PoseName,
+  ],
+};
+
+export const noParsedClass: ParsedClass = {
+  name: 'z',
+  fullName: 'test.z',
+  imports: [],
+  container: { fileName: 'path2.java' },
+  children: {},
+  values: [],
+  poses: [],
+  beziers: [],
+  pathChains: [],
+  pathChainHelpers: [],
+};
+
+export const fullParsedClass: ParsedClass = {
+  name: 'c',
+  fullName: 'test.c',
+  imports: [],
+  values: [
+    { name: 'val1' as ValueName, value: { int: 1 } },
+    { name: 'val2' as ValueName, value: { double: 2.5 } },
+    { name: 'val3' as ValueName, value: { radians: { int: 90 } } },
+  ],
+  poses: [
+    {
+      name: 'pose1' as PoseName,
+      pose: { x: { double: 2.5 }, y: 'val1' as ValueName },
+    },
+    {
+      name: 'pose2' as PoseName,
+      pose: {
+        x: 'val2' as ValueName,
+        y: 'val1' as ValueName,
+        heading: { radians: { int: 60 } },
+      },
+    },
+    {
+      name: 'pose3' as PoseName,
+      pose: {
+        x: 'val1' as ValueName,
+        y: 'val2' as ValueName,
+        heading: 'val3' as ValueName,
+      },
+    },
+    {
+      name: 'pose4' as PoseName,
+      pose: 'pose1' as PoseName,
+    },
+  ],
+  beziers: [
+    {
+      name: 'bez1' as BezierName,
+      points: {
+        type: BezierType.Line,
+        points: ['pose4' as PoseName, 'pose2' as PoseName],
+      },
+    },
+    {
+      name: 'bez2' as BezierName,
+      points: simpleBez,
+    },
+  ],
+  pathChains: [
+    {
+      name: 'pc1' as PathChainName,
+      paths: ['bez1' as BezierName, 'bez2' as BezierName],
+      heading: { type: FacingType.Tangent },
+    },
+    {
+      name: 'pc2' as PathChainName,
+      paths: [
+        'bez2' as BezierName,
+        {
+          type: BezierType.Line,
+          points: ['pose4' as PoseName, 'pose3' as PoseName],
+        },
+      ],
+      heading: { type: FacingType.Constant, heading: 'pose3' as PoseName },
+    },
+    {
+      name: 'pc3' as PathChainName,
+      paths: [
+        'bez1' as BezierName,
+        {
+          type: BezierType.Curve,
+          points: [
+            'pose1' as PoseName,
+            'pose3' as PoseName,
+            'pose2' as PoseName,
+          ],
+        },
+      ],
+      heading: {
+        type: FacingType.Linear,
+        start: 'pose2' as PoseName,
+        end: { radians: { int: 135 } },
+      },
+    },
+  ],
+  // TODO
+  container: { fileName: '' },
+  children: {},
+  pathChainHelpers: [],
+};
+
+export const testDatabase: PathDatabase = {
+  TeamPaths: MakeMultiMap<Team, PathKey>([
+    [
+      'team1' as Team,
+      ['team1*path1.java' as PathKey, 'team1*path2.java' as PathKey],
+    ],
+    [
+      'team2' as Team,
+      ['team2*path3.java' as PathKey, 'team2*path4.java' as PathKey],
+    ],
+    ['LearnBot' as Team, ['LearnBot*TestPaths.java' as PathKey]],
+  ]),
+  PathClasses: MakeMultiMap<PathKey, ClassKey>([
+    ['team1*path1.java' as PathKey, ['team1*path1.java;a' as ClassKey]],
+    ['team1*path2.java' as PathKey, ['team1*path2.java;b' as ClassKey]],
+    ['team2*path3.java' as PathKey, ['team2*path3.java;c' as ClassKey]],
+    ['team2*path4.java' as PathKey, ['team2*path4.java;d' as ClassKey]],
+    [
+      'LearnBot*TestPaths.java' as PathKey,
+      ['LearnBot*TestPaths.java;TestPaths' as ClassKey],
+    ],
+  ]),
+  ParsedClasses: new Map<ClassKey, ParsedClass>([
+    ['team1*path1.java;a' as ClassKey, EmptyParsedClass],
+    ['team1*path2.java;b' as ClassKey, EmptyParsedClass],
+    ['team2*path3.java;c' as ClassKey, fullParsedClass],
+    ['team2*path4.java;d' as ClassKey, EmptyParsedClass],
+    ['LearnBot*TestPaths.java;TestPaths' as ClassKey, TestPathsParsed],
+  ]),
+};
+
+// Mocks & phony data for my tests:
+const teamsForUITest: Team[] = ['team1' as Team, 'team2' as Team];
+//   ['team1' as Team]: ['path1.java' as Path, 'path2.java' as Path],
+//   ['team2' as Team]: ['path3.java' as Path, 'path4.java' as Path],
+// };
+
+export const testParsedClassForUITest: ParsedClass = {
+  values: [],
+  poses: [],
+  beziers: [],
+  pathChainHelpers: [],
+  pathChains: [],
+  container: { fileName: '' },
+  children: {},
+  name: 'path1.java',
+  fullName: 'test.path1',
+  imports: [],
+};
+
+const BezForUITest: AnonymousBezier = {
+  type: BezierType.Curve,
+  points: [
+    { x: 'val1' as ValueName, y: 'val1' as ValueName },
+    'pose1' as PoseName,
+    'pose2' as PoseName,
+  ],
+};
+
+export const ParsedClassForUITest: ParsedClass = {
+  name: 'path3.java',
+  fullName: 'test.path3',
+  imports: [],
+  values: [
+    { name: 'val1' as ValueName, value: { int: 1 } },
+    { name: 'val2' as ValueName, value: { double: 2.5 } },
+    { name: 'val3' as ValueName, value: { radians: { int: 90 } } },
+  ],
+  poses: [
+    {
+      name: 'pose1' as PoseName,
+      pose: { x: { double: 2.5 }, y: 'val1' as ValueName },
+    },
+    {
+      name: 'pose2' as PoseName,
+      pose: {
+        x: 'val2' as ValueName,
+        y: 'val1' as ValueName,
+        heading: { radians: { int: 60 } },
+      },
+    },
+    {
+      name: 'pose3' as PoseName,
+      pose: {
+        x: 'val1' as ValueName,
+        y: 'val2' as ValueName,
+        heading: 'val3' as ValueName,
+      },
+    },
+  ],
+  beziers: [
+    {
+      name: 'bez1' as BezierName,
+      points: {
+        type: BezierType.Line,
+        points: ['pose1' as PoseName, 'pose2' as PoseName],
+      },
+    },
+    {
+      name: 'bez2' as BezierName,
+      points: BezForUITest,
+    },
+  ],
+  pathChains: [
+    {
+      name: 'pc1' as PathChainName,
+      paths: ['bez1' as BezierName, 'bez2' as BezierName],
+      heading: { type: FacingType.Tangent },
+    },
+    {
+      name: 'pc2' as PathChainName,
+      paths: [
+        'bez2' as BezierName,
+        {
+          type: BezierType.Line,
+          points: ['pose1' as PoseName, 'pose3' as PoseName],
+        },
+      ],
+      heading: { type: FacingType.Constant, heading: 'pose3' as PoseName },
+    },
+    {
+      name: 'pc3' as PathChainName,
+      paths: [
+        'bez1' as BezierName,
+        {
+          type: BezierType.Curve,
+          points: [
+            'pose1' as PoseName,
+            'pose3' as PoseName,
+            'pose2' as PoseName,
+          ],
+        },
+      ],
+      heading: {
+        type: FacingType.Linear,
+        start: 'pose2' as PoseName,
+        end: { radians: { int: 135 } },
+      },
+    },
+  ],
+  // TODO
+  container: { fileName: '' },
+  children: {},
+  pathChainHelpers: [],
+};
+
+export const status = {
+  status: 200,
+  headers: { 'Content-Type': 'application/json' },
+};
+
+export const databaseForUITest: PathDatabase = {
+  TeamPaths: MakeMultiMap<Team, PathKey>([
+    [
+      'team1' as Team,
+      ['team1*path1.java' as PathKey, 'team1*path2.java' as PathKey],
+    ],
+    [
+      'team2' as Team,
+      ['team2*path3.java' as PathKey, 'team2*path4.java' as PathKey],
+    ],
+  ]),
+  PathClasses: MakeMultiMap<PathKey, ClassKey>([
+    ['team1*path1.java' as PathKey, ['team1*path1.java;a' as ClassKey]],
+    ['team1*path2.java' as PathKey, ['team1*path2.java;b' as ClassKey]],
+    ['team2*path3.java' as PathKey, ['team2*path3.java;c' as ClassKey]],
+    ['team2*path4.java' as PathKey, ['team2*path4.java;d' as ClassKey]],
+  ]),
+  ParsedClasses: new Map<ClassKey, ParsedClass>([
+    ['team1*path1.java;a' as ClassKey, EmptyParsedClass],
+    ['team1*path2.java;b' as ClassKey, EmptyParsedClass],
+    ['team2*path3.java;c' as ClassKey, ParsedClassForUITest],
+    ['team2*path4.java;d' as ClassKey, EmptyParsedClass],
+  ]),
 };

@@ -62,7 +62,7 @@ export function readConstant(name: string): number | undefined {
   }
 }
 
-/*export*/ function calcValueRef(
+export function calcValueRef(
   vr: ValueRef | RadiansRef,
   ctx: ParsedClass,
   circ?: Set<string>,
@@ -144,15 +144,16 @@ export function calcPoseRef(
   if (isUndefined(ap)) {
     throw new Error(`Invalid PoseRef ${pr}`);
   }
-  let h: number | undefined;
+  const x = calcValueRef(ap.x, ctx, seen);
+  const y = calcValueRef(ap.y, ctx, seen);
   if (isDefined(ap.heading)) {
-    h = calcHeadingRef(ap.heading, ctx, circ);
+    return {
+      x,
+      y,
+      h: calcHeadingRef(ap.heading, ctx, circ),
+    };
   }
-  return {
-    x: calcValueRef(ap.x, ctx, seen),
-    y: calcValueRef(ap.y, ctx, seen),
-    h,
-  };
+  return { x, y };
 }
 
 export function calcBezierRef(
@@ -213,7 +214,7 @@ export function calcBezierRef(
   }
 }
 
-/*export*/ function calcValue(
+export function calcValue(
   av: AnonymousValue | RadiansRef,
   ctx: ParsedClass,
   circ?: Set<string>,
