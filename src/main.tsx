@@ -14,7 +14,9 @@ import { SavePath } from './server/savepath';
 import { LoadDatabase, LoadPath, SaveDatabase } from './server/web-interface';
 
 // Resolve any arguments before we change the working directory
-const args = process.argv.slice(2).map((str) => path.resolve(str));
+const args = [...process.argv.slice(2), process.cwd()].map((str) =>
+  path.resolve(str),
+);
 setArgs(args);
 
 // Force the working directory to the directory of the running bundle.
