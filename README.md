@@ -36,7 +36,10 @@ can actually use it...
   - [ ] Specify robot dimensions
 - [x] Put the field graphic under the canvas
 - [x] Have a grid key near/under the canvas
-- [ ] Publish to NPM to enable use without using it as a git submodule
+- [x] Publish to NPM to enable use without using it as a git submodule
+- [ ] Document Usage!
+- [ ] Increase test coverage
+- [ ] Make work with nodejs as well
 - [ ] Support more complex math expression evaluation
 - [ ] Edit existing:
   - [ ] Named values
@@ -45,9 +48,12 @@ can actually use it...
   - [ ] Named PathChains
 - [ ] Allow editing points by dragging them on the canvas
 - [ ] Reflect those changes in the code
-  - [ ] Checksum the code to detect external edits?
+  - [ ] Checksum the code to detect external edits
   - [ ] When external edits have occurred, try to resolve the conflicts?
         (ugh...)
+  - [ ] Maintain comments
+  - [ ] Maintain any code that I don't actually parse from the source code (keep
+        chunks of code that aren't represented in the UI)
 - [ ] Allow creation:
   - [ ] Named values
   - [ ] Named poses
@@ -63,9 +69,6 @@ can actually use it...
   - [ ] max velocity (or, you know, any velocity/acceleration model)
   - [ ] braking strength
   - [ ] tValues
-- [ ] Maintain any code that I don't actually parse from the source code (keep
-      chunks of code that aren't represented in the UI)
-  - [ ] Maintain comments
 
 # Docs-n-stuff
 
