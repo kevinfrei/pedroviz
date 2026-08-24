@@ -4,11 +4,22 @@ import { expect /* beforeAll, afterAll */, test } from 'bun:test';
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { firstFtcSrc, getProjectFilePath, isDirectory } from '../utility';
+import { firstFtcSrc, getProjectFilePath } from '../getpaths';
+import { isDirectory } from '../utility';
+
+function getTestRepoPath(): string {
+  return path.resolve(__dirname, 'test-repo-root');
+}
 
 test('getProjectFilePath simple test', () => {
   expect(getProjectFilePath('TestTeam', 'FileName.java')).toBe(
-    path.join('..', 'TestTeam', firstFtcSrc, 'testteam', 'FileName.java'),
+    path.join(
+      getTestRepoPath(),
+      'TestTeam',
+      firstFtcSrc,
+      'testteam',
+      'FileName.java',
+    ),
   );
 });
 

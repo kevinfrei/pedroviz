@@ -1,13 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { MakeMultiMap } from '@freik/containers';
-import {
-  ErrorOr,
-  isError,
-  isUndefined,
-  MakeError,
-  Pickle,
-} from '@freik/typechk';
+import { ErrorOr, isError, isUndefined, MakeError } from '@freik/typechk';
 
 import { ParsedClass } from '../CodeTypes';
 import {
@@ -24,9 +18,8 @@ import {
   PathKey,
   Team,
 } from '../IpcTypes';
-import { GetTeamPaths } from './getpaths';
+import { getProjectFilePath, GetTeamPaths } from './getpaths';
 import { anyItems, MakeParsedClass } from './PathChainLoader';
-import { getProjectFilePath } from './utility';
 
 // Teams -> Paths -> Classes   -> ParsedClasse
 // one   -> many  -> many, one -> one

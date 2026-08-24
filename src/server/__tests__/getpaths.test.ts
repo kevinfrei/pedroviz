@@ -18,6 +18,7 @@ import {
 function getTestRepoPath(): string {
   return path.resolve(__dirname, 'test-repo-root');
 }
+
 const originalCwd = process.cwd();
 
 beforeEach(() => {

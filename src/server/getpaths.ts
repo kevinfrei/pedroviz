@@ -8,9 +8,14 @@ import { isNull, isString } from '@freik/typechk';
 
 import { getPathKey } from '../IpcTypeCheck';
 import { Path, PathKey, Team, TeamPaths } from '../IpcTypes';
-import { firstFtcSrc, isDirectory } from './utility';
+import { isDirectory } from './utility';
 
 let RepoRoot: string | null = null;
+let args: string[] = [];
+
+export function setArgs(strs: string[]): void {
+  args = strs;
+}
 
 export async function setRepoRoot(repoRoot: string): Promise<boolean> {
   if (await isRepoRoot(repoRoot)) {
@@ -33,7 +38,7 @@ function getRelativeRepoRoot(): string {
 
 export async function findRelativeRepoRoot(
   dirsToCheck: string | string[],
-  maxParent: number = 4,
+  maxParent: number = 8,
 ): Promise<string | null> {
   let prevPath = '';
   const checking = isString(dirsToCheck) ? [dirsToCheck] : dirsToCheck;
@@ -49,6 +54,7 @@ export async function findRelativeRepoRoot(
       parent--;
     }
   }
+  console.error('Unable to find any potential repositories:', dirsToCheck);
   return null;
 }
 
@@ -63,11 +69,7 @@ async function isRepoRoot(currentPath: string) {
 
 export async function GetTeamPaths(): Promise<TeamPaths> {
   if (isNull(RepoRoot)) {
-    await findRelativeRepoRoot([
-      ...process.argv.slice(2),
-      process.cwd(),
-      import.meta.dirname,
-    ]);
+    await findRelativeRepoRoot([...args, process.cwd(), import.meta.dirname]);
   }
   if (isNull(RepoRoot)) {
     throw new Error('Unable to find repository root');
@@ -77,12 +79,9 @@ export async function GetTeamPaths(): Promise<TeamPaths> {
   // Next, look for paths in each team directory
   const filePaths: TeamPaths = MakeMultiMap<Team, PathKey>();
   for (const teamName of teamDirs) {
-    filePaths.add(
-      teamName,
-      (await getPathFiles(RepoRoot, teamName)).map((val) =>
-        getPathKey(teamName, val),
-      ),
-    );
+    const pathFiles = await getPathFiles(RepoRoot, teamName);
+    const pathKey = pathFiles.map((val) => getPathKey(teamName, val));
+    filePaths.add(teamName, pathKey);
   }
   return filePaths;
 }
@@ -201,3 +200,21 @@ function isTeamDirectory(repoRoot: string, dir: fs.Dirent): boolean {
   */
   return true;
 }
+
+export function getProjectFilePath(team: string, filename: string): string {
+  return path.join(
+    getRelativeRepoRoot(),
+    team,
+    firstFtcSrc,
+    team.toLocaleLowerCase(),
+    filename,
+  );
+}
+export const firstFtcSrc = path.join(
+  'src',
+  'main',
+  'java',
+  'org',
+  'firstinspires',
+  'ftc',
+);

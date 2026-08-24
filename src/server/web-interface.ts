@@ -21,7 +21,8 @@ export async function LoadPath(team: string, path: string): Promise<Response> {
 }
 
 export async function LoadDatabase(): Promise<Response> {
-  return Response.json(JSON.parse(Pickle(await RescanSourceCode())));
+  const codeDb = await RescanSourceCode();
+  return Response.json(JSON.parse(Pickle(codeDb)));
 }
 
 export async function SaveDatabase(flattenedDb: string): Promise<Response> {

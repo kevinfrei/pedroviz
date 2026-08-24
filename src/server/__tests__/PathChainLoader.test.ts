@@ -13,8 +13,8 @@ import {
   PoseName,
   ValueName,
 } from '../../CodeTypes';
+import { firstFtcSrc, getProjectFilePath, setRepoRoot } from '../getpaths';
 import { MakeParsedClass } from '../PathChainLoader';
-import { firstFtcSrc, getProjectFilePath } from '../utility';
 import { LoadPath } from '../web-interface';
 
 function getTestRepoPath(): string {
@@ -22,6 +22,7 @@ function getTestRepoPath(): string {
 }
 
 test('raw endpoint invocation', async () => {
+  await setRepoRoot(getTestRepoPath());
   const res: Response = await LoadPath('TeamCode', 'TeamTestPaths.java');
   expect(res).toHaveProperty('ok', true);
   expect(res).toHaveProperty('status', 200);
@@ -31,15 +32,15 @@ test('raw endpoint invocation', async () => {
 test('loadPathChainsFromFile loads paths correctly', async () => {
   const testPath = getProjectFilePath('TeamA', 'TeamTestPaths.java');
   expect(testPath).toBe(
-    path.join('..', 'TeamA', firstFtcSrc, 'teama', 'TeamTestPaths.java'),
+    path.join(
+      getTestRepoPath(),
+      'TeamA',
+      firstFtcSrc,
+      'teama',
+      'TeamTestPaths.java',
+    ),
   );
-  // Need to hack aroun the actual location
-  const repoPathToFile = path.join(
-    getTestRepoPath(),
-    'FtcRobotController',
-    testPath,
-  );
-  const paths = await MakeParsedClass(repoPathToFile);
+  const paths = await MakeParsedClass(testPath);
   expect(paths).toBeDefined();
   if (isError(paths)) {
     console.error(paths.errors());
