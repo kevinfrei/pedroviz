@@ -27,7 +27,7 @@
   "prepare": "simple-git-hooks",
   "dependencies": {
     "@fluentui/react-components": "^9.74.7",
-    "@fluentui/react-icons": "^2.0.338",
+    "@fluentui/react-icons": "^2.0.339",
     "@fluentui/tokens": "^1.0.0-alpha.24",
     "@freik/containers": "^0.4.10",
     "@freik/fluent9-tools": "^0.2.0",
@@ -43,18 +43,18 @@
     "react-resizable-panels": "^4.12.3"
   },
   "devDependencies": {
-    "@happy-dom/global-registrator": "^20.11.6",
+    "@happy-dom/global-registrator": "^20.11.13",
     "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
     "@testing-library/jest-dom": "^7.0.1",
-    "@testing-library/react": "^16.3.2",
+    "@testing-library/react": "^16.3.3",
     "@types/bun": "1.4.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.5",
-    "knip": "^6.32.2",
-    "lint-staged": "^17.3.0",
+    "knip": "^6.33.0",
+    "lint-staged": "^17.4.1",
     "prettier": "^3.9.6",
     "prettier-plugin-java": "^2.10.3",
-    "simple-git-hooks": "^2.13.1",
+    "simple-git-hooks": "^2.14.0",
     "typescript": "^7.0.2"
   },
   " //-1": "Configuration stuff for Prettier:",

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
+import { ReactElement, useEffect, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
 
 import { isNull, isUndefined } from '@freik/typechk';
@@ -41,6 +41,12 @@ function getObjectPos(anchor: ResponsiveAnchor): string {
   const x = anchor.x === 'center' ? '50%' : anchor.x;
   const y = anchor.y === 'middle' ? '50%' : anchor.y;
   return `${x} ${y}`;
+}
+
+function getPreserveAspectRation(anchor: ResponsiveAnchor): string {
+  const x = anchor.x === 'center' ? 'Mid' : anchor.x == 'left' ? 'Min' : 'Max';
+  const y = anchor.y === 'middle' ? 'Mid' : anchor.y == 'top' ? 'Min' : 'Max';
+  return `x${x}Y${y} meet`;
 }
 
 // Absolute positioned canvas requires offsets to follow the anchor location
@@ -210,16 +216,60 @@ export function ResponsiveSquareCanvas({
         alignItems: translateY(fieldAnchor.y),
         overflow: 'hidden',
       }}>
-      <img
-        src={`/assets/field-${theme}.jpg`}
+      <svg
         style={{
-          objectPosition: getObjectPos(fieldAnchor),
           opacity: fieldViz,
           width: '100%',
           height: '100%',
           objectFit: 'contain',
+          stroke: theme === 'dark' ? '#ccc' : '#333',
+          background: theme === 'dark' ? '#222' : '#ddd',
+          overflow: 'hidden',
         }}
-      />
+        preserveAspectRatio={getPreserveAspectRation(fieldAnchor)}
+        viewBox="5 5 1130 1130"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <clipPath id="bounds">
+            <rect x="5" y="5" width="1130" height="1130" />
+          </clipPath>
+          <path
+            id="ln"
+            style={{
+              strokeWidth: 0.75,
+              fill: 'none',
+              strokeLinejoin: 'round',
+              overflow: 'none',
+            }}
+            d="M0,4 L5,8 L7,8 L5,0 L17,0 L15,8 L27,8 L25,0 L37,0 L35,8 L47,8 L45,0 L57,0 L55,8 L67,8 L65,0 L77,0 L75,8 L87,8 L85,0 L93,0 L94.25,4"
+          />
+          <g id="corner">
+            <use href="#ln" x="4" y="0" />
+            <use href="#ln" x="-192.5" y="-8" transform="rotate(180)" />
+            <use href="#ln" x="4" y="-8" transform="rotate(90)" />
+            <use href="#ln" x="-192.5" y="0" transform="rotate(-90)" />
+          </g>
+          <g id="row">
+            <use href="#corner" x="0" />
+            <use href="#corner" x="188.5" />
+            <use href="#corner" x="377" />
+            <use href="#corner" x="565.5" />
+            <use href="#corner" x="754" />
+            <use href="#corner" x="942.5" />
+            <use href="#corner" x="1131" />
+          </g>
+        </defs>
+        <g clipPath="url(#bounds)">
+          <use href="#row" />
+          <use href="#row" y="188.5" />
+          <use href="#row" y="377" />
+          <use href="#row" y="565.5" />
+          <use href="#row" y="754" />
+          <use href="#row" y="942.5" />
+          <use href="#row" y="1131" />
+        </g>
+      </svg>
       <canvas
         style={{
           ...style,
