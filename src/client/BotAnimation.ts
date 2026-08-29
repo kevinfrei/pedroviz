@@ -76,7 +76,7 @@ export function animateBot(
   if (!isDefined(point)) {
     console.log('Index', state.curveIndex, 'item', state.curvePoint);
   } else {
-    ctx.strokeStyle = '#ff9020';
+    ctx.strokeStyle = botStyle.Color ?? '#ff9020';
     ctx.lineWidth = 1;
     ctx.lineCap = 'round';
     drawBotShape(ctx, point, botStyle);

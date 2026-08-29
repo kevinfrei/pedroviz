@@ -67,6 +67,14 @@ body {
   margin-right: 5;
 }
 
+.two-column {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  justify-items: start;
+  row-gap: 3;
+}
+
 .col3div {
   display: grid;
   grid-template-columns: auto 1fr 4fr 1fr 4fr;
