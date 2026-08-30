@@ -63,6 +63,7 @@ export type BotDrawStyle = {
   Shape: BotShapes;
   Width: number;
   Depth: number;
+  Color?: string;
 };
 
 export type DisplayOptions = {

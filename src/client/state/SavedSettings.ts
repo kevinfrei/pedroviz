@@ -4,6 +4,8 @@ import { atom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 import { atomWithStorage } from 'jotai/utils';
 
+import { TinyColor } from '@ctrl/tinycolor';
+
 import {
   BotDrawStyle,
   BotShapes,
@@ -247,4 +249,21 @@ const RawPoseHeadingThicknessAtom = focusAtom(RawPoseOptionsAtom, (o) =>
 
 export const BotDrawStyleAtom = focusAtom(DisplayOptionsAtom, (o) =>
   o.prop('BotDrawing'),
+);
+
+export const BotColorAtom = focusAtom(BotDrawStyleAtom, (o) => o.prop('Color'));
+export const BotTinyColorAtom = atom(
+  (get) => new TinyColor(get(BotColorAtom)),
+  (get, set, val: TinyColor) => set(BotColorAtom, val.toHexString()),
+);
+export const BotShapeAtom = focusAtom(BotDrawStyleAtom, (o) => o.prop('Shape'));
+const RawBotWidthAtom = focusAtom(BotDrawStyleAtom, (o) => o.prop('Width'));
+const RawBotLengthAtom = focusAtom(BotDrawStyleAtom, (o) => o.prop('Depth'));
+export const BotWidthAtom = atom(
+  (get) => get(RawBotWidthAtom) * 2,
+  (get, set, val: number) => set(RawBotWidthAtom, val / 2),
+);
+export const BotLengthAtom = atom(
+  (get) => get(RawBotLengthAtom) * 2,
+  (get, set, val: number) => set(RawBotLengthAtom, val / 2),
 );

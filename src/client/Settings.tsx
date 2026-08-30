@@ -1,10 +1,16 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { ReactElement, useCallback, useState } from 'react';
+import { ReactElement, useCallback, useMemo, useState } from 'react';
 import { useAtom, WritableAtom } from 'jotai';
 
+import { TinyColor } from '@ctrl/tinycolor';
 import {
+  AlphaSlider,
   Button,
+  ColorArea,
+  ColorPicker,
+  ColorSlider,
+  ColorSliderProps,
   Dialog,
   DialogBody,
   DialogContent,
@@ -14,12 +20,18 @@ import {
   Dropdown,
   DropdownProps,
   Label,
+  makeStyles,
   Option,
+  SelectTabData,
+  SelectTabEvent,
   Slider,
   SpinButton,
   SpinButtonChangeEvent,
   SpinButtonOnChangeData,
   Switch,
+  Tab,
+  TabList,
+  TabValue,
 } from '@fluentui/react-components';
 import {
   SettingsFilled,
@@ -29,6 +41,11 @@ import {
 
 import { Strings } from './constants';
 import {
+  BotColorAtom,
+  BotLengthAtom,
+  BotShapeAtom,
+  BotTinyColorAtom,
+  BotWidthAtom,
   CoordinateVisibilityAtom,
   FieldVisibilityAtom,
   PathHeadingCountAtom,
@@ -41,9 +58,9 @@ import {
   ShowPathHeadingAtom,
   ThemeAtom,
 } from './state/SavedSettings';
-import { CtrlPtStyles } from './types';
+import { BotShapes, CtrlPtStyles } from './types';
 
-function getName(s: CtrlPtStyles): string {
+function getCtrlPtName(s: CtrlPtStyles): string {
   switch (s) {
     case CtrlPtStyles.Circle:
       return 'Circle';
@@ -67,6 +84,26 @@ const ctrlPtStyles: CtrlPtStyles[] = [
   CtrlPtStyles.Triangle,
   CtrlPtStyles.Square,
   CtrlPtStyles.None,
+];
+
+function getBotShapeName(n: BotShapes): string {
+  switch (n) {
+    case BotShapes.Rectangle:
+      return 'Rectangle';
+    case BotShapes.Ellipse:
+      return 'Ellipse';
+    case BotShapes.Trapezoid:
+      return 'Trapezoid';
+    case BotShapes.Triangle:
+      return 'Triangle';
+  }
+}
+
+const botShapes: BotShapes[] = [
+  BotShapes.Rectangle,
+  BotShapes.Ellipse,
+  BotShapes.Trapezoid,
+  BotShapes.Triangle,
 ];
 
 function useSpinnerAtom(
@@ -111,8 +148,8 @@ export function Settings(): ReactElement {
     PathHeadingThicknessAtom,
   );
   const [ctrlPtStyle, setCtrlPtStyle] = useAtom(PathPointStyleAtom);
-  const [ctrlPtName, setCtrlPtName] = useState(getName(ctrlPtStyle));
-  const onOptionSelect: DropdownProps['onOptionSelect'] = useCallback(
+  const [ctrlPtName, setCtrlPtName] = useState(getCtrlPtName(ctrlPtStyle));
+  const onCtlPtStyleSelect: DropdownProps['onOptionSelect'] = useCallback(
     (ev, data) => {
       if (data.selectedOptions.length > 0) {
         setCtrlPtStyle(data.selectedOptions[0] as CtrlPtStyles);
@@ -121,7 +158,248 @@ export function Settings(): ReactElement {
     },
     [setCtrlPtStyle, setCtrlPtName],
   );
+  const [botShape, setBotShape] = useAtom(BotShapeAtom);
+  const [botShapeName, setBotShapeName] = useState(getBotShapeName(botShape));
+  const onBotShapeSelect: DropdownProps['onOptionSelect'] = useCallback(
+    (ev, data) => {
+      if (data.selectedOptions.length > 0) {
+        setBotShape(data.selectedOptions[0] as BotShapes);
+        setBotShapeName(data.optionText ?? '');
+      }
+    },
+    [setBotShape, setBotShapeName],
+  );
+  const [botWidth, changeBotWidth] = useSpinnerAtom(BotWidthAtom);
+  const [botLength, changeBotLength] = useSpinnerAtom(BotLengthAtom);
+  const [botTinyColor, setBotTinyColor] = useAtom(BotTinyColorAtom);
+  const onSliderChange: ColorSliderProps['onChange'] = (_, data) => {
+    setBotTinyColor(new TinyColor(data.color));
+  };
+  const [selectedTab, setSelectedTab] = useState<TabValue>('General');
+  const onTabSelect = (event: SelectTabEvent, data: SelectTabData) => {
+    setSelectedTab(data.value);
+  };
 
+  const BotSettings = useMemo(
+    () => (
+      <div className="two-column">
+        <Label htmlFor="botWidthId">Robot Width</Label>
+        <SpinButton
+          id="botWidthId"
+          value={botWidth}
+          onChange={changeBotWidth}
+          step={0.5}
+          min={4}
+          max={18}
+        />
+        <Label htmlFor="botLengthId">Robot Length</Label>
+        <SpinButton
+          id="botLengthId"
+          value={botLength}
+          onChange={changeBotLength}
+          step={0.5}
+          min={4}
+          max={18}
+        />
+        <Label htmlFor="botShapeId">Robot Shape</Label>
+        <Dropdown
+          style={{ minWidth: 50 }}
+          id="botShapeId"
+          value={botShapeName}
+          selectedOptions={[botShape]}
+          onOptionSelect={onBotShapeSelect}>
+          {botShapes.map((s) => (
+            <Option key={s} text={getBotShapeName(s)} value={s}>
+              {getBotShapeName(s)}
+            </Option>
+          ))}
+        </Dropdown>
+        <div>
+          <Label htmlFor="botColorId">Robot Color</Label>
+          <div
+            style={{
+              justifySelf: 'center',
+              width: '50px',
+              height: '50px',
+              borderRadius: '4px',
+              backgroundColor: botTinyColor.toHexString(),
+            }}
+          />
+        </div>
+        <div className="two-column">
+          <Label htmlFor="hueId">Hue</Label>
+          <ColorSlider
+            id="hueId"
+            color={botTinyColor.toHsv()}
+            onChange={onSliderChange}
+          />
+          <Label htmlFor="satId">Saturation</Label>
+          <ColorSlider
+            id="satId"
+            color={botTinyColor.toHsv()}
+            channel="saturation"
+            onChange={onSliderChange}
+          />
+          <Label htmlFor="valId">Brightness</Label>
+          <ColorSlider
+            id="valId"
+            color={botTinyColor.toHsv()}
+            channel="value"
+            onChange={onSliderChange}
+          />
+        </div>
+      </div>
+    ),
+    [botWidth, botLength, botShape, botTinyColor],
+  );
+  const GeneralSettings = useMemo(
+    (): ReactElement => (
+      <div className="two-column">
+        <Label htmlFor="setThemeId">Theme</Label>
+        <span>
+          <WeatherSunnyRegular />
+          <Switch
+            id="setThemeId"
+            checked={theTheme === 'dark'}
+            onChange={(_, data) => setTheme(data.checked ? 'dark' : 'light')}
+          />
+          <WeatherMoonFilled />
+        </span>
+        <Label htmlFor="fieldVisibilityId">Field Visibility Level</Label>
+        <Slider
+          aria-valuetext={`Value is ${fieldViz}%`}
+          value={fieldViz}
+          min={0}
+          max={100}
+          step={2.5}
+          onChange={(_, data) => setFieldViz(data.value)}
+          id="fieldVisibilityId"
+        />
+        <Label htmlFor="coordVizId">Field Key Visibility Level</Label>
+        <Slider
+          aria-valuetext={`Value is ${coordViz}%`}
+          value={coordViz}
+          min={0}
+          max={100}
+          step={2.5}
+          onChange={(_, data) => setCoordViz(data.value)}
+          id="coordVizId"
+        />
+        <Label htmlFor="resetPrefsId">Reset preferences</Label>
+        <span>
+          <Button
+            id="resetPrefsId"
+            onClick={() => {
+              localStorage.clear();
+              window.location.reload();
+            }}>
+            {Strings.Reset}
+          </Button>
+        </span>
+      </div>
+    ),
+    [fieldViz, coordViz, theTheme],
+  );
+  const DrawingSettings = useMemo(
+    () => (
+      <div className="two-column">
+        <Label htmlFor="pathThicknessId">Path Thickness</Label>
+        <SpinButton
+          id="pathThicknessId"
+          value={pathThickness}
+          onChange={changePathThickness}
+          step={0.1}
+          stepPage={1}
+          min={0}
+          max={2}
+        />
+        <Label htmlFor="ctrlPtSizeId">Control Point Size</Label>
+        <SpinButton
+          id="ctrlPtSizeId"
+          value={ctrlPtSize}
+          onChange={changeCtrlPtSize}
+          step={0.25}
+          stepPage={1}
+          min={0.5}
+          max={4}
+        />
+        <Label htmlFor="ctrlPtThicknessId">Control Point Thickness</Label>
+        <SpinButton
+          id="ctrlPtThicknessId"
+          value={ctrlPtThickness}
+          onChange={changeCtrlPtThickness}
+          step={0.1}
+          stepPage={1}
+          min={0.1}
+          max={2}
+        />
+        <Label htmlFor="ctrlPtStyleId">Control Point Style</Label>
+        <Dropdown
+          style={{ minWidth: 50 }}
+          id="ctrlPtStyleId"
+          value={ctrlPtName}
+          selectedOptions={[ctrlPtStyle]}
+          onOptionSelect={onCtlPtStyleSelect}>
+          {ctrlPtStyles.map((s) => (
+            <Option key={s} text={getCtrlPtName(s)} value={s}>
+              {getCtrlPtName(s)}
+            </Option>
+          ))}
+        </Dropdown>
+        <Label htmlFor="showBotHeadingId">Show Robot Heading</Label>
+        <Switch
+          id="showBotHeadingId"
+          checked={showBotHeading}
+          onChange={(_, data) => setShowBotHeading(data.checked)}
+        />
+        <Label htmlFor="headingCountId">Heading Indicator Count</Label>
+        <SpinButton
+          id="headingCountId"
+          disabled={!showBotHeading}
+          value={headingCount}
+          onChange={changeHeadingCount}
+          step={1}
+          stepPage={5}
+          min={1}
+          max={25}
+        />
+        <Label htmlFor="headingThicknessId">Heading Thickness</Label>
+        <SpinButton
+          id="headingThicknessId"
+          disabled={!showBotHeading}
+          value={headingThickness}
+          onChange={changeHeadingThickness}
+          step={0.1}
+          stepPage={1}
+          min={0.1}
+          max={2}
+        />
+        <Label htmlFor="headingLengthId">Heading Length</Label>
+        <SpinButton
+          id="headingLengthId"
+          disabled={!showBotHeading}
+          value={headingLength}
+          onChange={changeHeadingLength}
+          step={1}
+          stepPage={5}
+          min={1}
+          max={25}
+        />
+      </div>
+    ),
+    [
+      pathThickness,
+      showBotHeading,
+      headingCount,
+      ctrlPtSize,
+      ctrlPtThickness,
+      showBotHeading,
+      headingThickness,
+      headingLength,
+      ctrlPtName,
+      ctrlPtStyles,
+    ],
+  );
   return (
     <Dialog modalType="non-modal">
       <DialogTrigger disableButtonEnhancement>
@@ -130,164 +408,23 @@ export function Settings(): ReactElement {
       <DialogSurface>
         <DialogBody>
           <DialogTitle style={{ textAlign: 'center' }}>Settings</DialogTitle>
-          <DialogContent>
-            <div className="settings">
-              <Label className="left-label" htmlFor="fieldVisibilityId">
-                Field Visibility Level
-              </Label>
-              <Slider
-                aria-valuetext={`Value is ${fieldViz}%`}
-                value={fieldViz}
-                min={0}
-                max={100}
-                step={1}
-                onChange={(_, data) => setFieldViz(data.value)}
-                id="fieldVisibilityId"
-                className="left-field"
-              />
-              <Label className="right-label" htmlFor="coordVizId">
-                Field Key Visibility Level
-              </Label>
-              <Slider
-                aria-valuetext={`Value is ${coordViz}%`}
-                value={coordViz}
-                min={0}
-                max={100}
-                step={1}
-                onChange={(_, data) => setCoordViz(data.value)}
-                id="coordVizId"
-                className="right-field"
-              />
-              <Label className="left-label" htmlFor="pathThicknessId">
-                Path Thickness
-              </Label>
-              <SpinButton
-                className="left-field"
-                id="pathThicknessId"
-                value={pathThickness}
-                onChange={changePathThickness}
-                step={0.1}
-                stepPage={1}
-                min={0}
-                max={2}
-              />
-              <Label className="right-label" htmlFor="showBotHeadingId">
-                Show robot heading
-              </Label>
-              <Switch
-                id="showBotHeadingId"
-                checked={showBotHeading}
-                onChange={(_, data) => setShowBotHeading(data.checked)}
-              />
-              <Label className="left-label" htmlFor="ctrlPtSizeId">
-                CtrlPt Size
-              </Label>
-              <SpinButton
-                className="left-field"
-                id="ctrlPtSizeId"
-                value={ctrlPtSize}
-                onChange={changeCtrlPtSize}
-                step={0.25}
-                stepPage={1}
-                min={0.5}
-                max={4}
-              />
-              <Label className="right-label" htmlFor="headingCountId">
-                Heading Indicator Count
-              </Label>
-              <SpinButton
-                id="headingCountId"
-                disabled={!showBotHeading}
-                value={headingCount}
-                onChange={changeHeadingCount}
-                step={1}
-                stepPage={5}
-                min={1}
-                max={25}
-              />
-              <Label className="left-label" htmlFor="ctrlPtThicknessId">
-                CtrlPt Thickness
-              </Label>
-              <SpinButton
-                className="left-field"
-                id="ctrlPtThicknessId"
-                value={ctrlPtThickness}
-                onChange={changeCtrlPtThickness}
-                step={0.1}
-                stepPage={1}
-                min={0.1}
-                max={2}
-              />
-              <Label className="right-label" htmlFor="headingThicknessId">
-                Heading thickness
-              </Label>
-              <SpinButton
-                id="headingThicknessId"
-                disabled={!showBotHeading}
-                value={headingThickness}
-                onChange={changeHeadingThickness}
-                step={0.1}
-                stepPage={1}
-                min={0.1}
-                max={2}
-              />
-              <Label className="left-label" htmlFor="ctrlPtStyleId">
-                CtrlPt Style
-              </Label>
-              <Dropdown
-                className="left-field"
-                style={{ minWidth: 50 }}
-                id="ctrlPtStyleId"
-                value={ctrlPtName}
-                selectedOptions={[ctrlPtStyle]}
-                onOptionSelect={onOptionSelect}>
-                {ctrlPtStyles.map((s) => (
-                  <Option key={s} text={getName(s)} value={s}>
-                    {getName(s)}
-                  </Option>
-                ))}
-              </Dropdown>
-              <Label className="right-label" htmlFor="headingLengthId">
-                Heading length
-              </Label>
-              <SpinButton
-                id="headingLengthId"
-                disabled={!showBotHeading}
-                value={headingLength}
-                onChange={changeHeadingLength}
-                step={1}
-                stepPage={5}
-                min={1}
-                max={25}
-              />
-              <Label id="setThemeLabelId" htmlFor="setThemeId">
-                Theme
-              </Label>
-              <span id="setThemeSpanId">
-                <WeatherSunnyRegular />
-                <Switch
-                  id="setThemeId"
-                  checked={theTheme === 'dark'}
-                  onChange={(_, data) =>
-                    setTheme(data.checked ? 'dark' : 'light')
-                  }
-                />
-                <WeatherMoonFilled />
-              </span>
-              <Label className="right-label" htmlFor="resetPrefsId">
-                Reset preferences
-              </Label>
-              <span>
-                <Button
-                  id="resetPrefsId"
-                  onClick={() => {
-                    localStorage.clear();
-                    window.location.reload();
-                  }}>
-                  {Strings.Reset}
-                </Button>
-              </span>
-            </div>
+          <DialogContent className="two-column">
+            <span>
+              <TabList
+                onTabSelect={onTabSelect}
+                vertical
+                size="large"
+                defaultSelectedValue={'General'}>
+                <Tab value="General">General</Tab>
+                <Tab value="Robot">Robot</Tab>
+                <Tab value="Paths">Paths</Tab>
+              </TabList>
+            </span>
+            <span>
+              {selectedTab === 'General' && GeneralSettings}
+              {selectedTab === 'Robot' && BotSettings}
+              {selectedTab === 'Paths' && DrawingSettings}
+            </span>
           </DialogContent>
         </DialogBody>
       </DialogSurface>
