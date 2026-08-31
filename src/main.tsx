@@ -1,13 +1,13 @@
 #!/usr/bin/env bun
 
 // SPDX-License-Identifier: AGPL-3.0-or-later
+import { serve } from 'bun';
 import path from 'node:path';
 import { chdir } from 'node:process';
 
-import { serve } from 'bun';
-
 import index from './index.html';
 import { setArgs } from './server/getpaths';
+import { isHMR } from './server/hmr-detection';
 import { main } from './server/main';
 import { SavePath } from './server/savepath';
 import { LoadDatabase, LoadPath, SaveDatabase } from './server/web-interface';
@@ -15,15 +15,17 @@ import { LoadDatabase, LoadPath, SaveDatabase } from './server/web-interface';
 // import darkField from './assets/field-dark.jpg';
 // import lightField from './assets/field-light.jpg';
 
-// Resolve any arguments before we change the working directory
-const args = [...process.argv.slice(2), process.cwd()].map((str) =>
-  path.resolve(str),
-);
-setArgs(args);
+if (!isHMR()) {
+  // Resolve any arguments before we change the working directory
+  const args = [...process.argv.slice(2), process.cwd()].map((str) =>
+    path.resolve(str),
+  );
+  setArgs(args);
 
-// Force the working directory to the directory of the running bundle.
-// Bundling is kinda irritating...
-chdir(import.meta.dir);
+  // Force the working directory to the directory of the running bundle.
+  // Bundling is kinda irritating...
+  chdir(import.meta.dir);
+}
 
 const server = serve({
   routes: {
