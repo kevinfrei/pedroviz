@@ -14,10 +14,20 @@ import {
 export async function GetFieldImage(theme: string): Promise<Response> {
   const theTheme = theme !== 'dark' && theme !== 'light' ? 'dark' : theme;
   const imagePath = GetFieldImagePath(theTheme);
+  console.log('Image Path: ', imagePath);
   if (isDefined(imagePath)) {
     return new Response(Bun.file(imagePath));
   }
 
+  console.log('Replying with SVG field');
+  return new Response(GetThemedSVG(theTheme), {
+    headers: { 'Content-Type': 'image/svg+xml' },
+  });
+}
+
+export async function GetFieldSvg(theme: string): Promise<Response> {
+  const theTheme = theme !== 'dark' && theme !== 'light' ? 'dark' : theme;
+  console.log('SVG field requested');
   return new Response(GetThemedSVG(theTheme), {
     headers: { 'Content-Type': 'image/svg+xml' },
   });

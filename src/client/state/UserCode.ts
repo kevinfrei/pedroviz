@@ -100,6 +100,10 @@ export const FullDatabaseAtom = atomWithRefresh(
   FullDatabaseAtom,
   async (db) => (await db).ParsedClasses,
 );
+export const HasExternalFieldAtom = selectAtom(
+  FullDatabaseAtom,
+  async (db) => (await db).HasFieldImage,
+);
 
 export const TeamsAtom = atom(async (get): Promise<Team[]> => {
   const tp = await get(TeamPathsSelect);

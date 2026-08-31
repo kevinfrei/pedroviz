@@ -1,14 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { ReactElement, useCallback, useMemo, useState } from 'react';
-import { useAtom, WritableAtom } from 'jotai';
+import { useAtom, useAtomValue, WritableAtom } from 'jotai';
 
 import { TinyColor } from '@ctrl/tinycolor';
 import {
-  AlphaSlider,
   Button,
-  ColorArea,
-  ColorPicker,
   ColorSlider,
   ColorSliderProps,
   Dialog,
@@ -19,8 +16,8 @@ import {
   DialogTrigger,
   Dropdown,
   DropdownProps,
+  InfoLabel,
   Label,
-  makeStyles,
   Option,
   SelectTabData,
   SelectTabEvent,
@@ -32,6 +29,7 @@ import {
   Tab,
   TabList,
   TabValue,
+  Text,
 } from '@fluentui/react-components';
 import {
   SettingsFilled,
@@ -41,7 +39,6 @@ import {
 
 import { Strings } from './constants';
 import {
-  BotColorAtom,
   BotLengthAtom,
   BotShapeAtom,
   BotTinyColorAtom,
@@ -57,7 +54,9 @@ import {
   PathThicknessAtom,
   ShowPathHeadingAtom,
   ThemeAtom,
+  UseExternalFieldAtom,
 } from './state/SavedSettings';
+import { HasExternalFieldAtom } from './state/UserCode';
 import { BotShapes, CtrlPtStyles } from './types';
 
 function getCtrlPtName(s: CtrlPtStyles): string {
@@ -132,8 +131,9 @@ export function Settings(): ReactElement {
   const [theTheme, setTheme] = useAtom(ThemeAtom);
   const [fieldViz, setFieldViz] = useAtom(FieldVisibilityAtom);
   const [showBotHeading, setShowBotHeading] = useAtom(ShowPathHeadingAtom);
-  const hasCustomFieldImage = false;
-  const [useCustomFieldImage, setUseCustomFieldImage] = useState(false);
+  const hasCustomFieldImage = useAtomValue(HasExternalFieldAtom);
+  const [useCustomFieldImage, setUseCustomFieldImage] =
+    useAtom(UseExternalFieldAtom);
 
   const [coordViz, setCoordViz] = useAtom(CoordinateVisibilityAtom);
   const [pathThickness, changePathThickness] =
@@ -183,6 +183,24 @@ export function Settings(): ReactElement {
     setSelectedTab(data.value);
   };
 
+  const fieldDescription = (
+    <>
+      <Text>Put a jpg or png file named </Text>
+      <Text font="monospace">field.jpg/png</Text>
+      <Text>, </Text>
+      <Text font="monospace">field-dark.jpg/png</Text>
+      <Text>, and/or </Text>
+      <Text font="monospace">field-light.png/jpg</Text>
+      <Text>
+        {' '}
+        at the root of your FTC code repository (in the same folder as{' '}
+      </Text>
+      <Text font="monospace">TeamCode</Text>
+      <Text> and </Text>
+      <Text font="monospace">FtcRobotController</Text>
+      <Text>) and it can be displayed as the background of the field.</Text>
+    </>
+  );
   const BotSettings = useMemo(
     () => (
       <div className="two-column">
@@ -288,8 +306,8 @@ export function Settings(): ReactElement {
           onChange={(_, data) => setCoordViz(data.value)}
           id="coordVizId"
         />
-        <Label disabled={!hasCustomFieldImage} htmlFor="customFieldId">
-          Show Custom Field
+        <Label htmlFor="customFieldId">
+          <InfoLabel info={fieldDescription}>Show Custom Field</InfoLabel>
         </Label>
         <Switch
           id="customFieldId"
@@ -310,7 +328,7 @@ export function Settings(): ReactElement {
         </span>
       </div>
     ),
-    [fieldViz, coordViz, theTheme],
+    [fieldViz, useCustomFieldImage, hasCustomFieldImage, coordViz, theTheme],
   );
   const DrawingSettings = useMemo(
     () => (
