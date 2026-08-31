@@ -83,6 +83,7 @@ export const DisplayOptionsAtom = atomWithStorage<DisplayOptions>(
   {
     GranularSettings: false,
     FieldVisibility: 1.0,
+    UseExternalField: true,
     CoordinateVisibility: 1.0,
     DarkMode: true,
     Poses: {
@@ -106,6 +107,9 @@ export const ThemeAtom = atom<ThemeType, [ThemeType], void>(
   (get) => (get(DarkThemeAtom) ? 'dark' : 'light'),
   (_get, set, val: ThemeType) => set(DarkThemeAtom, val === 'dark'),
 );
+export const UseExternalFieldAtom = focusAtom(DisplayOptionsAtom, (o) =>
+  o.prop('UseExternalField'),
+);
 const RawFieldVisibilityAtom = focusAtom(DisplayOptionsAtom, (o) =>
   o.prop('FieldVisibility'),
 );
@@ -116,7 +120,6 @@ export const FieldVisibilityAtom = atom(
   },
 );
 export const FieldVizPercentAtom = atom((get) => get(RawFieldVisibilityAtom));
-
 const RawCoordinateVisibilityAtom = focusAtom(DisplayOptionsAtom, (o) =>
   o.prop('CoordinateVisibility'),
 );

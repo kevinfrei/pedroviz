@@ -9,9 +9,9 @@ import { isString } from '@freik/typechk';
 import { chkPathKey } from '../../IpcTypeCheck';
 import { Path, Team } from '../../IpcTypes';
 import {
-  findRelativeRepoRoot,
-  getPathFiles,
-  getTeamDirectories,
+  FindRelativeRepoRoot,
+  GetPathFiles,
+  GetTeamDirectories,
   GetTeamPaths,
 } from '../getpaths';
 
@@ -34,7 +34,7 @@ afterEach(() => {
 describe('team path exploration', () => {
   test('getRelativeRepoRoot finds the repo root', async () => {
     const currentPath = getTestRepoPath();
-    const repoRoot = await findRelativeRepoRoot(currentPath);
+    const repoRoot = await FindRelativeRepoRoot(currentPath);
     expect(repoRoot).toBe(currentPath);
   });
 
@@ -44,12 +44,12 @@ describe('team path exploration', () => {
       '../../../../../nonexistent/path',
     );
     console.log(invalidPath);
-    expect(await findRelativeRepoRoot(invalidPath)).toBeNull();
+    expect(await FindRelativeRepoRoot(invalidPath)).toBeNull();
   });
 
   test('getRelativeRoot finds the test repository root', async () => {
     const testRepoPath = getTestRepoPath();
-    const repoRoot = await findRelativeRepoRoot(
+    const repoRoot = await FindRelativeRepoRoot(
       path.join(testRepoPath, 'some', 'nested', 'directory'),
       8,
     );
@@ -58,14 +58,14 @@ describe('team path exploration', () => {
 
   test('getTeamDirectories finds team directories', async () => {
     const repoRoot = await getTestRepoPath();
-    const teamDirs = await getTeamDirectories();
+    const teamDirs = await GetTeamDirectories();
     expect(teamDirs).toContain('TeamA' as Team);
     expect(teamDirs).toContain('TeamB' as Team);
   });
 
   test('getPathFiles finds path files', async () => {
     const repoRoot = await getTestRepoPath();
-    const pathFiles = await getPathFiles(repoRoot, 'TeamA');
+    const pathFiles = await GetPathFiles(repoRoot, 'TeamA');
     expect(pathFiles.length).toBe(3);
     expect(pathFiles).toContain('TeamTestPaths.java' as Path);
     expect(pathFiles).toContain(
@@ -75,7 +75,7 @@ describe('team path exploration', () => {
 
   test('getPathFiles finds no path files', async () => {
     const repoRoot = await getTestRepoPath();
-    const pathFiles = await getPathFiles(repoRoot, 'TeamB');
+    const pathFiles = await GetPathFiles(repoRoot, 'TeamB');
     expect(pathFiles).toEqual([]);
   });
 

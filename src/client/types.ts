@@ -70,6 +70,7 @@ export type DisplayOptions = {
   GranularSettings: boolean;
   FieldVisibility: number;
   CoordinateVisibility: number;
+  UseExternalField: boolean;
   DarkMode: boolean;
   Poses: {
     Points: ControlPointStyle;

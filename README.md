@@ -92,13 +92,13 @@ of my frei time, because I love working with FTC students...)
 **Task TODO list, in some sort of order:**
 
 - [x] Read paths from code
-  - [ ] Specify robot dimensions (and other settings)
+  - [x] Specify robot dimensions (and other settings)
 - [x] Document basic usage
 - [ ] Display Java source parsing issues so users can see if they should fix
       their code, or send their code to me.
 - [ ] Increase test coverage (ongoing)
 - [ ] Support more complex math expression evaluation
-- [ ] Allow detection of `field-dark.jpg` and `field-light.jpg` from the users's
+- [x] Allow detection of `field-dark.jpg` and `field-light.jpg` from the users's
       code for game-specific field backgrounds
 - [ ] Edit existing:
   - [ ] Named values

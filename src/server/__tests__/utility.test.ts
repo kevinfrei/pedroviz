@@ -4,7 +4,7 @@ import { expect /* beforeAll, afterAll */, test } from 'bun:test';
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { firstFtcSrc, getProjectFilePath } from '../getpaths';
+import { FirstFtcSrc, GetProjectFilePath } from '../getpaths';
 import { isDirectory } from '../utility';
 
 function getTestRepoPath(): string {
@@ -12,11 +12,11 @@ function getTestRepoPath(): string {
 }
 
 test('getProjectFilePath simple test', () => {
-  expect(getProjectFilePath('TestTeam', 'FileName.java')).toBe(
+  expect(GetProjectFilePath('TestTeam', 'FileName.java')).toBe(
     path.join(
       getTestRepoPath(),
       'TestTeam',
-      firstFtcSrc,
+      FirstFtcSrc,
       'testteam',
       'FileName.java',
     ),

@@ -491,6 +491,7 @@ export const fullParsedClass: ParsedClass = {
 };
 
 export const testDatabase: PathDatabase = {
+  HasFieldImage: false,
   TeamPaths: MakeMultiMap<Team, PathKey>([
     [
       'team1' as Team,
@@ -642,6 +643,7 @@ export const status = {
 };
 
 export const databaseForUITest: PathDatabase = {
+  HasFieldImage: false,
   TeamPaths: MakeMultiMap<Team, PathKey>([
     [
       'team1' as Team,

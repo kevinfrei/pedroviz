@@ -13,11 +13,11 @@ import { isDirectory } from './utility';
 let RepoRoot: string | null = null;
 let args: string[] = [];
 
-export function setArgs(strs: string[]): void {
+export function SetArgs(strs: string[]): void {
   args = strs;
 }
 
-export async function setRepoRoot(repoRoot: string): Promise<boolean> {
+export async function SetRepoRoot(repoRoot: string): Promise<boolean> {
   if (await isRepoRoot(repoRoot)) {
     RepoRoot = repoRoot;
     return true;
@@ -29,14 +29,14 @@ export async function obliterateRepoRoot() {
   RepoRoot = null;
 }
 
-function getRelativeRepoRoot(): string {
+export function GetRelativeRepoRoot(): string {
   if (isNull(RepoRoot)) {
     throw new Error('Unable to find FtcRobotController/TeamCode home');
   }
   return RepoRoot;
 }
 
-export async function findRelativeRepoRoot(
+export async function FindRelativeRepoRoot(
   dirsToCheck: string | string[],
   maxParent: number = 8,
 ): Promise<string | null> {
@@ -45,7 +45,7 @@ export async function findRelativeRepoRoot(
   for (let currentPath of checking) {
     let parent = maxParent;
     while (currentPath != prevPath && parent > 0) {
-      if (await setRepoRoot(currentPath)) {
+      if (await SetRepoRoot(currentPath)) {
         console.log('Found directory', currentPath);
         return currentPath;
       }
@@ -69,17 +69,17 @@ async function isRepoRoot(currentPath: string) {
 
 export async function GetTeamPaths(): Promise<TeamPaths> {
   if (isNull(RepoRoot)) {
-    await findRelativeRepoRoot([...args, process.cwd(), import.meta.dirname]);
+    await FindRelativeRepoRoot([...args, process.cwd(), import.meta.dirname]);
   }
   if (isNull(RepoRoot)) {
     throw new Error('Unable to find repository root');
   }
   // Get the list of all team code roots
-  const teamDirs = await getTeamDirectories();
+  const teamDirs = await GetTeamDirectories();
   // Next, look for paths in each team directory
   const filePaths: TeamPaths = MakeMultiMap<Team, PathKey>();
   for (const teamName of teamDirs) {
-    const pathFiles = await getPathFiles(RepoRoot, teamName);
+    const pathFiles = await GetPathFiles(RepoRoot, teamName);
     const pathKey = pathFiles.map((val) => getPathKey(teamName, val));
     filePaths.add(teamName, pathKey);
   }
@@ -89,14 +89,14 @@ export async function GetTeamPaths(): Promise<TeamPaths> {
 const pathNameMatch = /[^\/\\]*(Path|Pose)[^\/\\]*\.java$/;
 
 // Find all the files in the team directory that look like good Path files
-export async function getPathFiles(
+export async function GetPathFiles(
   repoRoot: string,
   teamName: string,
 ): Promise<Path[]> {
   const teamDir = path.join(
     repoRoot,
     teamName,
-    firstFtcSrc,
+    FirstFtcSrc,
     teamName.toLocaleLowerCase(),
   );
   const pathFiles: Path[] = [];
@@ -143,7 +143,7 @@ async function isPathFile(entry: fs.Dirent): Promise<boolean> {
   return matches.length !== 0;
 }
 
-export async function getTeamDirectories(): Promise<Team[]> {
+export async function GetTeamDirectories(): Promise<Team[]> {
   if (isNull(RepoRoot)) {
     throw new Error('Unknonw repository location');
   }
@@ -181,7 +181,7 @@ function isTeamDirectory(repoRoot: string, dir: fs.Dirent): boolean {
   const teamSrcPath = path.join(
     repoRoot,
     dir.name,
-    firstFtcSrc,
+    FirstFtcSrc,
     dir.name.toLocaleLowerCase(),
   );
   if (!fs.existsSync(teamSrcPath) || !isDirectory(teamSrcPath)) {
@@ -201,16 +201,17 @@ function isTeamDirectory(repoRoot: string, dir: fs.Dirent): boolean {
   return true;
 }
 
-export function getProjectFilePath(team: string, filename: string): string {
+export function GetProjectFilePath(team: string, filename: string): string {
   return path.join(
-    getRelativeRepoRoot(),
+    GetRelativeRepoRoot(),
     team,
-    firstFtcSrc,
+    FirstFtcSrc,
     team.toLocaleLowerCase(),
     filename,
   );
 }
-export const firstFtcSrc = path.join(
+
+export const FirstFtcSrc = path.join(
   'src',
   'main',
   'java',

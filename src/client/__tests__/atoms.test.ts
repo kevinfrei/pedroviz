@@ -47,6 +47,7 @@ const status = {
   headers: { 'Content-Type': 'application/json' },
 };
 const database: PathDatabase = {
+  HasFieldImage: false,
   TeamPaths: MakeMultiMap<Team, PathKey>([
     [
       'team1' as Team,

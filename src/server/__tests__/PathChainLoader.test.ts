@@ -13,7 +13,7 @@ import {
   PoseName,
   ValueName,
 } from '../../CodeTypes';
-import { firstFtcSrc, getProjectFilePath, setRepoRoot } from '../getpaths';
+import { FirstFtcSrc, GetProjectFilePath, SetRepoRoot } from '../getpaths';
 import { MakeParsedClass } from '../PathChainLoader';
 import { LoadPath } from '../web-interface';
 
@@ -22,7 +22,7 @@ function getTestRepoPath(): string {
 }
 
 test('raw endpoint invocation', async () => {
-  await setRepoRoot(getTestRepoPath());
+  await SetRepoRoot(getTestRepoPath());
   const res: Response = await LoadPath('TeamCode', 'TeamTestPaths.java');
   expect(res).toHaveProperty('ok', true);
   expect(res).toHaveProperty('status', 200);
@@ -30,12 +30,12 @@ test('raw endpoint invocation', async () => {
 });
 
 test('loadPathChainsFromFile loads paths correctly', async () => {
-  const testPath = getProjectFilePath('TeamA', 'TeamTestPaths.java');
+  const testPath = GetProjectFilePath('TeamA', 'TeamTestPaths.java');
   expect(testPath).toBe(
     path.join(
       getTestRepoPath(),
       'TeamA',
-      firstFtcSrc,
+      FirstFtcSrc,
       'teama',
       'TeamTestPaths.java',
     ),

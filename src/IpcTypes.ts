@@ -20,6 +20,7 @@ export type PathClasses = MultiMap<PathKey, ClassKey>;
 
 export type MaybePathFile = ErrorOr<ParsedClass>;
 export type PathDatabase = {
+  HasFieldImage: boolean;
   TeamPaths: TeamPaths;
   PathClasses: PathClasses;
   ParsedClasses: Map<ClassKey, ParsedClass>;
