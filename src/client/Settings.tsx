@@ -132,6 +132,9 @@ export function Settings(): ReactElement {
   const [theTheme, setTheme] = useAtom(ThemeAtom);
   const [fieldViz, setFieldViz] = useAtom(FieldVisibilityAtom);
   const [showBotHeading, setShowBotHeading] = useAtom(ShowPathHeadingAtom);
+  const hasCustomFieldImage = false;
+  const [useCustomFieldImage, setUseCustomFieldImage] = useState(false);
+
   const [coordViz, setCoordViz] = useAtom(CoordinateVisibilityAtom);
   const [pathThickness, changePathThickness] =
     useSpinnerAtom(PathThicknessAtom);
@@ -284,6 +287,15 @@ export function Settings(): ReactElement {
           step={2.5}
           onChange={(_, data) => setCoordViz(data.value)}
           id="coordVizId"
+        />
+        <Label disabled={!hasCustomFieldImage} htmlFor="customFieldId">
+          Show Custom Field
+        </Label>
+        <Switch
+          id="customFieldId"
+          disabled={!hasCustomFieldImage}
+          checked={useCustomFieldImage}
+          onChange={(_, data) => setUseCustomFieldImage(data.checked)}
         />
         <Label htmlFor="resetPrefsId">Reset preferences</Label>
         <span>
