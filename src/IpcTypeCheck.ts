@@ -4,6 +4,7 @@ import { chkMultiMapOf, MakeMultiMap } from '@freik/containers';
 import {
   chkMapOf,
   chkObjectOfExactType,
+  isBoolean,
   isString,
   typecheck,
 } from '@freik/typechk';
@@ -54,12 +55,14 @@ export function chkClassKey(obj: unknown): obj is ClassKey {
 }
 
 export const chkPathDatabase: typecheck<PathDatabase> = chkObjectOfExactType({
+  HasFieldImage: isBoolean,
   TeamPaths: chkMultiMapOf(isString, chkPathKey),
   PathClasses: chkMultiMapOf(chkPathKey, chkClassKey),
   ParsedClasses: chkMapOf(chkClassKey, chkParsedClass),
 });
 
 export const EmptyPathDatabase: PathDatabase = Object.freeze({
+  HasFieldImage: false,
   TeamPaths: MakeMultiMap<Team, PathKey>(),
   PathClasses: MakeMultiMap<PathKey, ClassKey>(),
   ParsedClasses: new Map<ClassKey, ParsedClass>(),

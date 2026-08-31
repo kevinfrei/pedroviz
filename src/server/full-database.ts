@@ -18,7 +18,8 @@ import {
   PathKey,
   Team,
 } from '../IpcTypes';
-import { getProjectFilePath, GetTeamPaths } from './getpaths';
+import { CheckForFieldImages } from './FieldImages';
+import { GetProjectFilePath, GetTeamPaths } from './getpaths';
 import { anyItems, MakeParsedClass } from './PathChainLoader';
 
 // Teams -> Paths -> Classes   -> ParsedClasse
@@ -26,6 +27,7 @@ import { anyItems, MakeParsedClass } from './PathChainLoader';
 
 const teampaths: Map<Team, Path[]> = new Map();
 const database: PathDatabase = {
+  HasFieldImage: false,
   TeamPaths: MakeMultiMap<Team, PathKey>(),
   PathClasses: MakeMultiMap<PathKey, ClassKey>(),
   ParsedClasses: new Map<ClassKey, ParsedClass>(),
@@ -49,7 +51,7 @@ async function GetPathChainIndex(
   team: string,
   file: string,
 ): Promise<ErrorOr<[string[], ParsedClass]>> {
-  const filepath = getProjectFilePath(team, file);
+  const filepath = GetProjectFilePath(team, file);
   const pc = await MakeParsedClass(filepath);
   if (isError(pc)) {
     return pc;
@@ -91,6 +93,7 @@ export async function RescanSourceCode(): Promise<PathDatabase> {
       }
     }
   }
+  database.HasFieldImage = await CheckForFieldImages();
   return GetDatabase();
 }
 

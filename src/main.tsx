@@ -6,8 +6,8 @@ import path from 'node:path';
 import { chdir } from 'node:process';
 
 import index from './index.html';
-import { setArgs } from './server/getpaths';
 import { isHMR } from './server/hmr-detection';
+import { SetArgs } from './server/getpaths';
 import { main } from './server/main';
 import { SavePath } from './server/savepath';
 import { LoadDatabase, LoadPath, SaveDatabase } from './server/web-interface';
@@ -20,7 +20,7 @@ if (!isHMR()) {
   const args = [...process.argv.slice(2), process.cwd()].map((str) =>
     path.resolve(str),
   );
-  setArgs(args);
+  SetArgs(args);
 
   // Force the working directory to the directory of the running bundle.
   // Bundling is kinda irritating...
