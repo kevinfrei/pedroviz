@@ -4,11 +4,24 @@ import { isDefined, isError, Pickle, SafelyUnpickle } from '@freik/typechk';
 
 import { chkPathDatabase } from '../IpcTypeCheck';
 import { Path, Team } from '../IpcTypes';
+import { GetFieldImagePath, GetThemedSVG } from './FieldImages';
 import {
   ReplaceDatabase,
   RescanSourceCode,
   WebGetParsedClassRoot,
 } from './full-database';
+
+export async function GetFieldImage(theme: string): Promise<Response> {
+  const theTheme = theme !== 'dark' && theme !== 'light' ? 'dark' : theme;
+  const imagePath = GetFieldImagePath(theTheme);
+  if (isDefined(imagePath)) {
+    return new Response(Bun.file(imagePath));
+  }
+
+  return new Response(GetThemedSVG(theTheme), {
+    headers: { 'Content-Type': 'image/svg+xml' },
+  });
+}
 
 // Send the list of TeamPaths to the client
 

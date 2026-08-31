@@ -35,7 +35,7 @@ export function HasFieldImage(): boolean {
   return images.size !== 0;
 }
 
-export function GetFieldImage(theme: 'dark' | 'light'): string | undefined {
+export function GetFieldImagePath(theme: 'dark' | 'light'): string | undefined {
   if (HasFieldImage()) {
     return;
   }
@@ -45,4 +45,53 @@ export function GetFieldImage(theme: 'dark' | 'light'): string | undefined {
     images.get('field.png') ||
     images.get('field.jpg')
   );
+}
+
+const darkFg = '#ccc';
+const liteFg = '#333';
+
+const svg = `<svg
+viewBox="5 5 1130 1130"
+version="1.1"
+xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <clipPath id="bounds">
+    <rect x="5" y="5" width="1130" height="1130" />
+  </clipPath>
+  <path
+    id="ln"
+    fill="none"
+    stroke="%%%FG%%%"
+    stroke-width="3"
+    stroke-linejoin="round"
+    d="M0,4 L5,8 L7,8 L5,0 L17,0 L15,8 L27,8 L25,0 L37,0 L35,8 L47,8 L45,0 L57,0 L55,8 L67,8 L65,0 L77,0 L75,8 L87,8 L85,0 L93,0 L94.25,4"
+  />
+  <g id="corner">
+    <use href="#ln" x="4" y="0" />
+    <use href="#ln" x="-192.5" y="-8" transform="rotate(180)" />
+    <use href="#ln" x="4" y="-8" transform="rotate(90)" />
+    <use href="#ln" x="-192.5" y="0" transform="rotate(-90)" />
+  </g>
+  <g id="row">
+    <use href="#corner" x="0" />
+    <use href="#corner" x="188.5" />
+    <use href="#corner" x="377" />
+    <use href="#corner" x="565.5" />
+    <use href="#corner" x="754" />
+    <use href="#corner" x="942.5" />
+    <use href="#corner" x="1131" />
+  </g>
+</defs>
+<g clipPath="url(#bounds)">
+  <use href="#row" />
+  <use href="#row" y="188.5" />
+  <use href="#row" y="377" />
+  <use href="#row" y="565.5" />
+  <use href="#row" y="754" />
+  <use href="#row" y="942.5" />
+  <use href="#row" y="1131" />
+</g>
+</svg>`;
+export function GetThemedSVG(theme: 'dark' | 'light'): string {
+  return svg.replace('%%%FG%%%', theme === 'light' ? liteFg : darkFg);
 }
