@@ -8,6 +8,7 @@ import { isNull, isString } from '@freik/typechk';
 
 import { getPathKey } from '../IpcTypeCheck';
 import { Path, PathKey, Team, TeamPaths } from '../IpcTypes';
+import { GetGlobalDirname } from './isProduction';
 import { isDirectory } from './utility';
 
 let RepoRoot: string | null = null;
@@ -69,7 +70,7 @@ async function isRepoRoot(currentPath: string) {
 
 export async function GetTeamPaths(): Promise<TeamPaths> {
   if (isNull(RepoRoot)) {
-    await FindRelativeRepoRoot([...args, process.cwd(), import.meta.dirname]);
+    await FindRelativeRepoRoot([...args, process.cwd(), GetGlobalDirname()]);
   }
   if (isNull(RepoRoot)) {
     throw new Error('Unable to find repository root');

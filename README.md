@@ -18,12 +18,15 @@
       - use `cd <folder location>` to get to where you put your source code.
    2. Type `bunx @freik/pedroviz`.
 3. Or:
-   1. Open up a command line
-   2. type `bunx @freik/pedroviz <location of your source repository>`
+   1. Open up a command line inside Android Studio
+   2. type `bunx @freik/pedroviz` (because Android Studio puts you in the right
+      directory automagically)
 4. Advanced folks (who might use Bun for other things as well):
    1. Add it to your `package.json` dependency list: `bun add @freik/pedroviz`
    2. Make a script to call `pedroviz`. If the `package.json` file isn't in your
       source repo root, add the location of your source as the second command.
+      Something like this: `"pedro": "bun run pedroviz"` and then you can call
+      it by typeing `bun pedro` if you'd prefer!
 
 The first time you use the app, it will take some time to download & install the
 package. Once it's been installed, you no longer need to be connected to the
@@ -136,6 +139,18 @@ of my frei time, because I love working with FTC students...)
 
 # Development
 
+This whole thing is built with [Typescript](https://www.typescriptlang.org/).
+I'm using [Hono](https://hono.dev/) as a local web server,
+[React](https://react.dev/) with [Jotai](https://jotai.org/) for state
+management and [FluentUI](https://developer.microsoft.com/en-us/fluentui#/) as
+the UI/control toolbox. None of these framworks are too complicated to get
+started with, but each have their own sets of weirdness. Feel free to reach out
+to me if you're trying to understand the code, add a feature, or fix a bug.
+
+The back end code is all served through `src/entry.ts` which serves up the
+.ts/.tsx files from the `src/client` subdirectory, and runs the stuff in the
+`src/server` subdirectory on the backend.
+
 To install dependencies:
 
 ```bash
@@ -144,7 +159,7 @@ bun install
 
 To start a development server:
 
-```sh
+```bash
 bun dev {FTC Source Location}
 ```
 
@@ -152,22 +167,39 @@ To bundle for production (only for Kevin, sorry):
 
 ```bash
 bun bundle
+bun npm login
 bun publish --access=public
 ```
 
-I'm using [React](https://react.dev/),
-[Typescript](https://www.typescriptlang.org/), with [Jotai](https://jotai.org/)
-for state management and
-[FluentUI](https://developer.microsoft.com/en-us/fluentui#/) as the UI/control
-toolbox. None of them are too complicated, but each have their own sets of
-weirdness. Feel free to reach out to me if you're trying to understand the code,
-add a feature, or fix a bug.
+### Buy, why????
 
-On the backend, everything is just written in Typescript. It made deployment
-much easier. It's built and served from a `Bun.serve` invocation. There's some
-weirdness scattered in a few places that are necessary to package it up into a
-single bundle, so make sure that's tested.
+Why did I build it this way, instead of using Java? Because I didn't want to
+learn a new UI toolkit. I've been using React for a very, very long time. It's
+cross-platform, and functional (in the mathematical/programming sense of the
+word). Typescript is just flat out better than Javascript (fight me...), and I
+switched to using [Recoil](https://github.com/facebookexperimental/Recoil) when
+one of the engineers I supported while working at Facebook built in back in 2020
+because I really hated all the boilerplate in Redux. Recoil is dead, but Jotai
+was a public reimplementation that's still actively supported.
 
-The back end code is all served through `main.tsx` which serves up the .ts/.tsx
-files from the `client` subdirectory, and runs the stuff in the `server`
-subdirectory on the backend.
+While a Microsoft employee, I had learned WinForms and WPF way way way back in
+the day, but the various MVC/MVVM data-binding shenanigans just slowly sapped my
+will to build UI's. Writing UI as functional, composable components makes my
+brain so much happier than MVC or MVVM or any sort of forced "this is the UI,
+and that's the dota model" kind a crap.
+
+I also have no interest in learning a different UI framework, particularly
+something that's not going to be available everywhere I care about (Java on an
+iPhone is not really a thing). So, it's TypeScript, and React. (I actually built
+[a little C++ app framework](https://github.com/kevinfrei/cuark) that lets me
+write much bigger, more complex things that use React + Typescript for the UI
+across Linux, macOS, and Windows, and it's _not_ React Native).
+
+Just know that I'm a grumpy old programmer who retired before Claude Code stole
+the joy of coding if you're willing to pay $500/month to light the planet on
+fire. I love to write code. I _can_ code review (that's my primary role as a
+mentor on FTC) but honestly, asking some miserable AI to create code when I'd
+prefer to do it myself, and then have to code review that miserable AI's code
+is...well, miserable. There's no joy to be had in helping the techno-fascists
+pillage and destroy the planet, while **also** killing jobs that humans are
+pretty good at, and that I actually happen to really enjoy.

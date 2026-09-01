@@ -1,12 +1,12 @@
 {
   "name": "@freik/pedroviz",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "repository": "https://github.com/kevinfrei/pedroviz.git",
   "author": "Kevin Frei <kevinfrei@hotmail.com>",
   "license": "AGPL-3.0-or-later",
   "type": "module",
   "bin": {
-    "pedroviz": "./dist/main.js"
+    "pedroviz": "./dist/entry.js"
   },
   "files": [
     "dist"
@@ -14,14 +14,12 @@
   "scripts": {
     "format": "prettier -w \"src/**/*.ts\" \"src/**/*.tsx\" \"*.md\" \"*.json\" \"src/**/*.md\" \"src/**/*.json\" \"src/*.html\" \"src/server/**/*.java\"",
     "types": "tsc --noEmit",
-    "clean": "rm -rf dist",
     "check": "bun run types && bun test",
-    "dev": "bun --hot src/main.tsx",
-    "devbundle": "bun run clean && bun build --metafile-md=bundle-info.md ./src/main.tsx --outdir=dist --sourcemap --target=bun --define:process.env.NODE_ENV='\"production\"' --env='BUN_PUBLIC_*'",
-    "bundle": "bun run clean && bun build --metafile-md=bundle-info.md ./src/main.tsx --outdir=dist --production --target=bun --define:process.env.NODE_ENV='\"production\"' --env='BUN_PUBLIC_*'",
-    "start": "NODE_ENV=production bun src/main.tsx",
-    "launch": "bun run bundle && bun dist/main.js",
-    "prepublishOnly": "bun run bundle",
+    "dev": "bun run dev/entry.js",
+    "dev:bundle": "bun run dev-bundle.ts",
+    "prod": "bun run dist/entry.js",
+    "prod:bundle": "bun run prod-bundle.ts",
+    "prepublishOnly": "bun run prod:bundle",
     "dead": "knip"
   },
   "prepare": "simple-git-hooks",
@@ -31,9 +29,12 @@
     "@fluentui/react-icons": "^2.0.339",
     "@fluentui/tokens": "^1.0.0-alpha.24",
     "@freik/containers": "^0.4.10",
-    "@freik/fluent9-tools": "^0.2.0",
-    "@freik/react-tools": "^0.4.0",
+    "@freik/fluent9-tools": "^0.2.3",
+    "@freik/react-tools": "^0.4.4",
+    "@freik/sync": "^0.4.10",
     "@freik/typechk": "^0.10.0",
+    "@hono/node-server": "^2.1.1",
+    "hono": "^4.13.5",
     "java-parser": "^3.0.1",
     "jotai": "^2.20.3",
     "jotai-family": "^1.1.0",
@@ -44,14 +45,15 @@
     "react-resizable-panels": "^4.12.3"
   },
   "devDependencies": {
-    "@happy-dom/global-registrator": "^20.11.13",
+    "@happy-dom/global-registrator": "20.11.13",
     "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
     "@types/bun": "1.4.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.5",
-    "knip": "^6.33.0",
+    "esbuild": "^0.28.2",
+    "knip": "^6.34.0",
     "lint-staged": "^17.4.1",
     "prettier": "^3.9.6",
     "prettier-plugin-java": "^2.10.3",
@@ -101,12 +103,12 @@
   " //-2": "Configuration stuff for knip:",
   "knip": {
     "entry": [
-      "main.tsx",
-      "client/frontend.tsx"
+      "src/entry.ts",
+      "src/client/frontend.tsx"
     ],
     "ignore": [
-      "client/__tests__/**/*",
-      "server/__tests__/**/*"
+      "src/client/__tests__/**/*",
+      "src/server/__tests__/**/*"
     ]
   },
   " //-3": "Hook configuration stuff:",

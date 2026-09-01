@@ -17,8 +17,6 @@ import { Settings } from './Settings';
 import { ThemeAtom } from './state/SavedSettings';
 import { getStore } from './state/Storage';
 
-import './index.css';
-
 export function MyApp(): ReactElement {
   return (
     <div className="app">

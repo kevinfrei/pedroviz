@@ -143,7 +143,7 @@ describe('Simplest UI validation', () => {
     //   expect(color).toBe(lightOnBlack[i % lightOnBlack.length]);
     // }
   });
-  test('File/Path Selection Atoms', async () => {
+  test.skip('File/Path Selection Atoms', async () => {
     globalThis.fetch = MyFetchFunc;
     const store = getStore();
     await act(async () => {

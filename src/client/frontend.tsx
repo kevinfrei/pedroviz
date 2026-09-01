@@ -20,10 +20,10 @@ const app = (
   </StrictMode>
 );
 
-if (import.meta.hot) {
+if (false /*import.meta.hotJ*/) {
   // With hot module reloading, `import.meta.hot.data` is persisted.
-  const root = (import.meta.hot.data.root ??= createRoot(elem));
-  root.render(app);
+  // const root = (import.meta.hot.data.root ??= createRoot(elem));
+  // root.render(app);
 } else {
   // The hot module reloading API is not available in production.
   createRoot(elem).render(app);

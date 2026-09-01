@@ -27,3 +27,8 @@ declare module '*.png' {
   const content: string;
   export default content;
 }
+
+declare module '*.prod' {
+  const content: string;
+  export default content;
+}
