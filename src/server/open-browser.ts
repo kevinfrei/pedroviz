@@ -14,14 +14,14 @@ export function OpenBrowser(url: string): void {
   } else if (/^linux/.test(plat)) {
     command = 'xdg-open';
   } else {
-    console.log(`open a brower to ${url} to launch the application`);
+    console.error(`Don't know how to launch a browser for platform: ${plat}`);
     return;
   }
   child_proc.exec(
     command + ' ' + url,
     (err, stdout: BufStr, stderr: BufStr) => {
       if (err !== null && err !== undefined) {
-        console.log(`exec error: ${JSON.stringify(err)}`);
+        console.error(`Couldn't launch a browser: ${JSON.stringify(err)}`);
       }
     },
   );

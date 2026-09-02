@@ -47,7 +47,6 @@ export async function FindRelativeRepoRoot(
     let parent = maxParent;
     while (currentPath != prevPath && parent > 0) {
       if (await SetRepoRoot(currentPath)) {
-        console.log('Found directory', currentPath);
         return currentPath;
       }
       prevPath = currentPath;

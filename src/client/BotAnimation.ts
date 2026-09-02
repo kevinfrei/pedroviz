@@ -74,7 +74,7 @@ export function animateBot(
   const points = state.curves[state.curveIndex]!.points;
   const point = points[state.curvePoint];
   if (!isDefined(point)) {
-    console.log('Index', state.curveIndex, 'item', state.curvePoint);
+    console.error('Index', state.curveIndex, 'item', state.curvePoint);
   } else {
     ctx.strokeStyle = botStyle.Color ?? '#ff9020';
     ctx.lineWidth = 1;

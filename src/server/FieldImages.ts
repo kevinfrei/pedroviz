@@ -62,7 +62,7 @@ See https://www.gnu.org/licenses/agpl-3.0.html
 <clipPath id="bounds">
 <rect x="5" y="5" width="1130" height="1130"/>
 </clipPath>
-<path id="ln" fill="none" stroke="%%%FG%%%" stroke-width="0.8" stroke-linejoin="round" d="M0,4L5,8L7,8L5,0L17,0L15,8L27,8L25,0L37,0L35,8L47,8L45,0L57,0L55,8L67,8L65,0L77,0L75,8L87,8L85,0L93,0L94.25,4"/>
+<path id="ln" fill="none" stroke="%%%FG%%%" stroke-width="0.8" stroke-linejoin="round" d="M0,4L5,6L7,6L5,2L17,2L15,6L27,6L25,2L37,2L35,6L47,6L45,2L57,2L55,6L67,6L65,2L77,2L75,6L87,6L85,2L93,2L94.25,4"/>
 <g id="corner">
 <use href="#ln" x="4" y="0"/>
 <use href="#ln" x="-192.5" y="-8" transform="rotate(180)"/>

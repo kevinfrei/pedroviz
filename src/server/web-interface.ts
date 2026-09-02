@@ -14,12 +14,10 @@ import {
 export async function GetFieldImage(theme: string): Promise<Response> {
   const theTheme = theme !== 'dark' && theme !== 'light' ? 'dark' : theme;
   const imagePath = GetFieldImagePath(theTheme);
-  console.log('Image Path: ', imagePath);
   if (isDefined(imagePath)) {
     return new Response(Bun.file(imagePath));
   }
 
-  console.log('Replying with SVG field');
   return new Response(GetThemedSVG(theTheme), {
     headers: { 'Content-Type': 'image/svg+xml' },
   });
@@ -27,7 +25,6 @@ export async function GetFieldImage(theme: string): Promise<Response> {
 
 export async function GetFieldSvg(theme: string): Promise<Response> {
   const theTheme = theme !== 'dark' && theme !== 'light' ? 'dark' : theme;
-  console.log('SVG field requested');
   return new Response(GetThemedSVG(theTheme), {
     headers: { 'Content-Type': 'image/svg+xml' },
   });
@@ -49,7 +46,9 @@ export async function LoadDatabase(): Promise<Response> {
 }
 
 export async function SaveDatabase(flattenedDb: string): Promise<Response> {
-  console.log('Saving DB');
+  console.error(
+    "Saving DB is not actually implemented yet, but let's pretend it is!",
+  );
   try {
     const db = SafelyUnpickle(flattenedDb, chkPathDatabase);
     if (isDefined(db)) {

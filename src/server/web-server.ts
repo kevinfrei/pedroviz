@@ -33,7 +33,7 @@ app.get(
   serveStatic({
     path: './index.html',
     onNotFound: (path, ctx) => {
-      console.log('/ FNF: ', path);
+      console.error('Index.html file not found: ', path);
     },
   }),
 );
@@ -43,7 +43,7 @@ app.get(
     root: GetGlobalDirname(), // Points to the /dist folder containing your bundled assets
     // Optional fallback for Single Page Apps (SPA routing)
     onNotFound: (path, c) => {
-      console.log(`File not found: ${path}`);
+      console.error(`Requested file not found: ${path}`);
     },
   }),
 );
@@ -67,14 +67,13 @@ const server = serveNode(
     port,
   },
   (info) => {
-    console.log(`App running at http://localhost:${info.port}`);
     resolvePromise(`http://localhost:${info.port}`);
   },
 );
 
 server.on('error', (err: NodeJS.ErrnoException) => {
   if (err.code === 'EADDRINUSE') {
-    rejectPromise(`Port ${port} already in use`);
+    rejectPromise(`Port ${port} already in use: Is the app running elsewhere?`);
   } else {
     rejectPromise(err.name + ': ' + err.message);
   }

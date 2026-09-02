@@ -4,8 +4,9 @@
 
 ## How to use this thing:
 
-0. Have a default web browser installed
-1. Install the [Bun](https://bun.com) Javascript runtime.
+0. Have a _non-Safari_ web browser installed.
+1. Install the [Bun](https://bun.com) or [NodeJS](https://nodejs.org) Javascript
+   runtime.
 2. Either:
    1. Navigate to the root of your robot source code directory from a command
       line
@@ -16,17 +17,19 @@
       - Linux: Use your favorite terminal emulator and shell. If you're using
         Linux, you don't need my help.
       - use `cd <folder location>` to get to where you put your source code.
-   2. Type `bunx @freik/pedroviz`.
+   2. Type `bunx @freik/pedroviz` or `npx @freik/pedroviz` (depending on if you
+      prefer Bun or NodeJS)
 3. Or:
    1. Open up a command line inside Android Studio
-   2. type `bunx @freik/pedroviz` (because Android Studio puts you in the right
-      directory automagically)
-4. Advanced folks (who might use Bun for other things as well):
+   2. type `bunx @freik/pedroviz` (or `npx @freik/pedroviz`) and hit _`enter`_
+      (because Android Studio puts you in the right directory automagically)
+4. Advanced folks (who might use Bun or NodeJS for other things as well):
    1. Add it to your `package.json` dependency list: `bun add @freik/pedroviz`
+      or `npm install @freik/pedroviz`
    2. Make a script to call `pedroviz`. If the `package.json` file isn't in your
       source repo root, add the location of your source as the second command.
-      Something like this: `"pedro": "bun run pedroviz"` and then you can call
-      it by typeing `bun pedro` if you'd prefer!
+      Something like this: `"pedro": "pedroviz ../BioBuzz"` and then you can
+      call it by typing `bun pedro` or `npm run pedro` if you'd prefer!
 
 The first time you use the app, it will take some time to download & install the
 package. Once it's been installed, you no longer need to be connected to the
@@ -35,9 +38,16 @@ interwebs to use the visualizer. So you can be connected to your _robot_ :D
 You'll see something like this:
 
 ```text
-Parsing code: Please wait...
-Found directory /home/freik/src/ftc/BioBuzz2026
-🚀 Server running at http://localhost:3000/
+🚀 🚀 🚀 🚀 🚀
+Pedro Visualization application is running at http://localhost:58888
+
+(Your browser should open automatically, but if it doesn't, open a browser
+and go to that URL. The 'http://' is important, as the browser will not allow
+the application to run without it.)
+
+*********************************************
+>>> Press Ctrl+C to stop the application. <<<
+*********************************************
 ```
 
 And then a browser window should open up. If it comes up with a 404, just
@@ -66,10 +76,10 @@ and edit PedroPath's. The _reasons_ for this as opposed to just using
    keep a source file in sync with the visualizer yourself through horrible
    copy-paste shenanigans.
 
-Basically: *_No more copying stuff back and forth!_ Just write your code and see
-what it looks like. _Eventually_, this will create a class for you, and allow
-you to name values, points, curves, and paths. Honestly, using Panels to update
-things live while also keeping the source code "in sync" would also be
+Basically: **_No more copying stuff back and forth!_** Just write your code and
+see what it looks like. _Eventually_, this will create a class for you, and
+allow you to name values, points, curves, and paths. Honestly, using Panels to
+update things live while keeping the source code "in sync" would also be
 _amazing_, but that's probably not going to happen in the foreseeable future.
 
 # Current status
@@ -97,12 +107,17 @@ of my frei time, because I love working with FTC students...)
 - [x] Read paths from code
   - [x] Specify robot dimensions (and other settings)
 - [x] Document basic usage
-- [ ] Display Java source parsing issues so users can see if they should fix
-      their code, or send their code to me.
-- [ ] Increase test coverage (ongoing)
-- [ ] Support more complex math expression evaluation
 - [x] Allow detection of `field-dark.jpg` and `field-light.jpg` from the users's
       code for game-specific field backgrounds
+- [ ] Increase test coverage (ongoing)
+- [ ] Display Java source parsing issues so users can see if they should fix
+      their code, or send their code to me.
+- [ ] Fix interpolation to be a per-path thing.
+- [ ] Get this stuff working on Safari. I've enabled dev mode, and it looks like
+      something with the ResizeObserver for the Canvas isn't working. Works fine
+      on Firefox, Chrome, and Brave on Mac, Linux, and Windows (and Edge works,
+      too).
+- [ ] Support more complex math expression parsing & evaluation
 - [ ] Edit existing:
   - [ ] Named values
   - [ ] Named poses
@@ -123,15 +138,15 @@ of my frei time, because I love working with FTC students...)
   - [ ] Named PathChains
 - [ ] Enable "warning" lines: warn if the robot crosses a line on a path
 - [ ] Make work with nodejs (`npx`) as well?
-- [x] Specify different alliance paths (this is doable through multiple
-      classes...)
+- [x] Specify different alliance paths (doable through multiple classes...)
   - [ ] Bonus: Reflect a path along a line or axis
 - [ ] Support additional parts of the path builder
   - [x] multiple paths
   - [x] path headings (global and last)
-  - [ ] max velocity (or, you know, any velocity/acceleration model)
+  - [ ] max velocity (or, you know, any velocity/acceleration model for
+        animation)
   - [ ] braking strength
-  - [ ] tValues
+  - [ ] tValues (Not sure what this would really look like...)
 - [ ] Eventually, migrate to use a text file, instead of java source code for
       static paths?
   - [ ] Maybe as part of the SystemCore migration? I've got this done, so adding
@@ -143,7 +158,7 @@ This whole thing is built with [Typescript](https://www.typescriptlang.org/).
 I'm using [Hono](https://hono.dev/) as a local web server,
 [React](https://react.dev/) with [Jotai](https://jotai.org/) for state
 management and [FluentUI](https://developer.microsoft.com/en-us/fluentui#/) as
-the UI/control toolbox. None of these framworks are too complicated to get
+the UI/control toolbox. None of these frameworks are too complicated to get
 started with, but each have their own sets of weirdness. Feel free to reach out
 to me if you're trying to understand the code, add a feature, or fix a bug.
 
@@ -160,15 +175,20 @@ bun install
 To start a development server:
 
 ```bash
+bun dev:bundle
+```
+
+then in a different window:
+
+```bash
 bun dev {FTC Source Location}
 ```
 
 To bundle for production (only for Kevin, sorry):
 
 ```bash
-bun bundle
-bun npm login
-bun publish --access=public
+bun prod:bundle
+npm publish --access=public
 ```
 
 ### Buy, why????
@@ -186,17 +206,19 @@ While a Microsoft employee, I had learned WinForms and WPF way way way back in
 the day, but the various MVC/MVVM data-binding shenanigans just slowly sapped my
 will to build UI's. Writing UI as functional, composable components makes my
 brain so much happier than MVC or MVVM or any sort of forced "this is the UI,
-and that's the dota model" kind a crap.
+and that's the data model" kind a crap.
 
 I also have no interest in learning a different UI framework, particularly
 something that's not going to be available everywhere I care about (Java on an
 iPhone is not really a thing). So, it's TypeScript, and React. (I actually built
 [a little C++ app framework](https://github.com/kevinfrei/cuark) that lets me
 write much bigger, more complex things that use React + Typescript for the UI
-across Linux, macOS, and Windows, and it's _not_ React Native).
+across Linux, macOS, and Windows, and it's _not_ React Native: Maybe in the
+footure I'll migrate to that framework? I dunno: `bunx @freik/pedroviz` is
+embarassingly easy to do...).
 
 Just know that I'm a grumpy old programmer who retired before Claude Code stole
-the joy of coding if you're willing to pay $500/month to light the planet on
+the joy of coding if you're willing to pay $500+/month to light the planet on
 fire. I love to write code. I _can_ code review (that's my primary role as a
 mentor on FTC) but honestly, asking some miserable AI to create code when I'd
 prefer to do it myself, and then have to code review that miserable AI's code
