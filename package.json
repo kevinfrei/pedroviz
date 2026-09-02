@@ -1,6 +1,6 @@
 {
   "name": "@freik/pedroviz",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "repository": "https://github.com/kevinfrei/pedroviz.git",
   "author": "Kevin Frei <kevinfrei@hotmail.com>",
   "license": "AGPL-3.0-or-later",
@@ -29,7 +29,7 @@
     "@fluentui/react-icons": "^2.0.339",
     "@fluentui/tokens": "^1.0.0-alpha.24",
     "@freik/containers": "^0.4.10",
-    "@freik/fluent9-tools": "^0.2.3",
+    "@freik/fluent9-tools": "^0.2.4",
     "@freik/react-tools": "^0.4.4",
     "@freik/sync": "^0.4.10",
     "@freik/typechk": "^0.10.0",
