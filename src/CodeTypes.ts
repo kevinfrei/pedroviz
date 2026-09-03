@@ -86,10 +86,22 @@ export type PathChainHelper = {
   staticType: string; // This should be the package-local type being assigned
 };
 
-export type AnonymousPathChain = {
-  paths: BezierRef[];
-  heading: AnonymousInterp;
+export type PathChainElement = {
+  curve: BezierRef;
+  interp: AnonymousInterp;
 };
+
+export type IndividualInterpPathChain = {
+  curves: PathChainElement[];
+};
+
+export type GlobalInterpPathChain = {
+  curvs: BezierRef[];
+  interp: AnonymousInterp;
+};
+
+export type AnonymousPathChain =
+  IndividualInterpPathChain | GlobalInterpPathChain;
 
 // Also: I'm not yet handling global vs. last heading modifiers
 export type NamedPathChain = { name: PathChainName } & AnonymousPathChain;
