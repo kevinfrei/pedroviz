@@ -40,18 +40,18 @@ import {
 } from '../CodeTypeCheck';
 import {
   AnonymousBezier,
-  AnonymousFacing,
+  AnonymousInterp,
   AnonymousPose,
   AnonymousValue,
   BezierName,
   BezierRef,
   BezierType,
-  FacingLinear,
-  FacingPiece,
-  FacingReversible,
-  FacingSimple,
-  FacingType,
   HeadingRef,
+  InterpLinear,
+  InterpolationType,
+  InterpPiece,
+  InterpReversible,
+  InterpSimple,
   NamedBezier,
   NamedPathChain,
   NamedPose,
@@ -647,7 +647,7 @@ function getBezierRef(
 }
 
 // parse each argument to HeadingInterpolator.piecewise(...) thing
-function getPiece(expr: ExpressionCstNode): FacingPiece | undefined {
+function getPiece(expr: ExpressionCstNode): InterpPiece | undefined {
   const [ctor, args] = getCtorArgs(expr);
   if (
     isUndefined(args) ||
@@ -668,17 +668,17 @@ function getPiece(expr: ExpressionCstNode): FacingPiece | undefined {
 function getHeadingInterpolation(
   expr: ExpressionCstNode,
   simple: true,
-): FacingSimple | undefined;
+): InterpSimple | undefined;
 function getHeadingInterpolation(
   expr: ExpressionCstNode,
   simple?: false,
-): AnonymousFacing | undefined;
+): AnonymousInterp | undefined;
 
 // TODO: This doesn't (yet) properly handle chaining :/
 function getHeadingInterpolation(
   expr: ExpressionCstNode,
   simple?: boolean,
-): AnonymousFacing | undefined {
+): AnonymousInterp | undefined {
   // Single argument: Get the static method:
   const methodRef = getRef(expr);
   if (isUndefined(methodRef)) {
@@ -698,10 +698,10 @@ function getHeadingInterpolation(
         break;
       }
       // Reach each arg as a piece (unsafecast is for the return type)
-      const pieces = methodArgs.map(getPiece) as FacingPiece[];
+      const pieces = methodArgs.map(getPiece) as InterpPiece[];
       // If everything wasn't a piece, fail (required for the cast above)
       if (pieces.every(isDefined)) {
-        return { type: FacingType.Piecewise, pieces };
+        return { type: InterpolationType.Piecewise, pieces };
       }
       break;
     case 'HeadingInterpolator.facingPoint':
@@ -713,13 +713,13 @@ function getHeadingInterpolation(
         if (methodArgs.length === 1) {
           const pose = getPoseRef(methodArgs[0]!);
           if (isDefined(pose)) {
-            return { type: FacingType.Point, point: pose };
+            return { type: InterpolationType.Point, point: pose };
           }
         } else if (methodArgs.length === 2) {
           const x = getOnlyValueRef(methodArgs[0]);
           const y = getOnlyValueRef(methodArgs[1]);
           if (isDefined(x) && isDefined(y)) {
-            return { type: FacingType.Point, point: { x, y } };
+            return { type: InterpolationType.Point, point: { x, y } };
           }
         }
       }
@@ -728,13 +728,13 @@ function getHeadingInterpolation(
       if (isDefined(methodArgs)) {
         return;
       } else {
-        return { type: FacingType.Tangent };
+        return { type: InterpolationType.Tangent };
       }
     case 'HeadingInterpolator.constant':
       if (isDefined(methodArgs)) {
         const heading = getHeadingRef(methodArgs[0]);
         if (isDefined(heading)) {
-          return { type: FacingType.Constant, heading };
+          return { type: InterpolationType.Constant, heading };
         }
       }
       return;
@@ -752,10 +752,14 @@ function getHeadingInterpolation(
       const endT =
         methodArgs.length === 3 ? getOnlyValueRef(methodArgs[3]) : undefined;
       // TODO: Handle endT appropriately
-      const linear: FacingLinear = { type: FacingType.Linear, start, end };
+      const linear: InterpLinear = {
+        type: InterpolationType.Linear,
+        start,
+        end,
+      };
       return methodRef.indexOf('v') < 0
         ? linear
-        : { type: FacingType.Reversed, facing: linear };
+        : { type: InterpolationType.Reversed, interp: linear };
     // TODO: These only make sense once I handle chaining.
     case 'HeadingInterpolator.reverse':
       console.error('NYI: HeadingInterpolator.reverse');
@@ -813,7 +817,7 @@ function getPathChain(node: BlockStatementCstNode): NamedPathChain | undefined {
   // Okay, remove the '.pathBuilder()' prefix, and the
   // '.build();' suffix.
   let chain: BezierRef[] = [];
-  let pathHeading: AnonymousFacing | null = null;
+  let pathHeading: AnonymousInterp | null = null;
   let lastMethodName: string | undefined = 'pathBuilder';
   for (let index = 0; index < methods.length; index++) {
     const method = methods[index]!;
@@ -848,7 +852,7 @@ function getPathChain(node: BlockStatementCstNode): NamedPathChain | undefined {
           if (isDefined(getArgList(method))) {
             return;
           }
-          pathHeading = { type: FacingType.Tangent };
+          pathHeading = { type: InterpolationType.Tangent };
           continue;
         case 'setLinearHeadingInterpolation':
           const linearArgs = getArgList(method);
@@ -861,7 +865,7 @@ function getPathChain(node: BlockStatementCstNode): NamedPathChain | undefined {
             return;
           }
           pathHeading = {
-            type: FacingType.Linear,
+            type: InterpolationType.Linear,
             start: startHeading,
             end: endHeading,
           };
@@ -875,7 +879,10 @@ function getPathChain(node: BlockStatementCstNode): NamedPathChain | undefined {
           if (isUndefined(headingRef)) {
             return;
           }
-          pathHeading = { type: FacingType.Constant, heading: headingRef };
+          pathHeading = {
+            type: InterpolationType.Constant,
+            heading: headingRef,
+          };
           continue;
         case 'setReversed':
           if (pathHeading === null) {
@@ -883,8 +890,8 @@ function getPathChain(node: BlockStatementCstNode): NamedPathChain | undefined {
           }
           // TODO: Don't cast. Error!
           pathHeading = {
-            type: FacingType.Reversed,
-            facing: pathHeading as FacingReversible,
+            type: InterpolationType.Reversed,
+            interp: pathHeading as InterpReversible,
           };
           continue;
 

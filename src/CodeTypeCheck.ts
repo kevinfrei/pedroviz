@@ -16,7 +16,7 @@ import {
 
 import {
   AnonymousBezier,
-  AnonymousFacing,
+  AnonymousInterp,
   AnonymousPose,
   AnonymousValue,
   BezierName,
@@ -24,17 +24,17 @@ import {
   BezierType,
   ClassContainer,
   DoubleValue,
-  FacingConstant,
-  FacingLinear,
-  FacingPiece,
-  FacingPieceWise,
-  FacingPoint,
-  FacingReversed,
-  FacingReversible,
-  FacingTangent,
-  FacingTiming,
-  FacingType,
   HeadingRef,
+  InterpConstant,
+  InterpLinear,
+  InterpolationType,
+  InterpPiece,
+  InterpPiecewise,
+  InterpPoint,
+  InterpReversed,
+  InterpReversible,
+  InterpTangent,
+  InterpTiming,
   IntValue,
   NamedBezier,
   NamedPathChain,
@@ -123,92 +123,98 @@ function isBezierTypeName(t: unknown): t is BezierType {
   isBezierName,
   isAnonymousBezier,
 );
-function isTangentFacingType(type: unknown): type is typeof FacingType.Tangent {
-  return type === FacingType.Tangent;
-}
-function isConstantFacingType(
+function isTangentInterpType(
   type: unknown,
-): type is typeof FacingType.Constant {
-  return type === FacingType.Constant;
+): type is typeof InterpolationType.Tangent {
+  return type === InterpolationType.Tangent;
 }
-function isLinearFacingType(type: unknown): type is typeof FacingType.Linear {
-  return type === FacingType.Linear;
-}
-function isPointFacingType(type: unknown): type is typeof FacingType.Point {
-  return type === FacingType.Point;
-}
-function isReversedFacingType(
+function isConstantInterpType(
   type: unknown,
-): type is typeof FacingType.Reversed {
-  return type === FacingType.Reversed;
+): type is typeof InterpolationType.Constant {
+  return type === InterpolationType.Constant;
 }
-function isPiecewiseFacingType(
+function isLinearInterpType(
   type: unknown,
-): type is typeof FacingType.Piecewise {
-  return type === FacingType.Piecewise;
+): type is typeof InterpolationType.Linear {
+  return type === InterpolationType.Linear;
+}
+function isPointInterpType(
+  type: unknown,
+): type is typeof InterpolationType.Point {
+  return type === InterpolationType.Point;
+}
+function isReversedInterpType(
+  type: unknown,
+): type is typeof InterpolationType.Reversed {
+  return type === InterpolationType.Reversed;
+}
+function isPiecewiseInterpType(
+  type: unknown,
+): type is typeof InterpolationType.Piecewise {
+  return type === InterpolationType.Piecewise;
 }
 
-export const isTangentFacing = chkObjectOfExactType<FacingTangent>({
-  type: isTangentFacingType,
+export const isTangentInterp = chkObjectOfExactType<InterpTangent>({
+  type: isTangentInterpType,
 });
-export const isConstantFacing = chkObjectOfExactType<FacingConstant>({
-  type: isConstantFacingType,
+export const isConstantInterp = chkObjectOfExactType<InterpConstant>({
+  type: isConstantInterpType,
   heading: isHeadingRef,
 });
-export const isLinearFacing = chkObjectOfExactType<FacingLinear>({
-  type: isLinearFacingType,
+export const isLinearInterp = chkObjectOfExactType<InterpLinear>({
+  type: isLinearInterpType,
   start: isHeadingRef,
   end: isHeadingRef,
 });
-export const isPointFacing = chkObjectOfExactType<FacingPoint>({
-  type: isPointFacingType,
+export const isPointInterp = chkObjectOfExactType<InterpPoint>({
+  type: isPointInterpType,
   point: isPoseRef,
 });
-export const isReversibleFacing: typecheck<FacingReversible> = chkAnyOf(
-  isTangentFacing,
-  isConstantFacing,
-  isLinearFacing,
-  isPointFacing,
+export const isReversibleInterp: typecheck<InterpReversible> = chkAnyOf(
+  isTangentInterp,
+  isConstantInterp,
+  isLinearInterp,
+  isPointInterp,
 );
-/*export*/ const isFacingTiming = chkObjectOfExactType<FacingTiming>({
+/*export*/ const isInterpTiming = chkObjectOfExactType<InterpTiming>({
   start: isValueRef,
   end: isValueRef,
 });
-export const isReversedFacing: typecheck<FacingReversed> =
-  chkObjectOfExactType<FacingReversed>({
-    type: isReversedFacingType,
-    facing: isReversibleFacing,
+export const isReversedInterp: typecheck<InterpReversed> =
+  chkObjectOfExactType<InterpReversed>({
+    type: isReversedInterpType,
+    interp: isReversibleInterp,
   });
-/*export*/ const isSimpleFacing = chkAnyOf(
-  isReversibleFacing,
-  isReversedFacing,
+/*export*/ const isSimpleInterp = chkAnyOf(
+  isReversibleInterp,
+  isReversedInterp,
 );
-/*export*/ const isPiecewiseEntry: typecheck<FacingPiece> =
-  chkObjectOfExactType<FacingPiece>({
-    timing: isFacingTiming,
-    heading: isSimpleFacing,
+/*export*/ const isPiecewiseEntry: typecheck<InterpPiece> =
+  chkObjectOfExactType<InterpPiece>({
+    timing: isInterpTiming,
+    heading: isSimpleInterp,
   });
-export const isPiecewiseFacing = chkObjectOfExactType<FacingPieceWise>({
-  type: isPiecewiseFacingType,
+export const isPiecewiseInterp = chkObjectOfExactType<InterpPiecewise>({
+  type: isPiecewiseInterpType,
   pieces: chkArrayOf(isPiecewiseEntry),
 });
-/*export*/ const isAnonymousFacing: typecheck<AnonymousFacing> = (
+/*export*/ const isAnonymousInterp: typecheck<AnonymousInterp> = (
   obj: unknown,
-): obj is AnonymousFacing => {
+): obj is AnonymousInterp => {
   return chkAnyOf(
-    isTangentFacing,
-    isConstantFacing,
-    isLinearFacing,
-    isPointFacing,
-    isPiecewiseFacing,
-    isReversedFacing,
+    isTangentInterp,
+    isConstantInterp,
+    isLinearInterp,
+    isPointInterp,
+    isPiecewiseInterp,
+    isReversedInterp,
   )(obj);
 };
 
 /*export*/ const isNamedPathChain = chkObjectOfExactType<NamedPathChain>({
   name: isString,
   paths: chkArrayOf(isBezierRef),
-  heading: isAnonymousFacing,
+  heading: isAnonymousInterp,
 });
 
 /*export*/ const isPathChainHelper = chkObjectOfExactType<PathChainHelper>({

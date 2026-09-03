@@ -4,17 +4,21 @@ import { expect, test } from 'bun:test';
 
 import {
   isAnonymousValue,
-  isConstantFacing,
-  isLinearFacing,
-  isPiecewiseFacing,
-  isPointFacing,
+  isConstantInterp,
+  isLinearInterp,
+  isPiecewiseInterp,
+  isPointInterp,
   isRadiansRef,
   isRef,
-  isReversedFacing,
-  isTangentFacing,
+  isReversedInterp,
+  isTangentInterp,
   isValueRef,
 } from '../../CodeTypeCheck';
-import { BezierType, FacingPieceWise, FacingType } from '../../CodeTypes';
+import {
+  BezierType,
+  InterpolationType,
+  InterpPiecewise,
+} from '../../CodeTypes';
 import { chkPathKey } from '../../IpcTypeCheck';
 
 test('Parsed file types validation', () => {
@@ -75,39 +79,39 @@ test('Parsed file types validation', () => {
   // expect(isBezierRef('a')).toBeTrue();
   // expect(isBezierRef(anonBezC)).toBeTrue();
   // expect(isBezierRef(Symbol('lol'))).toBeFalse();
-  const tangHead = { type: FacingType.Tangent };
-  const constHead = { type: FacingType.Constant, heading: 'heading' };
+  const tangHead = { type: InterpolationType.Tangent };
+  const constHead = { type: InterpolationType.Constant, heading: 'heading' };
   const linHead = {
-    type: FacingType.Linear,
+    type: InterpolationType.Linear,
     start: { radians: 'ref' },
     end: anonValI,
   };
   const pointHead = {
-    type: FacingType.Point,
+    type: InterpolationType.Point,
     point: { x: { int: 3 }, y: { double: 3.5 } },
   };
-  expect(isTangentFacing(tangHead)).toBeTrue();
-  expect(isConstantFacing(tangHead)).toBeFalse();
-  expect(isLinearFacing(tangHead)).toBeFalse();
-  expect(isTangentFacing(constHead)).toBeFalse();
-  expect(isConstantFacing(constHead)).toBeTrue();
-  expect(isLinearFacing(constHead)).toBeFalse();
-  expect(isTangentFacing(linHead)).toBeFalse();
-  expect(isConstantFacing(linHead)).toBeFalse();
-  expect(isLinearFacing(linHead)).toBeTrue();
-  expect(isPointFacing(pointHead)).toBeTrue();
-  expect(isPointFacing(linHead)).toBeFalse();
-  // expect(isAnonymousFacing(tangHead)).toBeTrue();
-  // expect(isAnonymousFacing(constHead)).toBeTrue();
-  // expect(isAnonymousFacing(linHead)).toBeTrue();
+  expect(isTangentInterp(tangHead)).toBeTrue();
+  expect(isConstantInterp(tangHead)).toBeFalse();
+  expect(isLinearInterp(tangHead)).toBeFalse();
+  expect(isTangentInterp(constHead)).toBeFalse();
+  expect(isConstantInterp(constHead)).toBeTrue();
+  expect(isLinearInterp(constHead)).toBeFalse();
+  expect(isTangentInterp(linHead)).toBeFalse();
+  expect(isConstantInterp(linHead)).toBeFalse();
+  expect(isLinearInterp(linHead)).toBeTrue();
+  expect(isPointInterp(pointHead)).toBeTrue();
+  expect(isPointInterp(linHead)).toBeFalse();
+  // expect(isAnonymousInterp(tangHead)).toBeTrue();
+  // expect(isAnonymousInterp(constHead)).toBeTrue();
+  // expect(isAnonymousInterp(linHead)).toBeTrue();
   const revHead = {
-    type: FacingType.Reversed,
-    facing: pointHead,
+    type: InterpolationType.Reversed,
+    interp: pointHead,
   };
-  expect(isReversedFacing(revHead)).toBeTrue();
-  expect(isReversedFacing(pointHead)).toBeFalse();
-  const pieceHead: FacingPieceWise = {
-    type: FacingType.Piecewise,
+  expect(isReversedInterp(revHead)).toBeTrue();
+  expect(isReversedInterp(pointHead)).toBeFalse();
+  const pieceHead: InterpPiecewise = {
+    type: InterpolationType.Piecewise,
     pieces: [
       { timing: { start: { int: 0 }, end: { double: 0.5 } }, heading: revHead },
       {
@@ -116,12 +120,12 @@ test('Parsed file types validation', () => {
       },
     ],
   };
-  expect(isPiecewiseFacing(pieceHead)).toBeTrue();
+  expect(isPiecewiseInterp(pieceHead)).toBeTrue();
   const notPiece = { ...pieceHead, nope: false };
-  expect(isPiecewiseFacing(notPiece)).toBeFalse();
-  // expect(getFacingType(pieceHead)).toEqual(FacingType.Piecewise);
-  // expect(isAnonymousFacing(revHead)).toBeTrue();
-  // expect(isAnonymousFacing(anonBezC)).toBeFalse();
+  expect(isPiecewiseInterp(notPiece)).toBeFalse();
+  // expect(getInterpType(pieceHead)).toEqual(InterpolationType.Piecewise);
+  // expect(isAnonymousInterp(revHead)).toBeTrue();
+  // expect(isAnonymousInterp(anonBezC)).toBeFalse();
   const npc = {
     name: 'path1',
     paths: [anonBezC, 'bezRef'],

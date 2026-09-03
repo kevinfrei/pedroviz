@@ -17,7 +17,7 @@ import {
   ptDistance,
   vector,
 } from './DrawingHelpers';
-import { calcBezierRef, calcFacing, calcPoseRef } from './ExpressionEval';
+import { calcBezierRef, calcInterp, calcPoseRef } from './ExpressionEval';
 import {
   BotDrawStyleAtom,
   CoordVizPercentAtom,
@@ -68,7 +68,7 @@ export function FieldRenderer(): ReactElement {
       npc.name,
       npc.paths.map((br): [Point[], ConcreteHeading] => [
         calcBezierRef(br, file),
-        calcFacing(npc.heading, file),
+        calcInterp(npc.heading, file),
       ]),
     ]),
   );

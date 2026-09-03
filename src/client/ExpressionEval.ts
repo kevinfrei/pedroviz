@@ -4,32 +4,32 @@ import { isDefined, isUndefined } from '@freik/typechk';
 
 import {
   isAnonymousValue,
-  isConstantFacing,
+  isConstantInterp,
   isDoubleValue,
   isIntValue,
-  isLinearFacing,
-  isPiecewiseFacing,
-  isPointFacing,
+  isLinearInterp,
+  isPiecewiseInterp,
+  isPointInterp,
   isRadiansRef,
   isRef,
-  isReversedFacing,
-  isReversibleFacing,
-  isTangentFacing,
+  isReversedInterp,
+  isReversibleInterp,
+  isTangentInterp,
   isValueName,
 } from '../CodeTypeCheck';
 import {
-  AnonymousFacing,
+  AnonymousInterp,
   AnonymousValue,
   BezierRef,
-  FacingConstant,
-  FacingLinear,
-  FacingPiece,
-  FacingPieceWise,
-  FacingPoint,
-  FacingReversed,
-  FacingReversible,
-  FacingSimple,
   HeadingRef,
+  InterpConstant,
+  InterpLinear,
+  InterpPiece,
+  InterpPiecewise,
+  InterpPoint,
+  InterpReversed,
+  InterpReversible,
+  InterpSimple,
   ParsedClass,
   PoseName,
   PoseRef,
@@ -229,15 +229,15 @@ export function calcValue(
   }
 }
 
-export function calcFacing(
-  heading: AnonymousFacing,
+export function calcInterp(
+  heading: AnonymousInterp,
   ctx: ParsedClass,
 ): ConcreteHeading {
-  if (isReversibleFacing(heading)) {
+  if (isReversibleInterp(heading)) {
     return mkReversible(heading, ctx);
-  } else if (isReversedFacing(heading)) {
+  } else if (isReversedInterp(heading)) {
     return mkReversed(heading, ctx);
-  } else if (isPiecewiseFacing(heading)) {
+  } else if (isPiecewiseInterp(heading)) {
     return mkPiecewise(heading, ctx);
   }
   return mkTangent();
@@ -254,14 +254,14 @@ function mkTangent(): ConcreteTangentHeading {
 }
 
 function mkConstant(
-  heading: FacingConstant,
+  heading: InterpConstant,
   ctx: ParsedClass,
 ): ConcreteConstantHeading {
   return { type: 'C', heading: calcHeadingRef(heading.heading, ctx) };
 }
 
 function mkLinear(
-  heading: FacingLinear,
+  heading: InterpLinear,
   ctx: ParsedClass,
 ): ConcreteLinearHeading {
   return {
@@ -273,46 +273,46 @@ function mkLinear(
   };
 }
 
-function mkPoint(heading: FacingPoint, ctx: ParsedClass): ConcretePointHeading {
+function mkPoint(heading: InterpPoint, ctx: ParsedClass): ConcretePointHeading {
   return { type: 'P', heading: calcPoseRef(heading.point, ctx) };
 }
 
 function mkReversible(
-  heading: FacingReversible,
+  heading: InterpReversible,
   ctx: ParsedClass,
 ): ConcreteReversibleHeading {
-  if (isTangentFacing(heading)) {
+  if (isTangentInterp(heading)) {
     return mkTangent();
-  } else if (isConstantFacing(heading)) {
+  } else if (isConstantInterp(heading)) {
     return mkConstant(heading, ctx);
-  } else if (isLinearFacing(heading)) {
+  } else if (isLinearInterp(heading)) {
     return mkLinear(heading, ctx);
-  } else if (isPointFacing(heading)) {
+  } else if (isPointInterp(heading)) {
     return mkPoint(heading, ctx);
   }
-  throw new Error(`Unknown simple Facing type`);
+  throw new Error(`Unknown simple interp type`);
 }
 
 function mkReversed(
-  heading: FacingReversed,
+  heading: InterpReversed,
   ctx: ParsedClass,
 ): ConcreteReversedHeading {
-  const revheading = mkReversible(heading.facing, ctx);
+  const revheading = mkReversible(heading.interp, ctx);
   return { type: 'R', heading: revheading };
 }
 
 function mkSimple(
-  heading: FacingSimple,
+  heading: InterpSimple,
   ctx: ParsedClass,
 ): ConcreteSimpleHeading {
-  if (isReversedFacing(heading)) {
+  if (isReversedInterp(heading)) {
     return mkReversed(heading, ctx);
   } else {
     return mkReversible(heading, ctx);
   }
 }
 
-function mkPiece(piece: FacingPiece, ctx: ParsedClass): ConcretePiece {
+function mkPiece(piece: InterpPiece, ctx: ParsedClass): ConcretePiece {
   return {
     start: calcValueRef(piece.timing.start, ctx),
     end: calcValueRef(piece.timing.end, ctx),
@@ -321,7 +321,7 @@ function mkPiece(piece: FacingPiece, ctx: ParsedClass): ConcretePiece {
 }
 
 function mkPiecewise(
-  head: FacingPieceWise,
+  head: InterpPiecewise,
   ctx: ParsedClass,
 ): ConcretePiecewiseHeading {
   return { type: 'L', pieces: head.pieces.map((fp) => mkPiece(fp, ctx)) };

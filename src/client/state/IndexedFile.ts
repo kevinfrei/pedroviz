@@ -13,15 +13,15 @@ import {
 import { EmptyParsedClass, isRadiansRef, isRef } from '../../CodeTypeCheck';
 import {
   AnonymousBezier,
-  AnonymousFacing,
+  AnonymousInterp,
   AnonymousPathChain,
   AnonymousPose,
   BezierName,
   BezierRef,
   BezierType,
-  FacingPiece,
-  FacingType,
   HeadingRef,
+  InterpolationType,
+  InterpPiece,
   ParsedClass,
   PathChainName,
   PoseName,
@@ -249,14 +249,14 @@ export function ValidateIndex(
     apc: AnonymousPathChain,
     id: string,
   ): ValidRes {
-    let res = validateFacing(apc.heading, id);
+    let res = validateInterp(apc.heading, id);
     apc.paths.forEach((br, index) => {
       res = AccError(checkBezierRef(br, `${id}'s path element ${index}`), res);
     });
     return res;
   }
 
-  function validatePieces(pieces: FacingPiece[], id: string): ValidRes {
+  function validatePieces(pieces: InterpPiece[], id: string): ValidRes {
     let res: ValidRes = true;
     pieces.forEach((piece, idx) => {
       res = AccError(
@@ -268,38 +268,38 @@ export function ValidateIndex(
         res,
       );
       res = AccError(
-        validateFacing(piece.heading, `${id}'s heading #${idx}`),
+        validateInterp(piece.heading, `${id}'s heading #${idx}`),
         res,
       );
     });
     return res;
   }
 
-  function validateFacing(heading: AnonymousFacing, id: string): ValidRes {
+  function validateInterp(heading: AnonymousInterp, id: string): ValidRes {
     let res: ValidRes = true;
     switch (heading.type) {
-      case FacingType.Constant:
+      case InterpolationType.Constant:
         res = checkHeadingRef(heading.heading, `${id}'s constant heading ref`);
         break;
-      case FacingType.Linear:
+      case InterpolationType.Linear:
         res = checkHeadingRef(heading.start, `${id}'s start heading ref`);
         res = AccError(
           checkHeadingRef(heading.end, `${id}'s end heading ref`),
           res,
         );
         break;
-      case FacingType.Tangent:
+      case InterpolationType.Tangent:
         break; // Nothing to see here...
-      case FacingType.Reversed:
-        res = validateFacing(
-          heading.facing,
+      case InterpolationType.Reversed:
+        res = validateInterp(
+          heading.interp,
           `${id}'s reversed heading interpolator`,
         );
         break;
-      case FacingType.Point:
+      case InterpolationType.Point:
         res = checkPoseRef(heading.point, `${id}'s point heading interpolator`);
         break;
-      case FacingType.Piecewise:
+      case InterpolationType.Piecewise:
         res = validatePieces(
           heading.pieces,
           `${id}'s Piecewise heading interpolator`,

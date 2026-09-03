@@ -20,8 +20,8 @@ import {
 import { isString, isUndefined } from '@freik/typechk';
 
 import {
-  AnonymousFacing,
-  FacingType,
+  AnonymousInterp,
+  InterpolationType,
   NamedPathChain,
   PathChainName,
 } from '../../CodeTypes';
@@ -34,14 +34,14 @@ function HeadingTypeDisplay({
   heading,
   ...props
 }: {
-  heading: AnonymousFacing;
+  heading: AnonymousInterp;
   style?: CSSProperties;
 }): ReactElement {
   if (isUndefined(heading)) {
     return <></>;
   }
   switch (heading.type) {
-    case FacingType.Constant:
+    case InterpolationType.Constant:
       return (
         <div>
           <Text {...props}>Constant:</Text>
@@ -49,9 +49,9 @@ function HeadingTypeDisplay({
           <HeadingRefDisplay item={heading.heading} {...props} />
         </div>
       );
-    case FacingType.Tangent:
+    case InterpolationType.Tangent:
       return <Text {...props}>Tangent</Text>;
-    case FacingType.Linear:
+    case InterpolationType.Linear:
       return (
         <div>
           <Text {...props}>Linear:</Text>
@@ -63,7 +63,7 @@ function HeadingTypeDisplay({
           </span>
         </div>
       );
-    case FacingType.Point:
+    case InterpolationType.Point:
       return (
         <div>
           <Text {...props}>Point:</Text>
@@ -73,9 +73,9 @@ function HeadingTypeDisplay({
           </span>
         </div>
       );
-    case FacingType.Reversed:
+    case InterpolationType.Reversed:
       return <Text {...props}>Reversed...[TODO!]</Text>;
-    case FacingType.Piecewise:
+    case InterpolationType.Piecewise:
       return <Text {...props}>Piecewise heading...[TODO!]</Text>;
   }
 }

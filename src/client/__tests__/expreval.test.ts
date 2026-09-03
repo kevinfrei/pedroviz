@@ -7,7 +7,7 @@ import { ValueName, ValueRef } from '../../CodeTypes';
 import { ConcreteHeadingType } from '../ConcreteEvalTypes';
 import {
   calcBezierRef,
-  calcFacing,
+  calcInterp,
   calcPoseRef,
   calcValue,
   calcValueRef,
@@ -64,7 +64,7 @@ describe('Expression Evaluation', () => {
     ]);
     const pc = index.namedPathChains.get('pc2');
     expect(pc).toBeDefined();
-    const heading = calcFacing(pc!.heading, fullParsedClass);
+    const heading = calcInterp(pc!.heading, fullParsedClass);
     expect(heading).toEqual({
       type: ConcreteHeadingType.Constant,
       heading: 1.5707963267948966,

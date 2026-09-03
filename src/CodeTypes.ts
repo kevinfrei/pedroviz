@@ -29,12 +29,12 @@ export type AnonymousBezier = { type: BezierType; points: PoseRef[] };
 export type NamedBezier = { name: BezierName; points: BezierRef };
 export type BezierRef = AnonymousBezier | BezierName;
 
-// Facing (path heading interpolators)
+// Interpolation (path heading interpolators)
 // NYI: Offset; works like reverse, but shifts the bot from the target by a
 // fixed amount. Reverse is *mostly* "offset 180" (not for linear)
-export type FacingTiming = { start: ValueRef; end: ValueRef };
+export type InterpTiming = { start: ValueRef; end: ValueRef };
 
-export const FacingType = Object.freeze({
+export const InterpolationType = Object.freeze({
   Reversed: 'reversed',
   Tangent: 'tangent',
   Constant: 'constant',
@@ -42,37 +42,41 @@ export const FacingType = Object.freeze({
   Point: 'point',
   Piecewise: 'piecewise',
 } as const);
-export type FacingType = (typeof FacingType)[keyof typeof FacingType];
-export type FacingReversed = {
-  type: typeof FacingType.Reversed;
-  facing: FacingReversible;
+export type InterpolationType =
+  (typeof InterpolationType)[keyof typeof InterpolationType];
+export type InterpReversed = {
+  type: typeof InterpolationType.Reversed;
+  interp: InterpReversible;
 };
-export type FacingTangent = { type: typeof FacingType.Tangent };
-export type FacingConstant = {
-  type: typeof FacingType.Constant;
+export type InterpTangent = { type: typeof InterpolationType.Tangent };
+export type InterpConstant = {
+  type: typeof InterpolationType.Constant;
   heading: HeadingRef;
 };
-export type FacingPoint = { type: typeof FacingType.Point; point: PoseRef };
-export type FacingLinear = {
-  type: typeof FacingType.Linear;
+export type InterpPoint = {
+  type: typeof InterpolationType.Point;
+  point: PoseRef;
+};
+export type InterpLinear = {
+  type: typeof InterpolationType.Linear;
   start: HeadingRef;
   end: HeadingRef;
 };
-export type FacingReversible =
-  FacingTangent | FacingConstant | FacingLinear | FacingPoint;
-export type FacingSimple = FacingReversible | FacingReversed;
-export type FacingPiece = { timing: FacingTiming; heading: FacingSimple };
-export type FacingPieceWise = {
-  type: typeof FacingType.Piecewise;
-  pieces: FacingPiece[];
+export type InterpReversible =
+  InterpTangent | InterpConstant | InterpLinear | InterpPoint;
+export type InterpSimple = InterpReversible | InterpReversed;
+export type InterpPiece = { timing: InterpTiming; heading: InterpSimple };
+export type InterpPiecewise = {
+  type: typeof InterpolationType.Piecewise;
+  pieces: InterpPiece[];
 };
-export type AnonymousFacing =
-  | FacingTangent
-  | FacingConstant
-  | FacingLinear
-  | FacingPoint
-  | FacingPieceWise
-  | FacingReversed;
+export type AnonymousInterp =
+  | InterpTangent
+  | InterpConstant
+  | InterpLinear
+  | InterpPoint
+  | InterpPiecewise
+  | InterpReversed;
 
 // No such thing as an anonymous PathChain
 export type PathChainName = Nominal<string, 'PathChain'>;
@@ -84,7 +88,7 @@ export type PathChainHelper = {
 
 export type AnonymousPathChain = {
   paths: BezierRef[];
-  heading: AnonymousFacing;
+  heading: AnonymousInterp;
 };
 
 // Also: I'm not yet handling global vs. last heading modifiers

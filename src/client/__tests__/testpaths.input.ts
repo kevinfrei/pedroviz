@@ -6,22 +6,22 @@ import { isNumber, isString } from '@freik/typechk';
 import { EmptyParsedClass } from '../../CodeTypeCheck';
 import {
   AnonymousBezier,
-  AnonymousFacing,
+  AnonymousInterp,
   AnonymousPose,
   BezierName,
   BezierRef,
   BezierType,
-  FacingConstant,
-  FacingLinear,
-  FacingPiece,
-  FacingPieceWise,
-  FacingPoint,
-  FacingReversed,
-  FacingReversible,
-  FacingSimple,
-  FacingTangent,
-  FacingType,
   HeadingRef,
+  InterpConstant,
+  InterpLinear,
+  InterpolationType,
+  InterpPiece,
+  InterpPiecewise,
+  InterpPoint,
+  InterpReversed,
+  InterpReversible,
+  InterpSimple,
+  InterpTangent,
   NamedBezier,
   NamedPathChain,
   NamedPose,
@@ -139,7 +139,7 @@ function mkNamedCurve(
 function mkNamedPathChain(
   name: string,
   paths: (string | AnonymousBezier)[],
-  heading: AnonymousFacing,
+  heading: AnonymousInterp,
 ): NamedPathChain {
   return {
     name: name as PathChainName,
@@ -148,38 +148,38 @@ function mkNamedPathChain(
   };
 }
 
-function mkFacingTangent(): FacingTangent {
-  return { type: FacingType.Tangent };
+function mkInterpTangent(): InterpTangent {
+  return { type: InterpolationType.Tangent };
 }
 
-function mkFacingConstant(heading: string | HeadingRef): FacingConstant {
-  return { type: FacingType.Constant, heading: heading as HeadingRef };
+function mkInterpConstant(heading: string | HeadingRef): InterpConstant {
+  return { type: InterpolationType.Constant, heading: heading as HeadingRef };
 }
 
-function mkFacingLinear(
+function mkInterpLinear(
   start: HeadingRef | string,
   end: HeadingRef | string,
-): FacingLinear {
+): InterpLinear {
   return {
-    type: FacingType.Linear,
+    type: InterpolationType.Linear,
     start: start as HeadingRef,
     end: end as HeadingRef,
   };
 }
 
-function mkFacingPoint(point: PoseRef | string): FacingPoint {
-  return { type: FacingType.Point, point: point as PoseRef };
+function mkInterpPoint(point: PoseRef | string): InterpPoint {
+  return { type: InterpolationType.Point, point: point as PoseRef };
 }
 
-function mkFacingReversed(facing: FacingReversible): FacingReversed {
-  return { type: FacingType.Reversed, facing };
+function mkInterpReversed(interp: InterpReversible): InterpReversed {
+  return { type: InterpolationType.Reversed, interp };
 }
 
-function mkFacingPiece(
-  heading: FacingSimple,
+function mkInterpPiece(
+  heading: InterpSimple,
   start: number | ValueRef,
   end: number | ValueRef,
-): FacingPiece {
+): InterpPiece {
   return {
     heading,
     timing: {
@@ -189,8 +189,8 @@ function mkFacingPiece(
   };
 }
 
-function mkFacingPiecewise(...pieces: FacingPiece[]): FacingPieceWise {
-  return { type: FacingType.Piecewise, pieces };
+function mkInterpPiecewise(...pieces: InterpPiece[]): InterpPiecewise {
+  return { type: InterpolationType.Piecewise, pieces };
 }
 
 export const TestPathsParsed: ParsedClass = {
@@ -290,30 +290,30 @@ export const TestPathsParsed: ParsedClass = {
           'step1',
         ),
       ],
-      mkFacingLinear({ int: 0 }, 'ninety'),
+      mkInterpLinear({ int: 0 }, 'ninety'),
     ),
     mkNamedPathChain(
       'Path2',
       [mkAnonymousBezier('step1', 'stepb', 'step2')],
-      mkFacingConstant('step3'),
+      mkInterpConstant('step3'),
     ),
     mkNamedPathChain(
       'Path3',
       [mkAnonymousBezier('step2', 'step3')],
-      mkFacingTangent(),
+      mkInterpTangent(),
     ),
     mkNamedPathChain(
       'Path4',
       [mkAnonymousBezier('step3', 'step1u', 'step4')],
-      mkFacingPiecewise(
-        mkFacingPiece(mkFacingTangent(), 0, 0.2),
-        mkFacingPiece(
-          mkFacingPoint({ x: { int: 5 }, y: { int: 5 } }),
+      mkInterpPiecewise(
+        mkInterpPiece(mkInterpTangent(), 0, 0.2),
+        mkInterpPiece(
+          mkInterpPoint({ x: { int: 5 }, y: { int: 5 } }),
           0.2,
           0.4,
         ),
-        mkFacingPiece(
-          mkFacingConstant({
+        mkInterpPiece(
+          mkInterpConstant({
             radians: {
               int: 90,
             },
@@ -321,13 +321,13 @@ export const TestPathsParsed: ParsedClass = {
           0.4,
           0.6,
         ),
-        mkFacingPiece(
-          mkFacingLinear({ radians: { int: 90 } }, 'Math.PI'),
+        mkInterpPiece(
+          mkInterpLinear({ radians: { int: 90 } }, 'Math.PI'),
           0.6,
           0.8,
         ),
-        mkFacingPiece(
-          mkFacingReversed(mkFacingLinear('Math.PI', { radians: { int: 90 } })),
+        mkInterpPiece(
+          mkInterpReversed(mkInterpLinear('Math.PI', { radians: { int: 90 } })),
           0.8,
           1.0,
         ),
@@ -346,7 +346,7 @@ export const TestPathsParsed: ParsedClass = {
         'u4_ol_5',
         'otherLine_5',
       ],
-      mkFacingPoint({
+      mkInterpPoint({
         x: {
           int: 1,
         },
@@ -451,7 +451,7 @@ export const fullParsedClass: ParsedClass = {
     {
       name: 'pc1' as PathChainName,
       paths: ['bez1' as BezierName, 'bez2' as BezierName],
-      heading: { type: FacingType.Tangent },
+      heading: { type: InterpolationType.Tangent },
     },
     {
       name: 'pc2' as PathChainName,
@@ -462,7 +462,10 @@ export const fullParsedClass: ParsedClass = {
           points: ['pose4' as PoseName, 'pose3' as PoseName],
         },
       ],
-      heading: { type: FacingType.Constant, heading: 'pose3' as PoseName },
+      heading: {
+        type: InterpolationType.Constant,
+        heading: 'pose3' as PoseName,
+      },
     },
     {
       name: 'pc3' as PathChainName,
@@ -478,7 +481,7 @@ export const fullParsedClass: ParsedClass = {
         },
       ],
       heading: {
-        type: FacingType.Linear,
+        type: InterpolationType.Linear,
         start: 'pose2' as PoseName,
         end: { radians: { int: 135 } },
       },
@@ -598,7 +601,7 @@ export const ParsedClassForUITest: ParsedClass = {
     {
       name: 'pc1' as PathChainName,
       paths: ['bez1' as BezierName, 'bez2' as BezierName],
-      heading: { type: FacingType.Tangent },
+      heading: { type: InterpolationType.Tangent },
     },
     {
       name: 'pc2' as PathChainName,
@@ -609,7 +612,10 @@ export const ParsedClassForUITest: ParsedClass = {
           points: ['pose1' as PoseName, 'pose3' as PoseName],
         },
       ],
-      heading: { type: FacingType.Constant, heading: 'pose3' as PoseName },
+      heading: {
+        type: InterpolationType.Constant,
+        heading: 'pose3' as PoseName,
+      },
     },
     {
       name: 'pc3' as PathChainName,
@@ -625,7 +631,7 @@ export const ParsedClassForUITest: ParsedClass = {
         },
       ],
       heading: {
-        type: FacingType.Linear,
+        type: InterpolationType.Linear,
         start: 'pose2' as PoseName,
         end: { radians: { int: 135 } },
       },

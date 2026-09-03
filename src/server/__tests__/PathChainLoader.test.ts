@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { expect, test } from 'bun:test';
 import path from 'node:path';
+import { expect, test } from 'bun:test';
 
 import { isError } from '@freik/typechk';
 
 import {
   BezierName,
   BezierType,
-  FacingType,
+  InterpolationType,
   PathChainName,
   PoseName,
   ValueName,
@@ -180,7 +180,7 @@ test('loadPathChainsFromFile loads paths correctly', async () => {
     name: 'Path1' as PathChainName,
     paths: ['start_to_step1' as BezierName],
     heading: {
-      type: FacingType.Linear,
+      type: InterpolationType.Linear,
       start: 'start' as PoseName,
       end: 'step1' as PoseName,
     },
@@ -194,7 +194,7 @@ test('loadPathChainsFromFile loads paths correctly', async () => {
       },
     ],
     heading: {
-      type: FacingType.Linear,
+      type: InterpolationType.Linear,
       start: {
         radians: { int: 90 },
       },
@@ -205,7 +205,7 @@ test('loadPathChainsFromFile loads paths correctly', async () => {
     name: 'Path3' as PathChainName,
     paths: ['step2_to_step3' as BezierName],
     heading: {
-      type: FacingType.Linear,
+      type: InterpolationType.Linear,
       start: 'step_mid' as PoseName,
       end: 'step3' as PoseName,
     },
@@ -218,7 +218,10 @@ test('loadPathChainsFromFile loads paths correctly', async () => {
         points: ['step3' as PoseName, 'step4' as PoseName],
       },
     ],
-    heading: { type: FacingType.Constant, heading: 'one80' as ValueName },
+    heading: {
+      type: InterpolationType.Constant,
+      heading: 'one80' as ValueName,
+    },
   });
   expect(paths.pathChains[4]).toEqual({
     name: 'AnotherPath' as PathChainName,
@@ -242,7 +245,7 @@ test('loadPathChainsFromFile loads paths correctly', async () => {
       'step4_to_start' as BezierName,
     ],
     heading: {
-      type: FacingType.Linear,
+      type: InterpolationType.Linear,
       start: { radians: 'step' as ValueName },
       end: 'radRef' as PoseName,
     },
