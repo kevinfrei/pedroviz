@@ -92,19 +92,20 @@ export type PathChainElement = {
 };
 
 export type IndividualInterpPathChain = {
-  curves: PathChainElement[];
+  segments: PathChainElement[];
 };
 
 export type GlobalInterpPathChain = {
-  curvs: BezierRef[];
+  curves: BezierRef[];
   interp: AnonymousInterp;
 };
 
 export type AnonymousPathChain =
   IndividualInterpPathChain | GlobalInterpPathChain;
 
-// Also: I'm not yet handling global vs. last heading modifiers
-export type NamedPathChain = { name: PathChainName } & AnonymousPathChain;
+export type PathChainRef = AnonymousPathChain | PathChainName;
+
+export type NamedPathChain = { name: PathChainName; pathchain: PathChainRef };
 
 export type ClassContainer = { fileName: string } | { className: string };
 
