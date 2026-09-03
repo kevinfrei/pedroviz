@@ -5,11 +5,9 @@ import {
   chkArrayOf,
   chkFieldOf,
   chkObjectOfExactType,
-  chkRecordOf,
-  hasFieldOf,
-  hasFieldType,
-  hasStrField,
+  isArrayOfString,
   isNumber,
+  isRecordOf,
   isString,
   typecheck,
 } from '@freik/typechk';
@@ -60,6 +58,7 @@ export const EmptyParsedClass: ParsedClass = {
   beziers: [],
   pathChains: [],
   pathChainHelpers: [],
+  unmatchedFields: [],
 };
 
 export const isRef = isString;
@@ -226,9 +225,26 @@ export const isPiecewiseInterp = chkObjectOfExactType<InterpPiecewise>({
   chkFieldOf('fileName', isString),
   chkFieldOf('className', isString),
 );
-// Can't use chkObjOfExactType because recursion...
-export function chkParsedClass(val: unknown): val is ParsedClass {
+export const chkParsedClass = chkObjectOfExactType<ParsedClass>({
+  name: isString,
+  fullName: isString,
+  imports: isArrayOfString,
+  container: isClassContainer,
+  // Can't use chkRecordOf(isString, chkParsedClass) because we're defining
+  // chkParsedClass, so the use won't occur until the 'children' field is
+  // invoked. (Obscure value resolution rules FTW!)
+  children: (val: unknown): val is Record<string, ParsedClass> =>
+    isRecordOf(val, isString, chkParsedClass),
+  values: chkArrayOf(isNamedValue),
+  poses: chkArrayOf(isNamedPose),
+  beziers: chkArrayOf(isNamedBezier),
+  pathChains: chkArrayOf(isNamedPathChain),
+  pathChainHelpers: chkArrayOf(isPathChainHelper),
+  unmatchedFields: isArrayOfString,
+});
+/*export function chkParsedClass(val: unknown): val is ParsedClass {
   let res = hasStrField(val, 'name');
+  res = res && hasStrField(val, 'fullName');
   res = res && hasFieldOf(val, 'container', isClassContainer);
   res = res && hasFieldOf(val, 'values', chkArrayOf(isNamedValue));
   res = res && hasFieldOf(val, 'poses', chkArrayOf(isNamedPose));
@@ -238,5 +254,6 @@ export function chkParsedClass(val: unknown): val is ParsedClass {
     res && hasFieldOf(val, 'pathChainHelpers', chkArrayOf(isPathChainHelper));
   res =
     res && hasFieldType(val, 'children', chkRecordOf(isString, chkParsedClass));
+  res = res && hasFieldOf(val, 'unmatchedFields', isArrayOfString);
   return res;
-}
+}*/

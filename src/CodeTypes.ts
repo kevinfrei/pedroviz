@@ -107,4 +107,5 @@ export type ParsedClass = {
   beziers: NamedBezier[];
   pathChains: NamedPathChain[];
   pathChainHelpers: PathChainHelper[];
+  unmatchedFields: string[];
 };

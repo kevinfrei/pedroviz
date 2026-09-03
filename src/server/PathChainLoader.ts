@@ -159,7 +159,22 @@ class PathChainLoader extends BaseJavaCstVisitorWithDefaults {
     const maybePathChainField = tryMatchingPathChainFields(ctx);
     if (isDefined(maybePathChainField)) {
       this.info.pathChainFields.push(maybePathChainField);
+      return super.fieldDeclaration(ctx);
     }
+
+    // For fields that don't correctly match anything,
+    // report them in a 'warning' list. This should be useful
+    // for diagnosing weaknesses in my post-processing logic.
+    const info = ctx.variableDeclaratorList.map((vdcl) =>
+      this.content.substring(
+        vdcl.location.startOffset,
+        vdcl.location.endOffset,
+      ),
+    );
+    this.info.unmatchedFields.push(
+      'Unable to classified field declaration: ',
+      ...info,
+    );
     return super.fieldDeclaration(ctx);
   }
 

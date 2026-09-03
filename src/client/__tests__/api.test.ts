@@ -114,6 +114,7 @@ const simpleBez: AnonymousBezier = {
 
 const fullParsedClass: ParsedClass = {
   name: 'path3.java',
+  unmatchedFields: [],
   fullName: 'test.path3',
   imports: [],
   values: [
@@ -191,6 +192,7 @@ const fullParsedClass: ParsedClass = {
 const danglingPC: ParsedClass = {
   name: 'dangling.java',
   fullName: 'test.dangling',
+  unmatchedFields: [],
   imports: [],
   values: [...fullParsedClass.values],
   poses: [

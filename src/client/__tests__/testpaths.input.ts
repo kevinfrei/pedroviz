@@ -195,6 +195,7 @@ function mkInterpPiecewise(...pieces: InterpPiece[]): InterpPiecewise {
 
 export const TestPathsParsed: ParsedClass = {
   name: 'TestPaths',
+  unmatchedFields: [],
   fullName: 'org.firstinspires.ftc.learnbot.TestPaths',
   imports: ['org.firstinspires.ftc.learnbot'],
   pathChainHelpers: [],
@@ -375,6 +376,7 @@ const testParsedClass: ParsedClass = {
   name: 'path1.java',
   fullName: 'test.path1',
   imports: [],
+  unmatchedFields: [],
 };
 
 const simpleBez: AnonymousBezier = {
@@ -397,11 +399,13 @@ export const noParsedClass: ParsedClass = {
   beziers: [],
   pathChains: [],
   pathChainHelpers: [],
+  unmatchedFields: [],
 };
 
 export const fullParsedClass: ParsedClass = {
   name: 'c',
   fullName: 'test.c',
+  unmatchedFields: [],
   imports: [],
   values: [
     { name: 'val1' as ValueName, value: { int: 1 } },
@@ -532,6 +536,7 @@ const teamsForUITest: Team[] = ['team1' as Team, 'team2' as Team];
 // };
 
 export const testParsedClassForUITest: ParsedClass = {
+  unmatchedFields: [],
   values: [],
   poses: [],
   beziers: [],
@@ -556,6 +561,7 @@ const BezForUITest: AnonymousBezier = {
 export const ParsedClassForUITest: ParsedClass = {
   name: 'path3.java',
   fullName: 'test.path3',
+  unmatchedFields: [],
   imports: [],
   values: [
     { name: 'val1' as ValueName, value: { int: 1 } },
