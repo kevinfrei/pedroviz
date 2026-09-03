@@ -2,7 +2,7 @@
 
 import { describe, expect, test } from 'bun:test';
 
-import { EmptyParsedClass } from '../../CodeTypeCheck';
+import { MakeEmptyParsedClass } from '../../CodeTypeCheck';
 import { ValueName, ValueRef } from '../../CodeTypes';
 import { ConcreteHeadingType } from '../ConcreteEvalTypes';
 import {
@@ -30,11 +30,11 @@ describe('Expression Evaluation', () => {
     expect(GetValueAsString('varName' as ValueName)).toEqual('varName');
   });
   test('calcValue', () => {
-    expect(calcValue({ int: 123 }, EmptyParsedClass)).toEqual(123);
-    expect(calcValue({ double: 12.3 }, EmptyParsedClass)).toEqual(12.3);
-    expect(calcValue({ radians: { double: 180 } }, EmptyParsedClass)).toEqual(
-      3.141592653589793,
-    );
+    expect(calcValue({ int: 123 }, MakeEmptyParsedClass())).toEqual(123);
+    expect(calcValue({ double: 12.3 }, MakeEmptyParsedClass())).toEqual(12.3);
+    expect(
+      calcValue({ radians: { double: 180 } }, MakeEmptyParsedClass()),
+    ).toEqual(3.141592653589793);
   });
   test('general calculationsd', () => {
     const index = MakeFileIndex(fullParsedClass);

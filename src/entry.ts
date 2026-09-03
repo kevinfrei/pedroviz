@@ -4,16 +4,10 @@
 import path from 'node:path';
 import process from 'node:process';
 
-import { isDefined } from '@freik/typechk';
-
 import { SetArgs } from './server/getpaths';
 import { GetGlobalDirname, OverrideDirname } from './server/isProduction';
 import { main } from './server/main';
 import { GetUrl } from './server/web-server';
-
-if (isDefined(__dirname)) {
-  OverrideDirname(__dirname);
-}
 
 // Resolve any arguments before we change the working directory
 const args = [...process.argv.slice(2), process.cwd()].map((str) =>

@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+import path from 'node:path';
+
 import { serve as serveNode } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { Hono } from 'hono';
+import { isDefined } from '@freik/typechk';
 
-import { GetGlobalDirname } from './isProduction';
+import { GetGlobalDirname, IsProd, OverrideDirname } from './isProduction';
 import { SavePath } from './savepath';
 import {
   GetFieldImage,
@@ -13,6 +16,16 @@ import {
   LoadPath,
   SaveDatabase,
 } from './web-interface';
+
+if (isDefined(__dirname)) {
+  if (process.argv.length > 1 && process.argv[1]!.endsWith('.ts')) {
+    // We're debugging an un-bundled version of the app.
+    // Change the directory to <root>/dev
+    OverrideDirname(path.resolve(__dirname, '..', '..', 'dev'));
+  } else {
+    OverrideDirname(path.resolve(__dirname, '..', IsProd() ? 'dist' : 'dev'));
+  }
+}
 
 const app = new Hono();
 

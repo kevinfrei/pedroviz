@@ -100,6 +100,8 @@ export type ParsedClass = {
   name: string;
   fullName: string;
   imports: string[];
+  unmatchedFields: string[];
+  parsingErrors: string[];
   container: ClassContainer;
   children: Record<string, ParsedClass>;
   values: NamedValue[];
@@ -107,5 +109,4 @@ export type ParsedClass = {
   beziers: NamedBezier[];
   pathChains: NamedPathChain[];
   pathChainHelpers: PathChainHelper[];
-  unmatchedFields: string[];
 };

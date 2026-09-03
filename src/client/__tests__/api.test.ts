@@ -4,7 +4,7 @@ import { describe, expect, test } from 'bun:test';
 
 import { isError, isNumber, isString } from '@freik/typechk';
 
-import { EmptyParsedClass } from '../../CodeTypeCheck';
+import { MakeEmptyParsedClass } from '../../CodeTypeCheck';
 import {
   AnonymousBezier,
   AnonymousPose,
@@ -93,7 +93,7 @@ function mkPCNm(name: string): PathChainName {
 
 // Mocks & phony data for my tests:
 
-const testParsedClass: ParsedClass = structuredClone(EmptyParsedClass);
+const testParsedClass: ParsedClass = MakeEmptyParsedClass();
 testParsedClass.values.push({
   name: 'item1' as ValueName,
   value: { int: 1 },
@@ -113,10 +113,9 @@ const simpleBez: AnonymousBezier = {
 };
 
 const fullParsedClass: ParsedClass = {
+  ...MakeEmptyParsedClass(),
   name: 'path3.java',
-  unmatchedFields: [],
   fullName: 'test.path3',
-  imports: [],
   values: [
     mkNmVal('val1', mkVal('int', 1)),
     mkNmVal('val2', mkVal('double', 2.5)),
@@ -183,17 +182,12 @@ const fullParsedClass: ParsedClass = {
       },
     },
   ],
-  // TODO:
-  pathChainHelpers: [],
-  container: { fileName: '' },
-  children: {},
 };
 
 const danglingPC: ParsedClass = {
+  ...MakeEmptyParsedClass(),
   name: 'dangling.java',
   fullName: 'test.dangling',
-  unmatchedFields: [],
-  imports: [],
   values: [...fullParsedClass.values],
   poses: [
     ...fullParsedClass.poses,
@@ -237,10 +231,6 @@ const danglingPC: ParsedClass = {
       },
     },
   ],
-  // TODO
-  pathChainHelpers: [],
-  container: { fileName: '' },
-  children: {},
 };
 
 let bad = false;

@@ -5,7 +5,6 @@ import {
   chkArrayOf,
   chkFieldOf,
   chkObjectOfExactType,
-  isArrayOfString,
   isNumber,
   isRecordOf,
   isString,
@@ -47,19 +46,22 @@ import {
   ValueRef,
 } from './CodeTypes';
 
-export const EmptyParsedClass: ParsedClass = {
-  name: '',
-  fullName: '',
-  imports: [],
-  container: { fileName: '' },
-  children: {},
-  values: [],
-  poses: [],
-  beziers: [],
-  pathChains: [],
-  pathChainHelpers: [],
-  unmatchedFields: [],
-};
+export function MakeEmptyParsedClass(): ParsedClass {
+  return {
+    name: '',
+    fullName: '',
+    imports: [],
+    container: { fileName: '' },
+    children: {},
+    values: [],
+    poses: [],
+    beziers: [],
+    pathChains: [],
+    pathChainHelpers: [],
+    unmatchedFields: [],
+    parsingErrors: [],
+  };
+}
 
 export const isRef = isString;
 export const isValueName: typecheck<ValueName> =
@@ -225,35 +227,25 @@ export const isPiecewiseInterp = chkObjectOfExactType<InterpPiecewise>({
   chkFieldOf('fileName', isString),
   chkFieldOf('className', isString),
 );
+
 export const chkParsedClass = chkObjectOfExactType<ParsedClass>({
   name: isString,
   fullName: isString,
-  imports: isArrayOfString,
+  imports: chkArrayOf(isString),
+  unmatchedFields: chkArrayOf(isString),
+  parsingErrors: chkArrayOf(isString),
   container: isClassContainer,
-  // Can't use chkRecordOf(isString, chkParsedClass) because we're defining
-  // chkParsedClass, so the use won't occur until the 'children' field is
-  // invoked. (Obscure value resolution rules FTW!)
-  children: (val: unknown): val is Record<string, ParsedClass> =>
-    isRecordOf(val, isString, chkParsedClass),
   values: chkArrayOf(isNamedValue),
   poses: chkArrayOf(isNamedPose),
   beziers: chkArrayOf(isNamedBezier),
   pathChains: chkArrayOf(isNamedPathChain),
   pathChainHelpers: chkArrayOf(isPathChainHelper),
-  unmatchedFields: isArrayOfString,
+  // Can't use chkRecordOf(isString, chkParsedClass) because we're defining
+  // chkParsedClass, so the use won't occur until the 'children' field is
+  // invoked. (Obscure value resolution rules FTW!)
+  children: isRecordOfParsedClasses,
 });
-/*export function chkParsedClass(val: unknown): val is ParsedClass {
-  let res = hasStrField(val, 'name');
-  res = res && hasStrField(val, 'fullName');
-  res = res && hasFieldOf(val, 'container', isClassContainer);
-  res = res && hasFieldOf(val, 'values', chkArrayOf(isNamedValue));
-  res = res && hasFieldOf(val, 'poses', chkArrayOf(isNamedPose));
-  res = res && hasFieldOf(val, 'beziers', chkArrayOf(isNamedBezier));
-  res = res && hasFieldOf(val, 'pathChains', chkArrayOf(isNamedPathChain));
-  res =
-    res && hasFieldOf(val, 'pathChainHelpers', chkArrayOf(isPathChainHelper));
-  res =
-    res && hasFieldType(val, 'children', chkRecordOf(isString, chkParsedClass));
-  res = res && hasFieldOf(val, 'unmatchedFields', isArrayOfString);
-  return res;
-}*/
+
+function isRecordOfParsedClasses(u: unknown): u is Record<string, ParsedClass> {
+  return isRecordOf(u, isString, chkParsedClass);
+}

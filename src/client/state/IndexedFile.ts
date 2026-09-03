@@ -10,7 +10,7 @@ import {
   MakeError,
 } from '@freik/typechk';
 
-import { EmptyParsedClass, isRadiansRef, isRef } from '../../CodeTypeCheck';
+import { isRadiansRef, isRef, MakeEmptyParsedClass } from '../../CodeTypeCheck';
 import {
   AnonymousBezier,
   AnonymousInterp,
@@ -356,7 +356,7 @@ export function ValidateIndex(
 }
 
 export const EmptyMappedFile: OneFileIndex = {
-  container: EmptyParsedClass,
+  container: MakeEmptyParsedClass(),
   namedValues: new Map(),
   namedPoses: new Map(),
   namedBeziers: new Map(),

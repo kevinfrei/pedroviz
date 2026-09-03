@@ -10,6 +10,7 @@ import {
 } from '@fluentui/react-components';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 
+import { CodeIssues } from './CodeIssues';
 import { FieldRenderer } from './FieldRenderer';
 import { PathsDataDisplay } from './PathsDataDisplay';
 import { PathSelector } from './PathSelector';
@@ -32,6 +33,7 @@ export function MyApp(): ReactElement {
         <Panel className="sidebar">
           <Suspense>
             <PathsDataDisplay />
+            <CodeIssues />
           </Suspense>
         </Panel>
         <Separator id="view-separator" />

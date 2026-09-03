@@ -25,7 +25,6 @@ import { anyItems, MakeParsedClass } from './PathChainLoader';
 // Teams -> Paths -> Classes   -> ParsedClasse
 // one   -> many  -> many, one -> one
 
-const teampaths: Map<Team, Path[]> = new Map();
 const database: PathDatabase = {
   HasFieldImage: false,
   TeamPaths: MakeMultiMap<Team, PathKey>(),
@@ -50,28 +49,19 @@ export function ForEachPathChainIndex(
 async function GetPathChainIndex(
   team: string,
   file: string,
-): Promise<ErrorOr<[string[], ParsedClass]>> {
+): Promise<ErrorOr<ParsedClass>> {
   const filepath = GetProjectFilePath(team, file);
-  const pc = await MakeParsedClass(filepath);
-  if (isError(pc)) {
-    return pc;
-  }
-  const list: string[] = [];
-  ForEachPathChainIndex(pc, (item) => list.push(item.name));
-  return [list, pc];
+  return await MakeParsedClass(filepath);
 }
 
 function RegisterTopLevelParsedClass(
   team: Team,
   path: Path,
-  classList: string[],
   pc: ParsedClass,
 ): void {
   if (!anyItems(pc)) {
     return;
   }
-  // console.log('Registering', team, path, classList, pc.fullName);
-  // console.log(Pickle(pc));
   const pathKey = getPathKey(team, path);
   database.TeamPaths.set(team, pathKey);
   ForEachPathChainIndex(pc, (pc) => {
@@ -89,7 +79,7 @@ export async function RescanSourceCode(): Promise<PathDatabase> {
       const path = PathFromKey(pathKey);
       const pci = await GetPathChainIndex(team, path);
       if (!isError(pci)) {
-        RegisterTopLevelParsedClass(team, path, pci[0], pci[1]);
+        RegisterTopLevelParsedClass(team, path, pci);
       }
     }
   }

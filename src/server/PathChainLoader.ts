@@ -25,6 +25,7 @@ import {
 import {
   ErrorOr,
   hasField,
+  hasStrField,
   isArray,
   isDefined,
   isString,
@@ -33,10 +34,10 @@ import {
 } from '@freik/typechk';
 
 import {
-  EmptyParsedClass,
   isAnonymousValue,
   isRadiansRef,
   isRef,
+  MakeEmptyParsedClass,
 } from '../CodeTypeCheck';
 import {
   AnonymousBezier,
@@ -79,7 +80,7 @@ class PathChainLoader extends BaseJavaCstVisitorWithDefaults {
   package: string = '';
   imports: string[] = [];
   info: PCInfo = {
-    ...structuredClone(EmptyParsedClass),
+    ...MakeEmptyParsedClass(),
     pathChainFields: [],
   };
 
@@ -104,13 +105,25 @@ class PathChainLoader extends BaseJavaCstVisitorWithDefaults {
       this.content = content;
       this.parsed = parse(this.content);
     } catch (e) {
-      return `Could not parse content - ${e}`;
+      const container = this.info.container;
+      const location = hasStrField(container, 'fileName')
+        ? container.fileName
+        : container.className;
+      return `Could not parse content for ${location} from ${this.info.name} - ${e}
+>>> ************************************** <<<
+>>> This probably means your code is wrong <<<
+>>> ************************************** <<<
+`;
     }
     // Now visit the parsed CST, filling in all the data structures:
     try {
       this.visit(this.parsed);
     } catch (e) {
-      return `Could not visit parsed CST for file: ${this.info.name} - ${e}`;
+      return `Could not post-process file: ${this.info.name} - ${e}
+>>> ****************************************************** <<<
+>>> This probably means there's a bug in this application. <<<
+>>> ****************************************************** <<<
+`;
     }
     return true;
   }
@@ -118,7 +131,7 @@ class PathChainLoader extends BaseJavaCstVisitorWithDefaults {
   // Okay, now we need to implement the visitor methods to extract the data we want.
   // All the static fields we care about:
   // double's, int's, pose's, BezierCurve's, BezierLine's.
-  // PathChains shouldn't be static
+  // PathChains shouldn't (can't?) be static, because they need a follower.
 
   override packageDeclaration(ctx: PackageDeclarationCtx) {
     this.package = nameOf(ctx.Identifier) || '';
@@ -126,12 +139,12 @@ class PathChainLoader extends BaseJavaCstVisitorWithDefaults {
   }
 
   override importDeclaration(ctx: ImportDeclarationCtx) {
-    // console.log("IMPORt", ctx);
     const importName = nameOf(child(ctx.packageOrTypeName)?.Identifier);
     if (
       isDefined(importName) &&
       !importName.startsWith('com.pedropathing.') &&
       !importName.startsWith('com.bylazar.') &&
+      // TODO: Do I care about filtering out other libraries?
       !importName.startsWith('com.technototes.library.')
     ) {
       this.imports.push(importName);
@@ -140,23 +153,25 @@ class PathChainLoader extends BaseJavaCstVisitorWithDefaults {
   }
 
   override fieldDeclaration(ctx: FieldDeclarationCtx) {
-    // We're looking for public static double/int name = value;
-    const maybeNamedValue = tryMatchingNamedValues(ctx);
+    // We're looking for public static (type) name = value;
+    const maybeNamedValue = tryMatchingNamedValue(ctx);
     if (isDefined(maybeNamedValue)) {
       this.info.values.push(maybeNamedValue);
       return super.fieldDeclaration(ctx);
     }
-    const maybeNamedPoses = tryMatchingNamedPoses(ctx);
+    const maybeNamedPoses = tryMatchingNamedPose(ctx);
     if (isDefined(maybeNamedPoses)) {
       this.info.poses.push(maybeNamedPoses);
       return super.fieldDeclaration(ctx);
     }
-    const maybeNamedBeziers = tryMatchingBeziers(ctx);
+    const maybeNamedBeziers = tryMatchingBezier(ctx);
     if (isDefined(maybeNamedBeziers)) {
       this.info.beziers.push(maybeNamedBeziers);
       return super.fieldDeclaration(ctx);
     }
-    const maybePathChainField = tryMatchingPathChainFields(ctx);
+    // Path chain fields are basically dummy static class instances
+    // to make the cross-class names shorter.
+    const maybePathChainField = tryMatchingPathChainField(ctx);
     if (isDefined(maybePathChainField)) {
       this.info.pathChainFields.push(maybePathChainField);
       return super.fieldDeclaration(ctx);
@@ -168,7 +183,7 @@ class PathChainLoader extends BaseJavaCstVisitorWithDefaults {
     const info = ctx.variableDeclaratorList.map((vdcl) =>
       this.content.substring(
         vdcl.location.startOffset,
-        vdcl.location.endOffset,
+        vdcl.location.endOffset + 1,
       ),
     );
     this.info.unmatchedFields.push(
@@ -185,7 +200,8 @@ class PathChainLoader extends BaseJavaCstVisitorWithDefaults {
   }
 
   // I need to handle nested classes.
-  // I should probably make sure they're static if they're nested
+  // I should probably make sure they're static if they're nested, because
+  // nonstatic nest classes in Java are a whole weird ball-o-wax...
   override classDeclaration(ctx: ClassDeclarationCtx, param?: any) {
     const theClassName = nameOf(
       child(child(ctx?.normalClassDeclaration)?.typeIdentifier)?.Identifier,
@@ -198,7 +214,7 @@ class PathChainLoader extends BaseJavaCstVisitorWithDefaults {
     if (this.contextStack.length !== 0) {
       const parent = this.info;
       this.info = {
-        ...structuredClone(EmptyParsedClass),
+        ...MakeEmptyParsedClass(),
         container: { className: parent.name },
         pathChainFields: [],
       };
@@ -219,6 +235,7 @@ class PathChainLoader extends BaseJavaCstVisitorWithDefaults {
   }
 }
 
+// CST Navigation helper:
 function descend<T>(ctx: T[] | undefined): T | undefined {
   if (!isArray(ctx) || ctx.length !== 1) {
     return;
@@ -226,26 +243,23 @@ function descend<T>(ctx: T[] | undefined): T | undefined {
   return ctx[0];
 }
 
+// CST Navigation helper:
 function child<T extends { children: any }>(
   ctx: T[] | undefined,
 ): T['children'] | undefined {
   return descend(ctx)?.children;
 }
 
+// TODO: I should be able to keep track of source file locations using
+// the IToken information.
 function nameOf(ctx: IToken[] | IToken | undefined): string | undefined {
   if (isArray(ctx)) return ctx.map((tok) => tok.image).join('.');
   else return ctx?.image;
 }
 
-function getBezierType(className: string): BezierType | undefined {
-  switch (className) {
-    case 'BezierLine':
-      return BezierType.Line;
-    case 'BezierCurve':
-      return BezierType.Curve;
-  }
-}
-
+// TODO: This fails for fields that have:
+// Annotations, Final, Transient, or Volatile.
+// I don't think that's quite what I want
 function isPublicStaticField(ctx: FieldDeclarationCtx): boolean {
   if (!ctx.fieldModifier || ctx.fieldModifier.length !== 2) {
     return false;
@@ -260,6 +274,8 @@ function isPublicStaticField(ctx: FieldDeclarationCtx): boolean {
   return true;
 }
 
+// TODO: This fails for fields that have any modifier except Public
+// I don't think that's quite what I want.
 function isPublicField(ctx: FieldDeclarationCtx): boolean {
   if (!ctx.fieldModifier || ctx.fieldModifier.length !== 1) {
     return false;
@@ -268,7 +284,7 @@ function isPublicField(ctx: FieldDeclarationCtx): boolean {
 }
 
 // This matches the 'public static int/double name = value;' pattern
-function tryMatchingNamedValues(
+function tryMatchingNamedValue(
   ctx: FieldDeclarationCtx,
 ): NamedValue | undefined {
   if (!isPublicStaticField(ctx)) {
@@ -520,9 +536,7 @@ function getCtorArgs(
   return [type || dataType || '', child(newExpr?.argumentList)?.expression];
 }
 
-function tryMatchingNamedPoses(
-  ctx: FieldDeclarationCtx,
-): NamedPose | undefined {
+function tryMatchingNamedPose(ctx: FieldDeclarationCtx): NamedPose | undefined {
   if (!isPublicStaticField(ctx) && !isPublicField(ctx)) {
     return;
   }
@@ -566,6 +580,15 @@ function getPoseRef(expr: ExpressionCstNode): PoseRef | undefined {
   return getRefOr(expr, getAnonymousPose);
 }
 
+function getBezierType(className: string): BezierType | undefined {
+  switch (className) {
+    case 'BezierLine':
+      return BezierType.Line;
+    case 'BezierCurve':
+      return BezierType.Curve;
+  }
+}
+
 function getAnonymousBezier(
   expr: ExpressionCstNode[] | ExpressionCstNode | undefined,
   checkType?: string,
@@ -589,7 +612,7 @@ function getAnonymousBezier(
   return { type, points };
 }
 
-function tryMatchingBeziers(ctx: FieldDeclarationCtx): NamedBezier | undefined {
+function tryMatchingBezier(ctx: FieldDeclarationCtx): NamedBezier | undefined {
   if (!isPublicStaticField(ctx)) {
     return;
   }
@@ -615,10 +638,12 @@ function tryMatchingBeziers(ctx: FieldDeclarationCtx): NamedBezier | undefined {
   }
 }
 
-function tryMatchingPathChainFields(
+function tryMatchingPathChainField(
   ctx: FieldDeclarationCtx,
 ): string | undefined {
-  if (!isPublicField(ctx)) {
+  // These shouldn't be static, because they need a follower to be created.
+  // That said, having static values here should still be okay...
+  if (!isPublicField(ctx) /* && !isPublicStaticField(ctx)*/) {
     return;
   }
   if ('PathChain' !== getClassTypeName(ctx.unannType)) {
@@ -829,10 +854,10 @@ function getPathChain(node: BlockStatementCstNode): NamedPathChain | undefined {
   if (isUndefined(methods) || methods.length < 5) {
     return;
   }
+  let chain: BezierRef[] = [];
+  let pathInterpolation: AnonymousInterp | null = null;
   // Okay, remove the '.pathBuilder()' prefix, and the
   // '.build();' suffix.
-  let chain: BezierRef[] = [];
-  let pathHeading: AnonymousInterp | null = null;
   let lastMethodName: string | undefined = 'pathBuilder';
   for (let index = 0; index < methods.length; index++) {
     const method = methods[index]!;
@@ -853,6 +878,7 @@ function getPathChain(node: BlockStatementCstNode): NamedPathChain | undefined {
         case 'build':
           continue;
         default:
+          // TODO: Report the comprehension failure!
           return;
       }
     } else {
@@ -863,11 +889,12 @@ function getPathChain(node: BlockStatementCstNode): NamedPathChain | undefined {
             return;
           }
           continue;
+
         case 'setTangentHeadingInterpolation':
           if (isDefined(getArgList(method))) {
             return;
           }
-          pathHeading = { type: InterpolationType.Tangent };
+          pathInterpolation = { type: InterpolationType.Tangent };
           continue;
         case 'setLinearHeadingInterpolation':
           const linearArgs = getArgList(method);
@@ -879,7 +906,7 @@ function getPathChain(node: BlockStatementCstNode): NamedPathChain | undefined {
           if (isUndefined(startHeading) || isUndefined(endHeading)) {
             return;
           }
-          pathHeading = {
+          pathInterpolation = {
             type: InterpolationType.Linear,
             start: startHeading,
             end: endHeading,
@@ -894,19 +921,19 @@ function getPathChain(node: BlockStatementCstNode): NamedPathChain | undefined {
           if (isUndefined(headingRef)) {
             return;
           }
-          pathHeading = {
+          pathInterpolation = {
             type: InterpolationType.Constant,
             heading: headingRef,
           };
           continue;
         case 'setReversed':
-          if (pathHeading === null) {
+          if (pathInterpolation === null) {
             return;
           }
           // TODO: Don't cast. Error!
-          pathHeading = {
+          pathInterpolation = {
             type: InterpolationType.Reversed,
-            interp: pathHeading as InterpReversible,
+            interp: pathInterpolation as InterpReversible,
           };
           continue;
 
@@ -919,7 +946,7 @@ function getPathChain(node: BlockStatementCstNode): NamedPathChain | undefined {
           if (isUndefined(interp)) {
             return;
           }
-          pathHeading = interp;
+          pathInterpolation = interp;
           continue;
 
         case 'addPath':
@@ -933,18 +960,19 @@ function getPathChain(node: BlockStatementCstNode): NamedPathChain | undefined {
           }
           chain.push(bezierRef);
           continue;
+
         default:
           return;
       }
     }
   }
-  if (pathHeading === null) {
+  if (pathInterpolation === null) {
     return;
   }
   return {
     name: fieldName as PathChainName,
     paths: chain,
-    heading: pathHeading,
+    heading: pathInterpolation,
   };
 }
 
@@ -1056,6 +1084,9 @@ export async function MakeParsedClass(
       }
       item.imports = newImports;
       item.fullName = `${loader.package}.${item.name}`;
+      if (hasField(item, 'pathChainFields')) {
+        delete item.pathChainFields;
+      }
     });
   }
   return pc;
