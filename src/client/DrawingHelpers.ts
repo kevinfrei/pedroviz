@@ -22,7 +22,7 @@ export function rotPt(offs: Point): Point {
   return { x, y };
 }
 
-export function getBezierPoints(curveControlPoints: Point[]): Point[] {
+/*export*/ function getBezierPoints(curveControlPoints: Point[]): Point[] {
   const len = bezierLength(curveControlPoints);
   const pts: Point[] = [];
   for (let t = 0; t <= 1.0; t += 1 / len) {
@@ -106,7 +106,7 @@ function addHeadingToPoint(
   }
 }
 
-export function ptDiff(a: Point, b: Point): Point {
+/*export*/ function ptDiff(a: Point, b: Point): Point {
   return { x: a.x - b.x, y: a.y - b.y };
 }
 
@@ -123,7 +123,7 @@ function getAngle(pt: Point): number {
   return Math.atan2(pt.y, pt.x);
 }
 
-export function calcSimpleHeading(
+/*export*/ function calcSimpleHeading(
   heading: ConcreteSimpleHeading,
   prev: Point | null,
   cur: Point,
@@ -170,7 +170,7 @@ function normalizeRadian(a: number) {
   return result >= 0 ? result : result + 2 * Math.PI;
 }
 
-export function linearRangeRadians(
+/*export*/ function linearRangeRadians(
   start: number,
   end: number,
   percent: number,

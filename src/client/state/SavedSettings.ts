@@ -133,7 +133,7 @@ export const CoordVizPercentAtom = atom((get) =>
   get(RawCoordinateVisibilityAtom),
 );
 
-export const GranularSettingsAtom = focusAtom(DisplayOptionsAtom, (o) =>
+/*export*/ const GranularSettingsAtom = focusAtom(DisplayOptionsAtom, (o) =>
   o.prop('GranularSettings'),
 );
 export const PathOptionsAtom = focusAtom(DisplayOptionsAtom, (o) =>
@@ -254,7 +254,9 @@ export const BotDrawStyleAtom = focusAtom(DisplayOptionsAtom, (o) =>
   o.prop('BotDrawing'),
 );
 
-export const BotColorAtom = focusAtom(BotDrawStyleAtom, (o) => o.prop('Color'));
+/*export*/ const BotColorAtom = focusAtom(BotDrawStyleAtom, (o) =>
+  o.prop('Color'),
+);
 export const BotTinyColorAtom = atom(
   (get) => new TinyColor(get(BotColorAtom)),
   (get, set, val: TinyColor) => set(BotColorAtom, val.toHexString()),

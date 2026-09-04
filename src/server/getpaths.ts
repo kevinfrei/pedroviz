@@ -26,9 +26,9 @@ export async function SetRepoRoot(repoRoot: string): Promise<boolean> {
   return false;
 }
 
-export async function obliterateRepoRoot() {
+/*export async function obliterateRepoRoot() {
   RepoRoot = null;
-}
+}*/
 
 export function GetRelativeRepoRoot(): string {
   if (isNull(RepoRoot)) {

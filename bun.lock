@@ -11,7 +11,6 @@
         "@fluentui/tokens": "^1.0.0-alpha.24",
         "@freik/containers": "^0.4.10",
         "@freik/fluent9-tools": "^0.2.4",
-        "@freik/react-tools": "^0.4.4",
         "@freik/sync": "^0.4.10",
         "@freik/typechk": "^0.10.0",
         "@hono/node-server": "^2.1.1",

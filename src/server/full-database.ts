@@ -87,7 +87,7 @@ export async function RescanSourceCode(): Promise<PathDatabase> {
   return GetDatabase();
 }
 
-export function GetDatabase(): PathDatabase {
+/*export*/ function GetDatabase(): PathDatabase {
   return database;
 }
 

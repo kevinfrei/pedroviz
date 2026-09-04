@@ -31,7 +31,7 @@ export async function CheckForFieldImages(): Promise<boolean> {
   return images.size > 0;
 }
 
-export function HasFieldImage(): boolean {
+/*export*/ function HasFieldImage(): boolean {
   return images.size !== 0;
 }
 

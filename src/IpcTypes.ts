@@ -16,9 +16,8 @@ export type TeamPaths = MultiMap<Team, PathKey>;
 
 // A class key is a Class + * + seqnum
 export type ClassKey = Nominal<string, 'ClassKey'>;
-export type PathClasses = MultiMap<PathKey, ClassKey>;
+/*export*/ type PathClasses = MultiMap<PathKey, ClassKey>;
 
-export type MaybePathFile = ErrorOr<ParsedClass>;
 export type PathDatabase = {
   HasFieldImage: boolean;
   TeamPaths: TeamPaths;

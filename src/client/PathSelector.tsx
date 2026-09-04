@@ -19,7 +19,7 @@ import {
 } from './state/UserCode';
 import { AutoSelector } from './ui-tools/AutoSelector';
 
-export function TeamSelector(): ReactElement {
+/*export*/ function TeamSelector(): ReactElement {
   const teams = useAtomValue(TeamsAtom); //['TeamCode', 'LearnBot'];
   const [team, setTeam] = useAtom(SelectedTeamAtom);
   useEffect(() => {
@@ -40,7 +40,7 @@ export function TeamSelector(): ReactElement {
   );
 }
 
-export function FileSelector(): ReactElement {
+/*export*/ function FileSelector(): ReactElement {
   let files = useAtomValue(PathsForSelectedTeamAtom);
   const [file, setFile] = useAtom(SelectedPathAtom);
   // if all the files have a common folder prefix, filter the prefix out
@@ -79,7 +79,7 @@ export function FileSelector(): ReactElement {
   );
 }
 
-export function ClassSelector(): ReactElement {
+/*export*/ function ClassSelector(): ReactElement {
   const classes = useAtomValue(ClassesForSelectedPathAtom);
   const [classSel, setClass] = useAtom(SelectedClassAtom);
   useEffect(() => {

@@ -46,7 +46,7 @@ export function ClassFromKey(classKey: ClassKey): ClassName {
   return (elems.pop() || '') as ClassName;
 }
 
-export function chkClassKey(obj: unknown): obj is ClassKey {
+/*export*/ function chkClassKey(obj: unknown): obj is ClassKey {
   if (!isString(obj)) {
     return false;
   }
