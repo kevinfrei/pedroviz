@@ -14,6 +14,7 @@ import {
 import {
   AnonymousBezier,
   AnonymousInterp,
+  AnonymousPathChain,
   AnonymousPose,
   AnonymousValue,
   BezierName,
@@ -21,7 +22,9 @@ import {
   BezierType,
   ClassContainer,
   DoubleValue,
+  GlobalInterpPathChain,
   HeadingRef,
+  IndividualInterpPathChain,
   InterpConstant,
   InterpLinear,
   InterpolationType,
@@ -38,7 +41,10 @@ import {
   NamedPose,
   NamedValue,
   ParsedClass,
+  PathChainElement,
   PathChainHelper,
+  PathChainName,
+  PathChainRef,
   PoseName,
   PoseRef,
   RadiansRef,
@@ -212,10 +218,34 @@ export const isPiecewiseInterp = chkObjectOfExactType<InterpPiecewise>({
   )(obj);
 };
 
+const isPathChainElement = chkObjectOfExactType<PathChainElement>({
+  curve: isBezierRef,
+  interp: isAnonymousInterp,
+});
+
+const isIndividualInterpPathChain =
+  chkObjectOfExactType<IndividualInterpPathChain>({
+    segments: chkArrayOf(isPathChainElement),
+  });
+const isGlobalInterpPathChain = chkObjectOfExactType<GlobalInterpPathChain>({
+  curves: chkArrayOf(isBezierRef),
+  interp: isAnonymousInterp,
+});
+
+const isPathChainName: typecheck<PathChainName> = isString;
+const isAnonymousPathChain: typecheck<AnonymousPathChain> = chkAnyOf(
+  isIndividualInterpPathChain,
+  isGlobalInterpPathChain,
+);
+
+const isPathChainRef: typecheck<PathChainRef> = chkAnyOf(
+  isPathChainName,
+  isAnonymousPathChain,
+);
+
 /*export*/ const isNamedPathChain = chkObjectOfExactType<NamedPathChain>({
   name: isString,
-  paths: chkArrayOf(isBezierRef),
-  heading: isAnonymousInterp,
+  pathchain: isPathChainRef,
 });
 
 /*export*/ const isPathChainHelper = chkObjectOfExactType<PathChainHelper>({
