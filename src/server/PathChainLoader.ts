@@ -58,6 +58,7 @@ import {
   NamedPose,
   NamedValue,
   ParsedClass,
+  PathChainElement,
   PathChainHelper,
   PathChainName,
   PoseName,
@@ -854,7 +855,9 @@ function getPathChain(node: BlockStatementCstNode): NamedPathChain | undefined {
   if (isUndefined(methods) || methods.length < 5) {
     return;
   }
-  let chain: BezierRef[] = [];
+  const segments: PathChainElement[] = [];
+  const curves: BezierRef[] = [];
+  let currentCurve: BezierRef | null = null;
   let pathInterpolation: AnonymousInterp | null = null;
   // Okay, remove the '.pathBuilder()' prefix, and the
   // '.build();' suffix.
@@ -875,6 +878,7 @@ function getPathChain(node: BlockStatementCstNode): NamedPathChain | undefined {
         case 'setConstantHeadingInterpolation':
         case 'setHeadingInterpolation':
         case 'setReversed':
+        case 'setGlobalHeadingInterpolation':
         case 'build':
           continue;
         default:
@@ -884,10 +888,30 @@ function getPathChain(node: BlockStatementCstNode): NamedPathChain | undefined {
     } else {
       switch (lastMethodName) {
         case 'pathBuilder':
+          if (isDefined(getArgList(method))) {
+            return;
+          }
+          continue;
         case 'build':
           if (isDefined(getArgList(method))) {
             return;
           }
+          // TODO: We push the last thing being watched onto the segments or curves list
+          continue;
+
+        case 'addPath':
+          const pathArgs = getArgList(method);
+          if (pathArgs?.length !== 1) {
+            return;
+          }
+          const bezierRef = getBezierRef(pathArgs[0]);
+          if (isUndefined(bezierRef)) {
+            return;
+          }
+          // When we see an addPath, we should push the previous item
+          // onto the list. That item should either be a single other
+          // curve, or a curve + interpolation. The first
+          currentCurve.push(bezierRef);
           continue;
 
         case 'setTangentHeadingInterpolation':
@@ -949,17 +973,9 @@ function getPathChain(node: BlockStatementCstNode): NamedPathChain | undefined {
           pathInterpolation = interp;
           continue;
 
-        case 'addPath':
-          const pathArgs = getArgList(method);
-          if (pathArgs?.length !== 1) {
-            return;
-          }
-          const bezierRef = getBezierRef(pathArgs[0]);
-          if (isUndefined(bezierRef)) {
-            return;
-          }
-          chain.push(bezierRef);
-          continue;
+        case 'setGlobalHeadingInterpolation':
+          // TODO: Handle global interpolation
+          return;
 
         default:
           return;
@@ -971,7 +987,7 @@ function getPathChain(node: BlockStatementCstNode): NamedPathChain | undefined {
   }
   return {
     name: fieldName as PathChainName,
-    paths: chain,
+    paths: currentCurve,
     heading: pathInterpolation,
   };
 }
