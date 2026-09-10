@@ -44,7 +44,7 @@ export function InlinePoseRefDisplay({
   pose: PoseRef;
 }): ReactElement {
   const colors = useAtomValue(ColorsAtom);
-  /*const ap = isRef(pose) ? getPose(pose) : pose;
+  /*const ap = iseRf(pose) ? getPose(pose) : pose;
   const color = getColorFor(ap);*/
   // const style = { color: colors[color % colors.length] };
   return isRef(pose) ? (
@@ -56,12 +56,12 @@ export function InlinePoseRefDisplay({
   );
 }
 
-export type AnonymousPoseDisplayProps = {
+/*export*/ type AnonymousPoseDisplayProps = {
   pose: AnonymousPose;
   noHeading?: boolean;
   setPose: (p: AnonymousPose) => void;
 };
-export function AnonymousPoseDisplay({
+/*export*/ function AnonymousPoseDisplay({
   pose,
   noHeading,
   setPose,
@@ -104,7 +104,7 @@ export function AnonymousPoseDisplay({
   );
 }
 
-export function AnonymousPoseHeader({
+/*export function AnonymousPoseHeader({
   noHeading,
 }: {
   noHeading?: boolean;
@@ -122,8 +122,9 @@ export function AnonymousPoseHeader({
     </>
   );
 }
+*/
 
-export function NamedPoseItem({
+/*export function NamedPoseItem({
   item,
   style,
 }: ItemWithStyle<PoseName>): ReactElement {
@@ -140,7 +141,7 @@ export function NamedPoseItem({
     );
   }
   return <></>;
-}
+}*/
 
 const columns: TableColumnDefinition<NamedPose>[] = [
   createTableColumn<NamedPose>({

@@ -12,7 +12,7 @@ import {
 
 import { ErrorOr, isError } from '@freik/typechk';
 
-import { EmptyParsedClass } from '../../CodeTypeCheck';
+import { MakeEmptyParsedClass } from '../../CodeTypeCheck';
 import {
   BezierName,
   BezierRef,
@@ -47,6 +47,7 @@ import { GetFullDb, LoadAndIndexFile, PutFullDb, UpdateIndexFile } from './API';
 import { EmptyMappedFile, GetNameLookup } from './IndexedFile';
 import { DisplayOptionsAtom, ThemeAtom } from './SavedSettings';
 
+export const CreationSupportedAtom = atom(false);
 export const ColorsAtom = atom((get) => {
   const theme = get(ThemeAtom);
   return theme === 'dark' ? lightOnBlack : darkOnWhite;
@@ -104,7 +105,6 @@ export const HasExternalFieldAtom = selectAtom(
   FullDatabaseAtom,
   async (db) => (await db).HasFieldImage,
 );
-
 export const TeamsAtom = atom(async (get): Promise<Team[]> => {
   const tp = await get(TeamPathsSelect);
   return [...tp.keys()];
@@ -239,14 +239,22 @@ export const SelectedParsedClassAtom = atom(
   async (get): Promise<ParsedClass> => {
     const db = await get(FullDatabaseAtom);
     const key = await get(SelectedClassKeyAtom);
-    return db.ParsedClasses.get(key) || EmptyParsedClass;
-  },
-  async (get, set, val: ParsedClass) => {},
+    return db.ParsedClasses.get(key) || MakeEmptyParsedClass();
+  }, // ,
+  //  async (get, set, val: ParsedClass) => {},
 );
 
-const UnwrappedParsedClass = unwrap(
-  SelectedParsedClassAtom,
-  () => EmptyParsedClass,
+const UnwrappedParsedClass = unwrap(SelectedParsedClassAtom, () =>
+  MakeEmptyParsedClass(),
+);
+
+export const UnmatchedFieldsAtom = selectAtom(
+  UnwrappedParsedClass,
+  (pc) => pc.unmatchedFields,
+);
+export const ParsingErrorsAtom = selectAtom(
+  UnwrappedParsedClass,
+  (pc) => pc.parsingErrors,
 );
 
 const MappedFileBackingAtom = atom(0);

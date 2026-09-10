@@ -3,7 +3,7 @@
 import { MakeMultiMap } from '@freik/containers';
 import { isNumber, isString } from '@freik/typechk';
 
-import { EmptyParsedClass } from '../../CodeTypeCheck';
+import { MakeEmptyParsedClass } from '../../CodeTypeCheck';
 import {
   AnonymousBezier,
   AnonymousInterp,
@@ -194,15 +194,14 @@ function mkInterpPiecewise(...pieces: InterpPiece[]): InterpPiecewise {
 }
 
 export const TestPathsParsed: ParsedClass = {
+  ...MakeEmptyParsedClass(),
   name: 'TestPaths',
   fullName: 'org.firstinspires.ftc.learnbot.TestPaths',
   imports: ['org.firstinspires.ftc.learnbot'],
-  pathChainHelpers: [],
   container: {
     fileName:
       '../LearnBot/src/main/java/org/firstinspires/ftc/learnbot/TestPaths.java',
   },
-  children: {},
   values: [
     mkNamedValue('org', 15),
     mkNamedValue('edge', 50),
@@ -365,16 +364,9 @@ const teams: Team[] = ['team1' as Team, 'team2' as Team];
 // };
 
 const testParsedClass: ParsedClass = {
-  values: [],
-  poses: [],
-  beziers: [],
-  pathChainHelpers: [],
-  pathChains: [],
-  container: { fileName: '' },
-  children: {},
+  ...MakeEmptyParsedClass(),
   name: 'path1.java',
   fullName: 'test.path1',
-  imports: [],
 };
 
 const simpleBez: AnonymousBezier = {
@@ -387,22 +379,16 @@ const simpleBez: AnonymousBezier = {
 };
 
 export const noParsedClass: ParsedClass = {
+  ...MakeEmptyParsedClass(),
   name: 'z',
   fullName: 'test.z',
-  imports: [],
   container: { fileName: 'path2.java' },
-  children: {},
-  values: [],
-  poses: [],
-  beziers: [],
-  pathChains: [],
-  pathChainHelpers: [],
 };
 
 export const fullParsedClass: ParsedClass = {
+  ...MakeEmptyParsedClass(),
   name: 'c',
   fullName: 'test.c',
-  imports: [],
   values: [
     { name: 'val1' as ValueName, value: { int: 1 } },
     { name: 'val2' as ValueName, value: { double: 2.5 } },
@@ -487,10 +473,6 @@ export const fullParsedClass: ParsedClass = {
       },
     },
   ],
-  // TODO
-  container: { fileName: '' },
-  children: {},
-  pathChainHelpers: [],
 };
 
 export const testDatabase: PathDatabase = {
@@ -517,10 +499,10 @@ export const testDatabase: PathDatabase = {
     ],
   ]),
   ParsedClasses: new Map<ClassKey, ParsedClass>([
-    ['team1*path1.java;a' as ClassKey, EmptyParsedClass],
-    ['team1*path2.java;b' as ClassKey, EmptyParsedClass],
+    ['team1*path1.java;a' as ClassKey, MakeEmptyParsedClass()],
+    ['team1*path2.java;b' as ClassKey, MakeEmptyParsedClass()],
     ['team2*path3.java;c' as ClassKey, fullParsedClass],
-    ['team2*path4.java;d' as ClassKey, EmptyParsedClass],
+    ['team2*path4.java;d' as ClassKey, MakeEmptyParsedClass()],
     ['LearnBot*TestPaths.java;TestPaths' as ClassKey, TestPathsParsed],
   ]),
 };
@@ -532,16 +514,9 @@ const teamsForUITest: Team[] = ['team1' as Team, 'team2' as Team];
 // };
 
 export const testParsedClassForUITest: ParsedClass = {
-  values: [],
-  poses: [],
-  beziers: [],
-  pathChainHelpers: [],
-  pathChains: [],
-  container: { fileName: '' },
-  children: {},
+  ...MakeEmptyParsedClass(),
   name: 'path1.java',
   fullName: 'test.path1',
-  imports: [],
 };
 
 const BezForUITest: AnonymousBezier = {
@@ -554,9 +529,9 @@ const BezForUITest: AnonymousBezier = {
 };
 
 export const ParsedClassForUITest: ParsedClass = {
+  ...MakeEmptyParsedClass(),
   name: 'path3.java',
   fullName: 'test.path3',
-  imports: [],
   values: [
     { name: 'val1' as ValueName, value: { int: 1 } },
     { name: 'val2' as ValueName, value: { double: 2.5 } },
@@ -637,10 +612,6 @@ export const ParsedClassForUITest: ParsedClass = {
       },
     },
   ],
-  // TODO
-  container: { fileName: '' },
-  children: {},
-  pathChainHelpers: [],
 };
 
 export const status = {
@@ -667,9 +638,9 @@ export const databaseForUITest: PathDatabase = {
     ['team2*path4.java' as PathKey, ['team2*path4.java;d' as ClassKey]],
   ]),
   ParsedClasses: new Map<ClassKey, ParsedClass>([
-    ['team1*path1.java;a' as ClassKey, EmptyParsedClass],
-    ['team1*path2.java;b' as ClassKey, EmptyParsedClass],
+    ['team1*path1.java;a' as ClassKey, MakeEmptyParsedClass()],
+    ['team1*path2.java;b' as ClassKey, MakeEmptyParsedClass()],
     ['team2*path3.java;c' as ClassKey, ParsedClassForUITest],
-    ['team2*path4.java;d' as ClassKey, EmptyParsedClass],
+    ['team2*path4.java;d' as ClassKey, MakeEmptyParsedClass()],
   ]),
 };

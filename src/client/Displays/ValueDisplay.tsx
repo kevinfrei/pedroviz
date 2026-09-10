@@ -62,14 +62,14 @@ export function HeadingRefDisplay({
   return <> </>;
 }
 
-export function AnonymousValueDisplay({
+/*export*/ function AnonymousValueDisplay({
   item,
   ...props
 }: ItemWithStyle<AnonymousValue>): ReactElement {
   return <code {...props}>{GetValueAsString(item)}</code>;
 }
 
-export function UnnamedValueDisplay({
+/*export function UnnamedValueDisplay({
   item,
   ...props
 }: ItemWithStyle<ValueRef | RadiansRef>): ReactElement {
@@ -79,8 +79,6 @@ export function UnnamedValueDisplay({
     <ValueRefDisplay item={item} {...props} />
   );
 }
-
-/*
 
 export function EditableValueRef({
   initial,
@@ -243,7 +241,7 @@ export function EditableOnlyValueRef({
 }
 */
 
-export function GeneralRefDisplay({
+/*export*/ function GeneralRefDisplay({
   item,
   ...props
 }: ItemWithStyle<ValueName | PoseName>) {
@@ -273,14 +271,14 @@ function MathToRadianDisplay({
   );
 }
 
-export function RadiansRefDisplay({
+/*export*/ function RadiansRefDisplay({
   item,
   ...props
 }: ItemWithStyle<RadiansRef>): ReactElement {
   return <MathToRadianDisplay item={item.radians} {...props} />;
 }
 
-export function GetVal(ref: NamedValue) {
+/*export*/ function GetVal(ref: NamedValue) {
   return GetValueAsString(
     isValueRef(ref.value) ? ref.value : ref.value.radians,
   );

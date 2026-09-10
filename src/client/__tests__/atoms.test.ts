@@ -13,7 +13,7 @@ import {
   SafelyUnpickle,
 } from '@freik/typechk';
 
-import { EmptyParsedClass } from '../../CodeTypeCheck';
+import { MakeEmptyParsedClass } from '../../CodeTypeCheck';
 import { ParsedClass } from '../../CodeTypes';
 import { chkPathDatabase } from '../../IpcTypeCheck';
 import {
@@ -65,10 +65,10 @@ const database: PathDatabase = {
     ['team2*path4.java' as PathKey, ['team2*path4.java;d' as ClassKey]],
   ]),
   ParsedClasses: new Map<ClassKey, ParsedClass>([
-    ['team1*path1.java;a' as ClassKey, EmptyParsedClass],
-    ['team1*path2.java;b' as ClassKey, EmptyParsedClass],
-    ['team2*path3.java;c' as ClassKey, EmptyParsedClass],
-    ['team2*path4.java;d' as ClassKey, EmptyParsedClass],
+    ['team1*path1.java;a' as ClassKey, MakeEmptyParsedClass()],
+    ['team1*path2.java;b' as ClassKey, MakeEmptyParsedClass()],
+    ['team2*path3.java;c' as ClassKey, MakeEmptyParsedClass()],
+    ['team2*path4.java;d' as ClassKey, MakeEmptyParsedClass()],
   ]),
 };
 

@@ -7,10 +7,13 @@ import { Text } from '@fluentui/react-components';
 import { Expandable } from '@freik/fluent9-tools';
 
 import { NamedBezierList } from './Displays/CurveDisplay';
+import { NewPose } from './Displays/NewPose';
+import { NewValue } from './Displays/NewValue';
 import { PathChainList } from './Displays/PathChainDisplay';
 import { NamedPoseList } from './Displays/PoseDisplay';
 import { NamedValueList } from './Displays/ValueDisplay';
 import {
+  CreationSupportedAtom,
   FocusedCurveAtom,
   FocusedPathAtom,
   FocusedPoseAtom,
@@ -31,6 +34,7 @@ export function PathsDataDisplay({
 }: {
   expand?: boolean;
 }): ReactElement {
+  const creationSupported = useAtomValue(CreationSupportedAtom);
   const selFile = useAtomValue(SelectedPathAtom);
   const selClass = useAtomValue(SelectedClassAtom);
   const setFocusedPose = useSetAtom(FocusedPoseAtom);
@@ -46,7 +50,7 @@ export function PathsDataDisplay({
         <Suspense>
           <NamedValueList />
         </Suspense>
-        {/* <NewValue /> */}
+        {creationSupported ? <NewValue /> : <></>}
       </Expandable>
       <Expandable
         label={<Text weight="bold">Poses</Text>}
@@ -55,7 +59,7 @@ export function PathsDataDisplay({
         <Suspense>
           <NamedPoseList />
         </Suspense>
-        {/* <NewPose /> */}
+        {creationSupported ? <NewPose /> : <></>}
       </Expandable>
       <Expandable
         label={<Text weight="bold">Curves & Lines</Text>}

@@ -5,11 +5,8 @@ import {
   chkArrayOf,
   chkFieldOf,
   chkObjectOfExactType,
-  chkRecordOf,
-  hasFieldOf,
-  hasFieldType,
-  hasStrField,
   isNumber,
+  isRecordOf,
   isString,
   typecheck,
 } from '@freik/typechk';
@@ -49,18 +46,22 @@ import {
   ValueRef,
 } from './CodeTypes';
 
-export const EmptyParsedClass: ParsedClass = {
-  name: '',
-  fullName: '',
-  imports: [],
-  container: { fileName: '' },
-  children: {},
-  values: [],
-  poses: [],
-  beziers: [],
-  pathChains: [],
-  pathChainHelpers: [],
-};
+export function MakeEmptyParsedClass(): ParsedClass {
+  return {
+    name: '',
+    fullName: '',
+    imports: [],
+    container: { fileName: '' },
+    children: {},
+    values: [],
+    poses: [],
+    beziers: [],
+    pathChains: [],
+    pathChainHelpers: [],
+    unmatchedFields: [],
+    parsingErrors: [],
+  };
+}
 
 export const isRef = isString;
 export const isValueName: typecheck<ValueName> =
@@ -226,17 +227,25 @@ export const isPiecewiseInterp = chkObjectOfExactType<InterpPiecewise>({
   chkFieldOf('fileName', isString),
   chkFieldOf('className', isString),
 );
-// Can't use chkObjOfExactType because recursion...
-export function chkParsedClass(val: unknown): val is ParsedClass {
-  let res = hasStrField(val, 'name');
-  res = res && hasFieldOf(val, 'container', isClassContainer);
-  res = res && hasFieldOf(val, 'values', chkArrayOf(isNamedValue));
-  res = res && hasFieldOf(val, 'poses', chkArrayOf(isNamedPose));
-  res = res && hasFieldOf(val, 'beziers', chkArrayOf(isNamedBezier));
-  res = res && hasFieldOf(val, 'pathChains', chkArrayOf(isNamedPathChain));
-  res =
-    res && hasFieldOf(val, 'pathChainHelpers', chkArrayOf(isPathChainHelper));
-  res =
-    res && hasFieldType(val, 'children', chkRecordOf(isString, chkParsedClass));
-  return res;
+
+export const chkParsedClass = chkObjectOfExactType<ParsedClass>({
+  name: isString,
+  fullName: isString,
+  imports: chkArrayOf(isString),
+  unmatchedFields: chkArrayOf(isString),
+  parsingErrors: chkArrayOf(isString),
+  container: isClassContainer,
+  values: chkArrayOf(isNamedValue),
+  poses: chkArrayOf(isNamedPose),
+  beziers: chkArrayOf(isNamedBezier),
+  pathChains: chkArrayOf(isNamedPathChain),
+  pathChainHelpers: chkArrayOf(isPathChainHelper),
+  // Can't use chkRecordOf(isString, chkParsedClass) because we're defining
+  // chkParsedClass, so the use won't occur until the 'children' field is
+  // invoked. (Obscure value resolution rules FTW!)
+  children: isRecordOfParsedClasses,
+});
+
+function isRecordOfParsedClasses(u: unknown): u is Record<string, ParsedClass> {
+  return isRecordOf(u, isString, chkParsedClass);
 }

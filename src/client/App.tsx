@@ -10,6 +10,7 @@ import {
 } from '@fluentui/react-components';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 
+import { CodeIssues } from './CodeIssues';
 import { FieldRenderer } from './FieldRenderer';
 import { PathsDataDisplay } from './PathsDataDisplay';
 import { PathSelector } from './PathSelector';
@@ -17,7 +18,7 @@ import { Settings } from './Settings';
 import { ThemeAtom } from './state/SavedSettings';
 import { getStore } from './state/Storage';
 
-export function MyApp(): ReactElement {
+function MyApp(): ReactElement {
   return (
     <div className="app">
       <div className="header-left">
@@ -32,6 +33,7 @@ export function MyApp(): ReactElement {
         <Panel className="sidebar">
           <Suspense>
             <PathsDataDisplay />
+            <CodeIssues />
           </Suspense>
         </Panel>
         <Separator id="view-separator" />
@@ -45,7 +47,7 @@ export function MyApp(): ReactElement {
   );
 }
 
-export function FluentApp(): ReactElement {
+function FluentApp(): ReactElement {
   const theTheme = useAtomValue(ThemeAtom);
   const theme = theTheme === 'dark' ? webDarkTheme : webLightTheme;
 

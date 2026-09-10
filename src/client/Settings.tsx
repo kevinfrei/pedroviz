@@ -175,7 +175,7 @@ export function Settings(): ReactElement {
   const [botWidth, changeBotWidth] = useSpinnerAtom(BotWidthAtom);
   const [botLength, changeBotLength] = useSpinnerAtom(BotLengthAtom);
   const [botTinyColor, setBotTinyColor] = useAtom(BotTinyColorAtom);
-  const onSliderChange: ColorSliderProps['onChange'] = (_, data) => {
+  const onColorChange: ColorSliderProps['onChange'] = (_, data) => {
     setBotTinyColor(new TinyColor(data.color));
   };
   const [selectedTab, setSelectedTab] = useState<TabValue>('General');
@@ -252,26 +252,33 @@ export function Settings(): ReactElement {
           <ColorSlider
             id="hueId"
             color={botTinyColor.toHsv()}
-            onChange={onSliderChange}
+            onChange={onColorChange}
           />
           <Label htmlFor="satId">Saturation</Label>
           <ColorSlider
             id="satId"
             color={botTinyColor.toHsv()}
             channel="saturation"
-            onChange={onSliderChange}
+            onChange={onColorChange}
           />
           <Label htmlFor="valId">Brightness</Label>
           <ColorSlider
             id="valId"
             color={botTinyColor.toHsv()}
             channel="value"
-            onChange={onSliderChange}
+            onChange={onColorChange}
           />
         </div>
       </div>
     ),
-    [botWidth, botLength, botShape, botTinyColor],
+    [
+      botWidth,
+      botLength,
+      botShape,
+      botTinyColor.toHexString(),
+      onColorChange,
+      onBotShapeSelect,
+    ],
   );
   const GeneralSettings = useMemo(
     (): ReactElement => (

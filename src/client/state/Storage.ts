@@ -48,6 +48,7 @@ export async function fetchApi<T>(
       console.error('Received malformed message from server:', res);
     }
   }
+  console.error('Failed to typecheck server response for', key);
   return def;
 }
 

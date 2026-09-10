@@ -146,7 +146,7 @@ export type ResponsiveAnchor = {
 
 export type Offset = { left: number; top: number };
 
-export type CanvasRenderFunc = (
+/*export*/ type CanvasRenderFunc = (
   ctx: CanvasRenderingContext2D,
   devicePixelRatio: number,
 ) => void;
@@ -158,5 +158,3 @@ export type ResponsiveSquareCanvasProps = {
   render: CanvasRenderFunc;
   animate?: CanvasRenderFunc;
 };
-
-export type RowData = { offset: number; size: number };
