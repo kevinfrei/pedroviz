@@ -47,6 +47,7 @@ import { GetFullDb, LoadAndIndexFile, PutFullDb, UpdateIndexFile } from './API';
 import { EmptyMappedFile, GetNameLookup } from './IndexedFile';
 import { DisplayOptionsAtom, ThemeAtom } from './SavedSettings';
 
+export const CreationSupportedAtom = atom(false);
 export const ColorsAtom = atom((get) => {
   const theme = get(ThemeAtom);
   return theme === 'dark' ? lightOnBlack : darkOnWhite;

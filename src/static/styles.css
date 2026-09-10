@@ -66,14 +66,6 @@ body {
 }
 .col3div {
   display: grid;
-  grid-template-columns: auto 1fr 4fr 1fr 4fr;
-}
-.col1 {
-  grid-column: 1;
-}
-.col2 {
-  grid-column: 3;
-}
-.col3 {
-  grid-column: 5;
+  grid-template-columns: auto 4fr 4fr;
+  row-gap: 3;
 }

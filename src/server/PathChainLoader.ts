@@ -187,7 +187,7 @@ class PathChainLoader extends BaseJavaCstVisitorWithDefaults {
       ),
     );
     this.info.unmatchedFields.push(
-      'Unable to classified field declaration: ',
+      'Unable to classify field declaration: ',
       ...info,
     );
     return super.fieldDeclaration(ctx);

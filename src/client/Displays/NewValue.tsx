@@ -2,7 +2,6 @@
 
 import { ReactElement, useState } from 'react';
 import { useAtomValue } from 'jotai';
-import { useAtomCallback } from 'jotai/utils';
 
 import {
   Button,
@@ -22,12 +21,7 @@ import {
   Select,
 } from '@fluentui/react-components';
 
-import {
-  AnonymousValue,
-  RadiansRef,
-  ValueName,
-  ValueRef,
-} from '../../CodeTypes';
+import { AnonymousValue, ValueName } from '../../CodeTypes';
 import { ValuesLookupAtom } from '../state/UserCode';
 import { ValidateState, ValidationData, ValidData } from '../types';
 import { CheckValidName } from './Validation';
@@ -142,7 +136,7 @@ export function NewValue(): ReactElement {
           <DialogTitle>New value field</DialogTitle>
           <DialogContent>
             <div className="col3div">
-              <Field className="col1" label="Type">
+              <Field label="Type">
                 <RadioGroup value={valType} onChange={typeChange}>
                   <Radio value="double" label="double" />
                   <Radio value="int" label="int" />
@@ -150,14 +144,12 @@ export function NewValue(): ReactElement {
                 </RadioGroup>
               </Field>
               <Field
-                className="col2"
                 label="Name"
                 validationMessage={validNameMessage}
                 validationState={nameValidationState}>
                 <Input value={name.trim()} onChange={nameChange} />
               </Field>
               <Field
-                className="col3"
                 label={label}
                 validationMessage={validValueMessage}
                 validationState={valueValidationState}>
