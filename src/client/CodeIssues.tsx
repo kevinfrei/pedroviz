@@ -1,7 +1,7 @@
 import { ReactElement } from 'react';
 import { useAtomValue } from 'jotai';
 
-import { InfoLabel, Text } from '@fluentui/react-components';
+import { InfoLabel, Link, Text } from '@fluentui/react-components';
 import { Expandable } from '@freik/fluent9-tools';
 
 import { ParsingErrorsAtom, UnmatchedFieldsAtom } from './state/UserCode';
@@ -22,8 +22,13 @@ export function CodeIssues(): ReactElement {
                   above lists. This may be due to an issue in this application,
                   or it may be simply because your code has some 'extra' fields
                   that aren't used for PedroPathing. If you think this is an
-                  issue with this application, please report it to the
-                  developers.
+                  issue with this application, please{' '}
+                  <Link
+                    href="https://github.com/kevinfrei/pedroviz/issues"
+                    target="_blank">
+                    report it to the developer
+                  </Link>
+                  .
                 </>
               }>
               Unmatched Fields
@@ -46,9 +51,16 @@ export function CodeIssues(): ReactElement {
           label={
             <InfoLabel
               info={
-                'These are errors that were encountered while parsing' +
-                ' the code. This is mostly likely an issue in this application. Please' +
-                ' report it to the developer.'
+                <>
+                  These are errors that were encountered while parsing the code.
+                  This is mostly likely an issue in this application. Please{' '}
+                  <Link
+                    href="https://github.com/kevinfrei/pedroviz/issues"
+                    target="_blank">
+                    report it to the developer
+                  </Link>
+                  .
+                </>
               }>
               Parsing Errors
             </InfoLabel>

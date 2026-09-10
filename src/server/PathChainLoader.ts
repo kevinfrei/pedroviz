@@ -643,7 +643,7 @@ function tryMatchingPathChainField(
 ): string | undefined {
   // These shouldn't be static, because they need a follower to be created.
   // That said, having static values here should still be okay...
-  if (!isPublicField(ctx) /* && !isPublicStaticField(ctx)*/) {
+  if (!isPublicField(ctx) && !isPublicStaticField(ctx)) {
     return;
   }
   if ('PathChain' !== getClassTypeName(ctx.unannType)) {
@@ -1061,14 +1061,9 @@ function getPathChainFactories(
   return statements.map(getPathChain).filter(isDefined) as NamedPathChain[];
 }
 
-export async function MakeParsedClass(
-  filename: string,
-): Promise<ErrorOr<ParsedClass>> {
-  const loader = new PathChainLoader();
-  const res = await loader.loadFile(filename);
-  if (isString(res)) {
-    return MakeError(res);
-  }
+// Currently, this clears the 'pathChainFields' extra field,
+// and generates fake imports for nested classes to make name lookup easier.
+function postProcess(loader: PathChainLoader): ParsedClass {
   let pc: OptPCInfo = { ...loader.info };
   delete pc.pathChainFields;
   if (anyItems(pc)) {
@@ -1090,6 +1085,17 @@ export async function MakeParsedClass(
     });
   }
   return pc;
+}
+
+export async function MakeParsedClass(
+  filename: string,
+): Promise<ErrorOr<ParsedClass>> {
+  const loader = new PathChainLoader();
+  const res = await loader.loadFile(filename);
+  if (isString(res)) {
+    return MakeError(res);
+  }
+  return postProcess(loader);
 }
 
 // Returns true if that file has *any* items we care about in it.
