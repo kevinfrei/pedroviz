@@ -156,7 +156,7 @@ describe('Atom Capabilities', () => {
     const selClass = await act(() =>
       renderHook(() => useAtom(SelectedClassAtom)),
     );
-    expect(selClass.result.current[0]).toEqual('' as ClassName);
+    expect(selClass.result.current[0]).toEqual('c' as ClassName);
     selClass.result.current[1]('c');
     const selClass2 = await act(() =>
       renderHook(() => useAtomValue(SelectedClassAtom)),

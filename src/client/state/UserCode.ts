@@ -14,8 +14,6 @@ import { ErrorOr, isError } from '@freik/typechk';
 
 import { MakeEmptyParsedClass } from '../../CodeTypeCheck';
 import {
-  BezierName,
-  BezierRef,
   NamedBezier,
   NamedPathChain,
   NamedPose,
@@ -23,9 +21,7 @@ import {
   ParsedClass,
   PoseName,
   PoseRef,
-  RadiansRef,
   ValueName,
-  ValueRef,
 } from '../../CodeTypes';
 import {
   ClassFromKey,
@@ -52,7 +48,9 @@ export const ColorsAtom = atom((get) => {
   const theme = get(ThemeAtom);
   return theme === 'dark' ? lightOnBlack : darkOnWhite;
 });
-/*export*/ const ColorForNumber = atomFamily((index: number) =>
+// TODO: Not used any more. I should go back and either do the color coding,
+// or remove it...
+const ColorForNumber = atomFamily((index: number) =>
   atom((get) => {
     const colors = get(ColorsAtom);
     return colors[index % colors.length];
@@ -71,7 +69,7 @@ export const FullDatabaseAtom = atomWithRefresh(
   },
 );
 
-/*export*/ const IndexedDatabaseAtom = atomWithRefresh(
+const IndexedDatabaseAtom = atomWithRefresh(
   async (get) => {
     const db = await get(FullDatabaseAtom);
     const index = GetNameLookup();
@@ -89,15 +87,15 @@ export const FullDatabaseAtom = atomWithRefresh(
   dbCache = null;
 }
 
-/*export*/ const TeamPathsSelect = selectAtom(
+const TeamPathsAtom = selectAtom(
   FullDatabaseAtom,
   async (db) => (await db).TeamPaths,
 );
-/*export*/ const PathClassesSelect = selectAtom(
+const PathClassesAtom = selectAtom(
   FullDatabaseAtom,
   async (db) => (await db).PathClasses,
 );
-/*export*/ const ParsedClassesSelect = selectAtom(
+const ParsedClassesAtom = selectAtom(
   FullDatabaseAtom,
   async (db) => (await db).ParsedClasses,
 );
@@ -105,18 +103,19 @@ export const HasExternalFieldAtom = selectAtom(
   FullDatabaseAtom,
   async (db) => (await db).HasFieldImage,
 );
+
 export const TeamsAtom = atom(async (get): Promise<Team[]> => {
-  const tp = await get(TeamPathsSelect);
+  const tp = await get(TeamPathsAtom);
   return [...tp.keys()];
 });
 
-/*export*/ const PathKeysForTeamFamily = atomFamily((team: Team) =>
+const PathKeysForTeamFamily = atomFamily((team: Team) =>
   atom(async (get): Promise<Set<PathKey>> => {
-    return (await get(TeamPathsSelect)).get(team) || new Set();
+    return (await get(TeamPathsAtom)).get(team) || new Set();
   }),
 );
 
-/*export*/ const PathsForTeamFamily = atomFamily((team: Team) =>
+const PathsForTeamFamily = atomFamily((team: Team) =>
   atom(async (get): Promise<Path[]> => {
     return [...(await get(PathKeysForTeamFamily(team))).keys()].map(
       PathFromKey,
@@ -124,13 +123,13 @@ export const TeamsAtom = atom(async (get): Promise<Team[]> => {
   }),
 );
 
-/*export*/ const ClassKeysForPathKeyFamily = atomFamily((pk: PathKey) =>
+const ClassKeysForPathKeyFamily = atomFamily((pk: PathKey) =>
   atom(async (get): Promise<Set<ClassKey>> => {
-    return (await get(PathClassesSelect)).get(pk) || new Set();
+    return (await get(PathClassesAtom)).get(pk) || new Set();
   }),
 );
 
-/*export*/ const ClassesForPathKeyFamily = atomFamily((pk: PathKey) =>
+const ClassesForPathKeyFamily = atomFamily((pk: PathKey) =>
   atom(async (get): Promise<ClassName[]> => {
     return [...(await get(ClassKeysForPathKeyFamily(pk))).keys()].map(
       ClassFromKey,
@@ -138,26 +137,24 @@ export const TeamsAtom = atom(async (get): Promise<Team[]> => {
   }),
 );
 
-/*export*/ const PathKeysForSelectedTeamAtom = atom(
-  async (get): Promise<Set<PathKey>> => {
-    const selTeam = await get(SelectedTeamAtom);
-    return await get(PathKeysForTeamFamily(selTeam));
-  },
-);
+const PathKeysForSelectedTeamAtom = atom(async (get): Promise<Set<PathKey>> => {
+  const selTeam = await get(SelectedTeamAtom);
+  return await get(PathKeysForTeamFamily(selTeam));
+});
 
 export const PathsForSelectedTeamAtom = atom(async (get): Promise<Path[]> => {
   const selTeam = await get(SelectedTeamAtom);
   return await get(PathsForTeamFamily(selTeam));
 });
 
-/*export*/ const ClassKeysForSelectedPathAtom = atom(
+const ClassKeysForSelectedPathAtom = atom(
   async (get): Promise<Set<ClassKey>> => {
-    const pathKey = get(SelectedPathKeyAtom);
+    const pathKey = await get(SelectedPathKeyAtom);
     return get(ClassKeysForPathKeyFamily(pathKey));
   },
 );
 
-/*export*/ const SelectedTeamBacking = atomWithStorage<Team>(
+const SelectedTeamBacking = atomWithStorage<Team>(
   'selectedTeam',
   '' as Team,
   undefined,
@@ -165,7 +162,13 @@ export const PathsForSelectedTeamAtom = atom(async (get): Promise<Path[]> => {
 );
 
 export const SelectedTeamAtom = atom(
-  (get) => get(SelectedTeamBacking),
+  async (get) => {
+    const allTeams = await get(TeamsAtom);
+    if (allTeams.length === 1) {
+      return allTeams[0] as Team;
+    }
+    return get(SelectedTeamBacking);
+  },
   (get, set, val: string | Team) => {
     const cur = get(SelectedTeamBacking);
     // Clear the selected file when the team is changed
@@ -176,16 +179,27 @@ export const SelectedTeamAtom = atom(
   },
 );
 
-/*export*/ const SelectedPathKeyBacking = atomWithStorage<PathKey>(
+const SelectedPathKeyBacking = atomWithStorage<PathKey>(
   'selectedPathKey',
   '' as PathKey,
   undefined,
   { getOnInit: true },
 );
 
-/*export*/ const SelectedPathKeyAtom = atom(
-  (get) => get(SelectedPathKeyBacking),
-  (get, set, val: PathKey | string) => {
+const SelectedPathKeyAtom = atom(
+  async (get) => {
+    const selPath = await get(SelectedPathKeyBacking);
+    const selTeam = await get(SelectedTeamAtom);
+    if (selTeam === '') {
+      return '' as PathKey;
+    }
+    const pathsForTeam = await get(PathKeysForSelectedTeamAtom);
+    if (pathsForTeam.size === 1) {
+      return [...pathsForTeam.keys()][0]! as PathKey;
+    }
+    return selPath as PathKey;
+  },
+  (get, set, val: PathKey) => {
     const pathKey = get(SelectedPathKeyBacking);
     // Clear the selected class when the file is changed
     if (pathKey !== val) {
@@ -196,10 +210,10 @@ export const SelectedTeamAtom = atom(
 );
 
 export const SelectedPathAtom = atom(
-  (get) => PathFromKey(get(SelectedPathKeyBacking)),
-  (get, set, val: Path | string) => {
-    const team = get(SelectedTeamAtom);
-    const curKey = get(SelectedPathKeyAtom);
+  async (get) => PathFromKey(await get(SelectedPathKeyAtom)),
+  async (get, set, val: Path | string) => {
+    const team = await get(SelectedTeamAtom);
+    const curKey = await get(SelectedPathKeyAtom);
     const key = getPathKey(team, val as Path);
     // Clear the selected class when the file is changed
     if (key !== curKey) {
@@ -216,19 +230,41 @@ export const ClassesForSelectedPathAtom = atom(
   },
 );
 
-/*export*/ const SelectedClassKeyAtom = atomWithStorage(
+const SelectedClassKeyBacking = atomWithStorage(
   'selectedClass',
   '' as ClassKey,
   undefined,
   { getOnInit: true },
 );
 
+const SelectedClassKeyAtom = atom(
+  async (get) => {
+    const selClass = await get(SelectedClassKeyBacking);
+    const selPath = await get(SelectedPathAtom);
+    if (selPath === '') {
+      return '' as ClassKey;
+    }
+    const classesForPath = await get(ClassKeysForSelectedPathAtom);
+    if (classesForPath.size === 1) {
+      return [...classesForPath.keys()][0]! as ClassKey;
+    }
+    return selClass;
+  },
+  (get, set, val: ClassKey) => {
+    const classKey = get(SelectedClassKeyBacking);
+    // Clear the selected class when the file is changed
+    if (classKey !== val) {
+      set(SelectedClassKeyBacking, val as ClassKey);
+    }
+  },
+);
+
 export const SelectedClassAtom = atom(
-  (get) => ClassFromKey(get(SelectedClassKeyAtom)),
+  async (get) => ClassFromKey(await get(SelectedClassKeyAtom)),
   async (get, set, val: ClassName | string) => {
-    const pathKey = get(SelectedPathKeyAtom);
+    const pathKey = await get(SelectedPathKeyAtom);
     const classKey = getClassKey(pathKey, val);
-    const curSel = get(SelectedClassKeyAtom);
+    const curSel = await get(SelectedClassKeyAtom);
     if (classKey != curSel) {
       set(SelectedClassKeyAtom, classKey);
     }
@@ -237,11 +273,12 @@ export const SelectedClassAtom = atom(
 
 export const SelectedParsedClassAtom = atom(
   async (get): Promise<ParsedClass> => {
-    const db = await get(FullDatabaseAtom);
     const key = await get(SelectedClassKeyAtom);
-    return db.ParsedClasses.get(key) || MakeEmptyParsedClass();
-  }, // ,
-  //  async (get, set, val: ParsedClass) => {},
+    const classes = await get(ParsedClassesAtom);
+    return classes.size
+      ? classes.get(key) || MakeEmptyParsedClass()
+      : MakeEmptyParsedClass();
+  },
 );
 
 const UnwrappedParsedClass = unwrap(SelectedParsedClassAtom, () =>
@@ -262,8 +299,8 @@ const MappedFileAtom = atom(
   async (get) => {
     const team = await get(SelectedTeamAtom);
     const file = await get(SelectedPathAtom);
-    const count = get(MappedFileBackingAtom);
-    const fullIndex = get(IndexedDatabaseAtom);
+    // const count = get(MappedFileBackingAtom);
+    // const fullIndex = get(IndexedDatabaseAtom);
     if (team.length > 0 && file.length > 0) {
       const maybeIdx: ErrorOr<OneFileIndex> = await LoadAndIndexFile(
         team,
@@ -296,17 +333,18 @@ export const ValuesLookupAtom = atom((get): Map<ValueName, NamedValue> => {
 
 type MapAtom<Str, T> = WritableAtom<Promise<Map<Str, T>>, [Map<Str, T>], void>;
 
+/*
 const MappedValuesAtom: MapAtom<ValueName, ValueRef | RadiansRef> = focusAtom(
   MappedFileAtom,
   (optic) => optic.prop('namedValues'),
 );
-
+*/
 export const NamedPosesAtom = atom(async (get): Promise<NamedPose[]> => {
   const index = await get(SelectedParsedClassAtom);
   return index ? index.poses : [];
 });
 
-/*export*/ const MappedPosesAtom: MapAtom<PoseName, PoseRef> = focusAtom(
+const MappedPosesAtom: MapAtom<PoseName, PoseRef> = focusAtom(
   MappedFileAtom,
   (optic) => optic.prop('namedPoses'),
 );
@@ -322,11 +360,12 @@ export const NamedPathChainsAtom = atom(
     return index?.pathChains || [];
   },
 );
-/*export*/ const MappedBeziersAtom: MapAtom<BezierName, BezierRef> = focusAtom(
+/*
+const MappedBeziersAtom: MapAtom<BezierName, BezierRef> = focusAtom(
   MappedFileAtom,
   (optic) => optic.prop('namedBeziers'),
 );
-
+*/
 function makeItemFromNameFamily<Str, T>(theAtom: MapAtom<Str, T>) {
   return atomFamily((name: Str) =>
     atom(
@@ -340,7 +379,7 @@ function makeItemFromNameFamily<Str, T>(theAtom: MapAtom<Str, T>) {
   );
 }
 
-/*export*/ const ValueAtomFamily = makeItemFromNameFamily(MappedValuesAtom);
+// const ValueAtomFamily = makeItemFromNameFamily(MappedValuesAtom);
 export const PoseAtomFamily = makeItemFromNameFamily(MappedPosesAtom);
 
 export const FocusedPoseAtom = atom<NamedPose | undefined>(undefined);

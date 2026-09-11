@@ -45,7 +45,7 @@ import { AutoSelector } from './ui-tools/AutoSelector';
   const [file, setFile] = useAtom(SelectedPathAtom);
   // if all the files have a common folder prefix, filter the prefix out
   let prefix = '';
-  if (files.length > 0) {
+  if (files.length > 1) {
     let tryIt = files[0]!.indexOf('/');
     while (tryIt >= 0) {
       const tryPrefix = files[0]!.substring(0, tryIt + 1);
