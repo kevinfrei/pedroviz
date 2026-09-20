@@ -1,4 +1,4 @@
-# A PedroPath visualizer
+# A PedroPath **v2** visualizer
 
 ![GIF of visualizer](./docs/screencap.gif)
 
