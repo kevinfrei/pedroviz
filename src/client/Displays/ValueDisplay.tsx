@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { ReactElement } from 'react';
+import { ReactElement, useCallback, useState } from 'react';
 import { useAtomValue } from 'jotai';
 
 import {
@@ -10,11 +10,13 @@ import {
   DataGridCell,
   DataGridHeader,
   DataGridHeaderCell,
+  DataGridProps,
   DataGridRow,
   TableColumnDefinition,
+  TableRowId,
   Text,
 } from '@fluentui/react-components';
-import { isDefined } from '@freik/typechk';
+import { isDefined, isString } from '@freik/typechk';
 
 import {
   isDoubleValue,
@@ -310,15 +312,45 @@ const columns: TableColumnDefinition<NamedValue>[] = [
   }),
 ];
 
-export function NamedValueList(): ReactElement {
-  const items = useAtomValue(NamedValuesAtom);
+export type NamedValueListProps = {
+  items: NamedValue[];
+  onSelect?: (id: ValueName | null) => void;
+};
+export function NamedValueList({
+  items,
+  onSelect,
+}: NamedValueListProps): ReactElement {
+  const [focusedValue, setFocusedValue] = useState<ValueName | null>(null);
+  const selectedRows = new Set<TableRowId>(
+    focusedValue && [focusedValue as TableRowId],
+  );
+  const onSelectionChange: DataGridProps['onSelectionChange'] = useCallback(
+    (e, data) => {
+      const newVal =
+        data.selectedItems.size === 0
+          ? null
+          : ([...data.selectedItems].pop() as ValueName);
+      setFocusedValue(newVal);
+      if (onSelect) {
+        onSelect(newVal);
+      }
+    },
+    [items],
+  );
+  // This enables deselection
+  const maybeClearSelection = (id: ValueName) =>
+    id === focusedValue && setFocusedValue(null);
+
   return (
     <DataGrid
       items={items}
       columns={columns}
       sortable
       resizableColumns
-      getRowId={(itm: NamedValue) => itm.name}>
+      getRowId={(itm: NamedValue) => itm.name}
+      selectionMode="single"
+      selectedItems={selectedRows}
+      onSelectionChange={onSelectionChange}>
       <DataGridHeader>
         <DataGridRow>
           {({ renderHeaderCell }) => (
@@ -328,7 +360,10 @@ export function NamedValueList(): ReactElement {
       </DataGridHeader>
       <DataGridBody<NamedValue>>
         {({ item, rowId }) => (
-          <DataGridRow<NamedValue> key={rowId}>
+          <DataGridRow<NamedValue>
+            key={rowId}
+            selectionCell={{ radioIndicator: { 'aria-label': 'Select row' } }}
+            onClick={() => maybeClearSelection(item.name)}>
             {({ renderCell, columnId }) => (
               <DataGridCell>{renderCell(item)}</DataGridCell>
             )}

@@ -1,46 +1,69 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { ReactElement, Suspense } from 'react';
-import { Provider, useAtomValue } from 'jotai';
+import { ReactElement } from 'react';
+import { Provider, useAtomValue, useSetAtom } from 'jotai';
 
 import {
+  Button,
   FluentProvider,
+  makeStyles,
+  Toaster,
+  Toolbar,
+  ToolbarDivider,
+  ToolbarGroup,
   webDarkTheme,
   webLightTheme,
 } from '@fluentui/react-components';
+import { SpinSuspense } from 'node_modules/@freik/fluent9-tools/lib';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 
 import { CodeIssues } from './CodeIssues';
 import { FieldRenderer } from './FieldRenderer';
 import { PathsDataDisplay } from './PathsDataDisplay';
-import { PathSelector } from './PathSelector';
+import { ClassSelector, FileSelector, TeamSelector } from './PathSelector';
 import { Settings } from './Settings';
+import { ToastId } from './state/BasicState';
 import { ThemeAtom } from './state/SavedSettings';
 import { getStore } from './state/Storage';
+import { FullDatabaseAtom } from './state/UserCode';
+
+const useStyles = makeStyles({
+  toolbar: {
+    justifyContent: 'space-between',
+  },
+});
 
 function MyApp(): ReactElement {
+  const rescanCode = useSetAtom(FullDatabaseAtom);
+  const toolbarStyle = useStyles();
   return (
     <div className="app">
-      <div className="header-left">
-        <Suspense>
-          <PathSelector />
-        </Suspense>
-      </div>
-      <div className="header-right">
-        <Settings />
-      </div>
       <Group className="main">
         <Panel className="sidebar">
-          <Suspense>
+          <SpinSuspense>
+            <Toolbar size="medium" className={toolbarStyle.toolbar}>
+              <ToolbarGroup>
+                <TeamSelector />
+                <ToolbarDivider />
+                <FileSelector />
+                <ToolbarDivider />
+                <ClassSelector />
+              </ToolbarGroup>
+              <Button onClick={() => rescanCode()}>Rescan Source</Button>
+              <Settings />
+            </Toolbar>
+          </SpinSuspense>
+          <SpinSuspense>
             <PathsDataDisplay />
             <CodeIssues />
-          </Suspense>
+          </SpinSuspense>
+          <Toaster toasterId={ToastId} position="top" />
         </Panel>
         <Separator id="view-separator" />
         <Panel className="display">
-          <Suspense>
+          <SpinSuspense>
             <FieldRenderer />
-          </Suspense>
+          </SpinSuspense>
         </Panel>
       </Group>
     </div>

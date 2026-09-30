@@ -1,22 +1,31 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { ReactElement, Suspense } from 'react';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { ReactElement, Suspense, useState } from 'react';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
-import { Text } from '@fluentui/react-components';
-import { Expandable } from '@freik/fluent9-tools';
+import {
+  SelectTabData,
+  SelectTabEvent,
+  Tab,
+  TabList,
+  Text,
+} from '@fluentui/react-components';
 
 import { NamedBezierList } from './Displays/CurveDisplay';
-import { NewPose } from './Displays/NewPose';
-import { NewValue } from './Displays/NewValue';
 import { PathChainList } from './Displays/PathChainDisplay';
 import { NamedPoseList } from './Displays/PoseDisplay';
 import { NamedValueList } from './Displays/ValueDisplay';
+import { CurvesEditor } from './NewStuff/CurvesEditor';
+import { InterpolatorsEditor } from './NewStuff/InterpolatorsEditor';
+import { PathsEditor } from './NewStuff/PathsEditor';
+import { PosesEditor } from './NewStuff/PosesEditor';
+import { ValuesEditor } from './NewStuff/ValuesEditor';
 import {
   CreationSupportedAtom,
   FocusedCurveAtom,
   FocusedPathAtom,
   FocusedPoseAtom,
+  NamedValuesAtom,
   SelectedClassAtom,
   SelectedPathAtom,
 } from './state/UserCode';
@@ -34,55 +43,45 @@ export function PathsDataDisplay({
 }: {
   expand?: boolean;
 }): ReactElement {
+  const namedValues = useAtomValue(NamedValuesAtom);
+  const tabInfo: [string, string, ReactElement][] = [
+    ['v', 'Values [old]', <NamedValueList items={namedValues} />],
+    ['v2', 'Values', <ValuesEditor />],
+    ['p', 'Poses [old]', <NamedPoseList />],
+    ['p2', 'Poses', <PosesEditor />],
+    ['i', 'Interpolations (Headings)', <InterpolatorsEditor />],
+    ['c', 'Lines & Curves [old]', <NamedBezierList />],
+    ['c2', 'Lines & Curves', <CurvesEditor />],
+    ['P', 'Paths [old]', <PathChainList />],
+    ['P2', 'Paths', <PathsEditor />],
+  ];
+
   const creationSupported = useAtomValue(CreationSupportedAtom);
   const selFile = useAtomValue(SelectedPathAtom);
   const selClass = useAtomValue(SelectedClassAtom);
   const setFocusedPose = useSetAtom(FocusedPoseAtom);
   const setFocusedCurve = useSetAtom(FocusedCurveAtom);
   const setFocusedPath = useSetAtom(FocusedPathAtom);
+  const [activeTab, setActiveTab] = useState('P');
+  const onTabSelect = (event: SelectTabEvent, data: SelectTabData) => {
+    setActiveTab(data.value as string);
+  };
+
   if (selFile.length === 0 || selClass.length === 0) {
     return <Text size={600}>Please select a file & class to view.</Text>;
   }
   return (
     <div>
-      {/* <FileInfo /> */}
-      <Expandable label={<Text weight="bold">Values</Text>} indent={20}>
-        <Suspense>
-          <NamedValueList />
-        </Suspense>
-        {creationSupported ? <NewValue /> : <></>}
-      </Expandable>
-      <Expandable
-        label={<Text weight="bold">Poses</Text>}
-        indent={20}
-        onChanged={(exp: boolean) => exp || setFocusedPose(undefined)}>
-        <Suspense>
-          <NamedPoseList />
-        </Suspense>
-        {creationSupported ? <NewPose /> : <></>}
-      </Expandable>
-      <Expandable
-        label={<Text weight="bold">Curves & Lines</Text>}
-        indent={20}
-        onChanged={(exp: boolean) => exp || setFocusedCurve(undefined)}>
-        <Suspense>
-          <NamedBezierList />
-        </Suspense>
-        {/* <Button style={{ margin: 10 }} disabled>
-          New Curve
-        </Button> */}
-      </Expandable>
-      <Expandable
-        label={<Text weight="bold">Full Paths</Text>}
-        indent={20}
-        onChanged={(exp: boolean) => exp || setFocusedPath(undefined)}>
-        <Suspense>
-          <PathChainList />
-        </Suspense>
-        {/* <Button style={{ margin: 10 }} disabled>
-          New Path
-        </Button> */}
-      </Expandable>
+      <TabList selectedValue={activeTab} onTabSelect={onTabSelect}>
+        {tabInfo.map(([val, nm]) => (
+          <Tab key={val} value={val}>
+            {nm}
+          </Tab>
+        ))}
+      </TabList>
+      <Suspense>
+        {tabInfo.map(([val, , Elem]) => (val === activeTab ? Elem : <></>))}
+      </Suspense>
     </div>
   );
 }

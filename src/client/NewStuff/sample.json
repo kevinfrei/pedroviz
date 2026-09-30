@@ -1,0 +1,70 @@
+{
+  "values": {
+    "v1": { "val": 10 },
+    "v2": { "val": 20 },
+    "v3": { "val": 3.141593 }
+  },
+  "poses": {
+    "otherPose": {
+      "X": { "ref": "v1" },
+      "Y": { "ref": "v2" },
+      "Heading": { "ref": "v3" },
+      "inRadians": true
+    },
+    "pose": {
+      "X": { "val": 72 },
+      "Y": { "val": 72 },
+      "Heading": { "val": 30.0 },
+      "inRadians": false
+    }
+  },
+  "curves": {
+    "curve": {
+      "points": [
+        { "ref": "pose" },
+        {
+          "X": { "val": 55 },
+          "Y": { "val": 120 },
+          "Heading": { "val": 180.0 },
+          "inRadians": false
+        },
+        {
+          "X": { "ref": "v1" },
+          "Y": { "ref": "v2" },
+          "Heading": { "ref": "v3" },
+          "inRadians": true
+        }
+      ],
+      "interpolation": { "ref": "facing" }
+    }
+  },
+  "interpolations": {
+    "facing": { "point": { "ref": "pose" }, "type": "FacingPoint" }
+  },
+  "paths": {
+    "aPath": {
+      "curves": [
+        {
+          "points": [
+            {
+              "X": { "val": 77 },
+              "Y": { "val": 22.5 },
+              "Heading": { "val": 0.0 },
+              "inRadians": true
+            },
+            {
+              "X": { "ref": "v1" },
+              "Y": { "ref": "v2" },
+              "Heading": { "ref": "v3" },
+              "inRadians": true
+            },
+            { "ref": "pose" }
+          ],
+          "interpolation": { "ref": "facing" }
+        },
+        { "ref": "curve" }
+      ],
+      "globalInterpolator": { "ref": "facing" }
+    }
+  }
+}

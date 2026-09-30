@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { ReactElement, useEffect } from 'react';
+import { ReactElement, Suspense, useEffect } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import { Button, Label, Text } from '@fluentui/react-components';
+import { SpinSuspense } from 'node_modules/@freik/fluent9-tools/lib';
 
 import { Path } from '../IpcTypes';
 import { Strings } from './constants';
@@ -19,7 +20,7 @@ import {
 } from './state/UserCode';
 import { AutoSelector } from './ui-tools/AutoSelector';
 
-/*export*/ function TeamSelector(): ReactElement {
+export function TeamSelector(): ReactElement {
   const teams = useAtomValue(TeamsAtom); //['TeamCode', 'LearnBot'];
   const [team, setTeam] = useAtom(SelectedTeamAtom);
   useEffect(() => {
@@ -40,7 +41,7 @@ import { AutoSelector } from './ui-tools/AutoSelector';
   );
 }
 
-/*export*/ function FileSelector(): ReactElement {
+export function FileSelector(): ReactElement {
   let files = useAtomValue(PathsForSelectedTeamAtom);
   const [file, setFile] = useAtom(SelectedPathAtom);
   // if all the files have a common folder prefix, filter the prefix out
@@ -79,7 +80,7 @@ import { AutoSelector } from './ui-tools/AutoSelector';
   );
 }
 
-/*export*/ function ClassSelector(): ReactElement {
+export function ClassSelector(): ReactElement {
   const classes = useAtomValue(ClassesForSelectedPathAtom);
   const [classSel, setClass] = useAtom(SelectedClassAtom);
   useEffect(() => {
@@ -96,21 +97,6 @@ import { AutoSelector } from './ui-tools/AutoSelector';
         selected={classSel}
         setSelected={setClass}
       />
-    </>
-  );
-}
-
-export function PathSelector(): ReactElement {
-  const blur = useAtomValue(BlurAtom);
-  const rescanCode = useSetAtom(FullDatabaseAtom);
-  return (
-    <>
-      <TeamSelector />
-      <FileSelector />
-      <ClassSelector />
-      &nbsp;
-      <Text>{blur}</Text>
-      <Button onClick={() => rescanCode()}>Rescan Source</Button>
     </>
   );
 }
