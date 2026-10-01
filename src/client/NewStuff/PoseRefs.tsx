@@ -1,7 +1,14 @@
 import { ReactElement } from 'react';
 import { useAtomValue } from 'jotai';
 
-import { Radio, RadioGroup } from '@fluentui/react-components';
+import {
+  Checkbox,
+  Field,
+  Radio,
+  RadioGroup,
+  Select,
+  Text,
+} from '@fluentui/react-components';
 import { AlertFilled } from '@fluentui/react-icons';
 import { hasField, isDefined, isUndefined } from '@freik/typechk';
 
@@ -9,6 +16,7 @@ import { chkErr, chkRef, PoseRef, ResolvedPose } from './dto_schema';
 import { resolvePoseRef } from './Resolvers';
 import { symbolTableAtom } from './state';
 import { ResolvedValueInline, ValRefControl, ValRefInline } from './ValRefs';
+import { useWrappedRegionStyle } from './WrappedRegionStyle';
 
 export type PoseRefControlProps = {
   label: string;
@@ -25,7 +33,7 @@ export function PoseRefControl({
   const symbolTable = useAtomValue(symbolTableAtom);
   const poseKeys = [...symbolTable.poses.keys()];
   const valueKeys = [...symbolTable.values.keys()];
-
+  const wrappedStyle = useWrappedRegionStyle();
   const isRef = chkRef(pose);
   const resolved = resolvePoseRef(pose, symbolTable);
 
@@ -43,11 +51,10 @@ export function PoseRefControl({
   };
 
   return (
-    <div className="p-3.5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/60 space-y-3">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider">
-          {label}
-        </span>
+    <div className={wrappedStyle.wrapper}>
+      <Field
+        className={wrappedStyle.field}
+        label={<span className={wrappedStyle.label}>{label}</span>}>
         <RadioGroup
           value={isRef ? 'ref' : 'val'}
           layout="horizontal"
@@ -57,15 +64,14 @@ export function PoseRefControl({
           <Radio value="val" label="Pose" />
           <Radio value="ref" label="Reference" />
         </RadioGroup>
-      </div>
+      </Field>
 
       {isRef ? (
-        <div className="space-y-2">
-          <select
+        <span>
+          <Select
             value={pose?.ref || ''}
-            onChange={(e) => onChange({ ref: e.target.value })}
-            className="w-full px-3 py-1.5 text-sm rounded-md border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-sky-500 outline-none">
-            <option value="" disabled>
+            onChange={(e, d) => onChange({ ref: d.value })}>
+            <option key="$" value="" disabled>
               Select Pose Reference...
             </option>
             {poseKeys.map((k) => (
@@ -73,16 +79,22 @@ export function PoseRefControl({
                 {k}
               </option>
             ))}
-          </select>
+          </Select>
           {chkErr(resolved) && (
-            <div className="flex items-center gap-1.5 text-xs text-rose-500 dark:text-rose-400">
+            <Text>
               <AlertFilled />
-              <span>Missing pose reference: "{pose?.ref}"</span>
-            </div>
+              {resolved.errors().map((e, i) => (
+                <span key={i}>
+                  <Text>{e}</Text>
+                  <br />
+                </span>
+              ))}
+              for {pose?.ref}
+            </Text>
           )}
-        </div>
+        </span>
       ) : (
-        <div className="space-y-3 pl-1 border-l-2 border-sky-500/30">
+        <div>
           <ValRefControl
             label="X Coordinate"
             value={pose?.X || { val: 0 }}
@@ -99,32 +111,22 @@ export function PoseRefControl({
             onChange={(Heading) => onChange({ ...pose, Heading })}
           />
 
-          <div className="flex items-center justify-between pt-1">
-            <span className="text-xs text-neutral-600 dark:text-neutral-400">
-              Radians?
-            </span>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={Boolean(pose?.inRadians)}
-                onChange={(e) =>
-                  onChange({ ...pose, inRadians: e.target.checked })
-                }
-                className="sr-only peer"
-              />
-              <div className="w-9 h-5 bg-neutral-300 peer-focus:outline-none rounded-full peer dark:bg-neutral-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:peer-checked:after:border-neutral-700 peer-checked:bg-sky-600"></div>
-              <span className="ml-2 text-xs font-mono font-medium text-neutral-800 dark:text-neutral-200">
-                {pose?.inRadians ? 'Radians (rad)' : 'Degrees (°)'}
-              </span>
-            </label>
+          <div>
+            <Checkbox
+              checked={Boolean(pose?.inRadians)}
+              onChange={(e) =>
+                onChange({ ...pose, inRadians: e.target.checked })
+              }
+              label="Heading Angle in Radians?"
+            />
           </div>
         </div>
       )}
 
       {/* Resolved Position Badge */}
-      <div className="flex items-center justify-between pt-1 text-xs font-mono text-neutral-600 dark:text-neutral-400 border-t border-neutral-200 dark:border-neutral-800">
+      <div>
         <span>Computed Position:</span>
-        <span className="font-semibold text-neutral-900 dark:text-neutral-100">
+        <span>
           <ResolvedPose pose={resolved} />
         </span>
       </div>

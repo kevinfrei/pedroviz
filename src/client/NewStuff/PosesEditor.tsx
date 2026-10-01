@@ -1,8 +1,9 @@
 import { ReactElement } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import {
   Button,
+  Field,
   Input,
   Text,
   Toolbar,
@@ -15,7 +16,7 @@ import {
 } from '@fluentui/react-icons';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 
-import { PoseRefControl, ResolvedPose } from './PoseRefs';
+import { PoseRefControl, PoseRefInline, ResolvedPose } from './PoseRefs';
 import { resolvePoseRef } from './Resolvers';
 import {
   namedValuesAtom,
@@ -24,6 +25,7 @@ import {
   symbolTableAtom,
   toastAtom,
 } from './state';
+import { useWrappedRegionStyle } from './WrappedRegionStyle';
 
 // Poses Store Editor
 export function PosesEditor(): ReactElement {
@@ -31,7 +33,8 @@ export function PosesEditor(): ReactElement {
   const symbolTable = useAtomValue(symbolTableAtom);
   const [selected, setSelected] = useAtom(selectedKeyAtom);
   const [search, setSearch] = useAtom(searchFilterAtom);
-  const [, setToast] = useAtom(toastAtom);
+  const setToast = useSetAtom(toastAtom);
+  const wrappedStyle = useWrappedRegionStyle();
 
   const poses = namedValues.poses || {};
   const keys = Object.keys(poses).filter((k) =>
@@ -112,16 +115,9 @@ export function PosesEditor(): ReactElement {
               return (
                 <div
                   key={k}
-                  onClick={() => setSelected({ store: 'poses', key: k })}
-                  className={`p-2.5 rounded-lg text-xs cursor-pointer flex items-center justify-between transition-all ${
-                    activeKey === k
-                      ? 'bg-sky-100 dark:bg-sky-950/80 border border-sky-300 dark:border-sky-800 text-sky-900 dark:text-sky-200 font-semibold'
-                      : 'hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-300'
-                  }`}>
-                  <span className="truncate">{k}</span>
-                  <span className="font-mono text-neutral-500 dark:text-neutral-400">
-                    <ResolvedPose pose={res} />
-                  </span>
+                  onClick={() => setSelected({ store: 'poses', key: k })}>
+                  <span>{k}</span>
+                  <PoseRefInline poseref={{ ref: k }} />
                 </div>
               );
             })
@@ -132,26 +128,26 @@ export function PosesEditor(): ReactElement {
       <Panel>
         {activeKey && activePose ? (
           <>
-            <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-3">
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  defaultValue={activeKey}
-                  key={activeKey}
-                  onBlur={(e) => handleRename(activeKey, e.target.value.trim())}
-                  className="font-bold text-lg text-neutral-900 dark:text-neutral-100 bg-transparent border-b border-dashed border-neutral-400 focus:border-sky-500 outline-none px-1"
-                />
-                <span className="text-xs text-neutral-400 font-mono">
-                  (Pose Key)
-                </span>
-              </div>
+            <div className={wrappedStyle.wrapper}>
+              <Field
+                className={wrappedStyle.field}
+                label={
+                  <span className={wrappedStyle.label}>Selected Pose Name</span>
+                }
+              />
+              <Input
+                type="text"
+                defaultValue={activeKey}
+                key={activeKey}
+                onBlur={(e) => handleRename(activeKey, e.target.value.trim())}
+              />
+              &nbsp;
               <Button
                 onClick={() => handleDelete(activeKey)}
                 icon={<DeleteRegular />}
                 title="Delete Pose"
               />
             </div>
-
             <PoseRefControl
               label="Pose Coordinates & Heading"
               pose={activePose}

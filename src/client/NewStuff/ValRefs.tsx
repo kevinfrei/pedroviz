@@ -25,13 +25,6 @@ import {
 import { resolveValRef } from './Resolvers';
 import { symbolTableAtom } from './state';
 
-export type ValRefControlProps = {
-  label: string;
-  value: ValRef;
-  ref: string;
-  onChange: (valRef: ValRef) => void;
-};
-
 const useStyles = makeStyles({
   label: {
     display: 'inlineBlock',
@@ -57,6 +50,14 @@ function filterValues(
     return !isError(resolve);
   });
 }
+
+export type ValRefControlProps = {
+  label: string;
+  value: ValRef;
+  ref?: string;
+  onChange: (valRef: ValRef) => void;
+};
+
 // ValRef Control: Switch between Inline ({ val }) and Ref ({ ref })
 export function ValRefControl({
   label,

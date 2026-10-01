@@ -20,12 +20,14 @@ import { Group, Panel, Separator } from 'react-resizable-panels';
 import { useToast } from './NotificationToast';
 import { namedValuesAtom, searchFilterAtom, selectedKeyAtom } from './state';
 import { ValRefControl, ValRefInline } from './ValRefs';
+import { useWrappedRegionStyle } from './WrappedRegionStyle';
 
 // Values Editor
 export function ValuesEditor(): ReactElement {
   const [namedValues, setNamedValues] = useAtom(namedValuesAtom);
   const [selected, setSelected] = useAtom(selectedKeyAtom);
   const [search, setSearch] = useAtom(searchFilterAtom);
+  const wrappedStyle = useWrappedRegionStyle();
   const setToast = useToast();
   const values = namedValues.values || {};
   const keys = Object.keys(values).filter((k) =>
@@ -98,9 +100,7 @@ export function ValuesEditor(): ReactElement {
                 key={k}
                 onClick={() => setSelected({ store: 'values', key: k })}>
                 <span>{k}</span>
-                <span>
-                  <ValRefInline valref={values[k]} />
-                </span>
+                <ValRefInline valref={values[k]} />
               </div>
             ))
           )}
@@ -110,51 +110,27 @@ export function ValuesEditor(): ReactElement {
       <Panel>
         {activeKey && activeValue ? (
           <>
-            <div
-              style={{
-                borderWidth: 1,
-                borderStyle: 'solid',
-                borderColor: tokens.colorNeutralForeground3,
-                borderRadius: 4,
-                padding: 8,
-                marginTop: '1em',
-              }}>
+            <div className={wrappedStyle.wrapper}>
               <Field
+                className={wrappedStyle.field}
                 label={
-                  <span
-                    style={{
-                      display: 'inlineBlock',
-                      marginTop: '-1.5em',
-                      padding: '0 6px',
-                      fontWeight: 'bold',
-                      backgroundColor: tokens.colorNeutralBackground1,
-                    }}>
-                    Value Name
+                  <span className={wrappedStyle.label}>
+                    Selected Value Name
                   </span>
                 }
-
-                style={{
-                  display: 'inlineBlock',
-                  marginTop: '-1.3em',
-                  padding: '0 6px',
-                }}>
-                <span>
-                  <Input
-                    type="text"
-                    defaultValue={activeKey}
-                    key={activeKey}
-                    onBlur={(e) =>
-                      handleRename(activeKey, e.target.value.trim())
-                    }
-                  />
-                  &nbsp;
-                  <Button
-                    icon={<DeleteRegular />}
-                    onClick={() => handleDelete(activeKey)}
-                    title="Delete Key"
-                  />
-                </span>
-              </Field>
+              />
+              <Input
+                type="text"
+                defaultValue={activeKey}
+                key={activeKey}
+                onBlur={(e) => handleRename(activeKey, e.target.value.trim())}
+              />
+              &nbsp;
+              <Button
+                icon={<DeleteRegular />}
+                onClick={() => handleDelete(activeKey)}
+                title="Delete Key"
+              />
             </div>
             <ValRefControl
               label="Value or Reference"
