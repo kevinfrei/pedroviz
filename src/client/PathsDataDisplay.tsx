@@ -21,7 +21,6 @@ import { PathsEditor } from './NewStuff/PathsEditor';
 import { PosesEditor } from './NewStuff/PosesEditor';
 import { ValuesEditor } from './NewStuff/ValuesEditor';
 import {
-  CreationSupportedAtom,
   FocusedCurveAtom,
   FocusedPathAtom,
   FocusedPoseAtom,
@@ -45,7 +44,11 @@ export function PathsDataDisplay({
 }): ReactElement {
   const namedValues = useAtomValue(NamedValuesAtom);
   const tabInfo: [string, string, ReactElement][] = [
-    ['v', 'Values [old]', <NamedValueList items={namedValues} />],
+    [
+      'v',
+      'Values [old]',
+      <NamedValueList items={namedValues.map((nv) => nv.name)} />,
+    ],
     ['v2', 'Values', <ValuesEditor />],
     ['p', 'Poses [old]', <NamedPoseList />],
     ['p2', 'Poses', <PosesEditor />],
@@ -56,7 +59,6 @@ export function PathsDataDisplay({
     ['P2', 'Paths', <PathsEditor />],
   ];
 
-  const creationSupported = useAtomValue(CreationSupportedAtom);
   const selFile = useAtomValue(SelectedPathAtom);
   const selClass = useAtomValue(SelectedClassAtom);
   const setFocusedPose = useSetAtom(FocusedPoseAtom);

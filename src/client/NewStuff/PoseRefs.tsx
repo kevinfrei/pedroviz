@@ -1,6 +1,7 @@
 import { ReactElement } from 'react';
 import { useAtomValue } from 'jotai';
 
+import { Radio, RadioGroup } from '@fluentui/react-components';
 import { AlertFilled } from '@fluentui/react-icons';
 import { hasField, isDefined, isUndefined } from '@freik/typechk';
 
@@ -47,28 +48,15 @@ export function PoseRefControl({
         <span className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider">
           {label}
         </span>
-        <div className="flex items-center bg-neutral-200 dark:bg-neutral-800 p-0.5 rounded-md text-xs">
-          <button
-            type="button"
-            onClick={() => setToRef(false)}
-            className={`px-2 py-0.5 rounded ${
-              !isRef
-                ? 'bg-white dark:bg-neutral-700 text-sky-600 dark:text-sky-400 font-medium shadow-sm'
-                : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-200'
-            }`}>
-            Inline Pose
-          </button>
-          <button
-            type="button"
-            onClick={() => setToRef(true)}
-            className={`px-2 py-0.5 rounded ${
-              isRef
-                ? 'bg-white dark:bg-neutral-700 text-sky-600 dark:text-sky-400 font-medium shadow-sm'
-                : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-200'
-            }`}>
-            Reference
-          </button>
-        </div>
+        <RadioGroup
+          value={isRef ? 'ref' : 'val'}
+          layout="horizontal"
+          onChange={(_, data) => {
+            setToRef(data.value === 'ref');
+          }}>
+          <Radio value="val" label="Pose" />
+          <Radio value="ref" label="Reference" />
+        </RadioGroup>
       </div>
 
       {isRef ? (

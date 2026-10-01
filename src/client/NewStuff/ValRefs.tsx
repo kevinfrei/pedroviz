@@ -3,14 +3,16 @@ import { useAtomValue } from 'jotai';
 
 import {
   Field,
-  Input,
+  makeStyles,
   Radio,
   RadioGroup,
   Select,
   SpinButton,
+  Text,
+  tokens,
 } from '@fluentui/react-components';
 import { AlertFilled } from '@fluentui/react-icons';
-import { isUndefined } from '@freik/typechk';
+import { isDefined, isUndefined } from '@freik/typechk';
 
 import { chkErr, chkRef, chkValue, ResolvedValue, ValRef } from './dto_schema';
 import { resolveValRef } from './Resolvers';
@@ -22,6 +24,14 @@ export type ValRefControlProps = {
   onChange: (valRef: ValRef) => void;
 };
 
+const useStyles = makeStyles({
+  label: {
+    display: 'inlineBlock',
+    marginTop: '-1.3em',
+    padding: '0 6px',
+  },
+});
+
 // ValRef Control: Switch between Inline ({ val }) and Ref ({ ref })
 export function ValRefControl({
   label,
@@ -32,7 +42,7 @@ export function ValRefControl({
   const valueKeys = [...symbolTable.values.keys()];
   const isRef = chkRef(value);
   const resolved = resolveValRef(value, symbolTable);
-
+  const theStyle = useStyles();
   const setToRef = (toRef: boolean) => {
     if (toRef) {
       const firstKey = valueKeys[0] || '';
@@ -43,25 +53,45 @@ export function ValRefControl({
   };
 
   return (
-    <div className="p-3 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/60 transition-all">
-      <Field label={label}>
+    <div
+      style={{
+        borderWidth: 1,
+        borderStyle: 'solid',
+        borderRadius: 4,
+        borderColor: tokens.colorNeutralForeground3,
+        padding: 8,
+        marginTop: '1em',
+      }}>
+      <Field
+        label={
+          <span
+            style={{
+              backgroundColor: tokens.colorNeutralBackground1,
+              paddingLeft: '.5em',
+              paddingRight: '.5em',
+              fontWeight: 'bold',
+            }}>
+            {label}
+          </span>
+        }
+        className={theStyle.label}>
         <RadioGroup
           value={isRef ? 'ref' : 'val'}
           layout="horizontal"
           onChange={(_, data) => {
             setToRef(data.value === 'ref');
           }}>
-          <Radio value="val" label="Inline Value" />
+          <Radio value="val" label="Number" />
           <Radio value="ref" label="Reference" />
         </RadioGroup>
       </Field>
-
       {!isRef ? (
         <SpinButton
           precision={2}
           step={1}
+          stepPage={10}
           value={chkValue(value) ? value.val : 0}
-          onChange={(e, d) => onChange({ val: d.value || 0 })}
+          onChange={(_, d) => onChange({ val: d.value || 0 })}
         />
       ) : (
         <>
@@ -80,16 +110,14 @@ export function ValRefControl({
             </Select>
           </span>
           {chkErr(resolved) && (
-            <div>
-              <AlertFilled />
-              <span>Missing reference: "{value?.ref}"</span>
-            </div>
+            <Text>
+              <AlertFilled /> Missing reference: "{value?.ref}"
+            </Text>
           )}
         </>
       )}
-
       {/* Resolved summary badge */}
-      <div className="mt-2 text-right">
+      {/* <div className="mt-2 text-right">
         <span
           className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono ${
             !chkErr(resolved)
@@ -101,7 +129,7 @@ export function ValRefControl({
             <ResolvedValueInline value={resolved} />
           </strong>
         </span>
-      </div>
+      </div> */}
     </div>
   );
 }
@@ -124,14 +152,15 @@ export function ValRefInline({
   valref?: ValRef | undefined;
 }): ReactElement {
   if (isUndefined(valref)) {
-    return <>Not found</>;
+    return <Text>Not found</Text>;
   }
+  const isVal = chkValue(valref);
   const isRef = chkRef(valref);
-  const title = isRef ? 'Ref' : 'Value';
-  const data = isRef ? valref.ref : valref.val.toFixed(1);
+  const title = isVal ? 'Value' : isRef ? 'Ref' : 'Null';
+  const data = isRef ? valref.ref : isVal ? valref.val.toFixed(2) : 'null';
   return (
-    <>
-      {title} <code>{data}</code>
-    </>
+    <Text>
+      {title}&nbsp;<code>{data}</code>
+    </Text>
   );
 }

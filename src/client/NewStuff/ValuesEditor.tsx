@@ -1,13 +1,14 @@
 import { ReactElement } from 'react';
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtom } from 'jotai';
 
 import {
   Button,
+  Field,
   Input,
   Text,
+  tokens,
   Toolbar,
   ToolbarButton,
-  ToolbarDivider,
 } from '@fluentui/react-components';
 import {
   AddRegular,
@@ -16,10 +17,9 @@ import {
 } from '@fluentui/react-icons';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 
-import { chkRef } from './dto_schema';
 import { useToast } from './NotificationToast';
 import { namedValuesAtom, searchFilterAtom, selectedKeyAtom } from './state';
-import { ValRefInline } from './ValRefs';
+import { ValRefControl, ValRefInline } from './ValRefs';
 
 // Values Editor
 export function ValuesEditor(): ReactElement {
@@ -77,7 +77,7 @@ export function ValuesEditor(): ReactElement {
         <Toolbar>
           <Text>Values ({Object.keys(values).length})</Text>
           <ToolbarButton onClick={handleAdd} icon={<AddRegular />}>
-            Create Named Value
+            Create Value
           </ToolbarButton>
         </Toolbar>
 
@@ -91,7 +91,7 @@ export function ValuesEditor(): ReactElement {
 
         <div>
           {keys.length === 0 ? (
-            <div>No values found.</div>
+            <Text>No values found.</Text>
           ) : (
             keys.map((k) => (
               <div
@@ -110,44 +110,62 @@ export function ValuesEditor(): ReactElement {
       <Panel>
         {activeKey && activeValue ? (
           <>
-            <div>
-              <div>
-                <Input
-                  type="text"
-                  defaultValue={activeKey}
-                  key={activeKey}
-                  onBlur={(e) => handleRename(activeKey, e.target.value.trim())}
-                />
-                <span>(Value Key)</span>
-              </div>
-              <Button
-                icon={<DeleteRegular />}
-                onClick={() => handleDelete(activeKey)}
-                title="Delete Key"
-              />
-            </div>
+            <div
+              style={{
+                borderWidth: 1,
+                borderStyle: 'solid',
+                borderColor: tokens.colorNeutralForeground3,
+                borderRadius: 4,
+                padding: 8,
+                marginTop: '1em',
+              }}>
+              <Field
+                label={
+                  <span
+                    style={{
+                      display: 'inlineBlock',
+                      marginTop: '-1.5em',
+                      padding: '0 6px',
+                      fontWeight: 'bold',
+                      backgroundColor: tokens.colorNeutralBackground1,
+                    }}>
+                    Value Name
+                  </span>
+                }
 
-            <div>
-              <div>
-                <label>Numerical Value</label>
-                <Input
-                  type={chkRef(activeValue) ? 'text' : 'number'}
-                  step="any"
-                  value={
-                    chkRef(activeValue)
-                      ? activeValue.ref
-                      : activeValue.val.toFixed(2)
-                  }
-                  onChange={(e) => {
-                    const newVal = parseFloat(e.target.value) || 0;
-                    setNamedValues({
-                      ...namedValues,
-                      values: { ...values, [activeKey]: { val: newVal } },
-                    });
-                  }}
-                />
-              </div>
+                style={{
+                  display: 'inlineBlock',
+                  marginTop: '-1.3em',
+                  padding: '0 6px',
+                }}>
+                <span>
+                  <Input
+                    type="text"
+                    defaultValue={activeKey}
+                    key={activeKey}
+                    onBlur={(e) =>
+                      handleRename(activeKey, e.target.value.trim())
+                    }
+                  />
+                  &nbsp;
+                  <Button
+                    icon={<DeleteRegular />}
+                    onClick={() => handleDelete(activeKey)}
+                    title="Delete Key"
+                  />
+                </span>
+              </Field>
             </div>
+            <ValRefControl
+              label="Value or Reference"
+              value={activeValue}
+              onChange={(newVal) => {
+                setNamedValues({
+                  ...namedValues,
+                  values: { ...values, [activeKey]: newVal },
+                });
+              }}
+            />
           </>
         ) : (
           <div>Select or create a value to edit.</div>

@@ -1,5 +1,7 @@
 import { atom } from 'jotai';
 
+import { isDefined } from 'node_modules/@freik/typechk/lib/esm';
+
 import { NamedValues, SymbolTable } from './dto_schema';
 
 export const SAMPLE_AUTONOMOUS_PRESET: NamedValues = {
@@ -88,7 +90,9 @@ export const toastAtom = atom<string | null>(null);
 export const namedValuesAtom = atom<NamedValues>(SAMPLE_AUTONOMOUS_PRESET);
 function MakeMap<T>(obj: Record<string, T> | undefined): Map<string, T> {
   return new Map<string, T>(
-    obj ? Object.keys(obj).map((val) => [val, obj[val]]) : [],
+    isDefined(obj)
+      ? Object.keys(obj).map((val: string): [string, T] => [val, obj[val]!])
+      : [],
   );
 }
 export const symbolTableAtom = atom((get) => {

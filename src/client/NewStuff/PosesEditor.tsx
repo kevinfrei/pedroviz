@@ -1,7 +1,13 @@
 import { ReactElement } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 
-import { Button, Input } from '@fluentui/react-components';
+import {
+  Button,
+  Input,
+  Text,
+  Toolbar,
+  ToolbarButton,
+} from '@fluentui/react-components';
 import {
   AddRegular,
   DeleteRegular,
@@ -82,30 +88,24 @@ export function PosesEditor(): ReactElement {
   return (
     <Group>
       <Panel>
-        <div className="flex items-center justify-between">
-          <span className="font-bold text-sm text-neutral-800 dark:text-neutral-200">
-            Poses Store ({Object.keys(poses).length})
-          </span>
-          <Button onClick={handleAdd} icon={<AddRegular />}>
-            Add
-          </Button>
-        </div>
+        <Toolbar>
+          <Text>Poses ({Object.keys(poses).length})</Text>
+          <ToolbarButton onClick={handleAdd} icon={<AddRegular />}>
+            Create Pose
+          </ToolbarButton>
+        </Toolbar>
 
-        <div className="relative">
-          <Input
-            contentBefore={<SearchRegular />}
-            type="text"
-            placeholder="Search poses..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
+        <Input
+          contentBefore={<SearchRegular />}
+          type="text"
+          placeholder="Filter poses by name"
+          value={search}
+          onChange={(_, d) => setSearch(d.value)}
+        />
 
-        <div className="flex-grow overflow-y-auto space-y-1 pr-1">
+        <div>
           {keys.length === 0 ? (
-            <div className="text-center text-xs text-neutral-400 py-6">
-              No poses found.
-            </div>
+            <Text>No poses found.</Text>
           ) : (
             keys.map((k) => {
               const res = resolvePoseRef({ ref: k }, symbolTable);
@@ -147,7 +147,6 @@ export function PosesEditor(): ReactElement {
               </div>
               <Button
                 onClick={() => handleDelete(activeKey)}
-
                 icon={<DeleteRegular />}
                 title="Delete Pose"
               />
@@ -165,9 +164,7 @@ export function PosesEditor(): ReactElement {
             />
           </>
         ) : (
-          <div className="flex-grow flex items-center justify-center text-neutral-400 text-xs">
-            Select or create a pose to edit.
-          </div>
+          <Text>Select or create a pose to edit.</Text>
         )}
       </Panel>
     </Group>

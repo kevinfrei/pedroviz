@@ -93,7 +93,7 @@ export type SymbolTable = {
   poses: Map<string, PoseRef>;
   interpolations: Map<string, InterpRef>;
   curves: Map<string, CurveRef>;
-  paths: Map<string, Path>;
+  paths: Map<string, PathRef>;
 };
 
 export const InterpNamesArray = [

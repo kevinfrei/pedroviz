@@ -313,17 +313,20 @@ const columns: TableColumnDefinition<NamedValue>[] = [
 ];
 
 export type NamedValueListProps = {
-  items: NamedValue[];
+  items: string[];
   onSelect?: (id: ValueName | null) => void;
 };
 export function NamedValueList({
   items,
   onSelect,
 }: NamedValueListProps): ReactElement {
+  const namedVals = useAtomValue(NamedValuesAtom);
   const [focusedValue, setFocusedValue] = useState<ValueName | null>(null);
   const selectedRows = new Set<TableRowId>(
     focusedValue && [focusedValue as TableRowId],
   );
+  const itemSet = new Set(...items);
+  const filteredVals = namedVals.filter((nv) => itemSet.has(nv.name));
   const onSelectionChange: DataGridProps['onSelectionChange'] = useCallback(
     (e, data) => {
       const newVal =
@@ -343,7 +346,7 @@ export function NamedValueList({
 
   return (
     <DataGrid
-      items={items}
+      items={filteredVals}
       columns={columns}
       sortable
       resizableColumns
