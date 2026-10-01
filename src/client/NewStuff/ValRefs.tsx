@@ -1,4 +1,4 @@
-import { ReactElement } from 'react';
+import { Fragment, ReactElement } from 'react';
 import { useAtomValue } from 'jotai';
 
 import {
@@ -12,15 +12,23 @@ import {
   tokens,
 } from '@fluentui/react-components';
 import { AlertFilled } from '@fluentui/react-icons';
-import { isDefined, isUndefined } from '@freik/typechk';
+import { isDefined, isError, isUndefined } from '@freik/typechk';
 
-import { chkErr, chkRef, chkValue, ResolvedValue, ValRef } from './dto_schema';
+import {
+  chkErr,
+  chkRef,
+  chkValue,
+  ResolvedValue,
+  SymbolTable,
+  ValRef,
+} from './dto_schema';
 import { resolveValRef } from './Resolvers';
 import { symbolTableAtom } from './state';
 
 export type ValRefControlProps = {
   label: string;
   value: ValRef;
+  ref: string;
   onChange: (valRef: ValRef) => void;
 };
 
@@ -32,10 +40,28 @@ const useStyles = makeStyles({
   },
 });
 
+// Filter out value names that would result in errors
+function filterValues(
+  valueKeys: string[],
+  symbolTable: SymbolTable,
+  ref: string | undefined,
+): string[] {
+  return valueKeys.filter((k) => {
+    if (isUndefined(ref)) {
+      return true;
+    }
+    if (k == ref) {
+      return false;
+    }
+    const resolve = resolveValRef({ ref: k }, symbolTable, new Set(ref));
+    return !isError(resolve);
+  });
+}
 // ValRef Control: Switch between Inline ({ val }) and Ref ({ ref })
 export function ValRefControl({
   label,
   value,
+  ref,
   onChange,
 }: ValRefControlProps): ReactElement {
   const symbolTable = useAtomValue(symbolTableAtom);
@@ -45,10 +71,10 @@ export function ValRefControl({
   const theStyle = useStyles();
   const setToRef = (toRef: boolean) => {
     if (toRef) {
-      const firstKey = valueKeys[0] || '';
+      const firstKey = filterValues(valueKeys, symbolTable, ref)[0] || '';
       onChange({ ref: firstKey });
     } else {
-      onChange({ val: chkErr(resolved) ? 0 : resolved });
+      onChange({ val: isError(resolved) ? 0 : resolved });
     }
   };
 
@@ -99,10 +125,10 @@ export function ValRefControl({
             <Select
               value={value?.ref || ''}
               onChange={(e, d) => onChange({ ref: d.value })}>
-              <option value="" disabled>
+              <option key="$" value="" disabled>
                 Select Value Reference...
               </option>
-              {valueKeys.map((k) => (
+              {filterValues(valueKeys, symbolTable, ref).map((k) => (
                 <option key={k} value={k}>
                   {k} <ValRefInline valref={symbolTable.values.get(k)} />
                 </option>
@@ -111,7 +137,14 @@ export function ValRefControl({
           </span>
           {chkErr(resolved) && (
             <Text>
-              <AlertFilled /> Missing reference: "{value?.ref}"
+              <AlertFilled />
+              {resolved.errors().map((e, i) => (
+                <Fragment key={i}>
+                  <Text>{e}</Text>
+                  <br />
+                </Fragment>
+              ))}
+              for {value.ref}
             </Text>
           )}
         </>

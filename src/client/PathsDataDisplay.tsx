@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { ReactElement, Suspense, useState } from 'react';
+import { Fragment, ReactElement, Suspense, useState } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import {
@@ -44,18 +44,14 @@ export function PathsDataDisplay({
 }): ReactElement {
   const namedValues = useAtomValue(NamedValuesAtom);
   const tabInfo: [string, string, ReactElement][] = [
-    [
-      'v',
-      'Values [old]',
-      <NamedValueList items={namedValues.map((nv) => nv.name)} />,
-    ],
+    // ['v', 'Values [old]', <NamedValueList items={namedValues.map((nv) => nv.name)} />],
     ['v2', 'Values', <ValuesEditor />],
-    ['p', 'Poses [old]', <NamedPoseList />],
+    // ['p', 'Poses [old]', <NamedPoseList />],
     ['p2', 'Poses', <PosesEditor />],
     ['i', 'Interpolations (Headings)', <InterpolatorsEditor />],
-    ['c', 'Lines & Curves [old]', <NamedBezierList />],
+    // ['c', 'Lines & Curves [old]', <NamedBezierList />],
     ['c2', 'Lines & Curves', <CurvesEditor />],
-    ['P', 'Paths [old]', <PathChainList />],
+    // ['P', 'Paths [old]', <PathChainList />],
     ['P2', 'Paths', <PathsEditor />],
   ];
 
@@ -82,7 +78,9 @@ export function PathsDataDisplay({
         ))}
       </TabList>
       <Suspense>
-        {tabInfo.map(([val, , Elem]) => (val === activeTab ? Elem : <></>))}
+        {tabInfo.map(([val, , Elem], i) => (
+          <Fragment key={i}>{val === activeTab && Elem}</Fragment>
+        ))}
       </Suspense>
     </div>
   );

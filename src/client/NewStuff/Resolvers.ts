@@ -1,4 +1,4 @@
-import { hasField, isDefined } from '@freik/typechk';
+import { hasField, isDefined, isError, MakeError } from '@freik/typechk';
 
 import {
   chkConstInterp,
@@ -29,13 +29,13 @@ export function resolveValRef(
 ): ResolvedValue {
   if (chkRef(valRef)) {
     if (seen.has(valRef.ref)) {
-      return { err: `Circular value reference detected :${valRef.ref}` };
+      return MakeError(`Circular value reference detected :${valRef.ref}`);
     }
     seen.add(valRef.ref);
     const lkup = dict.values.get(valRef.ref);
     return isDefined(lkup)
       ? resolveValRef(lkup, dict, seen)
-      : { err: `Missing value reference: ${valRef.ref}` };
+      : MakeError(`Missing value reference: ${valRef.ref}`);
   }
   // The ValRef's val is the resolved value
   return valRef.val;
@@ -49,20 +49,20 @@ export function resolvePoseRef(
 ): ResolvedPose {
   if (chkRef(poseRef)) {
     if (seen.has(poseRef.ref)) {
-      return { err: `Circular pose reference detected :${poseRef.ref}` };
+      return MakeError(`Circular pose reference detected :${poseRef.ref}`);
     }
     seen.add(poseRef.ref);
     const lkup = dict.poses.get(poseRef.ref);
     return isDefined(lkup)
       ? resolvePoseRef(lkup, dict, seen)
-      : { err: `Missing pose reference: ${poseRef.ref}` };
+      : MakeError(`Missing pose reference: ${poseRef.ref}`);
   }
   // Resolve the PoseRef's individual components:
   const X = resolveValRef(poseRef.X, dict);
   const Y = resolveValRef(poseRef.Y, dict);
   if (hasField(poseRef, 'Heading')) {
     let Heading = resolveValRef(poseRef.Heading!, dict);
-    if (hasField(Heading, 'err')) {
+    if (isError(Heading)) {
       return { X, Y, Heading };
     }
     if (poseRef.inRadians) {
@@ -81,15 +81,15 @@ export function resolveInterpRef(
 ): ResolvedInterpolator {
   if (chkRef(interpRef)) {
     if (seen.has(interpRef.ref)) {
-      return {
-        err: `Circular interpolator reference detected :${interpRef.ref}`,
-      };
+      return MakeError(
+        `Circular interpolator reference detected :${interpRef.ref}`,
+      );
     }
     seen.add(interpRef.ref);
     const lkup = dict.interpolations.get(interpRef.ref);
     return isDefined(lkup)
       ? resolveInterpRef(lkup, dict, seen)
-      : { err: `Missing interpolator reference: ${interpRef.ref}` };
+      : MakeError(`Missing interpolator reference: ${interpRef.ref}`);
   }
   // Resolve the Interpolator, since it's not a reference
   if (chkTangentInterp(interpRef)) {
@@ -114,7 +114,7 @@ export function resolveInterpRef(
       })),
     };
   }
-  return { err: `Unknown interpolator type ${interpRef}` };
+  return MakeError(`Unknown interpolator type ${interpRef}`);
 }
 
 export function resolveCurveRef(
@@ -124,15 +124,13 @@ export function resolveCurveRef(
 ): ResolvedCurve {
   if (chkRef(curveRef)) {
     if (seen.has(curveRef.ref)) {
-      return {
-        err: `Circular curve reference detected :${curveRef.ref}`,
-      };
+      return MakeError(`Circular curve reference detected :${curveRef.ref}`);
     }
     seen.add(curveRef.ref);
     const lkup = dict.curves.get(curveRef.ref);
     return isDefined(lkup)
       ? resolveCurveRef(lkup, dict, seen)
-      : { err: `Missing interpolator reference: ${curveRef.ref}` };
+      : MakeError(`Missing interpolator reference: ${curveRef.ref}`);
   }
   return {
     points: curveRef.points.map((poseRef) => resolvePoseRef(poseRef, dict)),

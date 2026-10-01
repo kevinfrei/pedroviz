@@ -159,6 +159,7 @@ export function ValuesEditor(): ReactElement {
             <ValRefControl
               label="Value or Reference"
               value={activeValue}
+              ref={activeKey}
               onChange={(newVal) => {
                 setNamedValues({
                   ...namedValues,
