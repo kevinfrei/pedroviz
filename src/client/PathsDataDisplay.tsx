@@ -4,6 +4,7 @@ import { Fragment, ReactElement, Suspense, useState } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import {
+  InfoLabel,
   SelectTabData,
   SelectTabEvent,
   Tab,
@@ -43,12 +44,18 @@ export function PathsDataDisplay({
   expand?: boolean;
 }): ReactElement {
   const namedValues = useAtomValue(NamedValuesAtom);
-  const tabInfo: [string, string, ReactElement][] = [
+  const tabInfo: [string, string | ReactElement, ReactElement][] = [
     // ['v', 'Values [old]', <NamedValueList items={namedValues.map((nv) => nv.name)} />],
     ['v2', 'Values', <ValuesEditor />],
     // ['p', 'Poses [old]', <NamedPoseList />],
     ['p2', 'Poses', <PosesEditor />],
-    ['i', 'Interpolations (Headings)', <InterpolatorsEditor />],
+    [
+      'i',
+      <InfoLabel info="The direction the robot faces, along a path">
+        Interpolations
+      </InfoLabel>,
+      <InterpolatorsEditor />,
+    ],
     // ['c', 'Lines & Curves [old]', <NamedBezierList />],
     ['c2', 'Lines & Curves', <CurvesEditor />],
     // ['P', 'Paths [old]', <PathChainList />],

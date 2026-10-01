@@ -1,7 +1,14 @@
 import { ReactElement } from 'react';
-import { useAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 
-import { Button, Input } from '@fluentui/react-components';
+import {
+  Button,
+  Field,
+  Input,
+  Text,
+  Toolbar,
+  ToolbarButton,
+} from '@fluentui/react-components';
 import {
   AddRegular,
   DeleteRegular,
@@ -18,13 +25,15 @@ import {
   selectedKeyAtom,
   toastAtom,
 } from './state';
+import { useWrappedRegionStyle } from './WrappedRegionStyle';
 
 // Curves Store Editor
 export function CurvesEditor(): ReactElement {
   const [namedValues, setNamedValues] = useAtom(namedValuesAtom);
   const [selected, setSelected] = useAtom(selectedKeyAtom);
   const [search, setSearch] = useAtom(searchFilterAtom);
-  const [, setToast] = useAtom(toastAtom);
+  const wrappedStyle = useWrappedRegionStyle();
+  const setToast = useSetAtom(toastAtom);
 
   const curves = namedValues.curves || {};
   const keys = Object.keys(curves).filter((k) =>
@@ -85,69 +94,56 @@ export function CurvesEditor(): ReactElement {
 
   return (
     <Group>
-      {/* Left List */}
       <Panel>
-        <div className="flex items-center justify-between">
-          <span className="font-bold text-sm text-neutral-800 dark:text-neutral-200">
-            Curves Store ({Object.keys(curves).length})
-          </span>
-          <Button icon={<AddRegular />} onClick={handleAdd}>
-            Add
-          </Button>
-        </div>
+        <Toolbar>
+          <Text>Curves ({Object.keys(curves).length})</Text>
+          <ToolbarButton icon={<AddRegular />} onClick={handleAdd}>
+            Create Curve/Line
+          </ToolbarButton>
+        </Toolbar>
+        <Input
+          contentBefore={<SearchRegular />}
+          type="text"
+          placeholder="Search curves..."
+          value={search}
+          onChange={(_, d) => setSearch(d.value)}
+        />
 
-        <div className="relative">
-          <Input
-            contentBefore={<SearchRegular />}
-            type="text"
-            placeholder="Search curves..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-
-        <div className="flex-grow overflow-y-auto space-y-1 pr-1">
+        <div>
           {keys.length === 0 ? (
-            <div className="text-center text-xs text-neutral-400 py-6">
-              No curves found.
-            </div>
+            <Text>No curves found.</Text>
           ) : (
             keys.map((k) => (
               <div
                 key={k}
-                onClick={() => setSelected({ store: 'curves', key: k })}
-                className={`p-2.5 rounded-lg text-xs cursor-pointer flex items-center justify-between transition-all ${
-                  activeKey === k
-                    ? 'bg-sky-100 dark:bg-sky-950/80 border border-sky-300 dark:border-sky-800 text-sky-900 dark:text-sky-200 font-semibold'
-                    : 'hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-300'
-                }`}>
-                <span className="truncate">{k}</span>
-                <span className="font-mono text-neutral-500 dark:text-neutral-400">
-                  <CurveRefPointCount curveref={curves[k]} />
-                </span>
+                onClick={() => setSelected({ store: 'curves', key: k })}>
+                <span>{k}</span>
+                <CurveRefPointCount curveref={curves[k]} />
               </div>
             ))
           )}
         </div>
       </Panel>
       <Separator />
-      {/* Right Detail Editor */}
       <Panel>
         {activeKey && activeCurve ? (
           <>
-            <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-3">
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  defaultValue={activeKey}
-                  key={activeKey}
-                  onBlur={(e) => handleRename(activeKey, e.target.value.trim())}
-                  className="font-bold text-lg text-neutral-900 dark:text-neutral-100 bg-transparent border-b border-dashed border-neutral-400 focus:border-sky-500 outline-none px-1"
-                />
-                <span className="text-xs text-neutral-400 font-mono">
-                  (Curve Key)
-                </span>
-              </div>
+            <div className={wrappedStyle.wrapper}>
+              <Field
+                className={wrappedStyle.field}
+                label={
+                  <span className={wrappedStyle.label}>
+                    Selected Curve Name
+                  </span>
+                }
+              />
+              <Input
+                type="text"
+                defaultValue={activeKey}
+                key={activeKey}
+                onBlur={(e) => handleRename(activeKey, e.target.value.trim())}
+              />
+              &nbsp;
               <Button
                 icon={<DeleteRegular />}
                 onClick={() => handleDelete(activeKey)}
@@ -167,9 +163,7 @@ export function CurvesEditor(): ReactElement {
             />
           </>
         ) : (
-          <div className="flex-grow flex items-center justify-center text-neutral-400 text-xs">
-            Select or create a curve to edit.
-          </div>
+          <Text>Select or create a curve to edit.</Text>
         )}
       </Panel>
     </Group>

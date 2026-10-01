@@ -1,7 +1,14 @@
 import { ReactElement } from 'react';
-import { useAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 
-import { Button, Input } from '@fluentui/react-components';
+import {
+  Button,
+  Field,
+  Input,
+  Text,
+  Toolbar,
+  ToolbarButton,
+} from '@fluentui/react-components';
 import {
   AddRegular,
   DeleteRegular,
@@ -10,6 +17,7 @@ import {
 import { Group, Panel, Separator } from 'react-resizable-panels';
 
 import { CurveRefControl } from './CurveRefs';
+import { chkRef } from './dto_schema';
 import { InterpRefControl } from './InterpRefs';
 import {
   namedValuesAtom,
@@ -17,13 +25,15 @@ import {
   selectedKeyAtom,
   toastAtom,
 } from './state';
+import { useWrappedRegionStyle } from './WrappedRegionStyle';
 
 // Paths Store Editor
 export function PathsEditor(): ReactElement {
   const [namedValues, setNamedValues] = useAtom(namedValuesAtom);
   const [selected, setSelected] = useAtom(selectedKeyAtom);
   const [search, setSearch] = useAtom(searchFilterAtom);
-  const [, setToast] = useAtom(toastAtom);
+  const setToast = useSetAtom(toastAtom);
+  const wrappedStyle = useWrappedRegionStyle();
 
   const paths = namedValues.paths || {};
   const keys = Object.keys(paths).filter((k) =>
@@ -76,70 +86,59 @@ export function PathsEditor(): ReactElement {
 
   return (
     <Group>
-      {/* Left List */}
       <Panel>
-        <div className="flex items-center justify-between">
-          <span className="font-bold text-sm text-neutral-800 dark:text-neutral-200">
-            Paths Store ({Object.keys(paths).length})
-          </span>
-          <Button icon={<AddRegular />} onClick={handleAdd}>
-            Add
-          </Button>
-        </div>
+        <Toolbar>
+          <Text>Paths ({Object.keys(paths).length})</Text>
+          <ToolbarButton icon={<AddRegular />} onClick={handleAdd}>
+            Create Path
+          </ToolbarButton>
+        </Toolbar>
 
-        <div className="relative">
-          <Input
-            contentBefore={<SearchRegular />}
-            type="text"
-            placeholder="Search paths..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-8 pr-3 py-1.5 text-xs rounded-md border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 outline-none focus:ring-2 focus:ring-sky-500"
-          />
-        </div>
+        <Input
+          contentBefore={<SearchRegular />}
+          type="text"
+          placeholder="Filter paths by name"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
 
-        <div className="flex-grow overflow-y-auto space-y-1 pr-1">
+        <div>
           {keys.length === 0 ? (
-            <div className="text-center text-xs text-neutral-400 py-6">
-              No paths found.
-            </div>
+            <Text>No paths found.</Text>
           ) : (
             keys.map((k) => (
               <div
                 key={k}
-                onClick={() => setSelected({ store: 'paths', key: k })}
-                className={`p-2.5 rounded-lg text-xs cursor-pointer flex items-center justify-between transition-all ${
-                  activeKey === k
-                    ? 'bg-sky-100 dark:bg-sky-950/80 border border-sky-300 dark:border-sky-800 text-sky-900 dark:text-sky-200 font-semibold'
-                    : 'hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-300'
-                }`}>
-                <span className="truncate">{k}</span>
-                <span className="font-mono text-neutral-500 dark:text-neutral-400">
-                  {paths[k]?.curves?.length || 0} curves
-                </span>
+                onClick={() => setSelected({ store: 'paths', key: k })}>
+                <span>{k}</span>
+                <Text>
+                  {chkRef(paths[k])
+                    ? paths[k].ref
+                    : `${paths[k]?.curves.length} curves`}
+                </Text>
               </div>
             ))
           )}
         </div>
       </Panel>
       <Separator />
-      {/* Right Detail Editor */}
       <Panel>
         {activeKey && activePath ? (
           <>
-            <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-3">
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  defaultValue={activeKey}
-                  key={activeKey}
-                  onBlur={(e) => handleRename(activeKey, e.target.value.trim())}
-                  className="font-bold text-lg text-neutral-900 dark:text-neutral-100 bg-transparent border-b border-dashed border-neutral-400 focus:border-sky-500 outline-none px-1"
-                />
-                <span className="text-xs text-neutral-400 font-mono">
-                  (Path Sequence Key)
-                </span>
-              </div>
+            <div className={wrappedStyle.wrapper}>
+              <Field
+                className={wrappedStyle.field}
+                label={
+                  <span className={wrappedStyle.label}>Selected Path Name</span>
+                }
+              />
+              <Input
+                type="text"
+                defaultValue={activeKey}
+                key={activeKey}
+                onBlur={(e) => handleRename(activeKey, e.target.value.trim())}
+              />
+              &nbsp;
               <Button
                 icon={<DeleteRegular />}
                 onClick={() => handleDelete(activeKey)}
@@ -147,47 +146,46 @@ export function PathsEditor(): ReactElement {
               />
             </div>
 
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider">
-                  Path Sequence Curves
-                </span>
-                <Button
-                  icon={<AddRegular />}
-                  onClick={() => {
-                    const curvesList = activePath.curves || [];
-                    const updatedPath = {
-                      ...activePath,
-                      curves: [
-                        ...curvesList,
-                        {
-                          points: [
-                            {
-                              X: { val: 0 },
-                              Y: { val: 0 },
-                              Heading: { val: 0 },
-                              inRadians: false,
-                            },
-                          ],
-                          interpolation: { reversed: false },
-                        },
-                      ],
-                    };
-                    setNamedValues({
-                      ...namedValues,
-                      paths: { ...paths, [activeKey]: updatedPath },
-                    });
-                  }}>
-                  Add Curve
-                </Button>
-              </div>
+            <div className={wrappedStyle.wrapper}>
+              <Field
+                className={wrappedStyle.field}
+                label={
+                  <span className={wrappedStyle.label}>Path Curves/Lines</span>
+                }
+              />
+              <Button
+                icon={<AddRegular />}
+                onClick={() => {
+                  const curvesList = activePath.curves || [];
+                  const updatedPath = {
+                    ...activePath,
+                    curves: [
+                      ...curvesList,
+                      {
+                        points: [
+                          {
+                            X: { val: 0 },
+                            Y: { val: 0 },
+                            Heading: { val: 0 },
+                            inRadians: false,
+                          },
+                        ],
+                        interpolation: { reversed: false },
+                      },
+                    ],
+                  };
+                  setNamedValues({
+                    ...namedValues,
+                    paths: { ...paths, [activeKey]: updatedPath },
+                  });
+                }}>
+                Add Curve
+              </Button>
 
               {(activePath.curves || []).map((cRef, cIdx) => (
-                <div key={cIdx} className="relative pt-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-bold text-sky-600 dark:text-sky-400">
-                      Curve Segment #{cIdx + 1}
-                    </span>
+                <div key={cIdx}>
+                  <div>
+                    <span>Curve Segment #{cIdx + 1}</span>
                     <Button
                       icon={<DeleteRegular />}
                       onClick={() => {
@@ -202,7 +200,6 @@ export function PathsEditor(): ReactElement {
                           },
                         });
                       }}
-                      className="text-neutral-400 hover:text-rose-500 transition-colors"
                       title="Remove Curve Segment"
                     />
                   </div>
@@ -224,7 +221,7 @@ export function PathsEditor(): ReactElement {
                 </div>
               ))}
 
-              <div className="pt-2 border-t border-neutral-200 dark:border-neutral-800">
+              <div>
                 <InterpRefControl
                   label="Global Path Override Interpolator (Optional)"
                   interp={activePath.globalInterpolator || { reversed: false }}
@@ -242,9 +239,7 @@ export function PathsEditor(): ReactElement {
             </div>
           </>
         ) : (
-          <div className="flex-grow flex items-center justify-center text-neutral-400 text-xs">
-            Select or create a path sequence to edit.
-          </div>
+          <Text>Select or create a path sequence to edit.</Text>
         )}
       </Panel>
     </Group>

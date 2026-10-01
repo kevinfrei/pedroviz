@@ -73,7 +73,6 @@ export type CorrectCurve = {
 export type ResolvedCurve = ErrorOr<CorrectCurve>;
 
 export type Path = { curves: CurveRef[]; globalInterpolator?: InterpRef };
-export type PathRef = Path | Ref;
 export type CorrectPath = {
   curves: ResolvedCurve[];
   globalInterpolator?: ResolvedInterpolator;
@@ -85,7 +84,7 @@ export type NamedValues = {
   poses: Record<string, PoseRef>;
   interpolations: Record<string, InterpRef>;
   curves: Record<string, CurveRef>;
-  paths: Record<string, PathRef>;
+  paths: Record<string, Path>;
 };
 
 export type SymbolTable = {
@@ -93,7 +92,7 @@ export type SymbolTable = {
   poses: Map<string, PoseRef>;
   interpolations: Map<string, InterpRef>;
   curves: Map<string, CurveRef>;
-  paths: Map<string, PathRef>;
+  paths: Map<string, Path>;
 };
 
 export const InterpNamesArray = [
