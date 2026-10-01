@@ -1,7 +1,7 @@
 import { ReactElement } from 'react';
 import { useAtom } from 'jotai';
 
-import { Button } from '@fluentui/react-components';
+import { Button, Checkbox, Field, Select } from '@fluentui/react-components';
 import { AddRegular, DeleteRegular } from '@fluentui/react-icons';
 
 import {
@@ -18,6 +18,7 @@ import {
 import { PoseRefControl } from './PoseRefs';
 import { namedValuesAtom } from './state';
 import { ValRefControl } from './ValRefs';
+import { useWrappedRegionStyle } from './WrappedRegionStyle';
 
 export type InterpRefControlProps = {
   label: string;
@@ -30,6 +31,7 @@ export function InterpRefControl({
   onChange,
 }: InterpRefControlProps): ReactElement {
   const [namedValues] = useAtom(namedValuesAtom);
+  const wrappedStyle = useWrappedRegionStyle();
   const interpKeys = Object.keys(namedValues.interpolations || {});
   const valueKeys = Object.keys(namedValues.values || {});
 
@@ -77,31 +79,28 @@ export function InterpRefControl({
   };
 
   return (
-    <div className="p-3.5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/60 space-y-3">
-      <div className="flex items-center justify-between">
-        <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider">
-          {label}
-        </label>
-        <select
-          value={currentType}
-          onChange={(e) => handleTypeChange(e.target.value as InterpNames)}
-          className="px-2.5 py-1 text-xs rounded-md border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-sky-600 dark:text-sky-400 font-semibold outline-none focus:ring-2 focus:ring-sky-500">
-          <option value="Constant">Constant (Fixed Heading)</option>
-          <option value="Facing">Facing (Point at Pose)</option>
-          <option value="Linear">Linear (Heading Range)</option>
-          <option value="Tangent">Tangent (Along the Path)</option>
-          <option value="PieceWise">Piecewise (Multi-Segment)</option>
-          <option value="Reference">Reference (from Interpolations)</option>
-        </select>
-      </div>
+    <div className={wrappedStyle.wrapper}>
+      <Field
+        className={wrappedStyle.field}
+        label={<span className={wrappedStyle.label}>{label}</span>}
+      />
+      <Select
+        value={currentType}
+        onChange={(e, d) => handleTypeChange(d.value as InterpNames)}>
+        <option value="Reference">Reference (from Interpolations)</option>
+        <option value="Tangent">Tangent (Along the Path)</option>
+        <option value="Constant">Constant (Fixed Heading)</option>
+        <option value="Linear">Linear (Heading Range)</option>
+        <option value="Facing">Facing (Point at Pose)</option>
+        <option value="PieceWise">Piecewise (Multi-Segment)</option>
+      </Select>
 
       {chkRef(interp) && (
-        <div className="space-y-2">
-          <select
+        <span>
+          <Select
             value={interp?.ref || ''}
-            onChange={(e) => onChange({ ref: e.target.value })}
-            className="w-full px-3 py-1.5 text-sm rounded-md border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-sky-500 outline-none">
-            <option value="" disabled>
+            onChange={(e) => onChange({ ref: e.target.value })}>
+            <option key="$" value="" disabled>
               Select Interpolator Reference...
             </option>
             {interpKeys.map((k) => (
@@ -109,8 +108,8 @@ export function InterpRefControl({
                 {k} ({getInterpType(namedValues.interpolations?.[k]!)})
               </option>
             ))}
-          </select>
-        </div>
+          </Select>
+        </span>
       )}
 
       {chkConstInterp(interp) && (
@@ -137,7 +136,7 @@ export function InterpRefControl({
       )}
 
       {chkLinearInterp(interp) && (
-        <div className="space-y-3">
+        <div>
           <ValRefControl
             label="Start Heading"
             value={interp.startHeading || { val: 0 }}
@@ -148,42 +147,28 @@ export function InterpRefControl({
             value={interp?.endHeading || { val: 180 }}
             onChange={(endHeading) => onChange({ ...interp, endHeading })}
           />
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-neutral-600 dark:text-neutral-400">
-              Take Long Way Arc
-            </span>
-            <input
-              type="checkbox"
-              checked={Boolean(interp?.longWay)}
-              onChange={(e) =>
-                onChange({ ...interp, longWay: e.target.checked })
-              }
-              className="w-4 h-4 text-sky-600 rounded border-neutral-300 focus:ring-sky-500"
-            />
-          </div>
-        </div>
-      )}
-
-      {chkTangentInterp(interp) && (
-        <div className="flex items-center justify-between py-1">
-          <span className="text-xs text-neutral-600 dark:text-neutral-400">
-            Reversed Path Heading
-          </span>
-          <input
-            type="checkbox"
-            checked={Boolean(interp?.reversed)}
-            onChange={(e) => onChange({ reversed: e.target.checked })}
-            className="w-4 h-4 text-sky-600 rounded border-neutral-300 focus:ring-sky-500"
+          <Checkbox
+            label="Turn the 'long way'"
+            checked={interp?.longWay}
+            onChange={(_, d) =>
+              onChange({ ...interp, longWay: d.checked === true })
+            }
           />
         </div>
       )}
 
+      {chkTangentInterp(interp) && (
+        <Checkbox
+          label="Face the opposite direction of the path"
+          checked={Boolean(interp?.reversed)}
+          onChange={(_, d) => onChange({ reversed: d.checked === true })}
+        />
+      )}
+
       {chkPieceWiseInterp(interp) && (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">
-              Piecewise Interpolator Segments
-            </span>
+        <div>
+          <div>
+            <span>Piecewise Interpolator Segments</span>
             <Button
               icon={<AddRegular />}
               onClick={() => {
@@ -200,30 +185,25 @@ export function InterpRefControl({
           </div>
 
           {(interp?.pieces || []).map((piece, idx) => (
-            <div
-              key={idx}
-              className="p-3 rounded-md border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 space-y-3 relative group">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-sky-600 dark:text-sky-400">
-                  Piece #{idx + 1}
-                </span>
+            <div key={idx}>
+              <div>
+                <span>Piece #{idx + 1}</span>
                 <Button
                   icon={<DeleteRegular />}
                   onClick={() => {
                     const newPieces = interp.pieces.filter((_, i) => i !== idx);
                     onChange({ pieces: newPieces });
                   }}
-                  className="text-neutral-400 hover:text-rose-500 transition-colors"
                   title="Remove Piece"
                 />
               </div>
 
               <ValRefControl
-                label="Until Param (t)"
+                label="Until (% of path complete)"
                 value={piece.until}
                 onChange={(until) => {
                   const newPieces = [...interp.pieces];
-                  newPieces[idx] = { ...newPieces[idx], until };
+                  newPieces[idx] = { ...piece, until };
                   onChange({ pieces: newPieces });
                 }}
               />
@@ -233,7 +213,7 @@ export function InterpRefControl({
                 interp={piece.interpolator}
                 onChange={(interpolator) => {
                   const newPieces = [...interp.pieces];
-                  newPieces[idx] = { ...newPieces[idx], interpolator };
+                  newPieces[idx] = { ...piece, interpolator };
                   onChange({ pieces: newPieces });
                 }}
               />

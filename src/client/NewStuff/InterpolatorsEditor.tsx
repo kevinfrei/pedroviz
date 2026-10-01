@@ -1,7 +1,14 @@
 import { ReactElement } from 'react';
 import { useAtom } from 'jotai';
 
-import { Button, Input } from '@fluentui/react-components';
+import {
+  Button,
+  Field,
+  Input,
+  Text,
+  Toolbar,
+  ToolbarButton,
+} from '@fluentui/react-components';
 import {
   AddRegular,
   DeleteRegular,
@@ -17,6 +24,7 @@ import {
   selectedKeyAtom,
   toastAtom,
 } from './state';
+import { useWrappedRegionStyle } from './WrappedRegionStyle';
 
 // Interpolators Store Editor
 export function InterpolatorsEditor(): ReactElement {
@@ -24,6 +32,7 @@ export function InterpolatorsEditor(): ReactElement {
   const [selected, setSelected] = useAtom(selectedKeyAtom);
   const [search, setSearch] = useAtom(searchFilterAtom);
   const [, setToast] = useAtom(toastAtom);
+  const wrappedStyle = useWrappedRegionStyle();
 
   const interpolations = namedValues.interpolations || {};
   const keys = Object.keys(interpolations).filter((k) =>
@@ -75,73 +84,62 @@ export function InterpolatorsEditor(): ReactElement {
 
   return (
     <Group>
-      {/* Left List */}
       <Panel>
-        <div className="flex items-center justify-between">
-          <span className="font-bold text-sm text-neutral-800 dark:text-neutral-200">
-            Interpolators ({Object.keys(interpolations).length})
-          </span>
-          <Button icon={<AddRegular />} onClick={handleAdd}>
-            Add
-          </Button>
-        </div>
+        <Toolbar>
+          <Text>Interpolators ({Object.keys(interpolations).length})</Text>
+          <ToolbarButton icon={<AddRegular />} onClick={handleAdd}>
+            Create Interpolator
+          </ToolbarButton>
+        </Toolbar>
 
-        <div className="relative">
-          <Input
-            contentBefore={<SearchRegular />}
-            type="text"
-            placeholder="Search interpolators..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
+        <Input
+          contentBefore={<SearchRegular />}
+          type="text"
+          placeholder="Filter interpolators by name"
+          value={search}
+          onChange={(_, d) => setSearch(d.value)}
+        />
 
-        <div className="flex-grow overflow-y-auto space-y-1 pr-1">
+        <div>
           {keys.length === 0 ? (
-            <div className="text-center text-xs text-neutral-400 py-6">
-              No interpolators found.
-            </div>
+            <div>No interpolators found.</div>
           ) : (
             keys.map((k) => (
               <div
                 key={k}
-                onClick={() => setSelected({ store: 'interpolations', key: k })}
-                className={`p-2.5 rounded-lg text-xs cursor-pointer flex items-center justify-between transition-all ${
-                  activeKey === k
-                    ? 'bg-sky-100 dark:bg-sky-950/80 border border-sky-300 dark:border-sky-800 text-sky-900 dark:text-sky-200 font-semibold'
-                    : 'hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-300'
-                }`}>
-                <span className="truncate">{k}</span>
-                <span className="font-mono text-xs text-sky-600 dark:text-sky-400 font-normal">
-                  {getInterpType(interpolations[k]!)}
-                </span>
+                onClick={() =>
+                  setSelected({ store: 'interpolations', key: k })
+                }>
+                <Text>{k}</Text>
+                <Text>{getInterpType(interpolations[k]!)}</Text>
               </div>
             ))
           )}
         </div>
       </Panel>
       <Separator />
-      {/* Right Detail Editor */}
       <Panel>
         {activeKey && activeInterp ? (
           <>
-            <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-3">
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  defaultValue={activeKey}
-                  key={activeKey}
-                  onBlur={(e) => handleRename(activeKey, e.target.value.trim())}
-                  className="font-bold text-lg text-neutral-900 dark:text-neutral-100 bg-transparent border-b border-dashed border-neutral-400 focus:border-sky-500 outline-none px-1"
-                />
-                <span className="text-xs text-neutral-400 font-mono">
-                  (Interpolator Key)
-                </span>
-              </div>
+            <div className={wrappedStyle.wrapper}>
+              <Field
+                className={wrappedStyle.field}
+                label={
+                  <span className={wrappedStyle.label}>
+                    Selected Interpolator Name
+                  </span>
+                }
+              />
+              <Input
+                type="text"
+                defaultValue={activeKey}
+                key={activeKey}
+                onBlur={(e) => handleRename(activeKey, e.target.value.trim())}
+              />
+              &nbsp;
               <Button
                 icon={<DeleteRegular />}
                 onClick={() => handleDelete(activeKey)}
-                className="p-1.5 rounded text-neutral-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all"
                 title="Delete Interpolator"
               />
             </div>
@@ -161,9 +159,7 @@ export function InterpolatorsEditor(): ReactElement {
             />
           </>
         ) : (
-          <div className="flex-grow flex items-center justify-center text-neutral-400 text-xs">
-            Select or create an interpolator to edit.
-          </div>
+          <Text>Select or create an interpolator to edit.</Text>
         )}
       </Panel>
     </Group>

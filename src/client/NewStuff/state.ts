@@ -87,22 +87,33 @@ export const EMPTY_WORKSPACE_PRESET: NamedValues = {
 
 export const themeAtom = atom<'dark' | 'light'>('dark');
 export const toastAtom = atom<string | null>(null);
+// TODO: NamedValues shouldn't be used in the front end. Just use the SymbolTable.
+// NamedValues is just for serialization and deserialization.
 export const namedValuesAtom = atom<NamedValues>(SAMPLE_AUTONOMOUS_PRESET);
-function MakeMap<T>(obj: Record<string, T> | undefined): Map<string, T> {
+export function RecordToMap<T>(
+  obj: Record<string, T> | undefined,
+): Map<string, T> {
   return new Map<string, T>(
     isDefined(obj)
       ? Object.keys(obj).map((val: string): [string, T] => [val, obj[val]!])
       : [],
   );
 }
+export function MapToRecord<T>(
+  obj: Map<string, T> | undefined,
+): Record<string, T> | undefined {
+  return isDefined(obj) && obj.size > 0
+    ? Object.fromEntries(obj.entries())
+    : undefined;
+}
 export const symbolTableAtom = atom((get) => {
   const obj = get(namedValuesAtom);
   const res: SymbolTable = {
-    values: MakeMap(obj.values),
-    poses: MakeMap(obj.poses),
-    interpolations: MakeMap(obj.interpolations),
-    curves: MakeMap(obj.curves),
-    paths: MakeMap(obj.paths),
+    values: RecordToMap(obj.values),
+    poses: RecordToMap(obj.poses),
+    interpolations: RecordToMap(obj.interpolations),
+    curves: RecordToMap(obj.curves),
+    paths: RecordToMap(obj.paths),
   };
   return res;
 });
