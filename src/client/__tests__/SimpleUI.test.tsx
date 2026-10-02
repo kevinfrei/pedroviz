@@ -25,7 +25,7 @@ import '@testing-library/jest-dom';
 import { Path, Team } from '../../IpcTypes';
 import { Strings } from '../constants';
 import { PathsDataDisplay } from '../PathsDataDisplay';
-import { PathSelector } from '../PathSelector';
+import { ClassSelector, FileSelector, TeamSelector } from '../PathSelector';
 import { ThemeAtom } from '../state/SavedSettings';
 import { getStore } from '../state/Storage';
 import {
@@ -149,7 +149,11 @@ describe('Simplest UI validation', () => {
     await act(async () => {
       render(
         <JotaiProvider>
-          <PathSelector />
+          <>
+            <TeamSelector />
+            <FileSelector />
+            <ClassSelector />
+          </>
         </JotaiProvider>,
       );
     });
@@ -195,7 +199,7 @@ describe('"Rendering doesn\'t crash" tests', () => {
     await act(async () => {
       render(
         <JotaiProvider>
-          <NamedValueList />
+          <NamedValueList items={[]} />
         </JotaiProvider>,
       );
     });
