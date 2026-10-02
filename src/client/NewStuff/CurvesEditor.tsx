@@ -19,6 +19,7 @@ import { isUndefined } from '@freik/typechk';
 
 import { CurveRefControl } from './CurveRefs';
 import { chkRef, CurveRef } from './dto_schema';
+import { NameChangeDelete } from './NameChangeDelete';
 import {
   namedValuesAtom,
   searchFilterAtom,
@@ -108,7 +109,6 @@ export function CurvesEditor(): ReactElement {
           value={search}
           onChange={(_, d) => setSearch(d.value)}
         />
-
         <div>
           {keys.length === 0 ? (
             <Text>No curves found.</Text>
@@ -128,29 +128,12 @@ export function CurvesEditor(): ReactElement {
       <Panel>
         {activeKey && activeCurve ? (
           <>
-            <div className={wrappedStyle.wrapper}>
-              <Field
-                className={wrappedStyle.field}
-                label={
-                  <span className={wrappedStyle.label}>
-                    Selected Curve Name
-                  </span>
-                }
-              />
-              <Input
-                type="text"
-                defaultValue={activeKey}
-                key={activeKey}
-                onBlur={(e) => handleRename(activeKey, e.target.value.trim())}
-              />
-              &nbsp;
-              <Button
-                icon={<DeleteRegular />}
-                onClick={() => handleDelete(activeKey)}
-                title="Delete Curve"
-              />
-            </div>
-
+            <NameChangeDelete
+              title="Selected Curve Name"
+              name={activeKey}
+              handleRename={handleRename}
+              handleDelete={handleDelete}
+            />
             <CurveRefControl
               label="Curve Definition"
               curve={activeCurve}

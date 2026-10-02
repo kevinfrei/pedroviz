@@ -16,6 +16,7 @@ import {
 } from '@fluentui/react-icons';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 
+import { NameChangeDelete } from './NameChangeDelete';
 import { PoseRefControl, PoseRefInline, ResolvedPose } from './PoseRefs';
 import { resolvePoseRef } from './Resolvers';
 import {
@@ -128,26 +129,12 @@ export function PosesEditor(): ReactElement {
       <Panel>
         {activeKey && activePose ? (
           <>
-            <div className={wrappedStyle.wrapper}>
-              <Field
-                className={wrappedStyle.field}
-                label={
-                  <span className={wrappedStyle.label}>Selected Pose Name</span>
-                }
-              />
-              <Input
-                type="text"
-                defaultValue={activeKey}
-                key={activeKey}
-                onBlur={(e) => handleRename(activeKey, e.target.value.trim())}
-              />
-              &nbsp;
-              <Button
-                onClick={() => handleDelete(activeKey)}
-                icon={<DeleteRegular />}
-                title="Delete Pose"
-              />
-            </div>
+            <NameChangeDelete
+              title="Selected Pose Name"
+              name={activeKey}
+              handleRename={handleRename}
+              handleDelete={handleDelete}
+            />
             <PoseRefControl
               label="Pose Coordinates & Heading"
               pose={activePose}

@@ -17,6 +17,7 @@ import {
 } from '@fluentui/react-icons';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 
+import { NameChangeDelete } from './NameChangeDelete';
 import { useToast } from './NotificationToast';
 import { namedValuesAtom, searchFilterAtom, selectedKeyAtom } from './state';
 import { ValRefControl, ValRefInline } from './ValRefs';
@@ -110,28 +111,12 @@ export function ValuesEditor(): ReactElement {
       <Panel>
         {activeKey && activeValue ? (
           <>
-            <div className={wrappedStyle.wrapper}>
-              <Field
-                className={wrappedStyle.field}
-                label={
-                  <span className={wrappedStyle.label}>
-                    Selected Value Name
-                  </span>
-                }
-              />
-              <Input
-                type="text"
-                defaultValue={activeKey}
-                key={activeKey}
-                onBlur={(e) => handleRename(activeKey, e.target.value.trim())}
-              />
-              &nbsp;
-              <Button
-                icon={<DeleteRegular />}
-                onClick={() => handleDelete(activeKey)}
-                title="Delete Key"
-              />
-            </div>
+            <NameChangeDelete
+              title="Selected Value Name"
+              name={activeKey}
+              handleRename={handleRename}
+              handleDelete={handleDelete}
+            />
             <ValRefControl
               label="Value or Reference"
               value={activeValue}

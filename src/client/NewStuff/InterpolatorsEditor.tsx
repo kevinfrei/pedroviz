@@ -18,6 +18,7 @@ import { Group, Panel, Separator } from 'react-resizable-panels';
 
 import { getInterpType } from './dto_schema';
 import { InterpRefControl } from './InterpRefs';
+import { NameChangeDelete } from './NameChangeDelete';
 import {
   namedValuesAtom,
   searchFilterAtom,
@@ -121,29 +122,12 @@ export function InterpolatorsEditor(): ReactElement {
       <Panel>
         {activeKey && activeInterp ? (
           <>
-            <div className={wrappedStyle.wrapper}>
-              <Field
-                className={wrappedStyle.field}
-                label={
-                  <span className={wrappedStyle.label}>
-                    Selected Interpolator Name
-                  </span>
-                }
-              />
-              <Input
-                type="text"
-                defaultValue={activeKey}
-                key={activeKey}
-                onBlur={(e) => handleRename(activeKey, e.target.value.trim())}
-              />
-              &nbsp;
-              <Button
-                icon={<DeleteRegular />}
-                onClick={() => handleDelete(activeKey)}
-                title="Delete Interpolator"
-              />
-            </div>
-
+            <NameChangeDelete
+              title="Selected Interpolator Name"
+              name={activeKey}
+              handleRename={handleRename}
+              handleDelete={handleDelete}
+            />
             <InterpRefControl
               label="Interpolator Definition"
               interp={activeInterp}

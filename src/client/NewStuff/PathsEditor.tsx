@@ -19,6 +19,7 @@ import { Group, Panel, Separator } from 'react-resizable-panels';
 import { CurveRefControl } from './CurveRefs';
 import { chkRef } from './dto_schema';
 import { InterpRefControl } from './InterpRefs';
+import { NameChangeDelete } from './NameChangeDelete';
 import {
   namedValuesAtom,
   searchFilterAtom,
@@ -125,27 +126,12 @@ export function PathsEditor(): ReactElement {
       <Panel>
         {activeKey && activePath ? (
           <>
-            <div className={wrappedStyle.wrapper}>
-              <Field
-                className={wrappedStyle.field}
-                label={
-                  <span className={wrappedStyle.label}>Selected Path Name</span>
-                }
-              />
-              <Input
-                type="text"
-                defaultValue={activeKey}
-                key={activeKey}
-                onBlur={(e) => handleRename(activeKey, e.target.value.trim())}
-              />
-              &nbsp;
-              <Button
-                icon={<DeleteRegular />}
-                onClick={() => handleDelete(activeKey)}
-                title="Delete Path"
-              />
-            </div>
-
+            <NameChangeDelete
+              title="Selected Path Name"
+              name={activeKey}
+              handleRename={handleRename}
+              handleDelete={handleDelete}
+            />
             <div className={wrappedStyle.wrapper}>
               <Field
                 className={wrappedStyle.field}
