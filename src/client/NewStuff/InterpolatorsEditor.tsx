@@ -16,16 +16,16 @@ import {
 } from '@fluentui/react-icons';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 
+import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
+import { useWrappedRegionStyle } from '../ui-tools/WrappedRegionStyle';
 import { getInterpType } from './dto_schema';
 import { InterpRefControl } from './InterpRefs';
-import { NameChangeDelete } from './NameChangeDelete';
 import {
   namedValuesAtom,
   searchFilterAtom,
   selectedKeyAtom,
   toastAtom,
 } from './state';
-import { useWrappedRegionStyle } from './WrappedRegionStyle';
 
 // Interpolators Store Editor
 export function InterpolatorsEditor(): ReactElement {
@@ -33,7 +33,6 @@ export function InterpolatorsEditor(): ReactElement {
   const [selected, setSelected] = useAtom(selectedKeyAtom);
   const [search, setSearch] = useAtom(searchFilterAtom);
   const [, setToast] = useAtom(toastAtom);
-  const wrappedStyle = useWrappedRegionStyle();
 
   const interpolations = namedValues.interpolations || {};
   const keys = Object.keys(interpolations).filter((k) =>

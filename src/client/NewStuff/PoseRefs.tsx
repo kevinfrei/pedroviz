@@ -3,7 +3,6 @@ import { useAtomValue } from 'jotai';
 
 import {
   Checkbox,
-  Field,
   Radio,
   RadioGroup,
   Select,
@@ -12,11 +11,11 @@ import {
 import { AlertFilled } from '@fluentui/react-icons';
 import { hasField, isDefined, isUndefined } from '@freik/typechk';
 
+import { TitleWrapper } from '../ui-tools/TitleWrapper';
 import { chkErr, chkRef, PoseRef, ResolvedPose } from './dto_schema';
 import { resolvePoseRef } from './Resolvers';
 import { symbolTableAtom } from './state';
 import { ResolvedValueInline, ValRefControl, ValRefInline } from './ValRefs';
-import { useWrappedRegionStyle } from './WrappedRegionStyle';
 
 export type PoseRefControlProps = {
   label: string;
@@ -33,7 +32,6 @@ export function PoseRefControl({
   const symbolTable = useAtomValue(symbolTableAtom);
   const poseKeys = [...symbolTable.poses.keys()];
   const valueKeys = [...symbolTable.values.keys()];
-  const wrappedStyle = useWrappedRegionStyle();
   const isRef = chkRef(pose);
   const resolved = resolvePoseRef(pose, symbolTable);
 
@@ -51,10 +49,8 @@ export function PoseRefControl({
   };
 
   return (
-    <div className={wrappedStyle.wrapper}>
-      <Field
-        className={wrappedStyle.field}
-        label={<span className={wrappedStyle.label}>{label}</span>}>
+    <TitleWrapper title={label}>
+      <>
         <RadioGroup
           value={isRef ? 'ref' : 'val'}
           layout="horizontal"
@@ -64,73 +60,73 @@ export function PoseRefControl({
           <Radio value="val" label="Pose" />
           <Radio value="ref" label="Reference" />
         </RadioGroup>
-      </Field>
 
-      {isRef ? (
-        <span>
-          <Select
-            value={pose?.ref || ''}
-            onChange={(e, d) => onChange({ ref: d.value })}>
-            <option key="$" value="" disabled>
-              Select Pose Reference...
-            </option>
-            {poseKeys.map((k) => (
-              <option key={k} value={k}>
-                {k}
+        {isRef ? (
+          <span>
+            <Select
+              value={pose?.ref || ''}
+              onChange={(e, d) => onChange({ ref: d.value })}>
+              <option key="$" value="" disabled>
+                Select Pose Reference...
               </option>
-            ))}
-          </Select>
-          {chkErr(resolved) && (
-            <Text>
-              <AlertFilled />
-              {resolved.errors().map((e, i) => (
-                <span key={i}>
-                  <Text>{e}</Text>
-                  <br />
-                </span>
+              {poseKeys.map((k) => (
+                <option key={k} value={k}>
+                  {k}
+                </option>
               ))}
-              for {pose?.ref}
-            </Text>
-          )}
-        </span>
-      ) : (
-        <div>
-          <ValRefControl
-            label="X Coordinate"
-            value={pose?.X || { val: 0 }}
-            onChange={(X) => onChange({ ...pose, X })}
-          />
-          <ValRefControl
-            label="Y Coordinate"
-            value={pose?.Y || { val: 0 }}
-            onChange={(Y) => onChange({ ...pose, Y })}
-          />
-          <ValRefControl
-            label="Heading Angle"
-            value={pose?.Heading || { val: 0 }}
-            onChange={(Heading) => onChange({ ...pose, Heading })}
-          />
-
+            </Select>
+            {chkErr(resolved) && (
+              <Text>
+                <AlertFilled />
+                {resolved.errors().map((e, i) => (
+                  <span key={i}>
+                    <Text>{e}</Text>
+                    <br />
+                  </span>
+                ))}
+                for {pose?.ref}
+              </Text>
+            )}
+          </span>
+        ) : (
           <div>
-            <Checkbox
-              checked={Boolean(pose?.inRadians)}
-              onChange={(e) =>
-                onChange({ ...pose, inRadians: e.target.checked })
-              }
-              label="Heading Angle in Radians?"
+            <ValRefControl
+              label="X Coordinate"
+              value={pose?.X || { val: 0 }}
+              onChange={(X) => onChange({ ...pose, X })}
             />
-          </div>
-        </div>
-      )}
+            <ValRefControl
+              label="Y Coordinate"
+              value={pose?.Y || { val: 0 }}
+              onChange={(Y) => onChange({ ...pose, Y })}
+            />
+            <ValRefControl
+              label="Heading Angle"
+              value={pose?.Heading || { val: 0 }}
+              onChange={(Heading) => onChange({ ...pose, Heading })}
+            />
 
-      {/* Resolved Position Badge */}
-      <div>
-        <span>Computed Position:</span>
-        <span>
-          <ResolvedPose pose={resolved} />
-        </span>
-      </div>
-    </div>
+            <div>
+              <Checkbox
+                checked={Boolean(pose?.inRadians)}
+                onChange={(e) =>
+                  onChange({ ...pose, inRadians: e.target.checked })
+                }
+                label="Heading Angle in Radians?"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Resolved Position Badge */}
+        <div>
+          <span>Computed Position:</span>
+          <span>
+            <ResolvedPose pose={resolved} />
+          </span>
+        </div>
+      </>
+    </TitleWrapper>
   );
 }
 

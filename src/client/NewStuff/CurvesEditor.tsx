@@ -2,38 +2,30 @@ import { ReactElement } from 'react';
 import { useAtom, useSetAtom } from 'jotai';
 
 import {
-  Button,
-  Field,
   Input,
   Text,
   Toolbar,
   ToolbarButton,
 } from '@fluentui/react-components';
-import {
-  AddRegular,
-  DeleteRegular,
-  SearchRegular,
-} from '@fluentui/react-icons';
+import { AddRegular, SearchRegular } from '@fluentui/react-icons';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 import { isUndefined } from '@freik/typechk';
 
+import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
 import { CurveRefControl } from './CurveRefs';
 import { chkRef, CurveRef } from './dto_schema';
-import { NameChangeDelete } from './NameChangeDelete';
 import {
   namedValuesAtom,
   searchFilterAtom,
   selectedKeyAtom,
   toastAtom,
 } from './state';
-import { useWrappedRegionStyle } from './WrappedRegionStyle';
 
 // Curves Store Editor
 export function CurvesEditor(): ReactElement {
   const [namedValues, setNamedValues] = useAtom(namedValuesAtom);
   const [selected, setSelected] = useAtom(selectedKeyAtom);
   const [search, setSearch] = useAtom(searchFilterAtom);
-  const wrappedStyle = useWrappedRegionStyle();
   const setToast = useSetAtom(toastAtom);
 
   const curves = namedValues.curves || {};

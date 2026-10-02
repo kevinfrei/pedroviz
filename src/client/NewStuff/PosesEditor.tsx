@@ -2,21 +2,15 @@ import { ReactElement } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import {
-  Button,
-  Field,
   Input,
   Text,
   Toolbar,
   ToolbarButton,
 } from '@fluentui/react-components';
-import {
-  AddRegular,
-  DeleteRegular,
-  SearchRegular,
-} from '@fluentui/react-icons';
+import { AddRegular, SearchRegular } from '@fluentui/react-icons';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 
-import { NameChangeDelete } from './NameChangeDelete';
+import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
 import { PoseRefControl, PoseRefInline, ResolvedPose } from './PoseRefs';
 import { resolvePoseRef } from './Resolvers';
 import {
@@ -26,7 +20,6 @@ import {
   symbolTableAtom,
   toastAtom,
 } from './state';
-import { useWrappedRegionStyle } from './WrappedRegionStyle';
 
 // Poses Store Editor
 export function PosesEditor(): ReactElement {
@@ -35,7 +28,6 @@ export function PosesEditor(): ReactElement {
   const [selected, setSelected] = useAtom(selectedKeyAtom);
   const [search, setSearch] = useAtom(searchFilterAtom);
   const setToast = useSetAtom(toastAtom);
-  const wrappedStyle = useWrappedRegionStyle();
 
   const poses = namedValues.poses || {};
   const keys = Object.keys(poses).filter((k) =>

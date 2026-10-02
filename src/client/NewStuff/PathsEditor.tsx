@@ -3,7 +3,6 @@ import { useAtom, useSetAtom } from 'jotai';
 
 import {
   Button,
-  Field,
   Input,
   Text,
   Toolbar,
@@ -16,17 +15,17 @@ import {
 } from '@fluentui/react-icons';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 
+import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
+import { TitleWrapper } from '../ui-tools/TitleWrapper';
 import { CurveRefControl } from './CurveRefs';
 import { chkRef } from './dto_schema';
 import { InterpRefControl } from './InterpRefs';
-import { NameChangeDelete } from './NameChangeDelete';
 import {
   namedValuesAtom,
   searchFilterAtom,
   selectedKeyAtom,
   toastAtom,
 } from './state';
-import { useWrappedRegionStyle } from './WrappedRegionStyle';
 
 // Paths Store Editor
 export function PathsEditor(): ReactElement {
@@ -34,7 +33,6 @@ export function PathsEditor(): ReactElement {
   const [selected, setSelected] = useAtom(selectedKeyAtom);
   const [search, setSearch] = useAtom(searchFilterAtom);
   const setToast = useSetAtom(toastAtom);
-  const wrappedStyle = useWrappedRegionStyle();
 
   const paths = namedValues.paths || {};
   const keys = Object.keys(paths).filter((k) =>
@@ -132,52 +130,64 @@ export function PathsEditor(): ReactElement {
               handleRename={handleRename}
               handleDelete={handleDelete}
             />
-            <div className={wrappedStyle.wrapper}>
-              <Field
-                className={wrappedStyle.field}
-                label={
-                  <span className={wrappedStyle.label}>Path Curves/Lines</span>
-                }
-              />
-              <Button
-                icon={<AddRegular />}
-                onClick={() => {
-                  const curvesList = activePath.curves || [];
-                  const updatedPath = {
-                    ...activePath,
-                    curves: [
-                      ...curvesList,
-                      {
-                        points: [
-                          {
-                            X: { val: 0 },
-                            Y: { val: 0 },
-                            Heading: { val: 0 },
-                            inRadians: false,
-                          },
-                        ],
-                        interpolation: { reversed: false },
-                      },
-                    ],
-                  };
-                  setNamedValues({
-                    ...namedValues,
-                    paths: { ...paths, [activeKey]: updatedPath },
-                  });
-                }}>
-                Add Curve
-              </Button>
+            <TitleWrapper title="Path Curves/Lines">
+              <>
+                <Button
+                  icon={<AddRegular />}
+                  onClick={() => {
+                    const curvesList = activePath.curves || [];
+                    const updatedPath = {
+                      ...activePath,
+                      curves: [
+                        ...curvesList,
+                        {
+                          points: [
+                            {
+                              X: { val: 0 },
+                              Y: { val: 0 },
+                              Heading: { val: 0 },
+                              inRadians: false,
+                            },
+                          ],
+                          interpolation: { reversed: false },
+                        },
+                      ],
+                    };
+                    setNamedValues({
+                      ...namedValues,
+                      paths: { ...paths, [activeKey]: updatedPath },
+                    });
+                  }}>
+                  Add Curve
+                </Button>
 
-              {(activePath.curves || []).map((cRef, cIdx) => (
-                <div key={cIdx}>
-                  <div>
-                    <span>Curve Segment #{cIdx + 1}</span>
-                    <Button
-                      icon={<DeleteRegular />}
-                      onClick={() => {
-                        const newCurves = activePath.curves.filter(
-                          (_, i) => i !== cIdx,
-                        );
+                {(activePath.curves || []).map((cRef, cIdx) => (
+                  <div key={cIdx}>
+                    <div>
+                      <span>Curve Segment #{cIdx + 1}</span>
+                      <Button
+                        icon={<DeleteRegular />}
+                        onClick={() => {
+                          const newCurves = activePath.curves.filter(
+                            (_, i) => i !== cIdx,
+                          );
+                          setNamedValues({
+                            ...namedValues,
+                            paths: {
+                              ...paths,
+                              [activeKey]: { ...activePath, curves: newCurves },
+                            },
+                          });
+                        }}
+                        title="Remove Curve Segment"
+                      />
+                    </div>
+                    <CurveRefControl
+                      label={`Segment ${cIdx + 1}`}
+                      curve={cRef}
+                      onChange={(newCRef) => {
+                        const newCurves = [...activePath.curves];
+                        newCurves[cIdx] = newCRef;
                         setNamedValues({
                           ...namedValues,
                           paths: {
@@ -186,43 +196,29 @@ export function PathsEditor(): ReactElement {
                           },
                         });
                       }}
-                      title="Remove Curve Segment"
                     />
                   </div>
-                  <CurveRefControl
-                    label={`Segment ${cIdx + 1}`}
-                    curve={cRef}
-                    onChange={(newCRef) => {
-                      const newCurves = [...activePath.curves];
-                      newCurves[cIdx] = newCRef;
+                ))}
+
+                <div>
+                  <InterpRefControl
+                    label="Global Path Override Interpolator (Optional)"
+                    interp={
+                      activePath.globalInterpolator || { reversed: false }
+                    }
+                    onChange={(globalInterpolator) => {
                       setNamedValues({
                         ...namedValues,
                         paths: {
                           ...paths,
-                          [activeKey]: { ...activePath, curves: newCurves },
+                          [activeKey]: { ...activePath, globalInterpolator },
                         },
                       });
                     }}
                   />
                 </div>
-              ))}
-
-              <div>
-                <InterpRefControl
-                  label="Global Path Override Interpolator (Optional)"
-                  interp={activePath.globalInterpolator || { reversed: false }}
-                  onChange={(globalInterpolator) => {
-                    setNamedValues({
-                      ...namedValues,
-                      paths: {
-                        ...paths,
-                        [activeKey]: { ...activePath, globalInterpolator },
-                      },
-                    });
-                  }}
-                />
-              </div>
-            </div>
+              </>
+            </TitleWrapper>
           </>
         ) : (
           <Text>Select or create a path sequence to edit.</Text>

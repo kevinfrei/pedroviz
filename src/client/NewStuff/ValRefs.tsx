@@ -12,8 +12,9 @@ import {
   tokens,
 } from '@fluentui/react-components';
 import { AlertFilled } from '@fluentui/react-icons';
-import { isDefined, isError, isUndefined } from '@freik/typechk';
+import { isError, isUndefined } from '@freik/typechk';
 
+import { TitleWrapper } from '../ui-tools/TitleWrapper';
 import {
   chkErr,
   chkRef,
@@ -80,28 +81,8 @@ export function ValRefControl({
   };
 
   return (
-    <div
-      style={{
-        borderWidth: 1,
-        borderStyle: 'solid',
-        borderRadius: 4,
-        borderColor: tokens.colorNeutralForeground3,
-        padding: 8,
-        marginTop: '1em',
-      }}>
-      <Field
-        label={
-          <span
-            style={{
-              backgroundColor: tokens.colorNeutralBackground1,
-              paddingLeft: '.5em',
-              paddingRight: '.5em',
-              fontWeight: 'bold',
-            }}>
-            {label}
-          </span>
-        }
-        className={theStyle.label}>
+    <TitleWrapper title={label}>
+      <>
         <RadioGroup
           value={isRef ? 'ref' : 'val'}
           layout="horizontal"
@@ -111,60 +92,46 @@ export function ValRefControl({
           <Radio value="val" label="Number" />
           <Radio value="ref" label="Reference" />
         </RadioGroup>
-      </Field>
-      {!isRef ? (
-        <SpinButton
-          precision={2}
-          step={1}
-          stepPage={10}
-          value={chkValue(value) ? value.val : 0}
-          onChange={(_, d) => onChange({ val: d.value || 0 })}
-        />
-      ) : (
-        <>
-          <span>
-            <Select
-              value={value?.ref || ''}
-              onChange={(e, d) => onChange({ ref: d.value })}>
-              <option key="$" value="" disabled>
-                Select Value Reference...
-              </option>
-              {filterValues(valueKeys, symbolTable, ref).map((k) => (
-                <option key={k} value={k}>
-                  {k} <ValRefInline valref={symbolTable.values.get(k)} />
+        {!isRef ? (
+          <SpinButton
+            precision={2}
+            step={1}
+            stepPage={10}
+            value={chkValue(value) ? value.val : 0}
+            onChange={(_, d) => onChange({ val: d.value || 0 })}
+          />
+        ) : (
+          <>
+            <span>
+              <Select
+                value={value?.ref || ''}
+                onChange={(e, d) => onChange({ ref: d.value })}>
+                <option key="$" value="" disabled>
+                  Select Value Reference...
                 </option>
-              ))}
-            </Select>
-          </span>
-          {chkErr(resolved) && (
-            <Text>
-              <AlertFilled />
-              {resolved.errors().map((e, i) => (
-                <Fragment key={i}>
-                  <Text>{e}</Text>
-                  <br />
-                </Fragment>
-              ))}
-              for {value.ref}
-            </Text>
-          )}
-        </>
-      )}
-      {/* Resolved summary badge */}
-      {/* <div className="mt-2 text-right">
-        <span
-          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono ${
-            !chkErr(resolved)
-              ? 'bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800/50'
-              : 'bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/50'
-          }`}>
-          <span>Resolved:</span>
-          <strong className="font-bold">
-            <ResolvedValueInline value={resolved} />
-          </strong>
-        </span>
-      </div> */}
-    </div>
+                {filterValues(valueKeys, symbolTable, ref).map((k) => (
+                  <option key={k} value={k}>
+                    {k} <ValRefInline valref={symbolTable.values.get(k)} />
+                  </option>
+                ))}
+              </Select>
+            </span>
+            {chkErr(resolved) && (
+              <Text>
+                <AlertFilled />
+                {resolved.errors().map((e, i) => (
+                  <Fragment key={i}>
+                    <Text>{e}</Text>
+                    <br />
+                  </Fragment>
+                ))}
+                for {value.ref}
+              </Text>
+            )}
+          </>
+        )}
+      </>
+    </TitleWrapper>
   );
 }
 

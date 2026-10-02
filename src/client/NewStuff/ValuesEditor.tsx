@@ -2,33 +2,24 @@ import { ReactElement } from 'react';
 import { useAtom } from 'jotai';
 
 import {
-  Button,
-  Field,
   Input,
   Text,
-  tokens,
   Toolbar,
   ToolbarButton,
 } from '@fluentui/react-components';
-import {
-  AddRegular,
-  DeleteRegular,
-  SearchRegular,
-} from '@fluentui/react-icons';
+import { AddRegular, SearchRegular } from '@fluentui/react-icons';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 
-import { NameChangeDelete } from './NameChangeDelete';
+import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
 import { useToast } from './NotificationToast';
 import { namedValuesAtom, searchFilterAtom, selectedKeyAtom } from './state';
 import { ValRefControl, ValRefInline } from './ValRefs';
-import { useWrappedRegionStyle } from './WrappedRegionStyle';
 
 // Values Editor
 export function ValuesEditor(): ReactElement {
   const [namedValues, setNamedValues] = useAtom(namedValuesAtom);
   const [selected, setSelected] = useAtom(selectedKeyAtom);
   const [search, setSearch] = useAtom(searchFilterAtom);
-  const wrappedStyle = useWrappedRegionStyle();
   const setToast = useToast();
   const values = namedValues.values || {};
   const keys = Object.keys(values).filter((k) =>
