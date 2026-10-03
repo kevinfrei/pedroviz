@@ -20,19 +20,15 @@ import { TitleWrapper } from '../ui-tools/TitleWrapper';
 import { CurveRefControl } from './CurveRefs';
 import { chkRef } from './dto_schema';
 import { InterpRefControl } from './InterpRefs';
-import {
-  namedValuesAtom,
-  searchFilterAtom,
-  selectedKeyAtom,
-  toastAtom,
-} from './state';
+import { useToast } from './NotificationToast';
+import { namedValuesAtom, searchFilterAtom, selectedKeyAtom } from './state';
 
 // Paths Store Editor
 export function PathsEditor(): ReactElement {
   const [namedValues, setNamedValues] = useAtom(namedValuesAtom);
   const [selected, setSelected] = useAtom(selectedKeyAtom);
   const [search, setSearch] = useAtom(searchFilterAtom);
-  const setToast = useSetAtom(toastAtom);
+  const setToast = useToast();
 
   const paths = namedValues.paths || {};
   const keys = Object.keys(paths).filter((k) =>

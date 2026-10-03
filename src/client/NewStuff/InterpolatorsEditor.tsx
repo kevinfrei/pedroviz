@@ -2,37 +2,26 @@ import { ReactElement } from 'react';
 import { useAtom } from 'jotai';
 
 import {
-  Button,
-  Field,
   Input,
   Text,
   Toolbar,
   ToolbarButton,
 } from '@fluentui/react-components';
-import {
-  AddRegular,
-  DeleteRegular,
-  SearchRegular,
-} from '@fluentui/react-icons';
+import { AddRegular, SearchRegular } from '@fluentui/react-icons';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 
 import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
-import { useWrappedRegionStyle } from '../ui-tools/WrappedRegionStyle';
 import { getInterpType } from './dto_schema';
 import { InterpRefControl } from './InterpRefs';
-import {
-  namedValuesAtom,
-  searchFilterAtom,
-  selectedKeyAtom,
-  toastAtom,
-} from './state';
+import { useToast } from './NotificationToast';
+import { namedValuesAtom, searchFilterAtom, selectedKeyAtom } from './state';
 
 // Interpolators Store Editor
 export function InterpolatorsEditor(): ReactElement {
   const [namedValues, setNamedValues] = useAtom(namedValuesAtom);
   const [selected, setSelected] = useAtom(selectedKeyAtom);
   const [search, setSearch] = useAtom(searchFilterAtom);
-  const [, setToast] = useAtom(toastAtom);
+  const setToast = useToast();
 
   const interpolations = namedValues.interpolations || {};
   const keys = Object.keys(interpolations).filter((k) =>

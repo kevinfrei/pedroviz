@@ -1,6 +1,5 @@
 import {
   Toast,
-  ToastBody,
   ToastIntent,
   ToastTitle,
   useToastController,

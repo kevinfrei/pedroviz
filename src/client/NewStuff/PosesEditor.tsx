@@ -11,14 +11,14 @@ import { AddRegular, SearchRegular } from '@fluentui/react-icons';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 
 import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
-import { PoseRefControl, PoseRefInline, ResolvedPose } from './PoseRefs';
+import { useToast } from './NotificationToast';
+import { PoseRefControl, PoseRefInline } from './PoseRefs';
 import { resolvePoseRef } from './Resolvers';
 import {
   namedValuesAtom,
   searchFilterAtom,
   selectedKeyAtom,
   symbolTableAtom,
-  toastAtom,
 } from './state';
 
 // Poses Store Editor
@@ -27,7 +27,7 @@ export function PosesEditor(): ReactElement {
   const symbolTable = useAtomValue(symbolTableAtom);
   const [selected, setSelected] = useAtom(selectedKeyAtom);
   const [search, setSearch] = useAtom(searchFilterAtom);
-  const setToast = useSetAtom(toastAtom);
+  const setToast = useToast();
 
   const poses = namedValues.poses || {};
   const keys = Object.keys(poses).filter((k) =>

@@ -86,7 +86,7 @@ export const EMPTY_WORKSPACE_PRESET: NamedValues = {
 };
 
 export const themeAtom = atom<'dark' | 'light'>('dark');
-export const toastAtom = atom<string | null>(null);
+
 // TODO: NamedValues shouldn't be used in the front end. Just use the SymbolTable.
 // NamedValues is just for serialization and deserialization.
 export const namedValuesAtom = atom<NamedValues>(SAMPLE_AUTONOMOUS_PRESET);

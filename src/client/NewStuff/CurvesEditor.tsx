@@ -14,19 +14,15 @@ import { isUndefined } from '@freik/typechk';
 import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
 import { CurveRefControl } from './CurveRefs';
 import { chkRef, CurveRef } from './dto_schema';
-import {
-  namedValuesAtom,
-  searchFilterAtom,
-  selectedKeyAtom,
-  toastAtom,
-} from './state';
+import { useToast } from './NotificationToast';
+import { namedValuesAtom, searchFilterAtom, selectedKeyAtom } from './state';
 
 // Curves Store Editor
 export function CurvesEditor(): ReactElement {
   const [namedValues, setNamedValues] = useAtom(namedValuesAtom);
   const [selected, setSelected] = useAtom(selectedKeyAtom);
   const [search, setSearch] = useAtom(searchFilterAtom);
-  const setToast = useSetAtom(toastAtom);
+  const setToast = useToast();
 
   const curves = namedValues.curves || {};
   const keys = Object.keys(curves).filter((k) =>

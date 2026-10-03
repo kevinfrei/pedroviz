@@ -13,7 +13,6 @@ import {
   namedValuesAtom,
   SAMPLE_AUTONOMOUS_PRESET,
   symbolTableAtom,
-  toastAtom,
 } from './state';
 
 export function JsonEditor(): ReactElement {
