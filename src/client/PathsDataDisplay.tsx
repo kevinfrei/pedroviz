@@ -16,11 +16,11 @@ import { NamedBezierList } from './Displays/CurveDisplay';
 import { PathChainList } from './Displays/PathChainDisplay';
 import { NamedPoseList } from './Displays/PoseDisplay';
 import { NamedValueList } from './Displays/ValueDisplay';
-import { CurvesEditor } from './NewStuff/CurvesEditor';
-import { InterpolatorsEditor } from './NewStuff/InterpolatorsEditor';
-import { PathsEditor } from './NewStuff/PathsEditor';
-import { PosesEditor } from './NewStuff/PosesEditor';
-import { ValuesEditor } from './NewStuff/ValuesEditor';
+import { CurvesEditor } from './EditorPanels/CurvesEditor';
+import { InterpolatorsEditor } from './EditorPanels/InterpolatorsEditor';
+import { PathsEditor } from './EditorPanels/PathsEditor';
+import { PosesEditor } from './EditorPanels/PosesEditor';
+import { ValuesEditor } from './EditorPanels/ValuesEditor';
 import {
   FocusedCurveAtom,
   FocusedPathAtom,

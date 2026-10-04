@@ -11,7 +11,6 @@ import {
 import { AlertFilled } from '@fluentui/react-icons';
 import { isError, isUndefined } from '@freik/typechk';
 
-import { TitleWrapper } from '../ui-tools/TitleWrapper';
 import {
   chkErr,
   chkRef,
@@ -19,9 +18,10 @@ import {
   ResolvedValue,
   SymbolTable,
   ValRef,
-} from './dto_schema';
-import { resolveValRef } from './Resolvers';
-import { symbolTableAtom, symbolTableValuesAtom } from './state';
+} from '../dto_schema';
+import { resolveValRef } from '../Resolvers';
+import { symbolTableAtom, symbolTableValuesAtom } from '../state/SymbolTable';
+import { TitleWrapper } from '../ui-tools/TitleWrapper';
 
 // Filter out value names that would result in errors
 function filterValues(

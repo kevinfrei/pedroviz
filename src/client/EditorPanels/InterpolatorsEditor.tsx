@@ -10,21 +10,21 @@ import {
 import { AddRegular, SearchRegular } from '@fluentui/react-icons';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 
-import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
 import {
   getInterpType,
   InterpRef,
   NewMapAdd,
   NewMapDelete,
   NewMapRename,
-} from './dto_schema';
-import { InterpRefControl } from './InterpRefs';
-import { useToast } from './NotificationToast';
+} from '../dto_schema';
+import { InterpRefControl } from '../ItemEditor/InterpRefs';
 import {
   searchFilterAtom,
   selectedKeyAtom,
   symbolTableInterpolationsAtom,
-} from './state';
+} from '../state/SymbolTable';
+import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
+import { useToast } from '../ui-tools/NotificationToast';
 
 // Interpolators Store Editor
 export function InterpolatorsEditor(): ReactElement {

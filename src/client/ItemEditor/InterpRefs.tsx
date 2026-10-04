@@ -5,7 +5,6 @@ import { Button, Checkbox, Select } from '@fluentui/react-components';
 import { AddRegular, DeleteRegular } from '@fluentui/react-icons';
 import { hasField } from '@freik/typechk';
 
-import { TitleWrapper } from '../ui-tools/TitleWrapper';
 import {
   chkConstInterp,
   chkFacePtInterp,
@@ -16,9 +15,13 @@ import {
   getInterpType,
   InterpNames,
   InterpRef,
-} from './dto_schema';
+} from '../dto_schema';
+import {
+  symbolTableAtom,
+  symbolTableInterpolationsAtom,
+} from '../state/SymbolTable';
+import { TitleWrapper } from '../ui-tools/TitleWrapper';
 import { PoseRefControl } from './PoseRefs';
-import { symbolTableAtom, symbolTableInterpolationsAtom } from './state';
 import { ValRefControl } from './ValRefs';
 
 export type InterpRefControlPropsWithShow = {

@@ -11,21 +11,21 @@ import { AddRegular, SearchRegular } from '@fluentui/react-icons';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 import { isUndefined } from '@freik/typechk';
 
-import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
-import { CurveRefControl } from './CurveRefs';
 import {
   chkRef,
   CurveRef,
   NewMapAdd,
   NewMapDelete,
   NewMapRename,
-} from './dto_schema';
-import { useToast } from './NotificationToast';
+} from '../dto_schema';
+import { CurveRefControl } from '../ItemEditor/CurveRefs';
 import {
   searchFilterAtom,
   selectedKeyAtom,
   symbolTableCurvesAtom,
-} from './state';
+} from '../state/SymbolTable';
+import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
+import { useToast } from '../ui-tools/NotificationToast';
 
 // Curves Store Editor
 export function CurvesEditor(): ReactElement {

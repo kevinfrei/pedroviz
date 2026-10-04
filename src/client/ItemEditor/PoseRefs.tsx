@@ -11,10 +11,10 @@ import {
 import { AlertFilled } from '@fluentui/react-icons';
 import { hasField, isDefined, isUndefined } from '@freik/typechk';
 
+import { chkErr, chkRef, PoseRef, ResolvedPose } from '../dto_schema';
+import { resolvePoseRef } from '../Resolvers';
+import { symbolTableAtom } from '../state/SymbolTable';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
-import { chkErr, chkRef, PoseRef, ResolvedPose } from './dto_schema';
-import { resolvePoseRef } from './Resolvers';
-import { symbolTableAtom } from './state';
 import { ResolvedValueInline, ValRefControl, ValRefInline } from './ValRefs';
 
 export type PoseRefControlProps = {

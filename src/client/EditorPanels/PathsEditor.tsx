@@ -16,23 +16,23 @@ import {
 import { Group, Panel, Separator } from 'react-resizable-panels';
 import { isDefined } from '@freik/typechk';
 
-import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
-import { TitleWrapper } from '../ui-tools/TitleWrapper';
-import { CurveRefControl } from './CurveRefs';
 import {
   InterpRef,
   NewMapAdd,
   NewMapDelete,
   NewMapRename,
   NewMapUpdate,
-} from './dto_schema';
-import { InterpRefControl } from './InterpRefs';
-import { useToast } from './NotificationToast';
+} from '../dto_schema';
+import { CurveRefControl } from '../ItemEditor/CurveRefs';
+import { InterpRefControl } from '../ItemEditor/InterpRefs';
 import {
   searchFilterAtom,
   selectedKeyAtom,
   symbolTablePathsAtom,
-} from './state';
+} from '../state/SymbolTable';
+import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
+import { useToast } from '../ui-tools/NotificationToast';
+import { TitleWrapper } from '../ui-tools/TitleWrapper';
 
 // Paths Store Editor
 export function PathsEditor(): ReactElement {

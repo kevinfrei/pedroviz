@@ -12,11 +12,11 @@ import {
 } from '@fluentui/react-components';
 import { AddRegular, DeleteRegular } from '@fluentui/react-icons';
 
+import { chkRef, CurveRef, InterpRef } from '../dto_schema';
+import { symbolTableAtom } from '../state/SymbolTable';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
-import { chkRef, CurveRef, InterpRef } from './dto_schema';
 import { InterpRefControl } from './InterpRefs';
 import { PoseRefControl } from './PoseRefs';
-import { symbolTableAtom } from './state';
 
 export type CurveRefControlProps = {
   label: string;

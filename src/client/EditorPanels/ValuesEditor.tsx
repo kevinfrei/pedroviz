@@ -10,15 +10,15 @@ import {
 import { AddRegular, SearchRegular } from '@fluentui/react-icons';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 
-import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
-import { NewMapAdd, NewMapDelete, NewMapRename } from './dto_schema';
-import { useToast } from './NotificationToast';
+import { NewMapAdd, NewMapDelete, NewMapRename } from '../dto_schema';
+import { ValRefControl, ValRefInline } from '../ItemEditor/ValRefs';
 import {
   searchFilterAtom,
   selectedKeyAtom,
   symbolTableValuesAtom,
-} from './state';
-import { ValRefControl, ValRefInline } from './ValRefs';
+} from '../state/SymbolTable';
+import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
+import { useToast } from '../ui-tools/NotificationToast';
 
 // Values Editor
 export function ValuesEditor(): ReactElement {

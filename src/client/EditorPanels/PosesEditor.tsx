@@ -10,17 +10,17 @@ import {
 import { AddRegular, SearchRegular } from '@fluentui/react-icons';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 
-import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
-import { NewMapAdd, NewMapDelete, NewMapRename } from './dto_schema';
-import { useToast } from './NotificationToast';
-import { PoseRefControl, PoseRefInline } from './PoseRefs';
-import { resolvePoseRef } from './Resolvers';
+import { NewMapAdd, NewMapDelete, NewMapRename } from '../dto_schema';
+import { PoseRefControl, PoseRefInline } from '../ItemEditor/PoseRefs';
+import { resolvePoseRef } from '../Resolvers';
 import {
   searchFilterAtom,
   selectedKeyAtom,
   symbolTableAtom,
   symbolTablePosesAtom,
-} from './state';
+} from '../state/SymbolTable';
+import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
+import { useToast } from '../ui-tools/NotificationToast';
 
 // Poses Store Editor
 export function PosesEditor(): ReactElement {

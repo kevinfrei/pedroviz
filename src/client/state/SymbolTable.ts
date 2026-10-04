@@ -10,7 +10,7 @@ import {
   PoseRef,
   SymbolTable,
   ValRef,
-} from './dto_schema';
+} from '../dto_schema';
 
 export const SAMPLE_AUTONOMOUS_PRESET: SymbolTable = {
   values: RecordToMap({
