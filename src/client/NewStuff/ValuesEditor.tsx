@@ -11,58 +11,54 @@ import { AddRegular, SearchRegular } from '@fluentui/react-icons';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 
 import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
+import { AddToMap, DeleteFromMap, RenameKey } from './dto_schema';
 import { useToast } from './NotificationToast';
-import { namedValuesAtom, searchFilterAtom, selectedKeyAtom } from './state';
+import {
+  searchFilterAtom,
+  selectedKeyAtom,
+  symbolTableValuesAtom,
+} from './state';
 import { ValRefControl, ValRefInline } from './ValRefs';
 
 // Values Editor
 export function ValuesEditor(): ReactElement {
-  const [namedValues, setNamedValues] = useAtom(namedValuesAtom);
+  const [values, setValues] = useAtom(symbolTableValuesAtom);
   const [selected, setSelected] = useAtom(selectedKeyAtom);
   const [search, setSearch] = useAtom(searchFilterAtom);
   const setToast = useToast();
-  const values = namedValues.values || {};
   const keys = Object.keys(values).filter((k) =>
     k.toLowerCase().includes(search.toLowerCase()),
   );
 
   const activeKey = selected.store === 'values' ? selected.key : keys[0] || '';
-  const activeValue = values[activeKey];
+  const activeValue = values.get(activeKey);
 
   const handleAdd = () => {
-    let baseName = 'newValue';
     let count = 1;
-    while (values[`${baseName}${count}`]) count++;
-    const newKey = `${baseName}${count}`;
+    while (values.has(`newValue${count}`)) count++;
+    const newKey = `newValue${count}`;
 
-    setNamedValues({
-      ...namedValues,
-      values: { ...values, [newKey]: { val: 0.0 } },
-    });
+    setValues(AddToMap(values, newKey, { val: 0.0 }));
     setSelected({ store: 'values', key: newKey });
     setToast(`Added value "${newKey}"`);
   };
 
   const handleRename = (oldKey: string, newKey: string) => {
-    if (!newKey || oldKey === newKey || values[newKey]) return;
-    const oldVal = values[oldKey];
-    if (!oldVal) return;
-    const newDict = { ...values };
-    newDict[newKey] = oldVal;
-    delete newDict[oldKey];
-
-    setNamedValues({ ...namedValues, values: newDict });
-    setSelected({ store: 'values', key: newKey });
+    const newMap = RenameKey(values, oldKey, newKey);
+    if (newMap) {
+      setValues(newMap);
+      setSelected({ store: 'values', key: newKey });
+    }
   };
 
   const handleDelete = (keyToDelete: string) => {
-    const newDict = { ...values };
-    delete newDict[keyToDelete];
-    setNamedValues({ ...namedValues, values: newDict });
-
-    const remaining = Object.keys(newDict);
-    setSelected({ store: 'values', key: remaining[0] || '' });
-    setToast(`Deleted value "${keyToDelete}"`, 'success');
+    const newMap = DeleteFromMap(values, keyToDelete);
+    if (newMap) {
+      setValues(newMap);
+      const remaining = Array.from(newMap.keys());
+      setSelected({ store: 'values', key: remaining[0] || '' });
+      setToast(`Deleted value "${keyToDelete}"`, 'success');
+    }
   };
 
   return (
@@ -92,7 +88,7 @@ export function ValuesEditor(): ReactElement {
                 key={k}
                 onClick={() => setSelected({ store: 'values', key: k })}>
                 <span>{k}</span>
-                <ValRefInline valref={values[k]} />
+                <ValRefInline valref={values.get(k)} />
               </div>
             ))
           )}
@@ -112,12 +108,9 @@ export function ValuesEditor(): ReactElement {
               label="Value or Reference"
               value={activeValue}
               ref={activeKey}
-              onChange={(newVal) => {
-                setNamedValues({
-                  ...namedValues,
-                  values: { ...values, [activeKey]: newVal },
-                });
-              }}
+              onChange={(newVal) =>
+                setValues(AddToMap(values, activeKey, newVal))
+              }
             />
           </>
         ) : (

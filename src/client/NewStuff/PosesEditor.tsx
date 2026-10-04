@@ -14,37 +14,31 @@ import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
 import { useToast } from './NotificationToast';
 import { PoseRefControl, PoseRefInline } from './PoseRefs';
 import { resolvePoseRef } from './Resolvers';
-import {
-  namedValuesAtom,
-  searchFilterAtom,
-  selectedKeyAtom,
-  symbolTableAtom,
-} from './state';
+import { searchFilterAtom, selectedKeyAtom, symbolTableAtom } from './state';
 
 // Poses Store Editor
 export function PosesEditor(): ReactElement {
-  const [namedValues, setNamedValues] = useAtom(namedValuesAtom);
-  const symbolTable = useAtomValue(symbolTableAtom);
+  const [symbolTable, setSymbolTable] = useAtom(symbolTableAtom);
   const [selected, setSelected] = useAtom(selectedKeyAtom);
   const [search, setSearch] = useAtom(searchFilterAtom);
   const setToast = useToast();
 
-  const poses = namedValues.poses || {};
+  const poses = symbolTable.poses || {};
   const keys = Object.keys(poses).filter((k) =>
     k.toLowerCase().includes(search.toLowerCase()),
   );
 
   const activeKey = selected.store === 'poses' ? selected.key : keys[0] || '';
-  const activePose = poses[activeKey];
+  const activePose = poses.get(activeKey);
 
   const handleAdd = () => {
     let baseName = 'newPose';
     let count = 1;
-    while (poses[`${baseName}${count}`]) count++;
+    while (poses.has(`${baseName}${count}`)) count++;
     const newKey = `${baseName}${count}`;
 
-    setNamedValues({
-      ...namedValues,
+    setSymbolTable({
+      ...symbolTable,
       poses: {
         ...poses,
         [newKey]: {
@@ -60,23 +54,23 @@ export function PosesEditor(): ReactElement {
   };
 
   const handleRename = (oldKey: string, newKey: string) => {
-    if (!newKey || oldKey === newKey || poses[newKey]) return;
-    const oldPose = poses[oldKey];
+    if (!newKey || oldKey === newKey || poses.has(newKey)) return;
+    const oldPose = poses.get(oldKey);
     if (!oldPose) return;
-    const newDict = { ...poses };
-    newDict[newKey] = oldPose;
-    delete newDict[oldKey];
+    const newDict = new Map(poses);
+    newDict.set(newKey, oldPose);
+    newDict.delete(oldKey);
 
-    setNamedValues({ ...namedValues, poses: newDict });
+    setSymbolTable({ ...symbolTable, poses: newDict });
     setSelected({ store: 'poses', key: newKey });
   };
 
   const handleDelete = (keyToDelete: string) => {
-    const newDict = { ...poses };
-    delete newDict[keyToDelete];
-    setNamedValues({ ...namedValues, poses: newDict });
+    const newDict = new Map(poses);
+    newDict.delete(keyToDelete);
+    setSymbolTable({ ...symbolTable, poses: newDict });
 
-    const remaining = Object.keys(newDict);
+    const remaining = Array.from(newDict.keys());
     setSelected({ store: 'poses', key: remaining[0] || '' });
     setToast(`Deleted pose "${keyToDelete}"`);
   };
@@ -131,8 +125,8 @@ export function PosesEditor(): ReactElement {
               label="Pose Coordinates & Heading"
               pose={activePose}
               onChange={(updatedPose) => {
-                setNamedValues({
-                  ...namedValues,
+                setSymbolTable({
+                  ...symbolTable,
                   poses: { ...poses, [activeKey]: updatedPose },
                 });
               }}

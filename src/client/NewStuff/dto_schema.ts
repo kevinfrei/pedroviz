@@ -1,6 +1,7 @@
 import {
   chkAnyOf,
   chkArrayOf,
+  chkMapOf,
   chkObjectOfExactType,
   ErrorOr,
   isBoolean,
@@ -79,7 +80,7 @@ export type CorrectPath = {
 };
 export type ResolvedPath = ErrorOr<CorrectPath>;
 
-export type NamedValues = {
+type NamedValues = {
   values: Record<string, ValRef>;
   poses: Record<string, PoseRef>;
   interpolations: Record<string, InterpRef>;
@@ -187,10 +188,54 @@ export const chkPath = chkObjectOfExactType<Path>(
   { globalInterpolator: chkInterpRef },
 );
 
-export const chkNamedValues = chkObjectOfExactType<NamedValues>({
+const chkNamedValues = chkObjectOfExactType<NamedValues>({
   values: chkArrayOf(chkValRef),
   poses: chkArrayOf(chkPoseRef),
   curves: chkArrayOf(chkCurveRef),
   interpolations: chkArrayOf(chkInterpRef),
   paths: chkArrayOf(chkPath),
 });
+
+export const chkSymbolTable = chkObjectOfExactType<SymbolTable>({
+  values: chkMapOf(isString, chkValRef),
+  poses: chkMapOf(isString, chkPoseRef),
+  curves: chkMapOf(isString, chkCurveRef),
+  interpolations: chkMapOf(isString, chkInterpRef),
+  paths: chkMapOf(isString, chkPath),
+});
+
+export function AddToMap<K, V>(map: Map<K, V>, key: K, value: V): Map<K, V> {
+  const newMap = new Map(map);
+  newMap.set(key, value);
+  return newMap;
+}
+
+export function DeleteFromMap<K, V>(
+  map: Map<K, V>,
+  key: K,
+): Map<K, V> | undefined {
+  if (map.has(key)) {
+    const newMap = new Map(map);
+    newMap.delete(key);
+    return newMap;
+  }
+  return undefined;
+}
+
+export function RenameKey<K, V>(
+  map: Map<K, V>,
+  oldKey: K,
+  newKey: K,
+): Map<K, V> | undefined {
+  if (oldKey === newKey) {
+    return undefined;
+  }
+  const value = map.get(oldKey);
+  if (value === undefined) {
+    return undefined;
+  }
+  const newMap = new Map(map);
+  newMap.delete(oldKey);
+  newMap.set(newKey, value);
+  return newMap;
+}

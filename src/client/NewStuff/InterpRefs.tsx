@@ -1,5 +1,5 @@
 import { ReactElement } from 'react';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 
 import { Button, Checkbox, Select } from '@fluentui/react-components';
 import { AddRegular, DeleteRegular } from '@fluentui/react-icons';
@@ -17,7 +17,7 @@ import {
   InterpRef,
 } from './dto_schema';
 import { PoseRefControl } from './PoseRefs';
-import { namedValuesAtom } from './state';
+import { symbolTableAtom } from './state';
 import { ValRefControl } from './ValRefs';
 
 export type InterpRefControlProps = {
@@ -30,9 +30,9 @@ export function InterpRefControl({
   interp,
   onChange,
 }: InterpRefControlProps): ReactElement {
-  const [namedValues] = useAtom(namedValuesAtom);
-  const interpKeys = Object.keys(namedValues.interpolations || {});
-  const valueKeys = Object.keys(namedValues.values || {});
+  const symbolTable = useAtomValue(symbolTableAtom);
+  const interpKeys = Object.keys(symbolTable.interpolations || {});
+  const valueKeys = Object.keys(symbolTable.values || {});
 
   const currentType = getInterpType(interp);
 
@@ -101,7 +101,7 @@ export function InterpRefControl({
               </option>
               {interpKeys.map((k) => (
                 <option key={k} value={k}>
-                  {k} ({getInterpType(namedValues.interpolations?.[k]!)})
+                  {k} ({getInterpType(symbolTable.interpolations.get(k)!)})
                 </option>
               ))}
             </Select>

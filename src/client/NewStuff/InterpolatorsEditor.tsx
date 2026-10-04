@@ -14,32 +14,32 @@ import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
 import { getInterpType } from './dto_schema';
 import { InterpRefControl } from './InterpRefs';
 import { useToast } from './NotificationToast';
-import { namedValuesAtom, searchFilterAtom, selectedKeyAtom } from './state';
+import { searchFilterAtom, selectedKeyAtom, symbolTableAtom } from './state';
 
 // Interpolators Store Editor
 export function InterpolatorsEditor(): ReactElement {
-  const [namedValues, setNamedValues] = useAtom(namedValuesAtom);
+  const [symbolTable, setSymbolTable] = useAtom(symbolTableAtom);
   const [selected, setSelected] = useAtom(selectedKeyAtom);
   const [search, setSearch] = useAtom(searchFilterAtom);
   const setToast = useToast();
 
-  const interpolations = namedValues.interpolations || {};
+  const interpolations = symbolTable.interpolations || {};
   const keys = Object.keys(interpolations).filter((k) =>
     k.toLowerCase().includes(search.toLowerCase()),
   );
 
   const activeKey =
     selected.store === 'interpolations' ? selected.key : keys[0] || '';
-  const activeInterp = interpolations[activeKey];
+  const activeInterp = interpolations.get(activeKey);
 
   const handleAdd = () => {
     let baseName = 'newInterpolator';
     let count = 1;
-    while (interpolations[`${baseName}${count}`]) count++;
+    while (interpolations.has(`${baseName}${count}`)) count++;
     const newKey = `${baseName}${count}`;
 
-    setNamedValues({
-      ...namedValues,
+    setSymbolTable({
+      ...symbolTable,
       interpolations: {
         ...interpolations,
         [newKey]: { reversed: false }, // TangentInterp default
@@ -50,21 +50,21 @@ export function InterpolatorsEditor(): ReactElement {
   };
 
   const handleRename = (oldKey: string, newKey: string) => {
-    if (!newKey || oldKey === newKey || interpolations[newKey]) return;
-    const oldInterp = interpolations[oldKey];
+    if (!newKey || oldKey === newKey || interpolations.has(newKey)) return;
+    const oldInterp = interpolations.get(oldKey);
     if (!oldInterp) return;
-    const newDict = { ...interpolations };
-    newDict[newKey] = oldInterp;
-    delete newDict[oldKey];
+    const newDict = new Map(interpolations);
+    newDict.set(newKey, oldInterp);
+    newDict.delete(oldKey);
 
-    setNamedValues({ ...namedValues, interpolations: newDict });
+    setSymbolTable({ ...symbolTable, interpolations: newDict });
     setSelected({ store: 'interpolations', key: newKey });
   };
 
   const handleDelete = (keyToDelete: string) => {
-    const newDict = { ...interpolations };
-    delete newDict[keyToDelete];
-    setNamedValues({ ...namedValues, interpolations: newDict });
+    const newDict = new Map(interpolations);
+    newDict.delete(keyToDelete);
+    setSymbolTable({ ...symbolTable, interpolations: newDict });
 
     const remaining = Object.keys(newDict);
     setSelected({ store: 'interpolations', key: remaining[0] || '' });
@@ -100,7 +100,7 @@ export function InterpolatorsEditor(): ReactElement {
                   setSelected({ store: 'interpolations', key: k })
                 }>
                 <Text>{k}</Text>
-                <Text>{getInterpType(interpolations[k]!)}</Text>
+                <Text>{getInterpType(interpolations.get(k)!)}</Text>
               </div>
             ))
           )}
@@ -120,8 +120,8 @@ export function InterpolatorsEditor(): ReactElement {
               label="Interpolator Definition"
               interp={activeInterp}
               onChange={(updatedInterp) => {
-                setNamedValues({
-                  ...namedValues,
+                setSymbolTable({
+                  ...symbolTable,
                   interpolations: {
                     ...interpolations,
                     [activeKey]: updatedInterp,

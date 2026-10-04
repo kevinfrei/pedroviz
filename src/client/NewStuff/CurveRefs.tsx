@@ -1,5 +1,5 @@
 import { ReactElement } from 'react';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 
 import {
   Button,
@@ -16,7 +16,7 @@ import { TitleWrapper } from '../ui-tools/TitleWrapper';
 import { chkRef, CurveRef, InterpRef } from './dto_schema';
 import { InterpRefControl } from './InterpRefs';
 import { PoseRefControl } from './PoseRefs';
-import { namedValuesAtom } from './state';
+import { symbolTableAtom } from './state';
 
 export type CurveRefControlProps = {
   label: string;
@@ -29,8 +29,8 @@ export function CurveRefControl({
   curve,
   onChange,
 }: CurveRefControlProps): ReactElement {
-  const [namedValues] = useAtom(namedValuesAtom);
-  const curveKeys = Object.keys(namedValues.curves || {});
+  const symbolTable = useAtomValue(symbolTableAtom);
+  const curveKeys = Object.keys(symbolTable.curves || {});
   const isRef = chkRef(curve);
 
   const setToRef = (toRef: boolean) => {

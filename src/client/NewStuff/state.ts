@@ -1,11 +1,19 @@
 import { atom } from 'jotai';
+import { focusAtom } from 'jotai-optics';
 
 import { isDefined } from 'node_modules/@freik/typechk/lib/esm';
 
-import { NamedValues, SymbolTable } from './dto_schema';
+import {
+  /*NamedValues,*/ CurveRef,
+  InterpRef,
+  Path,
+  PoseRef,
+  SymbolTable,
+  ValRef,
+} from './dto_schema';
 
-export const SAMPLE_AUTONOMOUS_PRESET: NamedValues = {
-  values: {
+export const SAMPLE_AUTONOMOUS_PRESET: SymbolTable = {
+  values: RecordToMap({
     startX: { val: -5.0 },
     startY: { val: -2.0 },
     startHeading: { val: 0.0 },
@@ -15,8 +23,8 @@ export const SAMPLE_AUTONOMOUS_PRESET: NamedValues = {
     midpointX: { val: 0.0 },
     midpointY: { val: 1.5 },
     cutoffStep: { val: 0.5 },
-  },
-  poses: {
+  }),
+  poses: RecordToMap({
     startPose: {
       X: { ref: 'startX' },
       Y: { ref: 'startY' },
@@ -35,8 +43,8 @@ export const SAMPLE_AUTONOMOUS_PRESET: NamedValues = {
       Heading: { ref: 'targetHeading' },
       inRadians: false,
     },
-  },
-  interpolations: {
+  }),
+  interpolations: RecordToMap({
     tangentInterp: { reversed: false },
     linearHeadingInterp: {
       startHeading: { ref: 'startHeading' },
@@ -58,8 +66,8 @@ export const SAMPLE_AUTONOMOUS_PRESET: NamedValues = {
         },
       ],
     },
-  },
-  curves: {
+  }),
+  curves: RecordToMap({
     approachCurve: {
       points: [{ ref: 'startPose' }, { ref: 'waypointPose' }],
       interpolation: { ref: 'tangentInterp' },
@@ -68,28 +76,28 @@ export const SAMPLE_AUTONOMOUS_PRESET: NamedValues = {
       points: [{ ref: 'waypointPose' }, { ref: 'targetPose' }],
       interpolation: { ref: 'linearHeadingInterp' },
     },
-  },
-  paths: {
+  }),
+  paths: RecordToMap({
     mainAutoPath: {
       curves: [{ ref: 'approachCurve' }, { ref: 'finishCurve' }],
       globalInterpolator: { ref: 'tangentInterp' },
     },
-  },
+  }),
 };
 
-export const EMPTY_WORKSPACE_PRESET: NamedValues = {
-  values: {},
-  poses: {},
-  interpolations: {},
-  curves: {},
-  paths: {},
+export const EMPTY_WORKSPACE_PRESET: SymbolTable = {
+  values: new Map(),
+  poses: new Map(),
+  interpolations: new Map(),
+  curves: new Map(),
+  paths: new Map(),
 };
 
 export const themeAtom = atom<'dark' | 'light'>('dark');
 
 // TODO: NamedValues shouldn't be used in the front end. Just use the SymbolTable.
 // NamedValues is just for serialization and deserialization.
-export const namedValuesAtom = atom<NamedValues>(SAMPLE_AUTONOMOUS_PRESET);
+// const namedValuesAtom = atom<NamedValues>(SAMPLE_AUTONOMOUS_PRESET);
 export function RecordToMap<T>(
   obj: Record<string, T> | undefined,
 ): Map<string, T> {
@@ -106,19 +114,30 @@ export function MapToRecord<T>(
     ? Object.fromEntries(obj.entries())
     : undefined;
 }
-export const symbolTableAtom = atom((get) => {
-  const obj = get(namedValuesAtom);
-  const res: SymbolTable = {
-    values: RecordToMap(obj.values),
-    poses: RecordToMap(obj.poses),
-    interpolations: RecordToMap(obj.interpolations),
-    curves: RecordToMap(obj.curves),
-    paths: RecordToMap(obj.paths),
-  };
-  return res;
-});
+export const symbolTableAtom = atom<SymbolTable>(SAMPLE_AUTONOMOUS_PRESET);
+export const symbolTableValuesAtom = focusAtom(symbolTableAtom, (optic) =>
+  optic.prop('values'),
+);
+export const symbolTablePosesAtom = focusAtom(symbolTableAtom, (optic) =>
+  optic.prop('poses'),
+);
+export const symbolTableInterpolationsAtom = focusAtom(
+  symbolTableAtom,
+  (optic) => optic.prop('interpolations'),
+);
+export const symbolTableCurvesAtom = focusAtom(symbolTableAtom, (optic) =>
+  optic.prop('curves'),
+);
+export const symbolTablePathsAtom = focusAtom(symbolTableAtom, (optic) =>
+  optic.prop('paths'),
+);
+type FieldOptions = 'values' | 'poses' | 'interpolations' | 'curves' | 'paths';
+type SelectedKey = { store: FieldOptions; key: string };
 export const activeTabAtom = atom('values');
-export const selectedKeyAtom = atom({ store: 'values', key: 'startX' });
+export const selectedKeyAtom = atom<SelectedKey>({
+  store: 'values',
+  key: 'startX',
+});
 export const searchFilterAtom = atom('');
 export const visualizerSettingsAtom = atom({
   showGrid: true,

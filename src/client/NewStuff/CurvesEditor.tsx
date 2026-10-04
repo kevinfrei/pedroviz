@@ -15,31 +15,31 @@ import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
 import { CurveRefControl } from './CurveRefs';
 import { chkRef, CurveRef } from './dto_schema';
 import { useToast } from './NotificationToast';
-import { namedValuesAtom, searchFilterAtom, selectedKeyAtom } from './state';
+import { searchFilterAtom, selectedKeyAtom, symbolTableAtom } from './state';
 
 // Curves Store Editor
 export function CurvesEditor(): ReactElement {
-  const [namedValues, setNamedValues] = useAtom(namedValuesAtom);
+  const [symbolTable, setSymbolTable] = useAtom(symbolTableAtom);
   const [selected, setSelected] = useAtom(selectedKeyAtom);
   const [search, setSearch] = useAtom(searchFilterAtom);
   const setToast = useToast();
 
-  const curves = namedValues.curves || {};
+  const curves = symbolTable.curves || {};
   const keys = Object.keys(curves).filter((k) =>
     k.toLowerCase().includes(search.toLowerCase()),
   );
 
   const activeKey = selected.store === 'curves' ? selected.key : keys[0] || '';
-  const activeCurve = curves[activeKey];
+  const activeCurve = curves.get(activeKey);
 
   const handleAdd = () => {
     let baseName = 'newCurve';
     let count = 1;
-    while (curves[`${baseName}${count}`]) count++;
+    while (curves.has(`${baseName}${count}`)) count++;
     const newKey = `${baseName}${count}`;
 
-    setNamedValues({
-      ...namedValues,
+    setSymbolTable({
+      ...symbolTable,
       curves: {
         ...curves,
         [newKey]: {
@@ -60,21 +60,21 @@ export function CurvesEditor(): ReactElement {
   };
 
   const handleRename = (oldKey: string, newKey: string) => {
-    if (!newKey || oldKey === newKey || curves[newKey]) return;
-    const oldCurve = curves[oldKey];
+    if (!newKey || oldKey === newKey || curves.has(newKey)) return;
+    const oldCurve = curves.get(oldKey);
     if (!oldCurve) return;
-    const newDict = { ...curves };
-    newDict[newKey] = oldCurve;
-    delete newDict[oldKey];
+    const newDict = new Map(curves);
+    newDict.set(newKey, oldCurve);
+    newDict.delete(oldKey);
 
-    setNamedValues({ ...namedValues, curves: newDict });
+    setSymbolTable({ ...symbolTable, curves: newDict });
     setSelected({ store: 'curves', key: newKey });
   };
 
   const handleDelete = (keyToDelete: string) => {
-    const newDict = { ...curves };
-    delete newDict[keyToDelete];
-    setNamedValues({ ...namedValues, curves: newDict });
+    const newDict = new Map(curves);
+    newDict.delete(keyToDelete);
+    setSymbolTable({ ...symbolTable, curves: newDict });
 
     const remaining = Object.keys(newDict);
     setSelected({ store: 'curves', key: remaining[0] || '' });
@@ -106,7 +106,7 @@ export function CurvesEditor(): ReactElement {
                 key={k}
                 onClick={() => setSelected({ store: 'curves', key: k })}>
                 <span>{k}</span>
-                <CurveRefPointCount curveref={curves[k]} />
+                <CurveRefPointCount curveref={curves.get(k)} />
               </div>
             ))
           )}
@@ -126,8 +126,8 @@ export function CurvesEditor(): ReactElement {
               label="Curve Definition"
               curve={activeCurve}
               onChange={(updatedCurve: CurveRef) => {
-                setNamedValues({
-                  ...namedValues,
+                setSymbolTable({
+                  ...symbolTable,
                   curves: { ...curves, [activeKey]: updatedCurve },
                 });
               }}

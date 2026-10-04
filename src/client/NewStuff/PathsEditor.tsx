@@ -1,5 +1,5 @@
 import { ReactElement } from 'react';
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtom } from 'jotai';
 
 import {
   Button,
@@ -18,39 +18,40 @@ import { Group, Panel, Separator } from 'react-resizable-panels';
 import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
 import { CurveRefControl } from './CurveRefs';
-import { chkRef } from './dto_schema';
 import { InterpRefControl } from './InterpRefs';
 import { useToast } from './NotificationToast';
-import { namedValuesAtom, searchFilterAtom, selectedKeyAtom } from './state';
+import {
+  searchFilterAtom,
+  selectedKeyAtom,
+  symbolTableAtom,
+  symbolTablePathsAtom,
+} from './state';
 
 // Paths Store Editor
 export function PathsEditor(): ReactElement {
-  const [namedValues, setNamedValues] = useAtom(namedValuesAtom);
+  const [symbolTable, setSymbolTable] = useAtom(symbolTableAtom);
+  const [paths, setPaths] = useAtom(symbolTablePathsAtom);
   const [selected, setSelected] = useAtom(selectedKeyAtom);
   const [search, setSearch] = useAtom(searchFilterAtom);
   const setToast = useToast();
 
-  const paths = namedValues.paths || {};
-  const keys = Object.keys(paths).filter((k) =>
-    k.toLowerCase().includes(search.toLowerCase()),
+  const searchLower = search.toLowerCase();
+  const keys = Array.from(paths.keys()).filter((k) =>
+    k.toLowerCase().includes(searchLower),
   );
 
   const activeKey = selected.store === 'paths' ? selected.key : keys[0] || '';
-  const activePath = paths[activeKey];
+  const activePath = paths.get(activeKey);
 
   const handleAdd = () => {
     let baseName = 'newPath';
     let count = 1;
-    while (paths[`${baseName}${count}`]) count++;
+    while (paths.has(`${baseName}${count}`)) count++;
     const newKey = `${baseName}${count}`;
-
-    setNamedValues({
-      ...namedValues,
-      paths: {
-        ...paths,
-        [newKey]: {
-          curves: [],
-        },
+    setPaths({
+      ...paths,
+      [newKey]: {
+        curves: [],
       },
     });
     setSelected({ store: 'paths', key: newKey });
@@ -58,23 +59,23 @@ export function PathsEditor(): ReactElement {
   };
 
   const handleRename = (oldKey: string, newKey: string) => {
-    if (!newKey || oldKey === newKey || paths[newKey]) return;
-    const oldPath = paths[oldKey];
+    if (!newKey || oldKey === newKey || paths.has(newKey)) return;
+    const oldPath = paths.get(oldKey);
     if (!oldPath) return;
-    const newDict = { ...paths };
-    newDict[newKey] = oldPath;
-    delete newDict[oldKey];
+    const newDict = new Map(paths);
+    newDict.set(newKey, oldPath);
+    newDict.delete(oldKey);
 
-    setNamedValues({ ...namedValues, paths: newDict });
+    setSymbolTable({ ...symbolTable, paths: newDict });
     setSelected({ store: 'paths', key: newKey });
   };
 
   const handleDelete = (keyToDelete: string) => {
-    const newDict = { ...paths };
-    delete newDict[keyToDelete];
-    setNamedValues({ ...namedValues, paths: newDict });
+    const newDict = new Map(paths);
+    newDict.delete(keyToDelete);
+    setPaths(newDict);
 
-    const remaining = Object.keys(newDict);
+    const remaining = Array.from(newDict.keys());
     setSelected({ store: 'paths', key: remaining[0] || '' });
     setToast(`Deleted path "${keyToDelete}"`);
   };
@@ -106,11 +107,7 @@ export function PathsEditor(): ReactElement {
                 key={k}
                 onClick={() => setSelected({ store: 'paths', key: k })}>
                 <span>{k}</span>
-                <Text>
-                  {chkRef(paths[k])
-                    ? paths[k].ref
-                    : `${paths[k]?.curves.length} curves`}
-                </Text>
+                <Text>{`${paths.get(k)?.curves.length} curves`}</Text>
               </div>
             ))
           )}
@@ -149,8 +146,8 @@ export function PathsEditor(): ReactElement {
                         },
                       ],
                     };
-                    setNamedValues({
-                      ...namedValues,
+                    setSymbolTable({
+                      ...symbolTable,
                       paths: { ...paths, [activeKey]: updatedPath },
                     });
                   }}>
@@ -167,8 +164,8 @@ export function PathsEditor(): ReactElement {
                           const newCurves = activePath.curves.filter(
                             (_, i) => i !== cIdx,
                           );
-                          setNamedValues({
-                            ...namedValues,
+                          setSymbolTable({
+                            ...symbolTable,
                             paths: {
                               ...paths,
                               [activeKey]: { ...activePath, curves: newCurves },
@@ -184,8 +181,8 @@ export function PathsEditor(): ReactElement {
                       onChange={(newCRef) => {
                         const newCurves = [...activePath.curves];
                         newCurves[cIdx] = newCRef;
-                        setNamedValues({
-                          ...namedValues,
+                        setSymbolTable({
+                          ...symbolTable,
                           paths: {
                             ...paths,
                             [activeKey]: { ...activePath, curves: newCurves },
@@ -203,8 +200,8 @@ export function PathsEditor(): ReactElement {
                       activePath.globalInterpolator || { reversed: false }
                     }
                     onChange={(globalInterpolator) => {
-                      setNamedValues({
-                        ...namedValues,
+                      setSymbolTable({
+                        ...symbolTable,
                         paths: {
                           ...paths,
                           [activeKey]: { ...activePath, globalInterpolator },

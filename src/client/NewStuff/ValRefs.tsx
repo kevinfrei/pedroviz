@@ -2,7 +2,6 @@ import { Fragment, ReactElement } from 'react';
 import { useAtomValue } from 'jotai';
 
 import {
-  makeStyles,
   Radio,
   RadioGroup,
   Select,
@@ -22,15 +21,7 @@ import {
   ValRef,
 } from './dto_schema';
 import { resolveValRef } from './Resolvers';
-import { symbolTableAtom } from './state';
-
-const useStyles = makeStyles({
-  label: {
-    display: 'inlineBlock',
-    marginTop: '-1.3em',
-    padding: '0 6px',
-  },
-});
+import { symbolTableAtom, symbolTableValuesAtom } from './state';
 
 // Filter out value names that would result in errors
 function filterValues(
@@ -65,10 +56,9 @@ export function ValRefControl({
   onChange,
 }: ValRefControlProps): ReactElement {
   const symbolTable = useAtomValue(symbolTableAtom);
-  const valueKeys = [...symbolTable.values.keys()];
+  const valueKeys = [...useAtomValue(symbolTableValuesAtom).keys()];
   const isRef = chkRef(value);
   const resolved = resolveValRef(value, symbolTable);
-  const theStyle = useStyles();
   const setToRef = (toRef: boolean) => {
     if (toRef) {
       const firstKey = filterValues(valueKeys, symbolTable, ref)[0] || '';

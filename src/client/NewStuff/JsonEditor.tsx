@@ -1,19 +1,4 @@
-import {
-  ReactElement,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import { useAtom, useAtomValue } from 'jotai';
-
-import {
-  EMPTY_WORKSPACE_PRESET,
-  namedValuesAtom,
-  SAMPLE_AUTONOMOUS_PRESET,
-  symbolTableAtom,
-} from './state';
+import { ReactElement } from 'react';
 
 export function JsonEditor(): ReactElement {
   return <>NYI, sorry</>;
