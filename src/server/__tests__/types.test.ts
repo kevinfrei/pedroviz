@@ -10,7 +10,6 @@ import {
   isPointInterp,
   isRadiansRef,
   isRef,
-  isReversedInterp,
   isTangentInterp,
   isValueRef,
 } from '../../CodeTypeCheck';
@@ -104,16 +103,10 @@ test('Parsed file types validation', () => {
   // expect(isAnonymousInterp(tangHead)).toBeTrue();
   // expect(isAnonymousInterp(constHead)).toBeTrue();
   // expect(isAnonymousInterp(linHead)).toBeTrue();
-  const revHead = {
-    type: InterpolationType.Reversed,
-    interp: pointHead,
-  };
-  expect(isReversedInterp(revHead)).toBeTrue();
-  expect(isReversedInterp(pointHead)).toBeFalse();
   const pieceHead: InterpPiecewise = {
     type: InterpolationType.Piecewise,
     pieces: [
-      { timing: { start: { int: 0 }, end: { double: 0.5 } }, heading: revHead },
+      { timing: { start: { int: 0 }, end: { double: 0.5 } }, heading: linHead },
       {
         timing: { start: { double: 0.5 }, end: { int: 1 } },
         heading: pointHead,

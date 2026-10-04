@@ -15,6 +15,7 @@ export type ConcreteHeadingType =
 
 export type ConcreteTangentHeading = {
   type: typeof ConcreteHeadingType.Tangent;
+  reversed: boolean;
 };
 export type ConcreteConstantHeading = {
   type: typeof ConcreteHeadingType.Constant;
@@ -22,15 +23,12 @@ export type ConcreteConstantHeading = {
 };
 export type ConcreteLinearHeading = {
   type: typeof ConcreteHeadingType.Linear;
+  long: boolean;
   headings: [number, number];
 };
 export type ConcretePointHeading = {
   type: typeof ConcreteHeadingType.Point;
   heading: Point;
-};
-export type ConcreteReversedHeading = {
-  type: typeof ConcreteHeadingType.Reverse;
-  heading: ConcreteReversibleHeading;
 };
 export type ConcretePiece = {
   start: number;
@@ -41,11 +39,9 @@ export type ConcretePiecewiseHeading = {
   type: typeof ConcreteHeadingType.Piecewise;
   pieces: ConcretePiece[];
 };
-export type ConcreteReversibleHeading =
+export type ConcreteSimpleHeading =
   | ConcreteTangentHeading
   | ConcreteConstantHeading
   | ConcreteLinearHeading
   | ConcretePointHeading;
-export type ConcreteSimpleHeading =
-  ConcreteReversibleHeading | ConcreteReversedHeading;
 export type ConcreteHeading = ConcreteSimpleHeading | ConcretePiecewiseHeading;

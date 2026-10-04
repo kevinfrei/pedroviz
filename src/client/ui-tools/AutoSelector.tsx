@@ -3,12 +3,12 @@
 import { ReactElement } from 'react';
 
 import {
-  Button,
   Menu,
   MenuItem,
   MenuList,
   MenuPopover,
   MenuTrigger,
+  ToolbarButton,
 } from '@fluentui/react-components';
 import { ChevronDown16Regular } from '@fluentui/react-icons';
 
@@ -30,13 +30,13 @@ export function AutoSelector({
   let selectedItem = selected.length === 0 ? prompt : selected;
 
   const trigger = (
-    <Button
+    <ToolbarButton
       disabled={items.length === 0}
       id={id}
-      appearance={items.length === 1 ? 'subtle' : 'secondary'}>
+      appearance={items.length === 1 ? 'subtle' : 'primary'}>
       {selectedItem}
       <ChevronDown16Regular style={{ marginLeft: 10 }} />
-    </Button>
+    </ToolbarButton>
   );
 
   return items.length === 1 ? (

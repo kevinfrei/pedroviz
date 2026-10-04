@@ -12,8 +12,6 @@ import {
   isPointInterp,
   isRadiansRef,
   isRef,
-  isReversedInterp,
-  isReversibleInterp,
   isTangentInterp,
   isValueName,
 } from '../CodeTypeCheck';
@@ -27,8 +25,6 @@ import {
   InterpPiece,
   InterpPiecewise,
   InterpPoint,
-  InterpReversed,
-  InterpReversible,
   InterpSimple,
   ParsedClass,
   PoseName,
@@ -44,8 +40,6 @@ import {
   ConcretePiece,
   ConcretePiecewiseHeading,
   ConcretePointHeading,
-  ConcreteReversedHeading,
-  ConcreteReversibleHeading,
   ConcreteSimpleHeading,
   ConcreteTangentHeading,
   Point,
@@ -233,11 +227,7 @@ export function calcInterp(
   heading: AnonymousInterp,
   ctx: ParsedClass,
 ): ConcreteHeading {
-  if (isReversibleInterp(heading)) {
-    return mkReversible(heading, ctx);
-  } else if (isReversedInterp(heading)) {
-    return mkReversed(heading, ctx);
-  } else if (isPiecewiseInterp(heading)) {
+  if (isPiecewiseInterp(heading)) {
     return mkPiecewise(heading, ctx);
   }
   return mkTangent();
@@ -249,8 +239,8 @@ function cerr(nm: string, set: Set<string>): Error {
   );
 }
 
-function mkTangent(): ConcreteTangentHeading {
-  return { type: 'T' };
+function mkTangent(reversed: boolean = false): ConcreteTangentHeading {
+  return { type: 'T', reversed };
 }
 
 function mkConstant(
@@ -262,10 +252,12 @@ function mkConstant(
 
 function mkLinear(
   heading: InterpLinear,
+  longway: boolean,
   ctx: ParsedClass,
 ): ConcreteLinearHeading {
   return {
     type: 'I',
+    long: longway,
     headings: [
       calcHeadingRef(heading.start, ctx),
       calcHeadingRef(heading.end, ctx),
@@ -277,39 +269,20 @@ function mkPoint(heading: InterpPoint, ctx: ParsedClass): ConcretePointHeading {
   return { type: 'P', heading: calcPoseRef(heading.point, ctx) };
 }
 
-function mkReversible(
-  heading: InterpReversible,
+function mkSimple(
+  heading: InterpSimple,
   ctx: ParsedClass,
-): ConcreteReversibleHeading {
+): ConcreteSimpleHeading {
   if (isTangentInterp(heading)) {
     return mkTangent();
   } else if (isConstantInterp(heading)) {
     return mkConstant(heading, ctx);
   } else if (isLinearInterp(heading)) {
-    return mkLinear(heading, ctx);
+    return mkLinear(heading, false, ctx);
   } else if (isPointInterp(heading)) {
     return mkPoint(heading, ctx);
   }
   throw new Error(`Unknown simple interp type`);
-}
-
-function mkReversed(
-  heading: InterpReversed,
-  ctx: ParsedClass,
-): ConcreteReversedHeading {
-  const revheading = mkReversible(heading.interp, ctx);
-  return { type: 'R', heading: revheading };
-}
-
-function mkSimple(
-  heading: InterpSimple,
-  ctx: ParsedClass,
-): ConcreteSimpleHeading {
-  if (isReversedInterp(heading)) {
-    return mkReversed(heading, ctx);
-  } else {
-    return mkReversible(heading, ctx);
-  }
 }
 
 function mkPiece(piece: InterpPiece, ctx: ParsedClass): ConcretePiece {

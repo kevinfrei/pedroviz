@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { ReactElement, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 
@@ -85,7 +87,7 @@ export function PosesEditor(): ReactElement {
         <Input
           contentBefore={<SearchRegular />}
           type="text"
-          placeholder="Filter poses by name"
+          placeholder="Search Poses"
           value={search}
           onChange={(_, d) => setSearch(d.value)}
         />

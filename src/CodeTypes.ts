@@ -35,7 +35,6 @@ export type BezierRef = AnonymousBezier | BezierName;
 export type InterpTiming = { start: ValueRef; end: ValueRef };
 
 export const InterpolationType = Object.freeze({
-  Reversed: 'reversed',
   Tangent: 'tangent',
   Constant: 'constant',
   Linear: 'linear',
@@ -44,10 +43,6 @@ export const InterpolationType = Object.freeze({
 } as const);
 export type InterpolationType =
   (typeof InterpolationType)[keyof typeof InterpolationType];
-export type InterpReversed = {
-  type: typeof InterpolationType.Reversed;
-  interp: InterpReversible;
-};
 export type InterpTangent = { type: typeof InterpolationType.Tangent };
 export type InterpConstant = {
   type: typeof InterpolationType.Constant;
@@ -62,21 +57,15 @@ export type InterpLinear = {
   start: HeadingRef;
   end: HeadingRef;
 };
-export type InterpReversible =
+export type InterpSimple =
   InterpTangent | InterpConstant | InterpLinear | InterpPoint;
-export type InterpSimple = InterpReversible | InterpReversed;
 export type InterpPiece = { timing: InterpTiming; heading: InterpSimple };
 export type InterpPiecewise = {
   type: typeof InterpolationType.Piecewise;
   pieces: InterpPiece[];
 };
 export type AnonymousInterp =
-  | InterpTangent
-  | InterpConstant
-  | InterpLinear
-  | InterpPoint
-  | InterpPiecewise
-  | InterpReversed;
+  InterpTangent | InterpConstant | InterpLinear | InterpPoint | InterpPiecewise;
 
 // No such thing as an anonymous PathChain
 export type PathChainName = Nominal<string, 'PathChain'>;

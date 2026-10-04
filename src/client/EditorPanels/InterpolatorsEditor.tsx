@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { ReactElement, useState } from 'react';
 import { useAtom } from 'jotai';
 
@@ -84,7 +86,7 @@ export function InterpolatorsEditor(): ReactElement {
         <Input
           contentBefore={<SearchRegular />}
           type="text"
-          placeholder="Filter interpolators by name"
+          placeholder="Search Interpolators"
           value={search}
           onChange={(_, d) => setSearch(d.value)}
         />

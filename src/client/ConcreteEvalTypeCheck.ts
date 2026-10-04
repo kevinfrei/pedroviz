@@ -5,6 +5,7 @@ import {
   chkArrayOf,
   chkObjectOfExactType,
   chkTupleOf,
+  isBoolean,
   isNumber,
   typecheck,
 } from '@freik/typechk';
@@ -15,8 +16,6 @@ import {
   ConcreteLinearHeading,
   ConcretePiecewiseHeading,
   ConcretePointHeading,
-  ConcreteReversedHeading,
-  ConcreteReversibleHeading,
   ConcreteSimpleHeading,
   ConcreteTangentHeading,
 } from './ConcreteEvalTypes';
@@ -26,6 +25,7 @@ const chkPoint = chkObjectOfExactType({ x: isNumber, y: isNumber });
 const chkConcreteTangentHeading = chkObjectOfExactType<ConcreteTangentHeading>({
   type: (t: unknown): t is typeof ConcreteHeadingType.Tangent =>
     t === ConcreteHeadingType.Tangent,
+  reversed: isBoolean,
 });
 
 const chkConcreteConstantHeading =
@@ -35,11 +35,12 @@ const chkConcreteConstantHeading =
     heading: isNumber,
   });
 
-export const chkConcreteLinearHeading =
+/*export*/ const chkConcreteLinearHeading =
   chkObjectOfExactType<ConcreteLinearHeading>({
     type: (t: unknown): t is typeof ConcreteHeadingType.Linear =>
       t === ConcreteHeadingType.Linear,
     headings: chkTupleOf(isNumber, isNumber),
+    long: isBoolean,
   });
 
 const chkConcretePointHeading = chkObjectOfExactType<ConcretePointHeading>({
@@ -48,23 +49,13 @@ const chkConcretePointHeading = chkObjectOfExactType<ConcretePointHeading>({
   heading: chkPoint,
 });
 
-const chkConcreteReversibleHeading: typecheck<ConcreteReversibleHeading> =
+export const chkConcreteSimpleHeading: typecheck<ConcreteSimpleHeading> =
   chkAnyOf(
     chkConcreteTangentHeading,
     chkConcreteConstantHeading,
     chkConcreteLinearHeading,
     chkConcretePointHeading,
   );
-
-const chkConcreteReversedHeading =
-  chkObjectOfExactType<ConcreteReversedHeading>({
-    type: (t: unknown): t is typeof ConcreteHeadingType.Reverse =>
-      t === ConcreteHeadingType.Reverse,
-    heading: chkConcreteReversibleHeading,
-  });
-
-export const chkConcreteSimpleHeading: typecheck<ConcreteSimpleHeading> =
-  chkAnyOf(chkConcreteReversibleHeading, chkConcreteReversedHeading);
 
 const chkConcretePiece = chkObjectOfExactType({
   start: isNumber,

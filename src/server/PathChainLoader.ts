@@ -51,7 +51,6 @@ import {
   InterpLinear,
   InterpolationType,
   InterpPiece,
-  InterpReversible,
   InterpSimple,
   NamedBezier,
   NamedPathChain,
@@ -797,9 +796,7 @@ function getHeadingInterpolation(
         start,
         end,
       };
-      return methodRef.indexOf('v') < 0
-        ? linear
-        : { type: InterpolationType.Reversed, interp: linear };
+      return linear;
     // TODO: These only make sense once I handle chaining.
     case 'HeadingInterpolator.reverse':
       console.error('NYI: HeadingInterpolator.reverse');
@@ -924,16 +921,6 @@ function getPathChain(node: BlockStatementCstNode): NamedPathChain | undefined {
           pathInterpolation = {
             type: InterpolationType.Constant,
             heading: headingRef,
-          };
-          continue;
-        case 'setReversed':
-          if (pathInterpolation === null) {
-            return;
-          }
-          // TODO: Don't cast. Error!
-          pathInterpolation = {
-            type: InterpolationType.Reversed,
-            interp: pathInterpolation as InterpReversible,
           };
           continue;
 

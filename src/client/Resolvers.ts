@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { hasField, isDefined, isError, MakeError } from '@freik/typechk';
 
 import {
@@ -74,7 +76,7 @@ export function resolvePoseRef(
   }
 }
 
-export function resolveInterpRef(
+/*export*/ function resolveInterpRef(
   interpRef: InterpRef,
   dict: SymbolTable,
   seen = new Set<string>(),
@@ -117,7 +119,7 @@ export function resolveInterpRef(
   return MakeError(`Unknown interpolator type ${interpRef}`);
 }
 
-export function resolveCurveRef(
+/*export*/ function resolveCurveRef(
   curveRef: CurveRef,
   dict: SymbolTable,
   seen = new Set<string>(),
@@ -138,7 +140,7 @@ export function resolveCurveRef(
   };
 }
 
-export function resolvePath(path: Path, dict: SymbolTable) {
+/*export*/ function resolvePath(path: Path, dict: SymbolTable) {
   const curves = path.curves.map((curveRef) => resolveCurveRef(curveRef, dict));
   if (hasField(path, 'globalInterpolator')) {
     return {

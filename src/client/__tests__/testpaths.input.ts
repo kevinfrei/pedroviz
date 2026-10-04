@@ -18,8 +18,6 @@ import {
   InterpPiece,
   InterpPiecewise,
   InterpPoint,
-  InterpReversed,
-  InterpReversible,
   InterpSimple,
   InterpTangent,
   NamedBezier,
@@ -169,10 +167,6 @@ function mkInterpLinear(
 
 function mkInterpPoint(point: PoseRef | string): InterpPoint {
   return { type: InterpolationType.Point, point: point as PoseRef };
-}
-
-function mkInterpReversed(interp: InterpReversible): InterpReversed {
-  return { type: InterpolationType.Reversed, interp };
 }
 
 function mkInterpPiece(
@@ -326,7 +320,7 @@ export const TestPathsParsed: ParsedClass = {
           0.8,
         ),
         mkInterpPiece(
-          mkInterpReversed(mkInterpLinear('Math.PI', { radians: { int: 90 } })),
+          mkInterpLinear('Math.PI', { radians: { int: 90 } }),
           0.8,
           1.0,
         ),

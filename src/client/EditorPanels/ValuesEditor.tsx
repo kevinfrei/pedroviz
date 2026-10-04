@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { ReactElement, useState } from 'react';
 import { useAtom } from 'jotai';
 
@@ -71,7 +73,7 @@ export function ValuesEditor(): ReactElement {
           type="text"
           contentBefore={<SearchRegular />}
           value={search}
-          placeholder="Filter Values by name"
+          placeholder="Search Values"
           onChange={(_, d) => setSearch(d.value)}
         />
 

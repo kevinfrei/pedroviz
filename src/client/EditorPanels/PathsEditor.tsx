@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { ReactElement, useState } from 'react';
 import { useAtom } from 'jotai';
 
@@ -88,7 +90,7 @@ export function PathsEditor(): ReactElement {
         <Input
           contentBefore={<SearchRegular />}
           type="text"
-          placeholder="Filter paths by name"
+          placeholder="Search Paths"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />

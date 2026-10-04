@@ -1,5 +1,7 @@
-import React, { ReactElement } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+import { ReactElement } from 'react';
+import { useAtomValue } from 'jotai';
 
 import { Button, Checkbox, Select } from '@fluentui/react-components';
 import { AddRegular, DeleteRegular } from '@fluentui/react-icons';

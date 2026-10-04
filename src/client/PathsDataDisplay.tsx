@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { Fragment, ReactElement, Suspense, useState } from 'react';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { Fragment, ReactElement, Suspense } from 'react';
+import { useAtom, useAtomValue } from 'jotai';
 
 import {
   InfoLabel,

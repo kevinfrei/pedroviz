@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import {
-  chkConcreteLinearHeading,
-  chkConcreteSimpleHeading,
-} from './ConcreteEvalTypeCheck';
+import { chkConcreteSimpleHeading } from './ConcreteEvalTypeCheck';
 import {
   ConcreteHeading,
   ConcreteHeadingType,
@@ -146,18 +143,6 @@ function getAngle(pt: Point): number {
       );
     case ConcreteHeadingType.Point:
       return getAngle(ptDiff(cur, heading.heading));
-    case ConcreteHeadingType.Reverse:
-      // Get the target point, then flip it the other direction, unless it's linear.
-      // For Linear, it travels the opposite direction of the normal linear heading.
-      const lin = chkConcreteLinearHeading(heading.heading);
-      const toReverse = calcSimpleHeading(
-        heading.heading,
-        prev,
-        cur,
-        nxt,
-        lin ? -percent : percent,
-      );
-      return lin ? toReverse : normalizeRadian(toReverse + Math.PI);
   }
 }
 

@@ -1,10 +1,11 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { ReactElement } from 'react';
 
-import { Button, Field, Input } from '@fluentui/react-components';
+import { Button, Input } from '@fluentui/react-components';
 import { DeleteRegular } from '@fluentui/react-icons';
 
 import { TitleWrapper } from './TitleWrapper';
-import { useWrappedRegionStyle } from './WrappedRegionStyle';
 
 export function NameChangeDelete({
   title,

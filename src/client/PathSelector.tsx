@@ -1,17 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { ReactElement, Suspense, useEffect } from 'react';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { ReactElement, useEffect } from 'react';
+import { useAtom, useAtomValue } from 'jotai';
 
-import { Button, Label, Text } from '@fluentui/react-components';
-import { SpinSuspense } from 'node_modules/@freik/fluent9-tools/lib';
+import { Label } from '@fluentui/react-components';
 
 import { Path } from '../IpcTypes';
 import { Strings } from './constants';
 import {
-  BlurAtom,
   ClassesForSelectedPathAtom,
-  FullDatabaseAtom,
   PathsForSelectedTeamAtom,
   SelectedClassAtom,
   SelectedPathAtom,

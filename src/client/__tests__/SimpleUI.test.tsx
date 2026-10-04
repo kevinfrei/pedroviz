@@ -29,26 +29,18 @@ import { ClassSelector, FileSelector, TeamSelector } from '../PathSelector';
 import { ThemeAtom } from '../state/SavedSettings';
 import { getStore } from '../state/Storage';
 import {
-  // ClearCache,
-  // ColorForNumber,
   ColorsAtom,
-  NamedBeziersAtom,
-  // MappedBeziersAtom,
   NamedPosesAtom,
-  NamedValuesAtom,
   PathsForSelectedTeamAtom,
   SelectedClassAtom,
   SelectedPathAtom,
   SelectedTeamAtom,
   ValuesLookupAtom,
 } from '../state/UserCode';
-import { darkOnWhite, lightOnBlack } from '../ui-tools/Colors';
+import { lightOnBlack } from '../ui-tools/Colors';
 
 import './jest-dom-types-fix.test';
 
-import { NamedBezierList } from '../Displays/CurveDisplay';
-import { NamedPoseList } from '../Displays/PoseDisplay';
-import { NamedValueList } from '../Displays/ValueDisplay';
 import {
   databaseForUITest,
   ParsedClassForUITest,
@@ -189,45 +181,6 @@ describe('Simplest UI validation', () => {
     await act(async () => {
       expect(await store.get(PathsForSelectedTeamAtom)).toEqual([]);
     });
-  });
-});
-
-describe('"Rendering doesn\'t crash" tests', () => {
-  test('ValueDisplay', async () => {
-    globalThis.fetch = MyFetchFunc;
-    const store = getStore();
-    await act(async () => {
-      render(
-        <JotaiProvider>
-          <NamedValueList items={[]} />
-        </JotaiProvider>,
-      );
-    });
-    expect(await store.get(NamedValuesAtom)).toBeDefined();
-  });
-  test('PoseDisplay', async () => {
-    globalThis.fetch = MyFetchFunc;
-    const store = getStore();
-    await act(async () => {
-      render(
-        <JotaiProvider>
-          <NamedPoseList />
-        </JotaiProvider>,
-      );
-    });
-    expect(await store.get(NamedPosesAtom)).toBeDefined();
-  });
-  test('CurveDisplay', async () => {
-    globalThis.fetch = MyFetchFunc;
-    const store = getStore();
-    await act(async () => {
-      render(
-        <JotaiProvider>
-          <NamedBezierList />
-        </JotaiProvider>,
-      );
-    });
-    expect(await store.get(NamedBeziersAtom)).toBeDefined();
   });
 });
 

@@ -290,12 +290,6 @@ export function ValidateIndex(
         break;
       case InterpolationType.Tangent:
         break; // Nothing to see here...
-      case InterpolationType.Reversed:
-        res = validateInterp(
-          heading.interp,
-          `${id}'s reversed heading interpolator`,
-        );
-        break;
       case InterpolationType.Point:
         res = checkPoseRef(heading.point, `${id}'s point heading interpolator`);
         break;

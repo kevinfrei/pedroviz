@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { makeStyles, shorthands, tokens } from '@fluentui/react-components';
 
 export const useWrappedRegionStyle = makeStyles({

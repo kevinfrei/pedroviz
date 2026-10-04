@@ -28,8 +28,7 @@ import {
   InterpPiece,
   InterpPiecewise,
   InterpPoint,
-  InterpReversed,
-  InterpReversible,
+  InterpSimple,
   InterpTangent,
   InterpTiming,
   IntValue,
@@ -144,11 +143,6 @@ function isPointInterpType(
 ): type is typeof InterpolationType.Point {
   return type === InterpolationType.Point;
 }
-function isReversedInterpType(
-  type: unknown,
-): type is typeof InterpolationType.Reversed {
-  return type === InterpolationType.Reversed;
-}
 function isPiecewiseInterpType(
   type: unknown,
 ): type is typeof InterpolationType.Piecewise {
@@ -171,7 +165,7 @@ export const isPointInterp = chkObjectOfExactType<InterpPoint>({
   type: isPointInterpType,
   point: isPoseRef,
 });
-export const isReversibleInterp: typecheck<InterpReversible> = chkAnyOf(
+/*export*/ const isSimpleInterp: typecheck<InterpSimple> = chkAnyOf(
   isTangentInterp,
   isConstantInterp,
   isLinearInterp,
@@ -181,15 +175,6 @@ export const isReversibleInterp: typecheck<InterpReversible> = chkAnyOf(
   start: isValueRef,
   end: isValueRef,
 });
-export const isReversedInterp: typecheck<InterpReversed> =
-  chkObjectOfExactType<InterpReversed>({
-    type: isReversedInterpType,
-    interp: isReversibleInterp,
-  });
-/*export*/ const isSimpleInterp = chkAnyOf(
-  isReversibleInterp,
-  isReversedInterp,
-);
 /*export*/ const isPiecewiseEntry: typecheck<InterpPiece> =
   chkObjectOfExactType<InterpPiece>({
     timing: isInterpTiming,
@@ -208,7 +193,6 @@ export const isPiecewiseInterp = chkObjectOfExactType<InterpPiecewise>({
     isLinearInterp,
     isPointInterp,
     isPiecewiseInterp,
-    isReversedInterp,
   )(obj);
 };
 

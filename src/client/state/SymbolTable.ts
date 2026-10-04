@@ -1,9 +1,11 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { atom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 import { atomWithStorage } from 'jotai/utils';
 
+import { SAMPLE_AUTONOMOUS_PRESET } from '../constants';
 import { SymbolTable } from '../dto_schema';
-import { SAMPLE_AUTONOMOUS_PRESET } from './SymbolTableData';
 
 type FieldOptions = 'values' | 'poses' | 'interpolations' | 'curves' | 'paths';
 type SelectedKey = { store: FieldOptions; key: string };

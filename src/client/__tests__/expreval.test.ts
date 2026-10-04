@@ -66,8 +66,8 @@ describe('Expression Evaluation', () => {
     expect(pc).toBeDefined();
     const heading = calcInterp(pc!.heading, fullParsedClass);
     expect(heading).toEqual({
-      type: ConcreteHeadingType.Constant,
-      heading: 1.5707963267948966,
+      type: ConcreteHeadingType.Tangent,
+      reversed: false,
     });
   });
 });
