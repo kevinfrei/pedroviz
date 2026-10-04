@@ -30,8 +30,7 @@ export function PoseRefControl({
   onChange,
 }: PoseRefControlProps): ReactElement {
   const symbolTable = useAtomValue(symbolTableAtom);
-  const poseKeys = [...symbolTable.poses.keys()];
-  const valueKeys = [...symbolTable.values.keys()];
+  const poseKeys = Array.from(symbolTable.poses.keys());
   const isRef = chkRef(pose);
   const resolved = resolvePoseRef(pose, symbolTable);
 

@@ -1,5 +1,5 @@
 import { ReactElement } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue } from 'jotai';
 
 import {
   Button,
@@ -30,7 +30,7 @@ export function CurveRefControl({
   onChange,
 }: CurveRefControlProps): ReactElement {
   const symbolTable = useAtomValue(symbolTableAtom);
-  const curveKeys = Object.keys(symbolTable.curves || {});
+  const curveKeys = Array.from(symbolTable.curves.keys());
   const isRef = chkRef(curve);
 
   const setToRef = (toRef: boolean) => {

@@ -11,7 +11,7 @@ import { AddRegular, SearchRegular } from '@fluentui/react-icons';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 
 import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
-import { AddToMap, DeleteFromMap, RenameKey } from './dto_schema';
+import { NewMapAdd, NewMapDelete, NewMapRename } from './dto_schema';
 import { useToast } from './NotificationToast';
 import {
   searchFilterAtom,
@@ -26,7 +26,7 @@ export function ValuesEditor(): ReactElement {
   const [selected, setSelected] = useAtom(selectedKeyAtom);
   const [search, setSearch] = useAtom(searchFilterAtom);
   const setToast = useToast();
-  const keys = Object.keys(values).filter((k) =>
+  const keys = Array.from(values.keys()).filter((k) =>
     k.toLowerCase().includes(search.toLowerCase()),
   );
 
@@ -38,13 +38,13 @@ export function ValuesEditor(): ReactElement {
     while (values.has(`newValue${count}`)) count++;
     const newKey = `newValue${count}`;
 
-    setValues(AddToMap(values, newKey, { val: 0.0 }));
+    setValues(NewMapAdd(values, newKey, { val: 0.0 }));
     setSelected({ store: 'values', key: newKey });
     setToast(`Added value "${newKey}"`);
   };
 
   const handleRename = (oldKey: string, newKey: string) => {
-    const newMap = RenameKey(values, oldKey, newKey);
+    const newMap = NewMapRename(values, oldKey, newKey);
     if (newMap) {
       setValues(newMap);
       setSelected({ store: 'values', key: newKey });
@@ -52,7 +52,7 @@ export function ValuesEditor(): ReactElement {
   };
 
   const handleDelete = (keyToDelete: string) => {
-    const newMap = DeleteFromMap(values, keyToDelete);
+    const newMap = NewMapDelete(values, keyToDelete);
     if (newMap) {
       setValues(newMap);
       const remaining = Array.from(newMap.keys());
@@ -65,7 +65,7 @@ export function ValuesEditor(): ReactElement {
     <Group>
       <Panel>
         <Toolbar>
-          <Text>Values ({Object.keys(values).length})</Text>
+          <Text>Values ({values.size})</Text>
           <ToolbarButton onClick={handleAdd} icon={<AddRegular />}>
             Create Value
           </ToolbarButton>
@@ -87,7 +87,7 @@ export function ValuesEditor(): ReactElement {
               <div
                 key={k}
                 onClick={() => setSelected({ store: 'values', key: k })}>
-                <span>{k}</span>
+                <span>{k}</span>&nbsp;
                 <ValRefInline valref={values.get(k)} />
               </div>
             ))
@@ -109,7 +109,7 @@ export function ValuesEditor(): ReactElement {
               value={activeValue}
               ref={activeKey}
               onChange={(newVal) =>
-                setValues(AddToMap(values, activeKey, newVal))
+                setValues(NewMapAdd(values, activeKey, newVal))
               }
             />
           </>

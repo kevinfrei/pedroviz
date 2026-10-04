@@ -11,75 +11,73 @@ import { AddRegular, SearchRegular } from '@fluentui/react-icons';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 
 import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
+import { NewMapAdd, NewMapDelete, NewMapRename } from './dto_schema';
 import { useToast } from './NotificationToast';
 import { PoseRefControl, PoseRefInline } from './PoseRefs';
 import { resolvePoseRef } from './Resolvers';
-import { searchFilterAtom, selectedKeyAtom, symbolTableAtom } from './state';
+import {
+  searchFilterAtom,
+  selectedKeyAtom,
+  symbolTableAtom,
+  symbolTablePosesAtom,
+} from './state';
 
 // Poses Store Editor
 export function PosesEditor(): ReactElement {
-  const [symbolTable, setSymbolTable] = useAtom(symbolTableAtom);
+  const symbolTable = useAtomValue(symbolTableAtom);
+  const [poses, setPoses] = useAtom(symbolTablePosesAtom);
   const [selected, setSelected] = useAtom(selectedKeyAtom);
   const [search, setSearch] = useAtom(searchFilterAtom);
   const setToast = useToast();
 
-  const poses = symbolTable.poses || {};
-  const keys = Object.keys(poses).filter((k) =>
-    k.toLowerCase().includes(search.toLowerCase()),
+  const lsearch = search.toLowerCase();
+  const keys = Array.from(poses.keys()).filter((k) =>
+    k.toLowerCase().includes(lsearch),
   );
 
   const activeKey = selected.store === 'poses' ? selected.key : keys[0] || '';
   const activePose = poses.get(activeKey);
 
   const handleAdd = () => {
-    let baseName = 'newPose';
     let count = 1;
-    while (poses.has(`${baseName}${count}`)) count++;
-    const newKey = `${baseName}${count}`;
-
-    setSymbolTable({
-      ...symbolTable,
-      poses: {
-        ...poses,
-        [newKey]: {
-          X: { val: 0 },
-          Y: { val: 0 },
-          Heading: { val: 0 },
-          inRadians: false,
-        },
-      },
-    });
+    while (poses.has(`newPose${count}`)) count++;
+    const newKey = `newPose${count}`;
+    setPoses(
+      NewMapAdd(poses, newKey, {
+        X: { val: 0 },
+        Y: { val: 0 },
+        Heading: { val: 0 },
+        inRadians: false,
+      }),
+    );
     setSelected({ store: 'poses', key: newKey });
     setToast(`Added pose "${newKey}"`);
   };
 
   const handleRename = (oldKey: string, newKey: string) => {
-    if (!newKey || oldKey === newKey || poses.has(newKey)) return;
-    const oldPose = poses.get(oldKey);
-    if (!oldPose) return;
-    const newDict = new Map(poses);
-    newDict.set(newKey, oldPose);
-    newDict.delete(oldKey);
-
-    setSymbolTable({ ...symbolTable, poses: newDict });
-    setSelected({ store: 'poses', key: newKey });
+    const newMap = NewMapRename(poses, oldKey, newKey);
+    if (newMap) {
+      setPoses(newMap);
+      setSelected({ store: 'poses', key: newKey });
+      setToast(`Renamed pose "${oldKey}" to "${newKey}"`);
+    }
   };
 
   const handleDelete = (keyToDelete: string) => {
-    const newDict = new Map(poses);
-    newDict.delete(keyToDelete);
-    setSymbolTable({ ...symbolTable, poses: newDict });
-
-    const remaining = Array.from(newDict.keys());
-    setSelected({ store: 'poses', key: remaining[0] || '' });
-    setToast(`Deleted pose "${keyToDelete}"`);
+    const newMap = NewMapDelete(poses, keyToDelete);
+    if (newMap) {
+      setPoses(newMap);
+      const remaining = Array.from(newMap.keys());
+      setSelected({ store: 'poses', key: remaining[0] || '' });
+      setToast(`Deleted pose "${keyToDelete}"`);
+    }
   };
 
   return (
     <Group>
       <Panel>
         <Toolbar>
-          <Text>Poses ({Object.keys(poses).length})</Text>
+          <Text>Poses ({poses.size})</Text>
           <ToolbarButton onClick={handleAdd} icon={<AddRegular />}>
             Create Pose
           </ToolbarButton>
@@ -103,8 +101,8 @@ export function PosesEditor(): ReactElement {
                 <div
                   key={k}
                   onClick={() => setSelected({ store: 'poses', key: k })}>
-                  <span>{k}</span>
-                  <PoseRefInline poseref={{ ref: k }} />
+                  <span>{k}</span>&nbsp;
+                  <PoseRefInline poseref={poses.get(k)} />
                 </div>
               );
             })
@@ -125,10 +123,8 @@ export function PosesEditor(): ReactElement {
               label="Pose Coordinates & Heading"
               pose={activePose}
               onChange={(updatedPose) => {
-                setSymbolTable({
-                  ...symbolTable,
-                  poses: { ...poses, [activeKey]: updatedPose },
-                });
+                setPoses(NewMapAdd(poses, activeKey, updatedPose));
+                setToast(`Updated pose "${activeKey}"`);
               }}
             />
           </>

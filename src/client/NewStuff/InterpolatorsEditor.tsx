@@ -11,21 +11,33 @@ import { AddRegular, SearchRegular } from '@fluentui/react-icons';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 
 import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
-import { getInterpType } from './dto_schema';
+import {
+  getInterpType,
+  InterpRef,
+  NewMapAdd,
+  NewMapDelete,
+  NewMapRename,
+} from './dto_schema';
 import { InterpRefControl } from './InterpRefs';
 import { useToast } from './NotificationToast';
-import { searchFilterAtom, selectedKeyAtom, symbolTableAtom } from './state';
+import {
+  searchFilterAtom,
+  selectedKeyAtom,
+  symbolTableInterpolationsAtom,
+} from './state';
 
 // Interpolators Store Editor
 export function InterpolatorsEditor(): ReactElement {
-  const [symbolTable, setSymbolTable] = useAtom(symbolTableAtom);
+  const [interpolations, setInterpolations] = useAtom(
+    symbolTableInterpolationsAtom,
+  );
   const [selected, setSelected] = useAtom(selectedKeyAtom);
   const [search, setSearch] = useAtom(searchFilterAtom);
   const setToast = useToast();
+  const lsearch = search.toLowerCase();
 
-  const interpolations = symbolTable.interpolations || {};
-  const keys = Object.keys(interpolations).filter((k) =>
-    k.toLowerCase().includes(search.toLowerCase()),
+  const keys = Array.from(interpolations.keys()).filter((k) =>
+    k.toLowerCase().includes(lsearch),
   );
 
   const activeKey =
@@ -33,49 +45,38 @@ export function InterpolatorsEditor(): ReactElement {
   const activeInterp = interpolations.get(activeKey);
 
   const handleAdd = () => {
-    let baseName = 'newInterpolator';
     let count = 1;
-    while (interpolations.has(`${baseName}${count}`)) count++;
-    const newKey = `${baseName}${count}`;
+    while (interpolations.has(`newInterpolator${count}`)) count++;
+    const newKey = `newInterpolator${count}`;
 
-    setSymbolTable({
-      ...symbolTable,
-      interpolations: {
-        ...interpolations,
-        [newKey]: { reversed: false }, // TangentInterp default
-      },
-    });
+    setInterpolations(NewMapAdd(interpolations, newKey, { reversed: false }));
     setSelected({ store: 'interpolations', key: newKey });
     setToast(`Added interpolator "${newKey}"`);
   };
 
   const handleRename = (oldKey: string, newKey: string) => {
-    if (!newKey || oldKey === newKey || interpolations.has(newKey)) return;
-    const oldInterp = interpolations.get(oldKey);
-    if (!oldInterp) return;
-    const newDict = new Map(interpolations);
-    newDict.set(newKey, oldInterp);
-    newDict.delete(oldKey);
-
-    setSymbolTable({ ...symbolTable, interpolations: newDict });
-    setSelected({ store: 'interpolations', key: newKey });
+    const newMap = NewMapRename(interpolations, oldKey, newKey);
+    if (newMap) {
+      setInterpolations(newMap);
+      setSelected({ store: 'interpolations', key: newKey });
+    }
   };
 
   const handleDelete = (keyToDelete: string) => {
-    const newDict = new Map(interpolations);
-    newDict.delete(keyToDelete);
-    setSymbolTable({ ...symbolTable, interpolations: newDict });
-
-    const remaining = Object.keys(newDict);
-    setSelected({ store: 'interpolations', key: remaining[0] || '' });
-    setToast(`Deleted interpolator "${keyToDelete}"`);
+    const newMap = NewMapDelete(interpolations, keyToDelete);
+    if (newMap) {
+      setInterpolations(newMap);
+      const remaining = Array.from(newMap.keys());
+      setSelected({ store: 'interpolations', key: remaining[0] || '' });
+      setToast(`Deleted interpolator "${keyToDelete}"`);
+    }
   };
 
   return (
     <Group>
       <Panel>
         <Toolbar>
-          <Text>Interpolators ({Object.keys(interpolations).length})</Text>
+          <Text>Interpolators ({interpolations.size})</Text>
           <ToolbarButton icon={<AddRegular />} onClick={handleAdd}>
             Create Interpolator
           </ToolbarButton>
@@ -99,7 +100,7 @@ export function InterpolatorsEditor(): ReactElement {
                 onClick={() =>
                   setSelected({ store: 'interpolations', key: k })
                 }>
-                <Text>{k}</Text>
+                <Text>{k}</Text>&nbsp;
                 <Text>{getInterpType(interpolations.get(k)!)}</Text>
               </div>
             ))
@@ -119,15 +120,11 @@ export function InterpolatorsEditor(): ReactElement {
             <InterpRefControl
               label="Interpolator Definition"
               interp={activeInterp}
-              onChange={(updatedInterp) => {
-                setSymbolTable({
-                  ...symbolTable,
-                  interpolations: {
-                    ...interpolations,
-                    [activeKey]: updatedInterp,
-                  },
-                });
-              }}
+              onChange={(updatedInterp: InterpRef) =>
+                setInterpolations(
+                  NewMapAdd(interpolations, activeKey, updatedInterp),
+                )
+              }
             />
           </>
         ) : (

@@ -14,30 +14,36 @@ import {
   SearchRegular,
 } from '@fluentui/react-icons';
 import { Group, Panel, Separator } from 'react-resizable-panels';
+import { isDefined } from '@freik/typechk';
 
 import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
 import { CurveRefControl } from './CurveRefs';
+import {
+  InterpRef,
+  NewMapAdd,
+  NewMapDelete,
+  NewMapRename,
+  NewMapUpdate,
+} from './dto_schema';
 import { InterpRefControl } from './InterpRefs';
 import { useToast } from './NotificationToast';
 import {
   searchFilterAtom,
   selectedKeyAtom,
-  symbolTableAtom,
   symbolTablePathsAtom,
 } from './state';
 
 // Paths Store Editor
 export function PathsEditor(): ReactElement {
-  const [symbolTable, setSymbolTable] = useAtom(symbolTableAtom);
   const [paths, setPaths] = useAtom(symbolTablePathsAtom);
   const [selected, setSelected] = useAtom(selectedKeyAtom);
   const [search, setSearch] = useAtom(searchFilterAtom);
   const setToast = useToast();
 
-  const searchLower = search.toLowerCase();
+  const lsearch = search.toLowerCase();
   const keys = Array.from(paths.keys()).filter((k) =>
-    k.toLowerCase().includes(searchLower),
+    k.toLowerCase().includes(lsearch),
   );
 
   const activeKey = selected.store === 'paths' ? selected.key : keys[0] || '';
@@ -48,43 +54,36 @@ export function PathsEditor(): ReactElement {
     let count = 1;
     while (paths.has(`${baseName}${count}`)) count++;
     const newKey = `${baseName}${count}`;
-    setPaths({
-      ...paths,
-      [newKey]: {
-        curves: [],
-      },
-    });
+    setPaths(NewMapAdd(paths, newKey, { curves: [] }));
     setSelected({ store: 'paths', key: newKey });
     setToast(`Added path "${newKey}"`);
   };
 
   const handleRename = (oldKey: string, newKey: string) => {
-    if (!newKey || oldKey === newKey || paths.has(newKey)) return;
-    const oldPath = paths.get(oldKey);
-    if (!oldPath) return;
-    const newDict = new Map(paths);
-    newDict.set(newKey, oldPath);
-    newDict.delete(oldKey);
-
-    setSymbolTable({ ...symbolTable, paths: newDict });
-    setSelected({ store: 'paths', key: newKey });
+    const newMap = NewMapRename(paths, oldKey, newKey);
+    if (newMap) {
+      setPaths(newMap);
+      setSelected({ store: 'paths', key: newKey });
+    }
   };
 
   const handleDelete = (keyToDelete: string) => {
-    const newDict = new Map(paths);
-    newDict.delete(keyToDelete);
-    setPaths(newDict);
-
-    const remaining = Array.from(newDict.keys());
-    setSelected({ store: 'paths', key: remaining[0] || '' });
-    setToast(`Deleted path "${keyToDelete}"`);
+    const newMap = NewMapDelete(paths, keyToDelete);
+    if (newMap) {
+      setPaths(newMap);
+      const remaining = Array.from(newMap.keys());
+      setSelected({ store: 'paths', key: remaining[0] || '' });
+      setToast(`Deleted path "${keyToDelete}"`);
+    } else {
+      setToast(`Failed to delete path "${keyToDelete}"`, 'error');
+    }
   };
 
   return (
     <Group>
       <Panel>
         <Toolbar>
-          <Text>Paths ({Object.keys(paths).length})</Text>
+          <Text>Paths ({paths.size})</Text>
           <ToolbarButton icon={<AddRegular />} onClick={handleAdd}>
             Create Path
           </ToolbarButton>
@@ -106,8 +105,8 @@ export function PathsEditor(): ReactElement {
               <div
                 key={k}
                 onClick={() => setSelected({ store: 'paths', key: k })}>
-                <span>{k}</span>
-                <Text>{`${paths.get(k)?.curves.length} curves`}</Text>
+                <span>{k}</span>&nbsp;
+                <Text>{`${paths.get(k)?.curves.length} curves/lines`}</Text>
               </div>
             ))
           )}
@@ -146,10 +145,7 @@ export function PathsEditor(): ReactElement {
                         },
                       ],
                     };
-                    setSymbolTable({
-                      ...symbolTable,
-                      paths: { ...paths, [activeKey]: updatedPath },
-                    });
+                    setPaths(NewMapUpdate(paths, activeKey, updatedPath));
                   }}>
                   Add Curve
                 </Button>
@@ -164,13 +160,12 @@ export function PathsEditor(): ReactElement {
                           const newCurves = activePath.curves.filter(
                             (_, i) => i !== cIdx,
                           );
-                          setSymbolTable({
-                            ...symbolTable,
-                            paths: {
-                              ...paths,
-                              [activeKey]: { ...activePath, curves: newCurves },
-                            },
-                          });
+                          setPaths(
+                            NewMapUpdate(paths, activeKey, {
+                              ...activePath,
+                              curves: newCurves,
+                            }),
+                          );
                         }}
                         title="Remove Curve Segment"
                       />
@@ -181,35 +176,33 @@ export function PathsEditor(): ReactElement {
                       onChange={(newCRef) => {
                         const newCurves = [...activePath.curves];
                         newCurves[cIdx] = newCRef;
-                        setSymbolTable({
-                          ...symbolTable,
-                          paths: {
-                            ...paths,
-                            [activeKey]: { ...activePath, curves: newCurves },
-                          },
-                        });
+                        setPaths(
+                          NewMapUpdate(paths, activeKey, {
+                            ...activePath,
+                            curves: newCurves,
+                          }),
+                        );
                       }}
                     />
                   </div>
                 ))}
 
-                <div>
-                  <InterpRefControl
-                    label="Global Path Override Interpolator (Optional)"
-                    interp={
-                      activePath.globalInterpolator || { reversed: false }
+                <InterpRefControl
+                  label="Global Path Override Interpolator (Optional)"
+                  showNone={true}
+                  interp={activePath.globalInterpolator}
+                  onChange={(globalInterpolator: InterpRef | null) => {
+                    const val = { ...activePath };
+                    if (globalInterpolator === null) {
+                      if (isDefined(val.globalInterpolator)) {
+                        delete val.globalInterpolator;
+                      }
+                    } else {
+                      val.globalInterpolator = globalInterpolator;
                     }
-                    onChange={(globalInterpolator) => {
-                      setSymbolTable({
-                        ...symbolTable,
-                        paths: {
-                          ...paths,
-                          [activeKey]: { ...activePath, globalInterpolator },
-                        },
-                      });
-                    }}
-                  />
-                </div>
+                    setPaths(NewMapUpdate(paths, activeKey, val));
+                  }}
+                />
               </>
             </TitleWrapper>
           </>

@@ -204,13 +204,13 @@ export const chkSymbolTable = chkObjectOfExactType<SymbolTable>({
   paths: chkMapOf(isString, chkPath),
 });
 
-export function AddToMap<K, V>(map: Map<K, V>, key: K, value: V): Map<K, V> {
+export function NewMapAdd<K, V>(map: Map<K, V>, key: K, value: V): Map<K, V> {
   const newMap = new Map(map);
   newMap.set(key, value);
   return newMap;
 }
 
-export function DeleteFromMap<K, V>(
+export function NewMapDelete<K, V>(
   map: Map<K, V>,
   key: K,
 ): Map<K, V> | undefined {
@@ -222,7 +222,7 @@ export function DeleteFromMap<K, V>(
   return undefined;
 }
 
-export function RenameKey<K, V>(
+export function NewMapRename<K, V>(
   map: Map<K, V>,
   oldKey: K,
   newKey: K,
@@ -237,5 +237,11 @@ export function RenameKey<K, V>(
   const newMap = new Map(map);
   newMap.delete(oldKey);
   newMap.set(newKey, value);
+  return newMap;
+}
+
+export function NewMapUpdate<K, V>(map: Map<K, V>, key: K, val: V): Map<K, V> {
+  const newMap = new Map(map);
+  newMap.set(key, val);
   return newMap;
 }

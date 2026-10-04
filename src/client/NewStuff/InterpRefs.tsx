@@ -1,8 +1,9 @@
-import { ReactElement } from 'react';
+import React, { ReactElement } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 
 import { Button, Checkbox, Select } from '@fluentui/react-components';
 import { AddRegular, DeleteRegular } from '@fluentui/react-icons';
+import { hasField } from '@freik/typechk';
 
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
 import {
@@ -17,26 +18,32 @@ import {
   InterpRef,
 } from './dto_schema';
 import { PoseRefControl } from './PoseRefs';
-import { symbolTableAtom } from './state';
+import { symbolTableAtom, symbolTableInterpolationsAtom } from './state';
 import { ValRefControl } from './ValRefs';
 
-export type InterpRefControlProps = {
+export type InterpRefControlPropsWithShow = {
+  label: string;
+  interp?: InterpRef;
+  showNone: true;
+  onChange: (interp: InterpRef | null) => void;
+};
+export type InterpRefControlPropsNoShow = {
   label: string;
   interp: InterpRef;
   onChange: (interp: InterpRef) => void;
 };
-export function InterpRefControl({
-  label,
-  interp,
-  onChange,
-}: InterpRefControlProps): ReactElement {
+export function InterpRefControl(
+  props: InterpRefControlPropsWithShow | InterpRefControlPropsNoShow,
+): ReactElement {
+  const { label, interp, onChange } = props;
+  const showNone = hasField(props, 'showNone') ? props.showNone : false;
   const symbolTable = useAtomValue(symbolTableAtom);
-  const interpKeys = Object.keys(symbolTable.interpolations || {});
-  const valueKeys = Object.keys(symbolTable.values || {});
+  const interpolations = useAtomValue(symbolTableInterpolationsAtom);
+  const interpKeys = Array.from(interpolations.keys());
 
-  const currentType = getInterpType(interp);
+  const currentType = !interp ? 'None' : getInterpType(interp);
 
-  const handleTypeChange = (newType: InterpNames) => {
+  const handleTypeChange = (newType: InterpNames | 'Reference' | 'None') => {
     switch (newType) {
       case 'Reference':
         onChange({ ref: interpKeys[0] || '' });
@@ -74,6 +81,10 @@ export function InterpRefControl({
           ],
         });
         break;
+      case 'None':
+        // Type system annoyance...
+        onChange(null as unknown as InterpRef);
+        break;
     }
   };
 
@@ -83,6 +94,7 @@ export function InterpRefControl({
         <Select
           value={currentType}
           onChange={(e, d) => handleTypeChange(d.value as InterpNames)}>
+          {showNone && <option value="None">None</option>}
           <option value="Reference">Reference (from Interpolations)</option>
           <option value="Tangent">Tangent (Along the Path)</option>
           <option value="Constant">Constant (Fixed Heading)</option>
@@ -212,7 +224,7 @@ export function InterpRefControl({
                 <InterpRefControl
                   label="Segment Interpolator"
                   interp={piece.interpolator}
-                  onChange={(interpolator) => {
+                  onChange={(interpolator: InterpRef) => {
                     const newPieces = [...interp.pieces];
                     newPieces[idx] = { ...piece, interpolator };
                     onChange({ pieces: newPieces });
