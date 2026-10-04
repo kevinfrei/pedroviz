@@ -1,5 +1,5 @@
-import { ReactElement } from 'react';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { ReactElement, useState } from 'react';
+import { useAtom, useAtomValue } from 'jotai';
 
 import {
   Input,
@@ -14,7 +14,6 @@ import { NewMapAdd, NewMapDelete, NewMapRename } from '../dto_schema';
 import { PoseRefControl, PoseRefInline } from '../ItemEditor/PoseRefs';
 import { resolvePoseRef } from '../Resolvers';
 import {
-  searchFilterAtom,
   selectedKeyAtom,
   symbolTableAtom,
   symbolTablePosesAtom,
@@ -27,7 +26,7 @@ export function PosesEditor(): ReactElement {
   const symbolTable = useAtomValue(symbolTableAtom);
   const [poses, setPoses] = useAtom(symbolTablePosesAtom);
   const [selected, setSelected] = useAtom(selectedKeyAtom);
-  const [search, setSearch] = useAtom(searchFilterAtom);
+  const [search, setSearch] = useState('');
   const setToast = useToast();
 
   const lsearch = search.toLowerCase();

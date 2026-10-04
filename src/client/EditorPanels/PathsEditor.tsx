@@ -1,4 +1,4 @@
-import { ReactElement } from 'react';
+import { ReactElement, useState } from 'react';
 import { useAtom } from 'jotai';
 
 import {
@@ -25,11 +25,7 @@ import {
 } from '../dto_schema';
 import { CurveRefControl } from '../ItemEditor/CurveRefs';
 import { InterpRefControl } from '../ItemEditor/InterpRefs';
-import {
-  searchFilterAtom,
-  selectedKeyAtom,
-  symbolTablePathsAtom,
-} from '../state/SymbolTable';
+import { selectedKeyAtom, symbolTablePathsAtom } from '../state/SymbolTable';
 import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
 import { useToast } from '../ui-tools/NotificationToast';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
@@ -38,7 +34,7 @@ import { TitleWrapper } from '../ui-tools/TitleWrapper';
 export function PathsEditor(): ReactElement {
   const [paths, setPaths] = useAtom(symbolTablePathsAtom);
   const [selected, setSelected] = useAtom(selectedKeyAtom);
-  const [search, setSearch] = useAtom(searchFilterAtom);
+  const [search, setSearch] = useState('');
   const setToast = useToast();
 
   const lsearch = search.toLowerCase();

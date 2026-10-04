@@ -1,4 +1,4 @@
-import { ReactElement } from 'react';
+import { ReactElement, useState } from 'react';
 import { useAtom } from 'jotai';
 
 import {
@@ -19,7 +19,6 @@ import {
 } from '../dto_schema';
 import { InterpRefControl } from '../ItemEditor/InterpRefs';
 import {
-  searchFilterAtom,
   selectedKeyAtom,
   symbolTableInterpolationsAtom,
 } from '../state/SymbolTable';
@@ -32,7 +31,7 @@ export function InterpolatorsEditor(): ReactElement {
     symbolTableInterpolationsAtom,
   );
   const [selected, setSelected] = useAtom(selectedKeyAtom);
-  const [search, setSearch] = useAtom(searchFilterAtom);
+  const [search, setSearch] = useState('');
   const setToast = useToast();
   const lsearch = search.toLowerCase();
 

@@ -1,4 +1,4 @@
-import { ReactElement } from 'react';
+import { ReactElement, useState } from 'react';
 import { useAtom } from 'jotai';
 
 import {
@@ -12,11 +12,7 @@ import { Group, Panel, Separator } from 'react-resizable-panels';
 
 import { NewMapAdd, NewMapDelete, NewMapRename } from '../dto_schema';
 import { ValRefControl, ValRefInline } from '../ItemEditor/ValRefs';
-import {
-  searchFilterAtom,
-  selectedKeyAtom,
-  symbolTableValuesAtom,
-} from '../state/SymbolTable';
+import { selectedKeyAtom, symbolTableValuesAtom } from '../state/SymbolTable';
 import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
 import { useToast } from '../ui-tools/NotificationToast';
 
@@ -24,7 +20,7 @@ import { useToast } from '../ui-tools/NotificationToast';
 export function ValuesEditor(): ReactElement {
   const [values, setValues] = useAtom(symbolTableValuesAtom);
   const [selected, setSelected] = useAtom(selectedKeyAtom);
-  const [search, setSearch] = useAtom(searchFilterAtom);
+  const [search, setSearch] = useState('');
   const setToast = useToast();
   const keys = Array.from(values.keys()).filter((k) =>
     k.toLowerCase().includes(search.toLowerCase()),

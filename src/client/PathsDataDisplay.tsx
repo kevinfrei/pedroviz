@@ -12,23 +12,14 @@ import {
   Text,
 } from '@fluentui/react-components';
 
-import { NamedBezierList } from './Displays/CurveDisplay';
-import { PathChainList } from './Displays/PathChainDisplay';
-import { NamedPoseList } from './Displays/PoseDisplay';
-import { NamedValueList } from './Displays/ValueDisplay';
 import { CurvesEditor } from './EditorPanels/CurvesEditor';
 import { InterpolatorsEditor } from './EditorPanels/InterpolatorsEditor';
+import { JsonEditor } from './EditorPanels/JsonEditor';
 import { PathsEditor } from './EditorPanels/PathsEditor';
 import { PosesEditor } from './EditorPanels/PosesEditor';
 import { ValuesEditor } from './EditorPanels/ValuesEditor';
-import {
-  FocusedCurveAtom,
-  FocusedPathAtom,
-  FocusedPoseAtom,
-  NamedValuesAtom,
-  SelectedClassAtom,
-  SelectedPathAtom,
-} from './state/UserCode';
+import { activeTabAtom } from './state/SymbolTable';
+import { SelectedClassAtom, SelectedPathAtom } from './state/UserCode';
 
 // function FileInfo() {
 //   const pc = useAtomValue(SelectedParsedClassAtom);
@@ -43,12 +34,9 @@ export function PathsDataDisplay({
 }: {
   expand?: boolean;
 }): ReactElement {
-  const namedValues = useAtomValue(NamedValuesAtom);
   const tabInfo: [string, string | ReactElement, ReactElement][] = [
-    // ['v', 'Values [old]', <NamedValueList items={namedValues.map((nv) => nv.name)} />],
-    ['v2', 'Values', <ValuesEditor />],
-    // ['p', 'Poses [old]', <NamedPoseList />],
-    ['p2', 'Poses', <PosesEditor />],
+    ['v', 'Values', <ValuesEditor />],
+    ['p', 'Poses', <PosesEditor />],
     [
       'i',
       <InfoLabel info="The direction the robot faces, along a path">
@@ -56,18 +44,14 @@ export function PathsDataDisplay({
       </InfoLabel>,
       <InterpolatorsEditor />,
     ],
-    // ['c', 'Lines & Curves [old]', <NamedBezierList />],
-    ['c2', 'Lines & Curves', <CurvesEditor />],
-    // ['P', 'Paths [old]', <PathChainList />],
-    ['P2', 'Paths', <PathsEditor />],
+    ['c', 'Lines & Curves', <CurvesEditor />],
+    ['P', 'Paths', <PathsEditor />],
+    ['j', 'Raw JSON', <JsonEditor />],
   ];
 
   const selFile = useAtomValue(SelectedPathAtom);
   const selClass = useAtomValue(SelectedClassAtom);
-  const setFocusedPose = useSetAtom(FocusedPoseAtom);
-  const setFocusedCurve = useSetAtom(FocusedCurveAtom);
-  const setFocusedPath = useSetAtom(FocusedPathAtom);
-  const [activeTab, setActiveTab] = useState('P');
+  const [activeTab, setActiveTab] = useAtom(activeTabAtom);
   const onTabSelect = (event: SelectTabEvent, data: SelectTabData) => {
     setActiveTab(data.value as string);
   };

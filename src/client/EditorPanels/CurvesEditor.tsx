@@ -1,4 +1,4 @@
-import { ReactElement } from 'react';
+import { ReactElement, useState } from 'react';
 import { useAtom } from 'jotai';
 
 import {
@@ -19,11 +19,7 @@ import {
   NewMapRename,
 } from '../dto_schema';
 import { CurveRefControl } from '../ItemEditor/CurveRefs';
-import {
-  searchFilterAtom,
-  selectedKeyAtom,
-  symbolTableCurvesAtom,
-} from '../state/SymbolTable';
+import { selectedKeyAtom, symbolTableCurvesAtom } from '../state/SymbolTable';
 import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
 import { useToast } from '../ui-tools/NotificationToast';
 
@@ -31,7 +27,7 @@ import { useToast } from '../ui-tools/NotificationToast';
 export function CurvesEditor(): ReactElement {
   const [curves, setCurves] = useAtom(symbolTableCurvesAtom);
   const [selected, setSelected] = useAtom(selectedKeyAtom);
-  const [search, setSearch] = useAtom(searchFilterAtom);
+  const [search, setSearch] = useState('');
   const setToast = useToast();
   const lsearch = search.toLowerCase();
 
@@ -139,7 +135,7 @@ export function CurvesEditor(): ReactElement {
   );
 }
 
-export function CurveRefPointCount({
+function CurveRefPointCount({
   curveref,
 }: {
   curveref: CurveRef | undefined;

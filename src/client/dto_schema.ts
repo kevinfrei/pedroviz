@@ -16,14 +16,14 @@ export type Value = { val: number };
 export type ValRef = Value | Ref;
 export type ResolvedValue = ErrorOr<number>;
 
-export type Pose = {
+type Pose = {
   X: ValRef;
   Y: ValRef;
   Heading?: ValRef;
   inRadians?: boolean;
 };
 export type PoseRef = Pose | Ref;
-export type CorrectPose = {
+type CorrectPose = {
   X: ResolvedValue;
   Y: ResolvedValue;
   Heading?: ResolvedValue;
@@ -31,33 +31,33 @@ export type CorrectPose = {
 export type ResolvedPose = ErrorOr<CorrectPose>;
 
 export type ConstInterp = { heading: ValRef };
-export type CorrectConstInterp = { heading: ResolvedValue };
+type CorrectConstInterp = { heading: ResolvedValue };
 export type FacePtInterp = { point: PoseRef };
-export type CorrectFacePtInterp = { point: ResolvedPose };
+type CorrectFacePtInterp = { point: ResolvedPose };
 export type LinearInterp = {
   startHeading: ValRef;
   endHeading: ValRef;
   longWay: boolean;
 };
-export type CorrectLinearInterp = {
+type CorrectLinearInterp = {
   startHeading: ResolvedValue;
   endHeading: ResolvedValue;
   longWay: boolean;
 };
 export type TangentInterp = { reversed: boolean };
 export type InterpPiece = { until: ValRef; interpolator: InterpRef };
-export type CorrectInterpPiece = {
+type CorrectInterpPiece = {
   until: ResolvedValue;
   interpolater: ResolvedInterpolator;
 };
 export type PieceWiseInterp = { pieces: InterpPiece[] };
-export type CorrectPieceWiseInterp = { pieces: CorrectInterpPiece[] };
+type CorrectPieceWiseInterp = { pieces: CorrectInterpPiece[] };
 
-export type Interpolator =
+type Interpolator =
   ConstInterp | FacePtInterp | LinearInterp | PieceWiseInterp | TangentInterp;
 export type InterpRef = Interpolator | Ref;
 
-export type CorrectInterpolator =
+type CorrectInterpolator =
   | CorrectConstInterp
   | CorrectFacePtInterp
   | CorrectLinearInterp
@@ -65,20 +65,20 @@ export type CorrectInterpolator =
   | CorrectPieceWiseInterp;
 export type ResolvedInterpolator = ErrorOr<CorrectInterpolator>;
 
-export type Curve = { points: PoseRef[]; interpolation: InterpRef };
+type Curve = { points: PoseRef[]; interpolation: InterpRef };
 export type CurveRef = Curve | Ref;
-export type CorrectCurve = {
+type CorrectCurve = {
   points: ResolvedPose[];
   interpolation: ResolvedInterpolator;
 };
 export type ResolvedCurve = ErrorOr<CorrectCurve>;
 
 export type Path = { curves: CurveRef[]; globalInterpolator?: InterpRef };
-export type CorrectPath = {
+type CorrectPath = {
   curves: ResolvedCurve[];
   globalInterpolator?: ResolvedInterpolator;
 };
-export type ResolvedPath = ErrorOr<CorrectPath>;
+type ResolvedPath = ErrorOr<CorrectPath>;
 
 type NamedValues = {
   values: Record<string, ValRef>;
@@ -96,7 +96,7 @@ export type SymbolTable = {
   paths: Map<string, Path>;
 };
 
-export const InterpNamesArray = [
+const InterpNamesArray = [
   'Constant',
   'Facing',
   'Linear',
@@ -132,8 +132,8 @@ export function getInterpType(interp: InterpRef): InterpNames {
 export const chkErr = isError;
 export const chkRef = chkObjectOfExactType<Ref>({ ref: isString });
 export const chkValue = chkObjectOfExactType<Value>({ val: isNumber });
-export const chkValRef = chkAnyOf(chkRef, chkValue);
-export const chkPose = chkObjectOfExactType<Pose>(
+const chkValRef = chkAnyOf(chkRef, chkValue);
+const chkPose = chkObjectOfExactType<Pose>(
   {
     X: chkValRef,
     Y: chkValRef,
@@ -143,7 +143,7 @@ export const chkPose = chkObjectOfExactType<Pose>(
     inRadians: isBoolean,
   },
 );
-export const chkPoseRef = chkAnyOf(chkRef, chkPose);
+const chkPoseRef = chkAnyOf(chkRef, chkPose);
 export const chkConstInterp = chkObjectOfExactType<ConstInterp>({
   heading: chkValRef,
 });
@@ -159,7 +159,7 @@ export const chkTangentInterp = chkObjectOfExactType<TangentInterp>({
   reversed: isBoolean,
 });
 // have to declare a function, because recursion and delayed binding and stuff
-export const chkInterpPiece: typecheck<InterpPiece> = (obj: unknown) =>
+const chkInterpPiece: typecheck<InterpPiece> = (obj: unknown) =>
   chkObjectOfExactType<InterpPiece>({
     until: chkValRef,
     interpolator: chkInterpRef,
@@ -167,27 +167,28 @@ export const chkInterpPiece: typecheck<InterpPiece> = (obj: unknown) =>
 export const chkPieceWiseInterp = chkObjectOfExactType<PieceWiseInterp>({
   pieces: chkArrayOf(chkInterpPiece),
 });
-export const chkInterpolator: typecheck<Interpolator> = chkAnyOf(
+const chkInterpolator: typecheck<Interpolator> = chkAnyOf(
   chkConstInterp,
   chkFacePtInterp,
   chkLinearInterp,
   chkPieceWiseInterp,
   chkTangentInterp,
 );
-export const chkInterpRef: typecheck<InterpRef> = (obj: unknown) =>
+const chkInterpRef: typecheck<InterpRef> = (obj: unknown) =>
   chkAnyOf(chkRef, chkInterpolator)(obj);
 
-export const chkCurve = chkObjectOfExactType<Curve>({
+const chkCurve = chkObjectOfExactType<Curve>({
   points: chkArrayOf(chkPoseRef),
   interpolation: chkInterpRef,
 });
-export const chkCurveRef = chkAnyOf(chkRef, chkCurve);
+const chkCurveRef = chkAnyOf(chkRef, chkCurve);
 
-export const chkPath = chkObjectOfExactType<Path>(
+const chkPath = chkObjectOfExactType<Path>(
   { curves: chkArrayOf(chkCurveRef) },
   { globalInterpolator: chkInterpRef },
 );
 
+/*
 const chkNamedValues = chkObjectOfExactType<NamedValues>({
   values: chkArrayOf(chkValRef),
   poses: chkArrayOf(chkPoseRef),
@@ -196,14 +197,14 @@ const chkNamedValues = chkObjectOfExactType<NamedValues>({
   paths: chkArrayOf(chkPath),
 });
 
-export const chkSymbolTable = chkObjectOfExactType<SymbolTable>({
+const chkSymbolTable = chkObjectOfExactType<SymbolTable>({
   values: chkMapOf(isString, chkValRef),
   poses: chkMapOf(isString, chkPoseRef),
   curves: chkMapOf(isString, chkCurveRef),
   interpolations: chkMapOf(isString, chkInterpRef),
   paths: chkMapOf(isString, chkPath),
 });
-
+*/
 export function NewMapAdd<K, V>(map: Map<K, V>, key: K, value: V): Map<K, V> {
   const newMap = new Map(map);
   newMap.set(key, value);

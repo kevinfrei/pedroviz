@@ -1,7 +1,7 @@
 import { ReactElement } from 'react';
 
 export function JsonEditor(): ReactElement {
-  return <>NYI, sorry</>;
+  return <>NYI. Will eventually get Ied but just N Y.</>;
   /*
   const [namedValues, setNamedValues] = useAtom(namedValuesAtom);
   const [, setToast] = useAtom(toastAtom);

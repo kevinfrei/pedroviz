@@ -117,7 +117,6 @@ export function PoseRefControl({
           </div>
         )}
 
-        {/* Resolved Position Badge */}
         <div>
           <span>Computed Position:</span>
           <span>
@@ -129,7 +128,7 @@ export function PoseRefControl({
   );
 }
 
-export function ResolvedPose({ pose }: { pose: ResolvedPose }): ReactElement {
+function ResolvedPose({ pose }: { pose: ResolvedPose }): ReactElement {
   if (chkErr(pose)) {
     return <>Not Found</>;
   }
