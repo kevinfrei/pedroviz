@@ -14,7 +14,11 @@ import { Group, Panel, Separator } from 'react-resizable-panels';
 
 import { NewMapAdd, NewMapDelete, NewMapRename } from '../dto_schema';
 import { ValRefControl, ValRefInline } from '../ItemEditor/ValRefs';
-import { selectedKeyAtom, symbolTableValuesAtom } from '../state/SymbolTable';
+import {
+  DataType,
+  selectedKeyAtom,
+  symbolTableValuesAtom,
+} from '../state/SymbolTable';
 import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
 import { useToast } from '../ui-tools/NotificationToast';
 
@@ -28,7 +32,7 @@ export function ValuesEditor(): ReactElement {
     k.toLowerCase().includes(search.toLowerCase()),
   );
 
-  const activeKey = selected.store === 'values' ? selected.key : keys[0] || '';
+  const activeKey = selected.get(DataType.Values) || keys[0] || '';
   const activeValue = values.get(activeKey);
 
   const handleAdd = () => {
@@ -37,7 +41,7 @@ export function ValuesEditor(): ReactElement {
     const newKey = `newValue${count}`;
 
     setValues(NewMapAdd(values, newKey, { val: 0.0 }));
-    setSelected({ store: 'values', key: newKey });
+    setSelected(NewMapAdd(selected, DataType.Values, newKey));
     setToast(`Added value "${newKey}"`);
   };
 
@@ -45,7 +49,7 @@ export function ValuesEditor(): ReactElement {
     const newMap = NewMapRename(values, oldKey, newKey);
     if (newMap) {
       setValues(newMap);
-      setSelected({ store: 'values', key: newKey });
+      setSelected(NewMapAdd(selected, DataType.Values, newKey));
     }
   };
 
@@ -54,7 +58,12 @@ export function ValuesEditor(): ReactElement {
     if (newMap) {
       setValues(newMap);
       const remaining = Array.from(newMap.keys());
-      setSelected({ store: 'values', key: remaining[0] || '' });
+      const update = remaining.length
+        ? NewMapAdd(selected, DataType.Values, remaining[0]!)
+        : NewMapDelete(selected, DataType.Values);
+      if (update) {
+        setSelected(update);
+      }
       setToast(`Deleted value "${keyToDelete}"`, 'success');
     }
   };
@@ -84,7 +93,9 @@ export function ValuesEditor(): ReactElement {
             keys.map((k) => (
               <div
                 key={k}
-                onClick={() => setSelected({ store: 'values', key: k })}>
+                onClick={() =>
+                  setSelected(NewMapAdd(selected, DataType.Values, k))
+                }>
                 <span>{k}</span>&nbsp;
                 <ValRefInline valref={values.get(k)} />
               </div>

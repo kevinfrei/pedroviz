@@ -27,7 +27,11 @@ import {
 } from '../dto_schema';
 import { CurveRefControl } from '../ItemEditor/CurveRefs';
 import { InterpRefControl } from '../ItemEditor/InterpRefs';
-import { selectedKeyAtom, symbolTablePathsAtom } from '../state/SymbolTable';
+import {
+  DataType,
+  selectedKeyAtom,
+  symbolTablePathsAtom,
+} from '../state/SymbolTable';
 import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
 import { useToast } from '../ui-tools/NotificationToast';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
@@ -44,7 +48,7 @@ export function PathsEditor(): ReactElement {
     k.toLowerCase().includes(lsearch),
   );
 
-  const activeKey = selected.store === 'paths' ? selected.key : keys[0] || '';
+  const activeKey = selected.get(DataType.Paths) || keys[0] || '';
   const activePath = paths.get(activeKey);
 
   const handleAdd = () => {
@@ -53,7 +57,7 @@ export function PathsEditor(): ReactElement {
     while (paths.has(`${baseName}${count}`)) count++;
     const newKey = `${baseName}${count}`;
     setPaths(NewMapAdd(paths, newKey, { curves: [] }));
-    setSelected({ store: 'paths', key: newKey });
+    setSelected(NewMapAdd(selected, DataType.Paths, newKey));
     setToast(`Added path "${newKey}"`);
   };
 
@@ -61,7 +65,7 @@ export function PathsEditor(): ReactElement {
     const newMap = NewMapRename(paths, oldKey, newKey);
     if (newMap) {
       setPaths(newMap);
-      setSelected({ store: 'paths', key: newKey });
+      setSelected(NewMapAdd(selected, DataType.Paths, newKey));
     }
   };
 
@@ -70,7 +74,12 @@ export function PathsEditor(): ReactElement {
     if (newMap) {
       setPaths(newMap);
       const remaining = Array.from(newMap.keys());
-      setSelected({ store: 'paths', key: remaining[0] || '' });
+      const update = remaining.length
+        ? NewMapAdd(selected, DataType.Paths, remaining[0]!)
+        : NewMapDelete(selected, DataType.Paths);
+      if (update) {
+        setSelected(update);
+      }
       setToast(`Deleted path "${keyToDelete}"`);
     } else {
       setToast(`Failed to delete path "${keyToDelete}"`, 'error');
@@ -102,7 +111,9 @@ export function PathsEditor(): ReactElement {
             keys.map((k) => (
               <div
                 key={k}
-                onClick={() => setSelected({ store: 'paths', key: k })}>
+                onClick={() =>
+                  setSelected(NewMapAdd(selected, DataType.Paths, k))
+                }>
                 <span>{k}</span>&nbsp;
                 <Text>{`${paths.get(k)?.curves.length} curves/lines`}</Text>
               </div>

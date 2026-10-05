@@ -21,6 +21,7 @@ import {
 } from '../dto_schema';
 import { InterpRefControl } from '../ItemEditor/InterpRefs';
 import {
+  DataType,
   selectedKeyAtom,
   symbolTableInterpolationsAtom,
 } from '../state/SymbolTable';
@@ -41,8 +42,7 @@ export function InterpolatorsEditor(): ReactElement {
     k.toLowerCase().includes(lsearch),
   );
 
-  const activeKey =
-    selected.store === 'interpolations' ? selected.key : keys[0] || '';
+  const activeKey = selected.get(DataType.Interpolations) || keys[0] || '';
   const activeInterp = interpolations.get(activeKey);
 
   const handleAdd = () => {
@@ -51,7 +51,7 @@ export function InterpolatorsEditor(): ReactElement {
     const newKey = `newInterpolator${count}`;
 
     setInterpolations(NewMapAdd(interpolations, newKey, { reversed: false }));
-    setSelected({ store: 'interpolations', key: newKey });
+    setSelected(NewMapAdd(selected, DataType.Interpolations, newKey));
     setToast(`Added interpolator "${newKey}"`);
   };
 
@@ -59,7 +59,7 @@ export function InterpolatorsEditor(): ReactElement {
     const newMap = NewMapRename(interpolations, oldKey, newKey);
     if (newMap) {
       setInterpolations(newMap);
-      setSelected({ store: 'interpolations', key: newKey });
+      setSelected(NewMapAdd(selected, DataType.Interpolations, newKey));
     }
   };
 
@@ -68,7 +68,12 @@ export function InterpolatorsEditor(): ReactElement {
     if (newMap) {
       setInterpolations(newMap);
       const remaining = Array.from(newMap.keys());
-      setSelected({ store: 'interpolations', key: remaining[0] || '' });
+      const update = remaining.length
+        ? NewMapAdd(selected, DataType.Interpolations, remaining[0]!)
+        : NewMapDelete(selected, DataType.Interpolations);
+      if (update) {
+        setSelected(update);
+      }
       setToast(`Deleted interpolator "${keyToDelete}"`);
     }
   };
@@ -99,7 +104,7 @@ export function InterpolatorsEditor(): ReactElement {
               <div
                 key={k}
                 onClick={() =>
-                  setSelected({ store: 'interpolations', key: k })
+                  setSelected(NewMapAdd(selected, DataType.Interpolations, k))
                 }>
                 <Text>{k}</Text>&nbsp;
                 <Text>{getInterpType(interpolations.get(k)!)}</Text>

@@ -16,6 +16,7 @@ import { NewMapAdd, NewMapDelete, NewMapRename } from '../dto_schema';
 import { PoseRefControl, PoseRefInline } from '../ItemEditor/PoseRefs';
 import { resolvePoseRef } from '../Resolvers';
 import {
+  DataType,
   selectedKeyAtom,
   symbolTableAtom,
   symbolTablePosesAtom,
@@ -36,7 +37,7 @@ export function PosesEditor(): ReactElement {
     k.toLowerCase().includes(lsearch),
   );
 
-  const activeKey = selected.store === 'poses' ? selected.key : keys[0] || '';
+  const activeKey = selected.get(DataType.Poses) || keys[0] || '';
   const activePose = poses.get(activeKey);
 
   const handleAdd = () => {
@@ -51,7 +52,7 @@ export function PosesEditor(): ReactElement {
         inRadians: false,
       }),
     );
-    setSelected({ store: 'poses', key: newKey });
+    setSelected(NewMapAdd(selected, DataType.Poses, newKey));
     setToast(`Added pose "${newKey}"`);
   };
 
@@ -59,7 +60,7 @@ export function PosesEditor(): ReactElement {
     const newMap = NewMapRename(poses, oldKey, newKey);
     if (newMap) {
       setPoses(newMap);
-      setSelected({ store: 'poses', key: newKey });
+      setSelected(NewMapAdd(selected, DataType.Poses, newKey));
       setToast(`Renamed pose "${oldKey}" to "${newKey}"`);
     }
   };
@@ -69,7 +70,12 @@ export function PosesEditor(): ReactElement {
     if (newMap) {
       setPoses(newMap);
       const remaining = Array.from(newMap.keys());
-      setSelected({ store: 'poses', key: remaining[0] || '' });
+      const update = remaining.length
+        ? NewMapAdd(selected, DataType.Poses, remaining[0]!)
+        : NewMapDelete(selected, DataType.Poses);
+      if (update) {
+        setSelected(update);
+      }
       setToast(`Deleted pose "${keyToDelete}"`);
     }
   };
@@ -101,7 +107,9 @@ export function PosesEditor(): ReactElement {
               return (
                 <div
                   key={k}
-                  onClick={() => setSelected({ store: 'poses', key: k })}>
+                  onClick={() =>
+                    setSelected(NewMapAdd(selected, DataType.Poses, k))
+                  }>
                   <span>{k}</span>&nbsp;
                   <PoseRefInline poseref={poses.get(k)} />
                 </div>

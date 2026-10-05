@@ -21,7 +21,11 @@ import {
   NewMapRename,
 } from '../dto_schema';
 import { CurveRefControl } from '../ItemEditor/CurveRefs';
-import { selectedKeyAtom, symbolTableCurvesAtom } from '../state/SymbolTable';
+import {
+  DataType,
+  selectedKeyAtom,
+  symbolTableCurvesAtom,
+} from '../state/SymbolTable';
 import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
 import { useToast } from '../ui-tools/NotificationToast';
 
@@ -37,7 +41,7 @@ export function CurvesEditor(): ReactElement {
     k.toLowerCase().includes(lsearch),
   );
 
-  const activeKey = selected.store === 'curves' ? selected.key : keys[0] || '';
+  const activeKey = selected.get(DataType.Curves) || keys[0] || '';
   const activeCurve = curves.get(activeKey);
 
   const handleAdd = () => {
@@ -58,7 +62,7 @@ export function CurvesEditor(): ReactElement {
         interpolation: { reversed: false },
       }),
     );
-    setSelected({ store: 'curves', key: newKey });
+    setSelected(NewMapAdd(selected, DataType.Curves, newKey));
     setToast(`Added curve "${newKey}"`);
   };
 
@@ -66,7 +70,7 @@ export function CurvesEditor(): ReactElement {
     const newMap = NewMapRename(curves, oldKey, newKey);
     if (newMap) {
       setCurves(newMap);
-      setSelected({ store: 'curves', key: newKey });
+      setSelected(NewMapAdd(selected, DataType.Curves, newKey));
     }
   };
 
@@ -75,7 +79,12 @@ export function CurvesEditor(): ReactElement {
     if (newMap) {
       setCurves(newMap);
       const remaining = Array.from(newMap.keys());
-      setSelected({ store: 'curves', key: remaining[0] || '' });
+      const update = remaining.length
+        ? NewMapAdd(selected, DataType.Curves, remaining[0]!)
+        : NewMapDelete(selected, DataType.Curves);
+      if (update) {
+        setSelected(update);
+      }
       setToast(`Deleted curve "${keyToDelete}"`);
     }
   };
@@ -103,7 +112,9 @@ export function CurvesEditor(): ReactElement {
             keys.map((k) => (
               <div
                 key={k}
-                onClick={() => setSelected({ store: 'curves', key: k })}>
+                onClick={() =>
+                  setSelected(NewMapAdd(selected, DataType.Curves, k))
+                }>
                 <span>{k}</span>&nbsp;
                 <CurveRefPointCount curveref={curves.get(k)} />
               </div>
