@@ -15,9 +15,8 @@ import {
   chkRef,
   chkTangentInterp,
   getInterpType,
-  InterpNames,
-  InterpRef,
-} from '../dto_schema';
+} from '../../DataTypeChecks';
+import { InterpNames, InterpRef } from '../../DataTypes';
 import {
   symbolTableAtom,
   symbolTableInterpolationsAtom,

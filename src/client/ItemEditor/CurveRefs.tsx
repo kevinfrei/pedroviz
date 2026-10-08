@@ -14,7 +14,8 @@ import {
 } from '@fluentui/react-components';
 import { AddRegular, DeleteRegular } from '@fluentui/react-icons';
 
-import { chkRef, CurveRef, InterpRef } from '../dto_schema';
+import { chkRef } from '../../DataTypeChecks';
+import { CurveRef, InterpRef } from '../../DataTypes';
 import { symbolTableAtom } from '../state/SymbolTable';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
 import { InterpRefControl } from './InterpRefs';

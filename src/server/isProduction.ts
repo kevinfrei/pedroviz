@@ -1,7 +1,7 @@
 import path from 'node:path';
 import url from 'node:url';
 
-import { isDefined } from 'node_modules/@freik/typechk/lib/esm';
+import { isDefined } from '@freik/typechk';
 
 let real_dirname = isDefined(__dirname)
   ? __dirname

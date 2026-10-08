@@ -4,8 +4,8 @@ import { atom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 import { atomWithStorage } from 'jotai/utils';
 
+import { SymbolTable } from '../../DataTypes';
 import { SAMPLE_AUTONOMOUS_PRESET } from '../constants';
-import { SymbolTable } from '../dto_schema';
 
 export const DataType = Object.freeze({
   Values: 1,

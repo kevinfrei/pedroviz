@@ -19,12 +19,12 @@ import { Group, Panel, Separator } from 'react-resizable-panels';
 import { isDefined } from '@freik/typechk';
 
 import {
-  InterpRef,
   NewMapAdd,
   NewMapDelete,
   NewMapRename,
   NewMapUpdate,
-} from '../dto_schema';
+} from '../../DataTypeChecks';
+import { InterpRef } from '../../DataTypes';
 import { CurveRefControl } from '../ItemEditor/CurveRefs';
 import { InterpRefControl } from '../ItemEditor/InterpRefs';
 import {

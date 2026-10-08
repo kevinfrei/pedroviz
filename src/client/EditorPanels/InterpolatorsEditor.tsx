@@ -14,11 +14,11 @@ import { Group, Panel, Separator } from 'react-resizable-panels';
 
 import {
   getInterpType,
-  InterpRef,
   NewMapAdd,
   NewMapDelete,
   NewMapRename,
-} from '../dto_schema';
+} from '../../DataTypeChecks';
+import { InterpRef } from '../../DataTypes';
 import { InterpRefControl } from '../ItemEditor/InterpRefs';
 import {
   DataType,

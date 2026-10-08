@@ -1,9 +1,10 @@
 // build.ts
 import { $ } from 'bun';
+
 import esbuild from 'esbuild';
 
 try {
-  await $`rm dist/*`;
+  await $`rm dev/*`;
 } catch {}
 
 await esbuild.build({

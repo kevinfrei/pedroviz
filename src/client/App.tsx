@@ -14,10 +14,11 @@ import {
   webDarkTheme,
   webLightTheme,
 } from '@fluentui/react-components';
-import { SpinSuspense } from 'node_modules/@freik/fluent9-tools/lib';
 import { Group, Panel, Separator } from 'react-resizable-panels';
+import { SpinSuspense } from '@freik/fluent9-tools';
 
 import { CodeIssues } from './CodeIssues';
+import { Strings } from './constants';
 import { FieldRenderer } from './FieldRenderer';
 import { PathsDataDisplay } from './PathsDataDisplay';
 import { ClassSelector, FileSelector, TeamSelector } from './PathSelector';
@@ -49,7 +50,9 @@ function MyApp(): ReactElement {
                 <ToolbarDivider />
                 <ClassSelector />
               </ToolbarGroup>
-              <Button onClick={() => rescanCode()}>Rescan Source</Button>
+              <Button onClick={() => rescanCode()}>
+                {Strings.rescan_source}
+              </Button>
               <Settings />
             </Toolbar>
           </SpinSuspense>

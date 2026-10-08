@@ -6,8 +6,8 @@ import path from 'node:path';
 import { MakeMultiMap } from '@freik/containers';
 import { isNull, isString } from '@freik/typechk';
 
-import { getPathKey } from '../IpcTypeCheck';
-import { Path, PathKey, Team, TeamPaths } from '../IpcTypes';
+import { GetPathKey } from '../IpcTypeCheck';
+import { FilePath, FilePathKey, Team, TeamFilePaths } from '../IpcTypes';
 import { GetGlobalDirname } from './isProduction';
 import { isDirectory } from './utility';
 
@@ -67,7 +67,7 @@ async function isRepoRoot(currentPath: string) {
   );
 }
 
-export async function GetTeamPaths(): Promise<TeamPaths> {
+export async function GetTeamPaths(): Promise<TeamFilePaths> {
   if (isNull(RepoRoot)) {
     await FindRelativeRepoRoot([...args, process.cwd(), GetGlobalDirname()]);
   }
@@ -77,10 +77,10 @@ export async function GetTeamPaths(): Promise<TeamPaths> {
   // Get the list of all team code roots
   const teamDirs = await GetTeamDirectories();
   // Next, look for paths in each team directory
-  const filePaths: TeamPaths = MakeMultiMap<Team, PathKey>();
+  const filePaths: TeamFilePaths = MakeMultiMap<Team, FilePathKey>();
   for (const teamName of teamDirs) {
     const pathFiles = await GetPathFiles(RepoRoot, teamName);
-    const pathKey = pathFiles.map((val) => getPathKey(teamName, val));
+    const pathKey = pathFiles.map((val) => GetPathKey(teamName, val));
     filePaths.add(teamName, pathKey);
   }
   return filePaths;
@@ -92,14 +92,14 @@ const pathNameMatch = /[^\/\\]*(Path|Pose)[^\/\\]*\.java$/;
 export async function GetPathFiles(
   repoRoot: string,
   teamName: string,
-): Promise<Path[]> {
+): Promise<FilePath[]> {
   const teamDir = path.join(
     repoRoot,
     teamName,
     FirstFtcSrc,
     teamName.toLocaleLowerCase(),
   );
-  const pathFiles: Path[] = [];
+  const pathFiles: FilePath[] = [];
   // A worklist of directories to check for PedroPath-containing java files
   const pathsToCheck: string[] = [teamDir];
   while (pathsToCheck.length > 0) {
@@ -110,7 +110,7 @@ export async function GetPathFiles(
       if (entry.isDirectory()) {
         pathsToCheck.push(fullPath);
       } else if (await isPathFile(entry)) {
-        pathFiles.push(path.relative(teamDir, fullPath) as Path);
+        pathFiles.push(path.relative(teamDir, fullPath) as FilePath);
       }
     }
   }

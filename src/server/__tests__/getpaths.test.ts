@@ -7,7 +7,7 @@ import { isMultiMapOf } from '@freik/containers';
 import { isString } from '@freik/typechk';
 
 import { chkPathKey } from '../../IpcTypeCheck';
-import { Path, Team } from '../../IpcTypes';
+import { FilePath, Team } from '../../IpcTypes';
 import {
   FindRelativeRepoRoot,
   GetPathFiles,
@@ -67,9 +67,9 @@ describe('team path exploration', () => {
     const repoRoot = await getTestRepoPath();
     const pathFiles = await GetPathFiles(repoRoot, 'TeamA');
     expect(pathFiles.length).toBe(3);
-    expect(pathFiles).toContain('TeamTestPaths.java' as Path);
+    expect(pathFiles).toContain('TeamTestPaths.java' as FilePath);
     expect(pathFiles).toContain(
-      path.join('subdir', 'PathsLiveHere.java') as Path,
+      path.join('subdir', 'PathsLiveHere.java') as FilePath,
     );
   });
 

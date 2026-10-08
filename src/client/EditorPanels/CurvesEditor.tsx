@@ -15,11 +15,11 @@ import { isUndefined } from '@freik/typechk';
 
 import {
   chkRef,
-  CurveRef,
   NewMapAdd,
   NewMapDelete,
   NewMapRename,
-} from '../dto_schema';
+} from '../../DataTypeChecks';
+import { CurveRef } from '../../DataTypes';
 import { CurveRefControl } from '../ItemEditor/CurveRefs';
 import {
   DataType,

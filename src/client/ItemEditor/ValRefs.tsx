@@ -11,16 +11,11 @@ import {
   Text,
 } from '@fluentui/react-components';
 import { AlertFilled } from '@fluentui/react-icons';
+import { ResolvedValue } from 'src/client/ResolvedTypes';
 import { isError, isUndefined } from '@freik/typechk';
 
-import {
-  chkErr,
-  chkRef,
-  chkValue,
-  ResolvedValue,
-  SymbolTable,
-  ValRef,
-} from '../dto_schema';
+import { chkErr, chkRef, chkValue } from '../../DataTypeChecks';
+import { SymbolTable, ValRef } from '../../DataTypes';
 import { resolveValRef } from '../Resolvers';
 import { symbolTableAtom, symbolTableValuesAtom } from '../state/SymbolTable';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';

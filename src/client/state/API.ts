@@ -11,7 +11,7 @@ import {
 import { chkParsedClass } from '../../CodeTypeCheck';
 import { AnonymousBezier, AnonymousPose, ParsedClass } from '../../CodeTypes';
 import { chkPathDatabase, EmptyPathDatabase } from '../../IpcTypeCheck';
-import { Path, PathDatabase, Team } from '../../IpcTypes';
+import { FilePath, PathDatabase, Team } from '../../IpcTypes';
 import { NameLookup, OneFileIndex } from '../types';
 import { GetNameLookup, MakeFileIndex, ValidateIndex } from './IndexedFile';
 import { fetchApi, putApi } from './Storage';
@@ -54,7 +54,7 @@ const lastLoadedIndexFile = {
   file: '',
   data: null as null | OneFileIndex,
 };
-const indexedFiles: Map<[Team, Path], OneFileIndex> = new Map();
+const indexedFiles: Map<[Team, FilePath], OneFileIndex> = new Map();
 
 export async function LoadAndIndexFile(
   team: string,
@@ -90,7 +90,7 @@ export async function LoadAndIndexFile(
     );
   } else {
     // TODO: This shouldn't be manual. If you have dangling references, you should evaluate the other files...
-    indexedFiles.set([team as Team, file as Path], indexFile);
+    indexedFiles.set([team as Team, file as FilePath], indexFile);
   }
   lastLoadedIndexFile.data = indexFile;
   return indexFile;

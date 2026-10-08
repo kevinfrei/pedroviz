@@ -32,7 +32,7 @@ import {
   ValueName,
   ValueRef,
 } from '../../CodeTypes';
-import { ClassKey, PathDatabase, PathKey, Team } from '../../IpcTypes';
+import { ClassKey, FilePathKey, PathDatabase, Team } from '../../IpcTypes';
 
 function mkValueRef(val: number | string): ValueRef {
   if (isString(val)) {
@@ -471,24 +471,24 @@ export const fullParsedClass: ParsedClass = {
 
 export const testDatabase: PathDatabase = {
   HasFieldImage: false,
-  TeamPaths: MakeMultiMap<Team, PathKey>([
+  TeamPaths: MakeMultiMap<Team, FilePathKey>([
     [
       'team1' as Team,
-      ['team1*path1.java' as PathKey, 'team1*path2.java' as PathKey],
+      ['team1*path1.java' as FilePathKey, 'team1*path2.java' as FilePathKey],
     ],
     [
       'team2' as Team,
-      ['team2*path3.java' as PathKey, 'team2*path4.java' as PathKey],
+      ['team2*path3.java' as FilePathKey, 'team2*path4.java' as FilePathKey],
     ],
-    ['LearnBot' as Team, ['LearnBot*TestPaths.java' as PathKey]],
+    ['LearnBot' as Team, ['LearnBot*TestPaths.java' as FilePathKey]],
   ]),
-  PathClasses: MakeMultiMap<PathKey, ClassKey>([
-    ['team1*path1.java' as PathKey, ['team1*path1.java;a' as ClassKey]],
-    ['team1*path2.java' as PathKey, ['team1*path2.java;b' as ClassKey]],
-    ['team2*path3.java' as PathKey, ['team2*path3.java;c' as ClassKey]],
-    ['team2*path4.java' as PathKey, ['team2*path4.java;d' as ClassKey]],
+  PathClasses: MakeMultiMap<FilePathKey, ClassKey>([
+    ['team1*path1.java' as FilePathKey, ['team1*path1.java;a' as ClassKey]],
+    ['team1*path2.java' as FilePathKey, ['team1*path2.java;b' as ClassKey]],
+    ['team2*path3.java' as FilePathKey, ['team2*path3.java;c' as ClassKey]],
+    ['team2*path4.java' as FilePathKey, ['team2*path4.java;d' as ClassKey]],
     [
-      'LearnBot*TestPaths.java' as PathKey,
+      'LearnBot*TestPaths.java' as FilePathKey,
       ['LearnBot*TestPaths.java;TestPaths' as ClassKey],
     ],
   ]),
@@ -615,21 +615,21 @@ export const status = {
 
 export const databaseForUITest: PathDatabase = {
   HasFieldImage: false,
-  TeamPaths: MakeMultiMap<Team, PathKey>([
+  TeamPaths: MakeMultiMap<Team, FilePathKey>([
     [
       'team1' as Team,
-      ['team1*path1.java' as PathKey, 'team1*path2.java' as PathKey],
+      ['team1*path1.java' as FilePathKey, 'team1*path2.java' as FilePathKey],
     ],
     [
       'team2' as Team,
-      ['team2*path3.java' as PathKey, 'team2*path4.java' as PathKey],
+      ['team2*path3.java' as FilePathKey, 'team2*path4.java' as FilePathKey],
     ],
   ]),
-  PathClasses: MakeMultiMap<PathKey, ClassKey>([
-    ['team1*path1.java' as PathKey, ['team1*path1.java;a' as ClassKey]],
-    ['team1*path2.java' as PathKey, ['team1*path2.java;b' as ClassKey]],
-    ['team2*path3.java' as PathKey, ['team2*path3.java;c' as ClassKey]],
-    ['team2*path4.java' as PathKey, ['team2*path4.java;d' as ClassKey]],
+  PathClasses: MakeMultiMap<FilePathKey, ClassKey>([
+    ['team1*path1.java' as FilePathKey, ['team1*path1.java;a' as ClassKey]],
+    ['team1*path2.java' as FilePathKey, ['team1*path2.java;b' as ClassKey]],
+    ['team2*path3.java' as FilePathKey, ['team2*path3.java;c' as ClassKey]],
+    ['team2*path4.java' as FilePathKey, ['team2*path4.java;d' as ClassKey]],
   ]),
   ParsedClasses: new Map<ClassKey, ParsedClass>([
     ['team1*path1.java;a' as ClassKey, MakeEmptyParsedClass()],

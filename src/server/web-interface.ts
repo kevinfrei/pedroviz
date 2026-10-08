@@ -3,7 +3,7 @@
 import { isDefined, isError, Pickle, SafelyUnpickle } from '@freik/typechk';
 
 import { chkPathDatabase } from '../IpcTypeCheck';
-import { Path, Team } from '../IpcTypes';
+import { FilePath, Team } from '../IpcTypes';
 import { GetFieldImagePath, GetThemedSVG } from './FieldImages';
 import {
   ReplaceDatabase,
@@ -33,7 +33,7 @@ export async function GetFieldSvg(theme: string): Promise<Response> {
 // Send the list of TeamPaths to the client
 
 export async function LoadPath(team: string, path: string): Promise<Response> {
-  const pc = WebGetParsedClassRoot(team as Team, path as Path);
+  const pc = WebGetParsedClassRoot(team as Team, path as FilePath);
   if (isError(pc)) {
     return Response.json({ error: pc.errors().join('\n') });
   }

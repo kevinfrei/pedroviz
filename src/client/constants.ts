@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { isDefined } from 'node_modules/@freik/typechk/lib/esm';
+import { isDefined } from '@freik/typechk';
 
-import { SymbolTable } from './dto_schema';
+import { SymbolTable } from '../DataTypes';
 
 export function RecordToMap<T>(
   obj: Record<string, T> | undefined,
@@ -15,23 +15,24 @@ export function RecordToMap<T>(
 }
 
 export const Strings = {
-  select_a_bot: 'Select a team/bot',
-  select_a_file: 'Select a file',
-  select_a_class: 'Select a class',
+  select_a_bot: 'Select bot',
+  select_a_file: 'Select file',
+  select_a_class: 'Select class',
+  rescan_source: 'Rescan',
   Viz4Pedro: 'Viz 4 Pedro',
   Reset: 'Reset',
 };
 
 export const SAMPLE_AUTONOMOUS_PRESET: SymbolTable = {
   values: RecordToMap({
-    startX: { val: -5.0 },
-    startY: { val: -2.0 },
+    startX: { val: 15.0 },
+    startY: { val: 12.0 },
     startHeading: { val: 0.0 },
-    targetX: { val: 4.5 },
-    targetY: { val: 3.2 },
+    targetX: { val: 44.5 },
+    targetY: { val: 33.2 },
     targetHeading: { val: 90.0 },
-    midpointX: { val: 0.0 },
-    midpointY: { val: 1.5 },
+    midpointX: { val: 71.5 },
+    midpointY: { val: 71.5 },
     cutoffStep: { val: 0.5 },
   }),
   poses: RecordToMap({
@@ -44,7 +45,7 @@ export const SAMPLE_AUTONOMOUS_PRESET: SymbolTable = {
     waypointPose: {
       X: { ref: 'midpointX' },
       Y: { ref: 'midpointY' },
-      Heading: { val: 45.0 },
+      Heading: { val: 135.0 },
       inRadians: false,
     },
     targetPose: {

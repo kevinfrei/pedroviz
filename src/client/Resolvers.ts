@@ -1,5 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+import {
+  ResolvedCurve,
+  ResolvedInterpolator,
+  ResolvedPose,
+  ResolvedValue,
+} from 'src/client/ResolvedTypes';
 import { hasField, isDefined, isError, MakeError } from '@freik/typechk';
 
 import {
@@ -9,18 +15,16 @@ import {
   chkPieceWiseInterp,
   chkRef,
   chkTangentInterp,
+} from '../DataTypeChecks';
+import {
   CurveRef,
   InterpPiece,
   InterpRef,
   Path,
   PoseRef,
-  ResolvedCurve,
-  ResolvedInterpolator,
-  ResolvedPose,
-  ResolvedValue,
   SymbolTable,
   ValRef,
-} from './dto_schema';
+} from '../DataTypes';
 
 // Resolvers:
 

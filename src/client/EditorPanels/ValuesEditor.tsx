@@ -12,7 +12,7 @@ import {
 import { AddRegular, SearchRegular } from '@fluentui/react-icons';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 
-import { NewMapAdd, NewMapDelete, NewMapRename } from '../dto_schema';
+import { NewMapAdd, NewMapDelete, NewMapRename } from '../../DataTypeChecks';
 import { ValRefControl, ValRefInline } from '../ItemEditor/ValRefs';
 import {
   DataType,

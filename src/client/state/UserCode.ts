@@ -25,16 +25,16 @@ import {
 } from '../../CodeTypes';
 import {
   ClassFromKey,
-  getClassKey,
-  getPathKey,
-  PathFromKey,
+  FilePathFromKey,
+  GetClassKey,
+  GetPathKey,
 } from '../../IpcTypeCheck';
 import {
   ClassKey,
   ClassName,
-  Path,
+  FilePath,
+  FilePathKey,
   PathDatabase,
-  PathKey,
   Team,
 } from '../../IpcTypes';
 import { OneFileIndex } from '../types';
@@ -109,26 +109,26 @@ export const TeamsAtom = atom(async (get): Promise<Team[]> => {
 });
 
 const PathKeysForTeamFamily = atomFamily((team: Team) =>
-  atom(async (get): Promise<Set<PathKey>> => {
+  atom(async (get): Promise<Set<FilePathKey>> => {
     return (await get(TeamPathsAtom)).get(team) || new Set();
   }),
 );
 
 const PathsForTeamFamily = atomFamily((team: Team) =>
-  atom(async (get): Promise<Path[]> => {
+  atom(async (get): Promise<FilePath[]> => {
     return [...(await get(PathKeysForTeamFamily(team))).keys()].map(
-      PathFromKey,
+      FilePathFromKey,
     );
   }),
 );
 
-const ClassKeysForPathKeyFamily = atomFamily((pk: PathKey) =>
+const ClassKeysForPathKeyFamily = atomFamily((pk: FilePathKey) =>
   atom(async (get): Promise<Set<ClassKey>> => {
     return (await get(PathClassesAtom)).get(pk) || new Set();
   }),
 );
 
-const ClassesForPathKeyFamily = atomFamily((pk: PathKey) =>
+const ClassesForPathKeyFamily = atomFamily((pk: FilePathKey) =>
   atom(async (get): Promise<ClassName[]> => {
     return [...(await get(ClassKeysForPathKeyFamily(pk))).keys()].map(
       ClassFromKey,
@@ -136,15 +136,19 @@ const ClassesForPathKeyFamily = atomFamily((pk: PathKey) =>
   }),
 );
 
-const PathKeysForSelectedTeamAtom = atom(async (get): Promise<Set<PathKey>> => {
-  const selTeam = await get(SelectedTeamAtom);
-  return await get(PathKeysForTeamFamily(selTeam));
-});
+const PathKeysForSelectedTeamAtom = atom(
+  async (get): Promise<Set<FilePathKey>> => {
+    const selTeam = await get(SelectedTeamAtom);
+    return await get(PathKeysForTeamFamily(selTeam));
+  },
+);
 
-export const PathsForSelectedTeamAtom = atom(async (get): Promise<Path[]> => {
-  const selTeam = await get(SelectedTeamAtom);
-  return await get(PathsForTeamFamily(selTeam));
-});
+export const PathsForSelectedTeamAtom = atom(
+  async (get): Promise<FilePath[]> => {
+    const selTeam = await get(SelectedTeamAtom);
+    return await get(PathsForTeamFamily(selTeam));
+  },
+);
 
 const ClassKeysForSelectedPathAtom = atom(
   async (get): Promise<Set<ClassKey>> => {
@@ -172,15 +176,15 @@ export const SelectedTeamAtom = atom(
     const cur = get(SelectedTeamBacking);
     // Clear the selected file when the team is changed
     if (cur !== val) {
-      set(SelectedPathAtom, '' as Path);
+      set(SelectedPathAtom, '' as FilePath);
       set(SelectedTeamBacking, val as Team);
     }
   },
 );
 
-const SelectedPathKeyBacking = atomWithStorage<PathKey>(
+const SelectedPathKeyBacking = atomWithStorage<FilePathKey>(
   'selectedPathKey',
-  '' as PathKey,
+  '' as FilePathKey,
   undefined,
   { getOnInit: true },
 );
@@ -190,30 +194,30 @@ const SelectedPathKeyAtom = atom(
     const selPath = await get(SelectedPathKeyBacking);
     const selTeam = await get(SelectedTeamAtom);
     if (selTeam === '') {
-      return '' as PathKey;
+      return '' as FilePathKey;
     }
     const pathsForTeam = await get(PathKeysForSelectedTeamAtom);
     if (pathsForTeam.size === 1) {
-      return [...pathsForTeam.keys()][0]! as PathKey;
+      return [...pathsForTeam.keys()][0]! as FilePathKey;
     }
-    return selPath as PathKey;
+    return selPath as FilePathKey;
   },
-  (get, set, val: PathKey) => {
+  (get, set, val: FilePathKey) => {
     const pathKey = get(SelectedPathKeyBacking);
     // Clear the selected class when the file is changed
     if (pathKey !== val) {
       set(SelectedClassAtom, '' as ClassName);
-      set(SelectedPathKeyBacking, val as PathKey);
+      set(SelectedPathKeyBacking, val as FilePathKey);
     }
   },
 );
 
 export const SelectedPathAtom = atom(
-  async (get) => PathFromKey(await get(SelectedPathKeyAtom)),
-  async (get, set, val: Path | string) => {
+  async (get) => FilePathFromKey(await get(SelectedPathKeyAtom)),
+  async (get, set, val: FilePath | string) => {
     const team = await get(SelectedTeamAtom);
     const curKey = await get(SelectedPathKeyAtom);
-    const key = getPathKey(team, val as Path);
+    const key = GetPathKey(team, val as FilePath);
     // Clear the selected class when the file is changed
     if (key !== curKey) {
       set(SelectedClassAtom, '' as ClassName);
@@ -262,7 +266,7 @@ export const SelectedClassAtom = atom(
   async (get) => ClassFromKey(await get(SelectedClassKeyAtom)),
   async (get, set, val: ClassName | string) => {
     const pathKey = await get(SelectedPathKeyAtom);
-    const classKey = getClassKey(pathKey, val);
+    const classKey = GetClassKey(pathKey, val);
     const curSel = await get(SelectedClassKeyAtom);
     if (classKey != curSel) {
       set(SelectedClassKeyAtom, classKey);

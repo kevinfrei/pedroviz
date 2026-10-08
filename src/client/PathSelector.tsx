@@ -5,7 +5,7 @@ import { useAtom, useAtomValue } from 'jotai';
 
 import { Label } from '@fluentui/react-components';
 
-import { Path } from '../IpcTypes';
+import { FilePath } from '../IpcTypes';
 import { Strings } from './constants';
 import {
   ClassesForSelectedPathAtom,
@@ -49,7 +49,7 @@ export function FileSelector(): ReactElement {
       const tryPrefix = files[0]!.substring(0, tryIt + 1);
       if (files.every((p) => p.startsWith(tryPrefix))) {
         prefix += tryPrefix;
-        files = files.map((p) => p.substring(tryIt + 1) as Path);
+        files = files.map((p) => p.substring(tryIt + 1) as FilePath);
         tryIt = files[0]!.indexOf('/');
       } else {
         break;
@@ -71,7 +71,7 @@ export function FileSelector(): ReactElement {
         prompt={Strings.select_a_file}
         items={files}
         selected={file.substring(prefix.length)}
-        setSelected={(item) => setFile((prefix + item) as Path)}
+        setSelected={(item) => setFile((prefix + item) as FilePath)}
       />
     </>
   );
@@ -87,7 +87,11 @@ export function ClassSelector(): ReactElement {
   }, [classes, setClass]);
   return (
     <>
-      <Label className="pathLabel">Class:</Label>
+      <Label
+        className="pathLabel"
+        style={{ paddingRight: 12, backgroundColor: 'green' }}>
+        Class:
+      </Label>
       <AutoSelector
         prompt={Strings.select_a_class}
         items={classes}

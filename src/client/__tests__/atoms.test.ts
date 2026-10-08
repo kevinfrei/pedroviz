@@ -19,9 +19,9 @@ import { chkPathDatabase } from '../../IpcTypeCheck';
 import {
   ClassKey,
   ClassName,
-  Path,
+  FilePath,
+  FilePathKey,
   PathDatabase,
-  PathKey,
   Team,
 } from '../../IpcTypes';
 import {
@@ -48,21 +48,21 @@ const status = {
 };
 const database: PathDatabase = {
   HasFieldImage: false,
-  TeamPaths: MakeMultiMap<Team, PathKey>([
+  TeamPaths: MakeMultiMap<Team, FilePathKey>([
     [
       'team1' as Team,
-      ['team1*path1.java' as PathKey, 'team1*path2.java' as PathKey],
+      ['team1*path1.java' as FilePathKey, 'team1*path2.java' as FilePathKey],
     ],
     [
       'team2' as Team,
-      ['team2*path3.java' as PathKey, 'team2*path4.java' as PathKey],
+      ['team2*path3.java' as FilePathKey, 'team2*path4.java' as FilePathKey],
     ],
   ]),
-  PathClasses: MakeMultiMap<PathKey, ClassKey>([
-    ['team1*path1.java' as PathKey, ['team1*path1.java;a' as ClassKey]],
-    ['team1*path2.java' as PathKey, ['team1*path2.java;b' as ClassKey]],
-    ['team2*path3.java' as PathKey, ['team2*path3.java;c' as ClassKey]],
-    ['team2*path4.java' as PathKey, ['team2*path4.java;d' as ClassKey]],
+  PathClasses: MakeMultiMap<FilePathKey, ClassKey>([
+    ['team1*path1.java' as FilePathKey, ['team1*path1.java;a' as ClassKey]],
+    ['team1*path2.java' as FilePathKey, ['team1*path2.java;b' as ClassKey]],
+    ['team2*path3.java' as FilePathKey, ['team2*path3.java;c' as ClassKey]],
+    ['team2*path4.java' as FilePathKey, ['team2*path4.java;d' as ClassKey]],
   ]),
   ParsedClasses: new Map<ClassKey, ParsedClass>([
     ['team1*path1.java;a' as ClassKey, MakeEmptyParsedClass()],
@@ -87,8 +87,8 @@ async function MyFetchFunc(
         database.ParsedClasses =
           db?.ParsedClasses || new Map<ClassKey, ParsedClass>();
         database.PathClasses =
-          db?.PathClasses || MakeMultiMap<PathKey, ClassKey>();
-        database.TeamPaths = db?.TeamPaths || MakeMultiMap<Team, PathKey>();
+          db?.PathClasses || MakeMultiMap<FilePathKey, ClassKey>();
+        database.TeamPaths = db?.TeamPaths || MakeMultiMap<Team, FilePathKey>();
       }
       return new Response('', status);
     }
@@ -119,7 +119,7 @@ describe('Atom Capabilities', () => {
     const selectedFile = await act(() =>
       renderHook(() => useAtomValue(SelectedPathAtom)),
     );
-    expect(selectedFile.result.current).toEqual('path1.java' as Path);
+    expect(selectedFile.result.current).toEqual('path1.java' as FilePath);
     await act(() => setTeam.result.current[1]('team2'));
     const selectedTeam2 = await act(() =>
       renderHook(() => useAtomValue(SelectedTeamAtom)),
@@ -137,16 +137,16 @@ describe('Atom Capabilities', () => {
     expect(selPaths.result.current[0]).toEqual([
       'path3.java',
       'path4.java',
-    ] as Path[]);
+    ] as FilePath[]);
     const selPath = await act(() =>
       renderHook(() => useAtom(SelectedPathAtom)),
     );
-    expect(selPath.result.current[0]).toEqual('' as Path);
+    expect(selPath.result.current[0]).toEqual('' as FilePath);
     selPath.result.current[1]('path3.java');
     const selPath2 = await act(() =>
       renderHook(() => useAtomValue(SelectedPathAtom)),
     );
-    expect(selPath2.result.current).toEqual('path3.java' as Path);
+    expect(selPath2.result.current).toEqual('path3.java' as FilePath);
     // const selClassKeys = await act(() =>
     //   renderHook(() => useAtomValue(ClassKeysForSelectedPathAtom)),
     // );

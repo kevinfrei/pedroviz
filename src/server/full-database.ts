@@ -6,16 +6,16 @@ import { ErrorOr, isError, isUndefined, MakeError } from '@freik/typechk';
 import { ParsedClass } from '../CodeTypes';
 import {
   ClassFromKey,
-  getClassKey,
-  getPathKey,
-  PathFromKey,
+  FilePathFromKey,
+  GetClassKey,
+  GetPathKey,
 } from '../IpcTypeCheck';
 import {
   ClassKey,
   ClassName,
-  Path,
+  FilePath,
+  FilePathKey,
   PathDatabase,
-  PathKey,
   Team,
 } from '../IpcTypes';
 import { CheckForFieldImages } from './FieldImages';
@@ -27,8 +27,8 @@ import { anyItems, MakeParsedClass } from './PathChainLoader';
 
 const database: PathDatabase = {
   HasFieldImage: false,
-  TeamPaths: MakeMultiMap<Team, PathKey>(),
-  PathClasses: MakeMultiMap<PathKey, ClassKey>(),
+  TeamPaths: MakeMultiMap<Team, FilePathKey>(),
+  PathClasses: MakeMultiMap<FilePathKey, ClassKey>(),
   ParsedClasses: new Map<ClassKey, ParsedClass>(),
 };
 
@@ -56,16 +56,16 @@ async function GetPathChainIndex(
 
 function RegisterTopLevelParsedClass(
   team: Team,
-  path: Path,
+  path: FilePath,
   pc: ParsedClass,
 ): void {
   if (!anyItems(pc)) {
     return;
   }
-  const pathKey = getPathKey(team, path);
+  const pathKey = GetPathKey(team, path);
   database.TeamPaths.set(team, pathKey);
   ForEachPathChainIndex(pc, (pc) => {
-    const classKey = getClassKey(pathKey, pc.name);
+    const classKey = GetClassKey(pathKey, pc.name);
     database.PathClasses.set(pathKey, classKey);
     database.ParsedClasses.set(classKey, pc);
   });
@@ -76,7 +76,7 @@ export async function RescanSourceCode(): Promise<PathDatabase> {
   const teamPaths = await GetTeamPaths();
   for (const [team, pki] of teamPaths) {
     for (const pathKey of pki) {
-      const path = PathFromKey(pathKey);
+      const path = FilePathFromKey(pathKey);
       const pci = await GetPathChainIndex(team, path);
       if (!isError(pci)) {
         RegisterTopLevelParsedClass(team, path, pci);
@@ -103,8 +103,8 @@ export function ReplaceDatabase(db: PathDatabase) {
   database.ParsedClasses = db.ParsedClasses;
 }
 
-function GetParsedClassList(team: Team, path: Path): ErrorOr<ClassName[]> {
-  const res = database.PathClasses.get(getPathKey(team, path));
+function GetParsedClassList(team: Team, path: FilePath): ErrorOr<ClassName[]> {
+  const res = database.PathClasses.get(GetPathKey(team, path));
   if (isUndefined(res)) {
     return MakeError(`List: ${team}:${path} no Pedro pathing classes found`);
   }
@@ -115,14 +115,14 @@ function GetParsedClassList(team: Team, path: Path): ErrorOr<ClassName[]> {
 
 export function WebGetParsedClassRoot(
   team: Team,
-  path: Path,
+  path: FilePath,
 ): ErrorOr<ParsedClass> {
   const list = GetParsedClassList(team, path);
   if (isError(list)) {
     return list;
   }
   const shortest = list.reduce((pv, cv) => (pv.length < cv.length ? pv : cv));
-  const classKey = getClassKey(getPathKey(team, path), shortest);
+  const classKey = GetClassKey(GetPathKey(team, path), shortest);
   const res = database.ParsedClasses.get(classKey);
   if (isUndefined(res)) {
     return MakeError(`Root: ${team}:${path} no Pedro pathing classes found`);

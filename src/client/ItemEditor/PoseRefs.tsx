@@ -11,9 +11,11 @@ import {
   Text,
 } from '@fluentui/react-components';
 import { AlertFilled } from '@fluentui/react-icons';
+import { ResolvedPose } from 'src/client/ResolvedTypes';
 import { hasField, isDefined, isUndefined } from '@freik/typechk';
 
-import { chkErr, chkRef, PoseRef, ResolvedPose } from '../dto_schema';
+import { chkErr, chkRef } from '../../DataTypeChecks';
+import { PoseRef } from '../../DataTypes';
 import { resolvePoseRef } from '../Resolvers';
 import { symbolTableAtom } from '../state/SymbolTable';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';

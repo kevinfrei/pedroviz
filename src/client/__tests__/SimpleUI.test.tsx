@@ -22,7 +22,7 @@ import { Pickle } from '@freik/typechk';
 
 import '@testing-library/jest-dom';
 
-import { Path, Team } from '../../IpcTypes';
+import { FilePath, Team } from '../../IpcTypes';
 import { Strings } from '../constants';
 import { PathsDataDisplay } from '../PathsDataDisplay';
 import { ClassSelector, FileSelector, TeamSelector } from '../PathSelector';
@@ -162,7 +162,7 @@ describe('Simplest UI validation', () => {
       expect(await store.get(SelectedTeamAtom)).toBe('team2' as Team);
     });
     await waitFor(async () => {
-      expect(await store.get(SelectedPathAtom)).toBe('' as Path);
+      expect(await store.get(SelectedPathAtom)).toBe('' as FilePath);
     });
     // The second menu should now be enabled
     expect(path).toBeEnabled();
@@ -173,7 +173,7 @@ describe('Simplest UI validation', () => {
     expect(selectFile).toBeEnabled();
     await act(async () => fireEvent.click(selectFile));
     await waitFor(async () => {
-      expect(await store.get(SelectedPathAtom)).toBe('path3.java' as Path);
+      expect(await store.get(SelectedPathAtom)).toBe('path3.java' as FilePath);
     });
     await act(async () => {
       await store.set(SelectedTeamAtom, 'team3');
@@ -201,7 +201,7 @@ describe('SchemaAtom tests', () => {
       await store.set(SelectedClassAtom, 'c');
     });
     await act(async () => {
-      expect(await store.get(SelectedPathAtom)).toBe('path3.java' as Path);
+      expect(await store.get(SelectedPathAtom)).toBe('path3.java' as FilePath);
     });
     expect(await store.get(ValuesLookupAtom)).toBeDefined();
     expect(await store.get(NamedPosesAtom)).toBeDefined();
