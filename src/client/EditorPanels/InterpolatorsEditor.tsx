@@ -19,7 +19,7 @@ import {
   NewMapRename,
 } from '../../DataTypeChecks';
 import { InterpRef } from '../../DataTypes';
-import { InterpRefControl } from '../ItemEditor/InterpRefs';
+import { InterpRefControl } from '../ItemEditor/InterpRef';
 import {
   DataType,
   selectedKeyAtom,
@@ -125,7 +125,7 @@ export function InterpolatorsEditor(): ReactElement {
             />
             <InterpRefControl
               label="Interpolator Definition"
-              interp={activeInterp}
+              item={activeInterp}
               onChange={(updatedInterp: InterpRef) =>
                 setInterpolations(
                   NewMapAdd(interpolations, activeKey, updatedInterp),

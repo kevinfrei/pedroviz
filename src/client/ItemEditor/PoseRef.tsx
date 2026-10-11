@@ -19,24 +19,24 @@ import { PoseRef } from '../../DataTypes';
 import { resolvePoseRef } from '../Resolvers';
 import { symbolTableAtom } from '../state/SymbolTable';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
-import { ResolvedValueInline, ValRefControl, ValRefInline } from './ValRefs';
+import { ResolvedValueInline, ValRefControl, ValRefInline } from './ValRef';
 
 export type PoseRefControlProps = {
   label: string;
-  pose: PoseRef;
+  item: PoseRef;
   onChange: (npr: PoseRef) => void;
 };
 
 // PoseRef Control: Switch between Inline ({ X, Y, Heading, inRadians }) and Ref ({ ref })
 export function PoseRefControl({
   label,
-  pose,
+  item,
   onChange,
 }: PoseRefControlProps): ReactElement {
   const symbolTable = useAtomValue(symbolTableAtom);
   const poseKeys = Array.from(symbolTable.poses.keys());
-  const isRef = chkRef(pose);
-  const resolved = resolvePoseRef(pose, symbolTable);
+  const isRef = chkRef(item);
+  const resolved = resolvePoseRef(item, symbolTable);
 
   const setToRef = (toRef: boolean) => {
     if (toRef) {
@@ -45,8 +45,7 @@ export function PoseRefControl({
       onChange({
         X: { val: 0 },
         Y: { val: 0 },
-        Heading: { val: 0 },
-        inRadians: false,
+        heading: { angle: { val: 0 }, inRadians: false },
       });
     }
   };
@@ -67,7 +66,7 @@ export function PoseRefControl({
         {isRef ? (
           <span>
             <Select
-              value={pose?.ref || ''}
+              value={item?.ref || ''}
               onChange={(e, d) => onChange({ ref: d.value })}>
               <option key="$" value="" disabled>
                 Select Pose Reference...
@@ -87,7 +86,7 @@ export function PoseRefControl({
                     <br />
                   </span>
                 ))}
-                for {pose?.ref}
+                for {item?.ref}
               </Text>
             )}
           </span>
@@ -95,25 +94,25 @@ export function PoseRefControl({
           <div>
             <ValRefControl
               label="X Coordinate"
-              value={pose?.X || { val: 0 }}
-              onChange={(X) => onChange({ ...pose, X })}
+              item={item?.X || { val: 0 }}
+              onChange={(X) => onChange({ ...item, X })}
             />
             <ValRefControl
               label="Y Coordinate"
-              value={pose?.Y || { val: 0 }}
-              onChange={(Y) => onChange({ ...pose, Y })}
+              item={item?.Y || { val: 0 }}
+              onChange={(Y) => onChange({ ...item, Y })}
             />
             <ValRefControl
               label="Heading Angle"
-              value={pose?.Heading || { val: 0 }}
-              onChange={(Heading) => onChange({ ...pose, Heading })}
+              item={item?.heading || { val: 0 }}
+              onChange={(Heading) => onChange({ ...item, angle: Heading })}
             />
 
             <div>
               <Checkbox
-                checked={Boolean(pose?.inRadians)}
+                checked={Boolean(item?.inRadians)}
                 onChange={(e) =>
-                  onChange({ ...pose, inRadians: e.target.checked })
+                  onChange({ ...item, inRadians: e.target.checked })
                 }
                 label="Heading Angle in Radians?"
               />
@@ -181,7 +180,7 @@ export function PoseRefInline({
   );
   const heading = hasField(poseref, 'Heading') ? (
     <>
-      θ: <ValRefInline valref={poseref.Heading} />
+      θ: <ValRefInline valref={poseref.heading} />
       {poseref.inRadians ? ' in radians' : ' in degrees'}
     </>
   ) : (

@@ -4,6 +4,7 @@ import {
   chkAnyOf,
   chkArrayOf,
   chkObjectOfExactType,
+  chkOneOf,
   isBoolean,
   isError,
   isNumber,
@@ -15,6 +16,8 @@ import {
   ConstInterp,
   Curve,
   FacePtInterp,
+  HeadingRef,
+  HeadingVal,
   InterpNames,
   Interpolator,
   InterpPiece,
@@ -55,26 +58,34 @@ export const chkErr = isError;
 export const chkRef = chkObjectOfExactType<Ref>({ ref: isString });
 export const chkValue = chkObjectOfExactType<Value>({ val: isNumber });
 export const chkValRef = chkAnyOf(chkRef, chkValue);
-const chkPose = chkObjectOfExactType<Pose>(
+export const chkHeadingVal = chkObjectOfExactType<HeadingVal>({
+  angle: chkValRef,
+  inRadians: isBoolean,
+});
+export const chkHeadingRef: typecheck<HeadingRef> = (
+  obj: unknown,
+): obj is HeadingRef => {
+  return chkAnyOf(chkPoseRef, chkHeadingVal)(obj);
+};
+export const chkPose = chkObjectOfExactType<Pose>(
   {
     X: chkValRef,
     Y: chkValRef,
   },
   {
-    Heading: chkValRef,
-    inRadians: isBoolean,
+    heading: chkAnyOf(chkHeadingRef, chkHeadingVal),
   },
 );
 export const chkPoseRef = chkAnyOf(chkRef, chkPose);
 export const chkConstInterp = chkObjectOfExactType<ConstInterp>({
-  heading: chkValRef,
+  heading: chkHeadingRef,
 });
 export const chkFacePtInterp = chkObjectOfExactType<FacePtInterp>({
   point: chkPoseRef,
 });
 export const chkLinearInterp = chkObjectOfExactType<LinearInterp>({
-  startHeading: chkValRef,
-  endHeading: chkValRef,
+  start: chkConstInterp,
+  end: chkConstInterp,
   longWay: isBoolean,
 });
 export const chkTangentInterp = chkObjectOfExactType<TangentInterp>({

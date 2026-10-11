@@ -20,7 +20,7 @@ import {
   NewMapRename,
 } from '../../DataTypeChecks';
 import { CurveRef } from '../../DataTypes';
-import { CurveRefControl } from '../ItemEditor/CurveRefs';
+import { CurveRefControl } from '../ItemEditor/CurveRef';
 import {
   DataType,
   selectedKeyAtom,
@@ -55,8 +55,7 @@ export function CurvesEditor(): ReactElement {
           {
             X: { val: 0 },
             Y: { val: 0 },
-            Heading: { val: 0 },
-            inRadians: false,
+            heading: { angle: { val: 0 }, inRadians: false },
           },
         ],
         interpolation: { reversed: false },
@@ -134,7 +133,7 @@ export function CurvesEditor(): ReactElement {
             />
             <CurveRefControl
               label="Curve Definition"
-              curve={activeCurve}
+              item={activeCurve}
               onChange={(updatedCurve: CurveRef) => {
                 setCurves(NewMapAdd(curves, activeKey, updatedCurve));
               }}

@@ -3,25 +3,30 @@
 export type Ref = { ref: string };
 export type Value = { val: number };
 export type ValRef = Value | Ref;
+
+export type HeadingVal = { angle: ValRef; inRadians: boolean };
+// This is specifically only a ref to a *pose* not a value.
+// For a ref to a value, you must use the HeadingVal type above.
+export type HeadingRef = Ref | HeadingVal;
+
 export type Pose = {
   X: ValRef;
   Y: ValRef;
-  Heading?: ValRef;
-  inRadians?: boolean;
+  heading?: HeadingRef;
 };
 export type PoseRef = Pose | Ref;
 
 export type InterpRef = Interpolator | Ref;
-export type PieceWiseInterp = { pieces: InterpPiece[] };
 export type TangentInterp = { reversed: boolean };
-export type InterpPiece = { until: ValRef; interpolator: InterpRef };
+export type FacePtInterp = { point: PoseRef };
+export type ConstInterp = { heading: HeadingRef };
 export type LinearInterp = {
-  startHeading: ValRef;
-  endHeading: ValRef;
+  start: HeadingRef;
+  end: HeadingRef;
   longWay: boolean;
 };
-export type FacePtInterp = { point: PoseRef };
-export type ConstInterp = { heading: ValRef };
+export type InterpPiece = { until: ValRef; interpolator: InterpRef };
+export type PieceWiseInterp = { pieces: InterpPiece[] };
 export type Interpolator =
   ConstInterp | FacePtInterp | LinearInterp | PieceWiseInterp | TangentInterp;
 

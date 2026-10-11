@@ -10,6 +10,7 @@ import { hasField } from '@freik/typechk';
 import {
   chkConstInterp,
   chkFacePtInterp,
+  chkHeadingVal,
   chkLinearInterp,
   chkPieceWiseInterp,
   chkRef,
@@ -22,30 +23,30 @@ import {
   symbolTableInterpolationsAtom,
 } from '../state/SymbolTable';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
-import { PoseRefControl } from './PoseRefs';
-import { ValRefControl } from './ValRefs';
+import { PoseRefControl } from './PoseRef';
+import { ValRefControl } from './ValRef';
 
 export type InterpRefControlPropsWithShow = {
   label: string;
-  interp?: InterpRef;
+  item?: InterpRef;
   showNone: true;
   onChange: (interp: InterpRef | null) => void;
 };
 export type InterpRefControlPropsNoShow = {
   label: string;
-  interp: InterpRef;
+  item: InterpRef;
   onChange: (interp: InterpRef) => void;
 };
 export function InterpRefControl(
   props: InterpRefControlPropsWithShow | InterpRefControlPropsNoShow,
 ): ReactElement {
-  const { label, interp, onChange } = props;
+  const { label, item, onChange } = props;
   const showNone = hasField(props, 'showNone') ? props.showNone : false;
   const symbolTable = useAtomValue(symbolTableAtom);
   const interpolations = useAtomValue(symbolTableInterpolationsAtom);
   const interpKeys = Array.from(interpolations.keys());
 
-  const currentType = !interp ? 'None' : getInterpType(interp);
+  const currentType = !item ? 'None' : getInterpType(item);
 
   const handleTypeChange = (newType: InterpNames | 'Reference' | 'None') => {
     switch (newType) {
@@ -53,22 +54,21 @@ export function InterpRefControl(
         onChange({ ref: interpKeys[0] || '' });
         break;
       case 'Constant':
-        onChange({ heading: { val: 0 } });
+        onChange({ heading: { val: 0 }, inRadians: true });
         break;
       case 'Facing':
         onChange({
           point: {
             X: { val: 0 },
             Y: { val: 0 },
-            Heading: { val: 0 },
-            inRadians: false,
+            heading: { heading: { val: 0 }, inRadians: false },
           },
         });
         break;
       case 'Linear':
         onChange({
-          startHeading: { val: 0 },
-          endHeading: { val: 180 },
+          start: { heading: { val: 0 }, inRadians: true },
+          end: { heading: { val: 180 }, inRadians: false },
           longWay: false,
         });
         break;
@@ -107,10 +107,10 @@ export function InterpRefControl(
           <option value="PieceWise">Piecewise (Multi-Segment)</option>
         </Select>
 
-        {chkRef(interp) && (
+        {chkRef(item) && (
           <span>
             <Select
-              value={interp?.ref || ''}
+              value={item?.ref || ''}
               onChange={(e) => onChange({ ref: e.target.value })}>
               <option key="$" value="" disabled>
                 Select Interpolator Reference...
@@ -124,22 +124,36 @@ export function InterpRefControl(
           </span>
         )}
 
-        {chkConstInterp(interp) && (
-          <ValRefControl
-            label="Heading Value"
-            value={interp.heading || { val: 0 }}
-            onChange={(heading) => onChange({ heading })}
-          />
-        )}
+        {chkConstInterp(item) &&
+          (chkHeadingVal(item) ? (
+            <ValRefControl
+              label="Heading Value"
+              item={item.heading || { val: 0 }}
+              onChange={(heading) => onChange({ heading })}
+            />
+          ) : (
+            <PoseRefControl
+              label="Heading Value"
+              item={
+                item.heading || {
+                  X: 0,
+                  Y: 0,
+                  heading: { val: 0 },
+                  inRadians: false,
+                }
+              }
+              onChange={(poseRef) => onChange({ heading: poseRef })}
+            />
+          ))}
 
-        {chkFacePtInterp(interp) && (
+        {chkFacePtInterp(item) && (
           <PoseRefControl
             label="Target Point Pose"
-            pose={
-              interp?.point || {
+            item={
+              item?.point || {
                 X: { val: 0 },
                 Y: { val: 0 },
-                Heading: { val: 0 },
+                heading: { val: 0 },
                 inRadians: false,
               }
             }
@@ -147,44 +161,44 @@ export function InterpRefControl(
           />
         )}
 
-        {chkLinearInterp(interp) && (
+        {chkLinearInterp(item) && (
           <div>
             <ValRefControl
               label="Start Heading"
-              value={interp.startHeading || { val: 0 }}
-              onChange={(startHeading) => onChange({ ...interp, startHeading })}
+              item={item.start || { val: 0 }}
+              onChange={(startHeading) => onChange({ ...item, startHeading })}
             />
             <ValRefControl
               label="End Heading"
-              value={interp?.endHeading || { val: 180 }}
-              onChange={(endHeading) => onChange({ ...interp, endHeading })}
+              item={item?.end || { val: 180 }}
+              onChange={(endHeading) => onChange({ ...item, endHeading })}
             />
             <Checkbox
               label="Turn the 'long way'"
-              checked={interp?.longWay}
+              checked={item?.longWay}
               onChange={(_, d) =>
-                onChange({ ...interp, longWay: d.checked === true })
+                onChange({ ...item, longWay: d.checked === true })
               }
             />
           </div>
         )}
 
-        {chkTangentInterp(interp) && (
+        {chkTangentInterp(item) && (
           <Checkbox
             label="Face the opposite direction of the path"
-            checked={Boolean(interp?.reversed)}
+            checked={Boolean(item?.reversed)}
             onChange={(_, d) => onChange({ reversed: d.checked === true })}
           />
         )}
 
-        {chkPieceWiseInterp(interp) && (
+        {chkPieceWiseInterp(item) && (
           <div>
             <div>
               <span>Piecewise Interpolator Segments</span>
               <Button
                 icon={<AddRegular />}
                 onClick={() => {
-                  const pieces = interp?.pieces || [];
+                  const pieces = item?.pieces || [];
                   onChange({
                     pieces: [
                       ...pieces,
@@ -199,16 +213,14 @@ export function InterpRefControl(
               </Button>
             </div>
 
-            {(interp?.pieces || []).map((piece, idx) => (
+            {(item?.pieces || []).map((piece, idx) => (
               <div key={idx}>
                 <div>
                   <span>Piece #{idx + 1}</span>
                   <Button
                     icon={<DeleteRegular />}
                     onClick={() => {
-                      const newPieces = interp.pieces.filter(
-                        (_, i) => i !== idx,
-                      );
+                      const newPieces = item.pieces.filter((_, i) => i !== idx);
                       onChange({ pieces: newPieces });
                     }}
                     title="Remove Piece"
@@ -217,9 +229,9 @@ export function InterpRefControl(
 
                 <ValRefControl
                   label="Until (% of path complete)"
-                  value={piece.until}
+                  item={piece.until}
                   onChange={(until) => {
-                    const newPieces = [...interp.pieces];
+                    const newPieces = [...item.pieces];
                     newPieces[idx] = { ...piece, until };
                     onChange({ pieces: newPieces });
                   }}
@@ -227,9 +239,9 @@ export function InterpRefControl(
 
                 <InterpRefControl
                   label="Segment Interpolator"
-                  interp={piece.interpolator}
+                  item={piece.interpolator}
                   onChange={(interpolator: InterpRef) => {
-                    const newPieces = [...interp.pieces];
+                    const newPieces = [...item.pieces];
                     newPieces[idx] = { ...piece, interpolator };
                     onChange({ pieces: newPieces });
                   }}

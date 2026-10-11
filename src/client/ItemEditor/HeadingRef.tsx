@@ -15,8 +15,8 @@ import { ResolvedValue } from 'src/client/ResolvedTypes';
 import { isError, isUndefined } from '@freik/typechk';
 
 import { chkErr, chkRef, chkValue } from '../../DataTypeChecks';
-import { SymbolTable, ValRef } from '../../DataTypes';
-import { resolveValRef } from '../Resolvers';
+import { HeadingRef, HeadingVal, SymbolTable, ValRef } from '../../DataTypes';
+import { resolvePoseRef, resolveValRef } from '../Resolvers';
 import { symbolTableAtom, symbolTableValuesAtom } from '../state/SymbolTable';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
 
@@ -38,24 +38,23 @@ function filterValues(
   });
 }
 
-export type ValRefControlProps = {
+export type HeadingRefControlProps = {
   label: string;
-  value: ValRef;
-  ref?: string;
-  onChange: (valRef: ValRef) => void;
+  item: HeadingRef;
+  onChange: (headingRef: HeadingRef) => void;
 };
 
-// ValRef Control: Switch between Inline ({ val }) and Ref ({ ref })
-export function ValRefControl({
+// HeadingRef Control: Switch between Inline ({ angle: ValRef, inRadians: Boolean }) and PoseRef ({ ref })
+// This is intentionally not allowing inline poses. I think that's probably silly/unnecessary anyway.
+export function HeadingRefControl({
   label,
-  value,
-  ref,
+  item,
   onChange,
-}: ValRefControlProps): ReactElement {
+}: HeadingRefControlProps): ReactElement {
   const symbolTable = useAtomValue(symbolTableAtom);
   const valueKeys = [...useAtomValue(symbolTableValuesAtom).keys()];
-  const isRef = chkRef(value);
-  const resolved = resolveValRef(value, symbolTable);
+  const isRef = chkRef(item);
+  const resolved = resolveHeadingRef(item, symbolTable);
   const setToRef = (toRef: boolean) => {
     if (toRef) {
       const firstKey = filterValues(valueKeys, symbolTable, ref)[0] || '';

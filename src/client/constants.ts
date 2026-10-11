@@ -58,9 +58,12 @@ export const SAMPLE_AUTONOMOUS_PRESET: SymbolTable = {
   interpolations: RecordToMap({
     tangentInterp: { reversed: false },
     linearHeadingInterp: {
-      startHeading: { ref: 'startHeading' },
-      endHeading: { ref: 'targetHeading' },
+      start: { ref: 'startPose' },
+      end: { ref: 'waypointPose' },
       longWay: false,
+    },
+    constantInterp: {
+      heading: { ref: 'startPose' },
     },
     faceTargetInterp: {
       point: { ref: 'targetPose' },

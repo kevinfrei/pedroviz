@@ -1,23 +1,26 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import {
-  ResolvedCurve,
-  ResolvedInterpolator,
-  ResolvedPose,
-  ResolvedValue,
-} from 'src/client/ResolvedTypes';
-import { hasField, isDefined, isError, MakeError } from '@freik/typechk';
+  hasField,
+  isDefined,
+  isError,
+  isUndefined,
+  MakeError,
+} from '@freik/typechk';
 
 import {
   chkConstInterp,
   chkFacePtInterp,
   chkLinearInterp,
   chkPieceWiseInterp,
+  chkPose,
+  chkPoseRef,
   chkRef,
   chkTangentInterp,
 } from '../DataTypeChecks';
 import {
   CurveRef,
+  HeadingRef,
   InterpPiece,
   InterpRef,
   Path,
@@ -25,6 +28,13 @@ import {
   SymbolTable,
   ValRef,
 } from '../DataTypes';
+import {
+  ResolvedCurve,
+  ResolvedHeading,
+  ResolvedInterpolator,
+  ResolvedPose,
+  ResolvedValue,
+} from './ResolvedTypes';
 
 // Resolvers:
 
@@ -35,7 +45,7 @@ export function resolveValRef(
 ): ResolvedValue {
   if (chkRef(valRef)) {
     if (seen.has(valRef.ref)) {
-      return MakeError(`Circular value reference detected :${valRef.ref}`);
+      return MakeError(`Circular value reference detected: ${valRef.ref}`);
     }
     seen.add(valRef.ref);
     const lkup = dict.values.get(valRef.ref);
@@ -47,6 +57,40 @@ export function resolveValRef(
   return valRef.val;
 }
 
+export function resolveHeadingRef(
+  headingRef: HeadingRef,
+  dict: SymbolTable,
+  seen = new Set<string>(),
+): ResolvedHeading {
+  if (chkRef(headingRef)) {
+    if (seen.has(headingRef.ref)) {
+      return MakeError(
+        `Circular heading reference detected: ${headingRef.ref}`,
+      );
+    }
+    seen.add(headingRef.ref);
+    const lkup = dict.poses.get(headingRef.ref);
+    if (!isDefined(lkup)) {
+      return MakeError(
+        `Missing pose reference from heading: ${headingRef.ref}`,
+      );
+    }
+    const pose = resolvePoseRef(lkup, dict, seen);
+    if (isError(pose)) {
+      return pose;
+    } else if (isUndefined(pose.heading)) {
+      return MakeError(
+        `Pose referenced by heading ${headingRef.ref} missing 'heading' field`,
+      );
+    }
+    return pose.heading;
+  }
+  return {
+    angle: resolveValRef(headingRef.angle, dict),
+    inRadians: headingRef.inRadians,
+  };
+}
+
 // This always resolved to degrees
 export function resolvePoseRef(
   poseRef: PoseRef,
@@ -55,7 +99,7 @@ export function resolvePoseRef(
 ): ResolvedPose {
   if (chkRef(poseRef)) {
     if (seen.has(poseRef.ref)) {
-      return MakeError(`Circular pose reference detected :${poseRef.ref}`);
+      return MakeError(`Circular pose reference detected: ${poseRef.ref}`);
     }
     seen.add(poseRef.ref);
     const lkup = dict.poses.get(poseRef.ref);
@@ -67,14 +111,8 @@ export function resolvePoseRef(
   const X = resolveValRef(poseRef.X, dict);
   const Y = resolveValRef(poseRef.Y, dict);
   if (hasField(poseRef, 'Heading')) {
-    let Heading = resolveValRef(poseRef.Heading!, dict);
-    if (isError(Heading)) {
-      return { X, Y, Heading };
-    }
-    if (poseRef.inRadians) {
-      Heading = (180 * Heading) / Math.PI;
-    }
-    return { X, Y, Heading };
+    let heading = resolveHeadingRef(poseRef.heading!, dict);
+    return { X, Y, heading };
   } else {
     return { X, Y };
   }
@@ -88,7 +126,7 @@ export function resolvePoseRef(
   if (chkRef(interpRef)) {
     if (seen.has(interpRef.ref)) {
       return MakeError(
-        `Circular interpolator reference detected :${interpRef.ref}`,
+        `Circular interpolator reference detected: ${interpRef.ref}`,
       );
     }
     seen.add(interpRef.ref);
@@ -103,13 +141,13 @@ export function resolvePoseRef(
     // "yup, it's tangent: Maybe it's reversed?"
     return interpRef;
   } else if (chkConstInterp(interpRef)) {
-    return { heading: resolveValRef(interpRef.heading, dict) };
+    return { heading: resolveHeadingRef(interpRef.heading, dict) };
   } else if (chkFacePtInterp(interpRef)) {
     return { point: resolvePoseRef(interpRef.point, dict) };
   } else if (chkLinearInterp(interpRef)) {
     return {
-      startHeading: resolveValRef(interpRef.startHeading, dict),
-      endHeading: resolveValRef(interpRef.endHeading, dict),
+      start: resolveHeadingRef(interpRef.start, dict),
+      end: resolveHeadingRef(interpRef.end, dict),
       longWay: interpRef.longWay,
     };
   } else if (chkPieceWiseInterp(interpRef)) {
@@ -130,7 +168,7 @@ export function resolvePoseRef(
 ): ResolvedCurve {
   if (chkRef(curveRef)) {
     if (seen.has(curveRef.ref)) {
-      return MakeError(`Circular curve reference detected :${curveRef.ref}`);
+      return MakeError(`Circular curve reference detected: ${curveRef.ref}`);
     }
     seen.add(curveRef.ref);
     const lkup = dict.curves.get(curveRef.ref);

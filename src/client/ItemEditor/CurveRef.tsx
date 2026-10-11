@@ -18,23 +18,23 @@ import { chkRef } from '../../DataTypeChecks';
 import { CurveRef, InterpRef } from '../../DataTypes';
 import { symbolTableAtom } from '../state/SymbolTable';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
-import { InterpRefControl } from './InterpRefs';
-import { PoseRefControl } from './PoseRefs';
+import { InterpRefControl } from './InterpRef';
+import { PoseRefControl } from './PoseRef';
 
 export type CurveRefControlProps = {
   label: string;
-  curve: CurveRef;
+  item: CurveRef;
   onChange: (ncr: CurveRef) => void;
 };
 // CurveRef Control: Inline Curve vs Ref ({ ref })
 export function CurveRefControl({
   label,
-  curve,
+  item,
   onChange,
 }: CurveRefControlProps): ReactElement {
   const symbolTable = useAtomValue(symbolTableAtom);
   const curveKeys = Array.from(symbolTable.curves.keys());
-  const isRef = chkRef(curve);
+  const isRef = chkRef(item);
 
   const setToRef = (toRef: boolean) => {
     if (toRef) {
@@ -45,14 +45,12 @@ export function CurveRefControl({
           {
             X: { val: 10 },
             Y: { val: 10 },
-            Heading: { val: 0 },
-            inRadians: false,
+            heading: { angle: { val: 0 }, inRadians: false },
           },
           {
             X: { val: 20 },
             Y: { val: 20 },
-            Heading: { val: 0 },
-            inRadians: false,
+            heading: { angle: { val: 0 }, inRadians: false },
           },
         ],
         interpolation: { reversed: false },
@@ -75,7 +73,7 @@ export function CurveRefControl({
 
         {isRef ? (
           <Select
-            value={chkRef(curve) ? curve.ref : ''}
+            value={chkRef(item) ? item.ref : ''}
             onChange={(e) => onChange({ ref: e.target.value })}>
             <option key="$" value="" disabled>
               Select Curve Reference...
@@ -94,16 +92,15 @@ export function CurveRefControl({
                 <ToolbarButton
                   icon={<AddRegular />}
                   onClick={() => {
-                    const pts = curve?.points || [];
+                    const pts = item?.points || [];
                     onChange({
-                      ...curve,
+                      ...item,
                       points: [
                         ...pts,
                         {
                           X: { val: 0 },
                           Y: { val: 0 },
-                          Heading: { val: 0 },
-                          inRadians: false,
+                          heading: { angle: { val: 0 }, inRadians: false },
                         },
                       ],
                     });
@@ -112,19 +109,19 @@ export function CurveRefControl({
                 </ToolbarButton>
               </Toolbar>
 
-              {(curve?.points || []).map((pt, pIdx) => (
+              {(item?.points || []).map((pt, pIdx) => (
                 <div key={pIdx}>
                   <div>
                     <span>Pose #{pIdx + 1}</span>
-                    {(curve?.points || []).length > 1 && (
+                    {(item?.points || []).length > 1 && (
                       <Button
                         icon={<DeleteRegular />}
 
                         onClick={() => {
-                          const newPts = curve.points.filter(
+                          const newPts = item.points.filter(
                             (_, i) => i !== pIdx,
                           );
-                          onChange({ ...curve, points: newPts });
+                          onChange({ ...item, points: newPts });
                         }}
                         title="Remove Pose Point"
                       />
@@ -132,11 +129,11 @@ export function CurveRefControl({
                   </div>
                   <PoseRefControl
                     label={`Point ${pIdx + 1}`}
-                    pose={pt}
+                    item={pt}
                     onChange={(newPt) => {
-                      const newPts = [...curve.points];
+                      const newPts = [...item.points];
                       newPts[pIdx] = newPt;
-                      onChange({ ...curve, points: newPts });
+                      onChange({ ...item, points: newPts });
                     }}
                   />
                 </div>
@@ -145,9 +142,9 @@ export function CurveRefControl({
 
             <InterpRefControl
               label="Curve Interpolator"
-              interp={curve?.interpolation || { reversed: false }}
+              item={item?.interpolation || { reversed: false }}
               onChange={(interpolation: InterpRef) =>
-                onChange({ ...curve, interpolation })
+                onChange({ ...item, interpolation })
               }
             />
           </div>

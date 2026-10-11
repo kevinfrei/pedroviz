@@ -13,7 +13,7 @@ import { AddRegular, SearchRegular } from '@fluentui/react-icons';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 
 import { NewMapAdd, NewMapDelete, NewMapRename } from '../../DataTypeChecks';
-import { PoseRefControl, PoseRefInline } from '../ItemEditor/PoseRefs';
+import { PoseRefControl, PoseRefInline } from '../ItemEditor/PoseRef';
 import { resolvePoseRef } from '../Resolvers';
 import {
   DataType,
@@ -48,8 +48,7 @@ export function PosesEditor(): ReactElement {
       NewMapAdd(poses, newKey, {
         X: { val: 0 },
         Y: { val: 0 },
-        Heading: { val: 0 },
-        inRadians: false,
+        heading: { angle: { val: 0 }, inRadians: true },
       }),
     );
     setSelected(NewMapAdd(selected, DataType.Poses, newKey));
@@ -130,7 +129,7 @@ export function PosesEditor(): ReactElement {
             />
             <PoseRefControl
               label="Pose Coordinates & Heading"
-              pose={activePose}
+              item={activePose}
               onChange={(updatedPose) => {
                 setPoses(NewMapAdd(poses, activeKey, updatedPose));
                 setToast(`Updated pose "${activeKey}"`);

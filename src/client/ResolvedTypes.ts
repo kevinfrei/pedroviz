@@ -5,17 +5,24 @@ import { TangentInterp } from '../DataTypes';
 // Value Resolution types (only live in the web stuff)
 
 export type ResolvedValue = ErrorOr<number>;
+
+type CorrectHeading = {
+  angle: ResolvedValue;
+  inRadians: boolean;
+};
+export type ResolvedHeading = ErrorOr<CorrectHeading>;
+
 type CorrectPose = {
   X: ResolvedValue;
   Y: ResolvedValue;
-  Heading?: ResolvedValue;
+  heading?: ResolvedHeading;
 };
 export type ResolvedPose = ErrorOr<CorrectPose>;
-type CorrectConstInterp = { heading: ResolvedValue };
+type CorrectConstInterp = { heading: ResolvedHeading };
 type CorrectFacePtInterp = { point: ResolvedPose };
 type CorrectLinearInterp = {
-  startHeading: ResolvedValue;
-  endHeading: ResolvedValue;
+  start: ResolvedHeading;
+  end: ResolvedHeading;
   longWay: boolean;
 };
 type CorrectInterpPiece = {

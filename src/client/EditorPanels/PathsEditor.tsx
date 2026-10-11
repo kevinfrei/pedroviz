@@ -25,8 +25,8 @@ import {
   NewMapUpdate,
 } from '../../DataTypeChecks';
 import { InterpRef } from '../../DataTypes';
-import { CurveRefControl } from '../ItemEditor/CurveRefs';
-import { InterpRefControl } from '../ItemEditor/InterpRefs';
+import { CurveRefControl } from '../ItemEditor/CurveRef';
+import { InterpRefControl } from '../ItemEditor/InterpRef';
 import {
   DataType,
   selectedKeyAtom,
@@ -181,7 +181,7 @@ export function PathsEditor(): ReactElement {
                     </div>
                     <CurveRefControl
                       label={`Segment ${cIdx + 1}`}
-                      curve={cRef}
+                      item={cRef}
                       onChange={(newCRef) => {
                         const newCurves = [...activePath.curves];
                         newCurves[cIdx] = newCRef;
@@ -199,7 +199,7 @@ export function PathsEditor(): ReactElement {
                 <InterpRefControl
                   label="Global Path Override Interpolator (Optional)"
                   showNone={true}
-                  interp={activePath.globalInterpolator}
+                  item={activePath.globalInterpolator}
                   onChange={(globalInterpolator: InterpRef | null) => {
                     const val = { ...activePath };
                     if (globalInterpolator === null) {

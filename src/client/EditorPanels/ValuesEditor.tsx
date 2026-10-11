@@ -13,7 +13,7 @@ import { AddRegular, SearchRegular } from '@fluentui/react-icons';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 
 import { NewMapAdd, NewMapDelete, NewMapRename } from '../../DataTypeChecks';
-import { ValRefControl, ValRefInline } from '../ItemEditor/ValRefs';
+import { ValRefControl, ValRefInline } from '../ItemEditor/ValRef';
 import {
   DataType,
   selectedKeyAtom,
@@ -115,7 +115,7 @@ export function ValuesEditor(): ReactElement {
             />
             <ValRefControl
               label="Value or Reference"
-              value={activeValue}
+              item={activeValue}
               ref={activeKey}
               onChange={(newVal) =>
                 setValues(NewMapAdd(values, activeKey, newVal))
