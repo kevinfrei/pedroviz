@@ -134,6 +134,7 @@ export function CurvesEditor(): ReactElement {
             <CurveRefControl
               label="Curve Definition"
               item={activeCurve}
+              name={activeKey}
               onChange={(updatedCurve: CurveRef) => {
                 setCurves(NewMapAdd(curves, activeKey, updatedCurve));
               }}

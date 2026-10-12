@@ -5,7 +5,7 @@ import { useAtomValue } from 'jotai';
 
 import { Button, Checkbox, Select } from '@fluentui/react-components';
 import { AddRegular, DeleteRegular } from '@fluentui/react-icons';
-import { hasField } from '@freik/typechk';
+import { hasField, isDefined, isError } from '@freik/typechk';
 
 import {
   chkConstInterp,
@@ -16,11 +16,14 @@ import {
   chkTangentInterp,
   getInterpType,
 } from '../../DataTypeChecks';
-import { HeadingVal, InterpNames, InterpRef } from '../../DataTypes';
 import {
-  symbolTableAtom,
-  symbolTableInterpolationsAtom,
-} from '../state/SymbolTable';
+  HeadingVal,
+  InterpNames,
+  InterpRef,
+  SymbolTable,
+} from '../../DataTypes';
+import { resolveInterpRef } from '../Resolvers';
+import { symbolTableAtom } from '../state/SymbolTable';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
 import { HeadingRefControl } from './HeadingRef';
 import { PoseRefControl } from './PoseRef';
@@ -29,15 +32,31 @@ import { ValRefControl } from './ValRef';
 const zeroHeading: HeadingVal = { angle: { val: 0 }, inRadians: false };
 const one80Heading: HeadingVal = { angle: { val: 180 }, inRadians: false };
 
+// Filter out interpolation names that would result in errors
+function validInterpsForRef(
+  interpKeys: string[],
+  symbolTable: SymbolTable,
+  name?: string,
+): string[] {
+  if (!name) {
+    return interpKeys;
+  }
+  return interpKeys.filter(
+    (k) => !isError(resolveInterpRef({ ref: k }, symbolTable, new Set([name]))),
+  );
+}
+
 export type InterpRefControlPropsWithShow = {
   label: string;
   item?: InterpRef;
   showNone: true;
+  name?: string;
   onChange: (interp: InterpRef | null) => void;
 };
 export type InterpRefControlPropsNoShow = {
   label: string;
   item: InterpRef;
+  name?: string;
   onChange: (interp: InterpRef) => void;
 };
 export function InterpRefControl(
@@ -46,8 +65,12 @@ export function InterpRefControl(
   const { label, item, onChange } = props;
   const showNone = hasField(props, 'showNone') ? props.showNone : false;
   const symbolTable = useAtomValue(symbolTableAtom);
-  const interpolations = useAtomValue(symbolTableInterpolationsAtom);
-  const interpKeys = Array.from(interpolations.keys());
+  const interpolations = symbolTable.interpolations;
+  const interpKeys = validInterpsForRef(
+    Array.from(interpolations.keys()),
+    symbolTable,
+    props.name,
+  );
 
   const currentType = !item ? 'None' : getInterpType(item);
 
@@ -229,6 +252,7 @@ export function InterpRefControl(
                 <InterpRefControl
                   label="Segment Interpolator"
                   item={piece.interpolator}
+                  name={props.name}
                   onChange={(interpolator: InterpRef) => {
                     const newPieces = [...item.pieces];
                     newPieces[idx] = { ...piece, interpolator };

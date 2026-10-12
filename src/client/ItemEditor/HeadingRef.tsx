@@ -15,6 +15,7 @@ import { AlertFilled } from '@fluentui/react-icons';
 import {
   chkObjectOfExactType,
   isBoolean,
+  isDefined,
   isError,
   isUndefined,
   typecheck,
@@ -23,29 +24,27 @@ import {
 import { chkErr, chkRef, chkValue } from '../../DataTypeChecks';
 import { HeadingRef, Ref, SymbolTable, Value } from '../../DataTypes';
 import { ResolvedHeading } from '../ResolvedTypes';
-import { resolveHeadingRef, resolveValRef } from '../Resolvers';
+import { resolveHeadingRef, resolvePoseRef } from '../Resolvers';
 import { symbolTableAtom } from '../state/SymbolTable';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
 import { PoseRefInline } from './PoseRef';
 import { ValRefInline } from './ValRef';
 
-// Filter out value names that would result in errors
-function filterValues(
-  valueKeys: string[],
+// Filter out pose names that would result in errors
+function validPosesForRef(
+  poseKeys: string[],
   symbolTable: SymbolTable,
-  ref: string | undefined,
 ): string[] {
-  return valueKeys.filter((k) => {
-    if (isUndefined(ref)) {
-      return true;
-    }
-    if (k == ref) {
-      return false;
-    }
-    const resolve = resolveValRef({ ref: k }, symbolTable, new Set(ref));
-    return !isError(resolve);
+  return poseKeys.filter((k) => {
+    const resolved = resolvePoseRef({ ref: k }, symbolTable);
+    return (
+      !isError(resolved) &&
+      isDefined(resolved.heading) &&
+      !isError(resolved.heading)
+    );
   });
 }
+
 type HeadingType = 'pose' | 'ref' | 'val';
 
 const hrIsPose: typecheck<Ref> = chkRef;
@@ -73,13 +72,16 @@ export function HeadingRefControl({
 }: HeadingRefControlProps): ReactElement {
   const symbolTable = useAtomValue(symbolTableAtom);
   const valueKeys = [...symbolTable.values.keys()];
-  const poseKeys = [...symbolTable.poses.keys()];
+  const validPoseKeys = validPosesForRef(
+    [...symbolTable.poses.keys()],
+    symbolTable,
+  );
   const headingType = hrIsPose(item) ? 'pose' : hrIsRef(item) ? 'ref' : 'val';
   const resolved = resolveHeadingRef(item, symbolTable);
   const setType = (type: HeadingType) => {
     switch (type) {
       case 'pose': {
-        const poseKey = poseKeys[0] || '';
+        const poseKey = validPoseKeys[0] || '';
         onChange({ ref: poseKey });
         break;
       }
@@ -118,7 +120,7 @@ export function HeadingRefControl({
                 <option key="$" value="" disabled>
                   Select Pose Reference...
                 </option>
-                {poseKeys.map((k) => (
+                {validPoseKeys.map((k) => (
                   <option key={k} value={k}>
                     {k} <PoseRefInline poseref={symbolTable.poses.get(k)} />
                   </option>

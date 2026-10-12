@@ -5,10 +5,10 @@ import { useAtomValue } from 'jotai';
 
 import { Radio, RadioGroup, Select, Text } from '@fluentui/react-components';
 import { AlertFilled } from '@fluentui/react-icons';
-import { hasField, isDefined, isUndefined } from '@freik/typechk';
+import { hasField, isDefined, isError, isUndefined } from '@freik/typechk';
 
 import { chkErr, chkRef } from '../../DataTypeChecks';
-import { PoseRef } from '../../DataTypes';
+import { PoseRef, SymbolTable } from '../../DataTypes';
 import { ResolvedPose } from '../ResolvedTypes';
 import { resolvePoseRef } from '../Resolvers';
 import { symbolTableAtom } from '../state/SymbolTable';
@@ -20,9 +20,26 @@ import {
 } from './HeadingRef';
 import { ResolvedValueInline, ValRefControl, ValRefInline } from './ValRef';
 
+// Filter out pose names that would result in errors
+function validPosesForRef(
+  poseKeys: string[],
+  symbolTable: SymbolTable,
+  name?: string,
+): string[] {
+  if (isUndefined(name)) {
+    return poseKeys;
+  }
+  return poseKeys.filter(
+    (k) =>
+      k !== name &&
+      !isError(resolvePoseRef({ ref: k }, symbolTable, new Set([name]))),
+  );
+}
+
 export type PoseRefControlProps = {
   label: string;
   item: PoseRef;
+  name?: string;
   onChange: (npr: PoseRef) => void;
 };
 
@@ -30,16 +47,21 @@ export type PoseRefControlProps = {
 export function PoseRefControl({
   label,
   item,
+  name,
   onChange,
 }: PoseRefControlProps): ReactElement {
   const symbolTable = useAtomValue(symbolTableAtom);
-  const poseKeys = Array.from(symbolTable.poses.keys());
+  const validPoseKeys = validPosesForRef(
+    Array.from(symbolTable.poses.keys()),
+    symbolTable,
+    name,
+  );
   const isRef = chkRef(item);
   const resolved = resolvePoseRef(item, symbolTable);
 
   const setToRef = (toRef: boolean) => {
     if (toRef) {
-      onChange({ ref: poseKeys[0] || '' });
+      onChange({ ref: validPoseKeys[0] || '' });
     } else {
       onChange({
         X: { val: 0 },
@@ -70,7 +92,7 @@ export function PoseRefControl({
               <option key="$" value="" disabled>
                 Select Pose Reference...
               </option>
-              {poseKeys.map((k) => (
+              {validPoseKeys.map((k) => (
                 <option key={k} value={k}>
                   {k}
                 </option>

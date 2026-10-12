@@ -116,7 +116,7 @@ export function ValuesEditor(): ReactElement {
             <ValRefControl
               label="Value or Reference"
               item={activeValue}
-              ref={activeKey}
+              name={activeKey}
               onChange={(newVal) =>
                 setValues(NewMapAdd(values, activeKey, newVal))
               }

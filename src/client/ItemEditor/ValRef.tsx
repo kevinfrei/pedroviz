@@ -17,31 +17,29 @@ import { chkErr, chkRef, chkValue } from '../../DataTypeChecks';
 import { SymbolTable, ValRef } from '../../DataTypes';
 import { ResolvedValue } from '../ResolvedTypes';
 import { resolveValRef } from '../Resolvers';
-import { symbolTableAtom, symbolTableValuesAtom } from '../state/SymbolTable';
+import { symbolTableAtom } from '../state/SymbolTable';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
 
 // Filter out value names that would result in errors
-function filterValues(
+function validValuesForRef(
   valueKeys: string[],
   symbolTable: SymbolTable,
-  ref: string | undefined,
+  name?: string,
 ): string[] {
-  return valueKeys.filter((k) => {
-    if (isUndefined(ref)) {
-      return true;
-    }
-    if (k == ref) {
-      return false;
-    }
-    const resolve = resolveValRef({ ref: k }, symbolTable, new Set(ref));
-    return !isError(resolve);
-  });
+  if (isUndefined(name)) {
+    return valueKeys;
+  }
+  return valueKeys.filter(
+    (k) =>
+      k !== name &&
+      !isError(resolveValRef({ ref: k }, symbolTable, new Set([name]))),
+  );
 }
 
 export type ValRefControlProps = {
   label: string;
   item: ValRef;
-  ref?: string;
+  name?: string;
   onChange: (valRef: ValRef) => void;
 };
 
@@ -49,16 +47,16 @@ export type ValRefControlProps = {
 export function ValRefControl({
   label,
   item,
-  ref,
+  name,
   onChange,
 }: ValRefControlProps): ReactElement {
   const symbolTable = useAtomValue(symbolTableAtom);
-  const valueKeys = [...useAtomValue(symbolTableValuesAtom).keys()];
+  const valueKeys = [...symbolTable.values.keys()];
   const isRef = chkRef(item);
   const resolved = resolveValRef(item, symbolTable);
-  const setToRef = (toRef: boolean) => {
-    if (toRef) {
-      const firstKey = filterValues(valueKeys, symbolTable, ref)[0] || '';
+  const setType = (setToRef: boolean) => {
+    if (setToRef) {
+      const firstKey = validValuesForRef(valueKeys, symbolTable, name)[0] || '';
       onChange({ ref: firstKey });
     } else {
       onChange({ val: isError(resolved) ? 0 : resolved });
@@ -72,7 +70,7 @@ export function ValRefControl({
           value={isRef ? 'ref' : 'val'}
           layout="horizontal"
           onChange={(_, data) => {
-            setToRef(data.value === 'ref');
+            setType(data.value === 'ref');
           }}>
           <Radio value="val" label="Number" />
           <Radio value="ref" label="Reference" />
@@ -94,7 +92,7 @@ export function ValRefControl({
                 <option key="$" value="" disabled>
                   Select Value Reference...
                 </option>
-                {filterValues(valueKeys, symbolTable, ref).map((k) => (
+                {validValuesForRef(valueKeys, symbolTable, name).map((k) => (
                   <option key={k} value={k}>
                     {k} <ValRefInline valref={symbolTable.values.get(k)} />
                   </option>

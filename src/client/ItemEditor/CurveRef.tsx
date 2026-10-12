@@ -13,27 +13,51 @@ import {
   ToolbarButton,
 } from '@fluentui/react-components';
 import { AddRegular, DeleteRegular } from '@fluentui/react-icons';
+import { isError } from 'node_modules/@freik/typechk/lib/esm';
 
 import { chkRef } from '../../DataTypeChecks';
-import { CurveRef, InterpRef } from '../../DataTypes';
+import { CurveRef, InterpRef, SymbolTable } from '../../DataTypes';
+import { resolveCurveRef } from '../Resolvers';
 import { symbolTableAtom } from '../state/SymbolTable';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
 import { InterpRefControl } from './InterpRef';
 import { PoseRefControl } from './PoseRef';
 
+// Filter out interpolation names that would result in errors
+function validCurvesForRef(
+  curveKeys: string[],
+  symbolTable: SymbolTable,
+  name?: string,
+): string[] {
+  if (!name) {
+    return curveKeys;
+  }
+  return curveKeys.filter(
+    (k) =>
+      k !== name &&
+      !isError(resolveCurveRef({ ref: k }, symbolTable, new Set([name]))),
+  );
+}
+
 export type CurveRefControlProps = {
   label: string;
   item: CurveRef;
+  name?: string;
   onChange: (ncr: CurveRef) => void;
 };
 // CurveRef Control: Inline Curve vs Ref ({ ref })
 export function CurveRefControl({
   label,
   item,
+  name,
   onChange,
 }: CurveRefControlProps): ReactElement {
   const symbolTable = useAtomValue(symbolTableAtom);
-  const curveKeys = Array.from(symbolTable.curves.keys());
+  const curveKeys = validCurvesForRef(
+    Array.from(symbolTable.curves.keys()),
+    symbolTable,
+    name,
+  );
   const isRef = chkRef(item);
 
   const setToRef = (toRef: boolean) => {

@@ -118,7 +118,7 @@ export function resolvePoseRef(
   }
 }
 
-/*export*/ function resolveInterpRef(
+export function resolveInterpRef(
   interpRef: InterpRef,
   dict: SymbolTable,
   seen = new Set<string>(),
@@ -161,7 +161,7 @@ export function resolvePoseRef(
   return MakeError(`Unknown interpolator type ${interpRef}`);
 }
 
-/*export*/ function resolveCurveRef(
+export function resolveCurveRef(
   curveRef: CurveRef,
   dict: SymbolTable,
   seen = new Set<string>(),

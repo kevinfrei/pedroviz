@@ -130,6 +130,7 @@ export function PosesEditor(): ReactElement {
             <PoseRefControl
               label="Pose Coordinates & Heading"
               item={activePose}
+              name={activeKey}
               onChange={(updatedPose) => {
                 setPoses(NewMapAdd(poses, activeKey, updatedPose));
                 setToast(`Updated pose "${activeKey}"`);
