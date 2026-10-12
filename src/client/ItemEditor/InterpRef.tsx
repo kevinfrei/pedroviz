@@ -10,21 +10,24 @@ import { hasField } from '@freik/typechk';
 import {
   chkConstInterp,
   chkFacePtInterp,
-  chkHeadingVal,
   chkLinearInterp,
   chkPieceWiseInterp,
   chkRef,
   chkTangentInterp,
   getInterpType,
 } from '../../DataTypeChecks';
-import { InterpNames, InterpRef } from '../../DataTypes';
+import { HeadingVal, InterpNames, InterpRef } from '../../DataTypes';
 import {
   symbolTableAtom,
   symbolTableInterpolationsAtom,
 } from '../state/SymbolTable';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
+import { HeadingRefControl } from './HeadingRef';
 import { PoseRefControl } from './PoseRef';
 import { ValRefControl } from './ValRef';
+
+const zeroHeading: HeadingVal = { angle: { val: 0 }, inRadians: false };
+const one80Heading: HeadingVal = { angle: { val: 180 }, inRadians: false };
 
 export type InterpRefControlPropsWithShow = {
   label: string;
@@ -54,21 +57,21 @@ export function InterpRefControl(
         onChange({ ref: interpKeys[0] || '' });
         break;
       case 'Constant':
-        onChange({ heading: { val: 0 }, inRadians: true });
+        onChange({ heading: zeroHeading });
         break;
       case 'Facing':
         onChange({
           point: {
             X: { val: 0 },
             Y: { val: 0 },
-            heading: { heading: { val: 0 }, inRadians: false },
+            heading: zeroHeading,
           },
         });
         break;
       case 'Linear':
         onChange({
-          start: { heading: { val: 0 }, inRadians: true },
-          end: { heading: { val: 180 }, inRadians: false },
+          start: zeroHeading,
+          end: one80Heading,
           longWay: false,
         });
         break;
@@ -124,27 +127,13 @@ export function InterpRefControl(
           </span>
         )}
 
-        {chkConstInterp(item) &&
-          (chkHeadingVal(item) ? (
-            <ValRefControl
-              label="Heading Value"
-              item={item.heading || { val: 0 }}
-              onChange={(heading) => onChange({ heading })}
-            />
-          ) : (
-            <PoseRefControl
-              label="Heading Value"
-              item={
-                item.heading || {
-                  X: 0,
-                  Y: 0,
-                  heading: { val: 0 },
-                  inRadians: false,
-                }
-              }
-              onChange={(poseRef) => onChange({ heading: poseRef })}
-            />
-          ))}
+        {chkConstInterp(item) && (
+          <HeadingRefControl
+            label="Heading Value"
+            item={item.heading || { angle: { val: 0 }, inRadians: false }}
+            onChange={(hr) => onChange({ heading: hr })}
+          />
+        )}
 
         {chkFacePtInterp(item) && (
           <PoseRefControl
@@ -153,7 +142,7 @@ export function InterpRefControl(
               item?.point || {
                 X: { val: 0 },
                 Y: { val: 0 },
-                heading: { val: 0 },
+                heading: zeroHeading,
                 inRadians: false,
               }
             }
@@ -163,15 +152,15 @@ export function InterpRefControl(
 
         {chkLinearInterp(item) && (
           <div>
-            <ValRefControl
+            <HeadingRefControl
               label="Start Heading"
-              item={item.start || { val: 0 }}
-              onChange={(startHeading) => onChange({ ...item, startHeading })}
+              item={item.start || zeroHeading}
+              onChange={(start) => onChange({ ...item, start })}
             />
-            <ValRefControl
+            <HeadingRefControl
               label="End Heading"
-              item={item?.end || { val: 180 }}
-              onChange={(endHeading) => onChange({ ...item, endHeading })}
+              item={item?.end || one80Heading}
+              onChange={(end) => onChange({ ...item, end })}
             />
             <Checkbox
               label="Turn the 'long way'"

@@ -50,7 +50,8 @@ export function getInterpType(interp: InterpRef): InterpNames {
   if (chkPieceWiseInterp(interp)) {
     return 'PieceWise';
   }
-  throw new Error('Invalid Interpolator...');
+  console.log(interp);
+  throw new Error(`Invalid Interpolator: ${interp}`);
 }
 
 // Type checkers:
@@ -84,8 +85,8 @@ export const chkFacePtInterp = chkObjectOfExactType<FacePtInterp>({
   point: chkPoseRef,
 });
 export const chkLinearInterp = chkObjectOfExactType<LinearInterp>({
-  start: chkConstInterp,
-  end: chkConstInterp,
+  start: chkHeadingRef,
+  end: chkHeadingRef,
   longWay: isBoolean,
 });
 export const chkTangentInterp = chkObjectOfExactType<TangentInterp>({

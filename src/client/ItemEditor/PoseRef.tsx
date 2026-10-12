@@ -3,22 +3,21 @@
 import { ReactElement } from 'react';
 import { useAtomValue } from 'jotai';
 
-import {
-  Checkbox,
-  Radio,
-  RadioGroup,
-  Select,
-  Text,
-} from '@fluentui/react-components';
+import { Radio, RadioGroup, Select, Text } from '@fluentui/react-components';
 import { AlertFilled } from '@fluentui/react-icons';
-import { ResolvedPose } from 'src/client/ResolvedTypes';
 import { hasField, isDefined, isUndefined } from '@freik/typechk';
 
 import { chkErr, chkRef } from '../../DataTypeChecks';
 import { PoseRef } from '../../DataTypes';
+import { ResolvedPose } from '../ResolvedTypes';
 import { resolvePoseRef } from '../Resolvers';
 import { symbolTableAtom } from '../state/SymbolTable';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
+import {
+  HeadingRefControl,
+  HeadingRefInline,
+  ResolvedHeadingInline,
+} from './HeadingRef';
 import { ResolvedValueInline, ValRefControl, ValRefInline } from './ValRef';
 
 export type PoseRefControlProps = {
@@ -102,21 +101,11 @@ export function PoseRefControl({
               item={item?.Y || { val: 0 }}
               onChange={(Y) => onChange({ ...item, Y })}
             />
-            <ValRefControl
+            <HeadingRefControl
               label="Heading Angle"
-              item={item?.heading || { val: 0 }}
-              onChange={(Heading) => onChange({ ...item, angle: Heading })}
+              item={item?.heading || { angle: { val: 0 }, inRadians: false }}
+              onChange={(Heading) => onChange({ ...item, heading: Heading })}
             />
-
-            <div>
-              <Checkbox
-                checked={Boolean(item?.inRadians)}
-                onChange={(e) =>
-                  onChange({ ...item, inRadians: e.target.checked })
-                }
-                label="Heading Angle in Radians?"
-              />
-            </div>
           </div>
         )}
 
@@ -137,14 +126,14 @@ function ResolvedPose({ pose }: { pose: ResolvedPose }): ReactElement {
   }
   const coord = (
     <>
-      (X:
+      X:
       <ResolvedValueInline value={pose.X} />, Y:
-      <ResolvedValueInline value={pose.Y} />)
+      <ResolvedValueInline value={pose.Y} />
     </>
   );
-  const heading = isDefined(pose.Heading) ? (
+  const heading = isDefined(pose.heading) ? (
     <>
-      , @<ResolvedValueInline value={pose.Heading} />°
+      , θ: <ResolvedHeadingInline heading={pose.heading} />
     </>
   ) : (
     <></>
@@ -174,14 +163,15 @@ export function PoseRefInline({
   }
   const coord = (
     <>
-      X: <ValRefInline valref={poseref.X} />, Y:{' '}
+      X:
+      <ValRefInline valref={poseref.X} />, Y:
       <ValRefInline valref={poseref.Y} />
     </>
   );
-  const heading = hasField(poseref, 'Heading') ? (
+  const heading = hasField(poseref, 'heading') ? (
     <>
-      θ: <ValRefInline valref={poseref.heading} />
-      {poseref.inRadians ? ' in radians' : ' in degrees'}
+      , θ:
+      <HeadingRefInline headingref={poseref.heading} />
     </>
   ) : (
     <></>

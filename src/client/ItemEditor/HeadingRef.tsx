@@ -4,6 +4,7 @@ import { Fragment, ReactElement } from 'react';
 import { useAtomValue } from 'jotai';
 
 import {
+  Checkbox,
   Radio,
   RadioGroup,
   Select,
@@ -11,14 +12,22 @@ import {
   Text,
 } from '@fluentui/react-components';
 import { AlertFilled } from '@fluentui/react-icons';
-import { ResolvedValue } from 'src/client/ResolvedTypes';
-import { isError, isUndefined } from '@freik/typechk';
+import {
+  chkObjectOfExactType,
+  isBoolean,
+  isError,
+  isUndefined,
+  typecheck,
+} from '@freik/typechk';
 
 import { chkErr, chkRef, chkValue } from '../../DataTypeChecks';
-import { HeadingRef, HeadingVal, SymbolTable, ValRef } from '../../DataTypes';
-import { resolvePoseRef, resolveValRef } from '../Resolvers';
-import { symbolTableAtom, symbolTableValuesAtom } from '../state/SymbolTable';
+import { HeadingRef, Ref, SymbolTable, Value } from '../../DataTypes';
+import { ResolvedHeading } from '../ResolvedTypes';
+import { resolveHeadingRef, resolveValRef } from '../Resolvers';
+import { symbolTableAtom } from '../state/SymbolTable';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
+import { PoseRefInline } from './PoseRef';
+import { ValRefInline } from './ValRef';
 
 // Filter out value names that would result in errors
 function filterValues(
@@ -37,6 +46,17 @@ function filterValues(
     return !isError(resolve);
   });
 }
+type HeadingType = 'pose' | 'ref' | 'val';
+
+const hrIsPose: typecheck<Ref> = chkRef;
+const hrIsVal = chkObjectOfExactType<{ angle: Value; inRadians: boolean }>({
+  angle: chkValue,
+  inRadians: isBoolean,
+});
+const hrIsRef = chkObjectOfExactType<{ angle: Ref; inRadians: boolean }>({
+  angle: chkRef,
+  inRadians: isBoolean,
+});
 
 export type HeadingRefControlProps = {
   label: string;
@@ -52,15 +72,26 @@ export function HeadingRefControl({
   onChange,
 }: HeadingRefControlProps): ReactElement {
   const symbolTable = useAtomValue(symbolTableAtom);
-  const valueKeys = [...useAtomValue(symbolTableValuesAtom).keys()];
-  const isRef = chkRef(item);
+  const valueKeys = [...symbolTable.values.keys()];
+  const poseKeys = [...symbolTable.poses.keys()];
+  const headingType = hrIsPose(item) ? 'pose' : hrIsRef(item) ? 'ref' : 'val';
   const resolved = resolveHeadingRef(item, symbolTable);
-  const setToRef = (toRef: boolean) => {
-    if (toRef) {
-      const firstKey = filterValues(valueKeys, symbolTable, ref)[0] || '';
-      onChange({ ref: firstKey });
-    } else {
-      onChange({ val: isError(resolved) ? 0 : resolved });
+  const setType = (type: HeadingType) => {
+    switch (type) {
+      case 'pose': {
+        const poseKey = poseKeys[0] || '';
+        onChange({ ref: poseKey });
+        break;
+      }
+      case 'ref': {
+        const valKey = valueKeys[0] || '';
+        onChange({ angle: { ref: valKey }, inRadians: false });
+        break;
+      }
+      case 'val': {
+        onChange({ angle: { val: 0 }, inRadians: false });
+        break;
+      }
     }
   };
 
@@ -68,34 +99,28 @@ export function HeadingRefControl({
     <TitleWrapper title={label}>
       <>
         <RadioGroup
-          value={isRef ? 'ref' : 'val'}
+          value={headingType}
           layout="horizontal"
           onChange={(_, data) => {
-            setToRef(data.value === 'ref');
+            setType(data.value as HeadingType);
           }}>
-          <Radio value="val" label="Number" />
-          <Radio value="ref" label="Reference" />
+          <Radio value="val" label="Value" />
+          <Radio value="ref" label="Named Value" />
+          <Radio value="pose" label="Named Pose" />
         </RadioGroup>
-        {!isRef ? (
-          <SpinButton
-            precision={2}
-            step={1}
-            stepPage={10}
-            value={chkValue(value) ? value.val : 0}
-            onChange={(_, d) => onChange({ val: d.value || 0 })}
-          />
-        ) : (
+        {hrIsPose(item) && (
+          // Pose Reference
           <>
             <span>
               <Select
-                value={value?.ref || ''}
+                value={item.ref}
                 onChange={(e, d) => onChange({ ref: d.value })}>
                 <option key="$" value="" disabled>
-                  Select Value Reference...
+                  Select Pose Reference...
                 </option>
-                {filterValues(valueKeys, symbolTable, ref).map((k) => (
+                {poseKeys.map((k) => (
                   <option key={k} value={k}>
-                    {k} <ValRefInline valref={symbolTable.values.get(k)} />
+                    {k} <PoseRefInline poseref={symbolTable.poses.get(k)} />
                   </option>
                 ))}
               </Select>
@@ -109,9 +134,49 @@ export function HeadingRefControl({
                     <br />
                   </Fragment>
                 ))}
-                for {value.ref}
+                for {item.ref}
               </Text>
             )}
+          </>
+        )}
+        {!hrIsPose(item) && (
+          <>
+            {hrIsVal(item) && (
+              // Numeric Angle value
+              <SpinButton
+                precision={3}
+                step={1}
+                stepPage={10}
+                value={item.angle.val}
+                onChange={(_, d) =>
+                  onChange({ angle: { val: d.value || 0 }, inRadians: false })
+                }
+              />
+            )}
+            {hrIsRef(item) && (
+              // Angle Value *reference*
+              <Select
+                value={(item.angle as Ref).ref}
+                onChange={(_, d) =>
+                  onChange({ ...item, angle: { ref: d.value } })
+                }>
+                <option key="$" value="" disabled>
+                  Select Value Reference...
+                </option>
+                {valueKeys.map((k) => (
+                  <option key={k} value={k}>
+                    {k} <ValRefInline valref={symbolTable.values.get(k)} />
+                  </option>
+                ))}
+              </Select>
+            )}
+            <Checkbox
+              checked={item.inRadians}
+              onChange={(e) =>
+                onChange({ ...item, inRadians: e.target.checked })
+              }
+              label="Heading Angle in Radians?"
+            />
           </>
         )}
       </>
@@ -119,33 +184,57 @@ export function HeadingRefControl({
   );
 }
 
-export function ResolvedValueInline({
-  value,
+export function ResolvedHeadingInline({
+  heading,
 }: {
-  value: ResolvedValue;
+  heading: ResolvedHeading;
 }): ReactElement {
   return (
     <>
-      {chkErr(value) ? `Error: ${value.errors().join('\n')}` : value.toFixed(2)}
+      {chkErr(heading)
+        ? `Error: ${heading.errors().join('\n')}`
+        : chkErr(heading.angle)
+          ? `Error: ${heading.angle.errors().join('\n')} in value`
+          : `${heading.angle.toFixed(2)}${heading.inRadians ? ' rads' : '°'}`}
     </>
   );
 }
 
-export function ValRefInline({
-  valref,
+export function HeadingRefInline({
+  headingref,
 }: {
-  valref?: ValRef | undefined;
+  headingref?: HeadingRef | undefined;
 }): ReactElement {
-  if (isUndefined(valref)) {
+  if (isUndefined(headingref)) {
     return <Text>Not found</Text>;
   }
-  const isVal = chkValue(valref);
-  const isRef = chkRef(valref);
-  const title = isVal ? 'Value' : isRef ? 'Ref' : 'Null';
-  const data = isRef ? valref.ref : isVal ? valref.val.toFixed(2) : 'null';
+  const title = hrIsPose(headingref)
+    ? 'Pose Ref'
+    : hrIsRef(headingref)
+      ? 'Value Ref'
+      : hrIsVal(headingref)
+        ? 'Value'
+        : 'Null';
+  const data = hrIsPose(headingref)
+    ? headingref.ref
+    : hrIsRef(headingref)
+      ? headingref.angle.ref
+      : hrIsVal(headingref)
+        ? headingref.angle.val.toFixed(3)
+        : 'null';
+  const suffix =
+    hrIsPose(headingref) || isUndefined(headingref)
+      ? ''
+      : headingref.inRadians
+        ? 'radians'
+        : 'degrees';
   return (
     <Text>
-      {title}&nbsp;<code>{data}</code>
+      {title}&nbsp;
+      <code>
+        {data}&nbsp;
+        {suffix}
+      </code>
     </Text>
   );
 }

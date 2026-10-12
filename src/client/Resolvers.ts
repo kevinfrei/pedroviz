@@ -86,7 +86,7 @@ export function resolveHeadingRef(
     return pose.heading;
   }
   return {
-    angle: resolveValRef(headingRef.angle, dict),
+    angle: resolveValRef(headingRef.angle, dict, seen),
     inRadians: headingRef.inRadians,
   };
 }
@@ -108,10 +108,10 @@ export function resolvePoseRef(
       : MakeError(`Missing pose reference: ${poseRef.ref}`);
   }
   // Resolve the PoseRef's individual components:
-  const X = resolveValRef(poseRef.X, dict);
-  const Y = resolveValRef(poseRef.Y, dict);
-  if (hasField(poseRef, 'Heading')) {
-    let heading = resolveHeadingRef(poseRef.heading!, dict);
+  const X = resolveValRef(poseRef.X, dict, seen);
+  const Y = resolveValRef(poseRef.Y, dict, seen);
+  if (hasField(poseRef, 'heading') && isDefined(poseRef.heading)) {
+    let heading = resolveHeadingRef(poseRef.heading, dict, seen);
     return { X, Y, heading };
   } else {
     return { X, Y };
@@ -141,19 +141,19 @@ export function resolvePoseRef(
     // "yup, it's tangent: Maybe it's reversed?"
     return interpRef;
   } else if (chkConstInterp(interpRef)) {
-    return { heading: resolveHeadingRef(interpRef.heading, dict) };
+    return { heading: resolveHeadingRef(interpRef.heading, dict, seen) };
   } else if (chkFacePtInterp(interpRef)) {
-    return { point: resolvePoseRef(interpRef.point, dict) };
+    return { point: resolvePoseRef(interpRef.point, dict, seen) };
   } else if (chkLinearInterp(interpRef)) {
     return {
-      start: resolveHeadingRef(interpRef.start, dict),
-      end: resolveHeadingRef(interpRef.end, dict),
+      start: resolveHeadingRef(interpRef.start, dict, seen),
+      end: resolveHeadingRef(interpRef.end, dict, seen),
       longWay: interpRef.longWay,
     };
   } else if (chkPieceWiseInterp(interpRef)) {
     return {
       pieces: interpRef.pieces.map((piece: InterpPiece) => ({
-        until: resolveValRef(piece.until, dict),
+        until: resolveValRef(piece.until, dict, seen),
         interpolater: resolveInterpRef(piece.interpolator, dict, seen),
       })),
     };
@@ -177,8 +177,10 @@ export function resolvePoseRef(
       : MakeError(`Missing interpolator reference: ${curveRef.ref}`);
   }
   return {
-    points: curveRef.points.map((poseRef) => resolvePoseRef(poseRef, dict)),
-    interpolation: resolveInterpRef(curveRef.interpolation, dict),
+    points: curveRef.points.map((poseRef) =>
+      resolvePoseRef(poseRef, dict, seen),
+    ),
+    interpolation: resolveInterpRef(curveRef.interpolation, dict, seen),
   };
 }
 

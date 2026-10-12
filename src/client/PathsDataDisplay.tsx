@@ -21,14 +21,6 @@ import { ValuesEditor } from './EditorPanels/ValuesEditor';
 import { activeTabAtom } from './state/SymbolTable';
 import { SelectedClassAtom, SelectedPathAtom } from './state/UserCode';
 
-// function FileInfo() {
-//   const pc = useAtomValue(SelectedParsedClassAtom);
-//   if (isUndefined(pc)) {
-//     return <></>;
-//   }
-//   return <span>Class:&nbsp;{pc.fullName}</span>;
-// }
-
 export function PathsDataDisplay({
   expand,
 }: {
@@ -37,13 +29,7 @@ export function PathsDataDisplay({
   const tabInfo: [string, string | ReactElement, ReactElement][] = [
     ['v', 'Values', <ValuesEditor />],
     ['p', 'Poses', <PosesEditor />],
-    [
-      'i',
-      <InfoLabel info="The direction the robot faces, along a path">
-        Interpolations
-      </InfoLabel>,
-      <InterpolatorsEditor />,
-    ],
+    ['i', 'Interpolations', <InterpolatorsEditor />],
     ['c', 'Lines & Curves', <CurvesEditor />],
     ['P', 'Paths', <PathsEditor />],
     ['j', 'Raw JSON', <JsonEditor />],
