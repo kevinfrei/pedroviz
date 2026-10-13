@@ -27,8 +27,8 @@ import { ResolvedHeading } from '../ResolvedTypes';
 import { resolveHeadingRef, resolvePoseRef } from '../Resolvers';
 import { symbolTableAtom } from '../state/SymbolTable';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
-import { PoseRefInline } from './PoseRef';
-import { SimpleValRef, ValRefInline } from './ValRef';
+import { SimplePoseRef } from './PoseRef';
+import { SimpleValRef } from './ValRef';
 
 // Filter out pose names that would result in errors
 function validPosesForRef(
@@ -122,7 +122,7 @@ export function HeadingRefControl({
                 </option>
                 {validPoseKeys.map((k) => (
                   <option key={k} value={k}>
-                    {k} <PoseRefInline poseref={symbolTable.poses.get(k)} />
+                    {k} <SimplePoseRef poseref={symbolTable.poses.get(k)} />
                   </option>
                 ))}
               </Select>
@@ -167,7 +167,7 @@ export function HeadingRefControl({
                 </option>
                 {valueKeys.map((k) => (
                   <option key={k} value={k}>
-                    {k} <ValRefInline valref={symbolTable.values.get(k)} />
+                    {k} <SimpleValRef valref={symbolTable.values.get(k)} />
                   </option>
                 ))}
               </Select>

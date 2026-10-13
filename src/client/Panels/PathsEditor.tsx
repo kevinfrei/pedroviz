@@ -1,20 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { ReactElement, useState } from 'react';
+import { ReactElement } from 'react';
 import { useAtom } from 'jotai';
 
-import {
-  Button,
-  Input,
-  Text,
-  Toolbar,
-  ToolbarButton,
-} from '@fluentui/react-components';
-import {
-  AddRegular,
-  DeleteRegular,
-  SearchRegular,
-} from '@fluentui/react-icons';
+import { Button, Text } from '@fluentui/react-components';
+import { AddRegular, DeleteRegular } from '@fluentui/react-icons';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 import { isDefined } from '@freik/typechk';
 
@@ -27,6 +17,7 @@ import {
 import { InterpRef } from '../../DataTypes';
 import { CurveRefControl } from '../Editors/CurveRef';
 import { InterpRefControl } from '../Editors/InterpRef';
+import { PathsList } from '../Lists/Paths';
 import {
   DataType,
   selectedKeyAtom,
@@ -40,26 +31,10 @@ import { TitleWrapper } from '../ui-tools/TitleWrapper';
 export function PathsEditor(): ReactElement {
   const [paths, setPaths] = useAtom(symbolTablePathsAtom);
   const [selected, setSelected] = useAtom(selectedKeyAtom);
-  const [search, setSearch] = useState('');
   const setToast = useToast();
 
-  const lsearch = search.toLowerCase();
-  const keys = Array.from(paths.keys()).filter((k) =>
-    k.toLowerCase().includes(lsearch),
-  );
-
-  const activeKey = selected.get(DataType.Paths) || keys[0] || '';
-  const activePath = paths.get(activeKey);
-
-  const handleAdd = () => {
-    let baseName = 'newPath';
-    let count = 1;
-    while (paths.has(`${baseName}${count}`)) count++;
-    const newKey = `${baseName}${count}`;
-    setPaths(NewMapAdd(paths, newKey, { curves: [] }));
-    setSelected(NewMapAdd(selected, DataType.Paths, newKey));
-    setToast(`Added path "${newKey}"`);
-  };
+  const activeKey = selected.get(DataType.Paths);
+  const activePath = activeKey && paths.get(activeKey);
 
   const handleRename = (oldKey: string, newKey: string) => {
     const newMap = NewMapRename(paths, oldKey, newKey);
@@ -89,37 +64,7 @@ export function PathsEditor(): ReactElement {
   return (
     <Group>
       <Panel>
-        <Toolbar>
-          <Text>Paths ({paths.size})</Text>
-          <ToolbarButton icon={<AddRegular />} onClick={handleAdd}>
-            Create Path
-          </ToolbarButton>
-        </Toolbar>
-
-        <Input
-          contentBefore={<SearchRegular />}
-          type="text"
-          placeholder="Search Paths"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-
-        <div>
-          {keys.length === 0 ? (
-            <Text>No paths found.</Text>
-          ) : (
-            keys.map((k) => (
-              <div
-                key={k}
-                onClick={() =>
-                  setSelected(NewMapAdd(selected, DataType.Paths, k))
-                }>
-                <span>{k}</span>&nbsp;
-                <Text>{`${paths.get(k)?.curves.length} curves/lines`}</Text>
-              </div>
-            ))
-          )}
-        </div>
+        <PathsList />{' '}
       </Panel>
       <Separator />
       <Panel>

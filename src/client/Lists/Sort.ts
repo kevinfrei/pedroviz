@@ -103,3 +103,19 @@ export function CurveSorter(ac: CurveRef, bc: CurveRef): number {
   }
   return InterpSorter(a.interpolation, b.interpolation);
 }
+
+export function CurveArraySorter(ac: CurveRef[], bc: CurveRef[]): number {
+  return ac.length - bc.length;
+}
+
+export function MaybeInterpSorter(
+  ai: InterpRef | undefined,
+  bi: InterpRef | undefined,
+): number {
+  const au = isUndefined(ai);
+  const bu = isUndefined(bi);
+  if (au === bu) {
+    return au ? 0 : InterpSorter(ai!, bi!);
+  }
+  return au ? -1 : 1;
+}

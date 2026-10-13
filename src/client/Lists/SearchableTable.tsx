@@ -115,6 +115,7 @@ export function SearchableTable<T>({
   return (
     <>
       <Toolbar>
+        &nbsp;
         <Input
           type="text"
           contentBefore={<SearchRegular />}
@@ -123,10 +124,10 @@ export function SearchableTable<T>({
           onChange={(_, d) => setSearch(d.value)}
         />
         <Text>
-          ({keys.size} {plural} )
+          &nbsp;({keys.size} {plural})&nbsp;
         </Text>
         <ToolbarButton onClick={handleAdd} icon={<AddRegular />}>
-          Create {name}
+          Create Named {name}
         </ToolbarButton>
       </Toolbar>
       {keys.size === 0 ? (

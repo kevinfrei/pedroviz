@@ -3,9 +3,9 @@
 import { ReactElement } from 'react';
 import { useAtomValue } from 'jotai';
 
-import { Button, Checkbox, Select } from '@fluentui/react-components';
+import { Button, Checkbox, Select, Text } from '@fluentui/react-components';
 import { AddRegular, DeleteRegular } from '@fluentui/react-icons';
-import { hasField, isError } from '@freik/typechk';
+import { hasField, isError, isUndefined } from '@freik/typechk';
 
 import {
   chkConstInterp,
@@ -31,6 +31,25 @@ import { ValRefControl } from './ValRef';
 
 const zeroHeading: HeadingVal = { angle: { val: 0 }, inRadians: false };
 const one80Heading: HeadingVal = { angle: { val: 180 }, inRadians: false };
+
+// TODO: Make this much better
+export function SimpleInterpRef({
+  interpref,
+}: {
+  interpref: InterpRef | undefined;
+}): ReactElement {
+  if (isUndefined(interpref)) {
+    return <></>;
+  }
+  if (chkRef(interpref)) {
+    return (
+      <Text>
+        Named Interpolator <code>{interpref.ref}</code>
+      </Text>
+    );
+  }
+  return <Text>{getInterpType(interpref)}</Text>;
+}
 
 // Filter out interpolation names that would result in errors
 function validInterpsForRef(

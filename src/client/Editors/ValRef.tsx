@@ -94,7 +94,7 @@ export function ValRefControl({
                 </option>
                 {validValuesForRef(valueKeys, symbolTable, name).map((k) => (
                   <option key={k} value={k}>
-                    {k} <ValRefInline valref={symbolTable.values.get(k)} />
+                    {k} <SimpleValRef valref={symbolTable.values.get(k)} />
                   </option>
                 ))}
               </Select>
@@ -130,31 +130,23 @@ export function ResolvedValueInline({
   );
 }
 
-export function ValRefInline({
+// Maximally 4 digits of accuracy number to string conversion
+export function FormatValue(val: number): string {
+  return val.toFixed(4).replace(/\.?0+$/, '');
+}
+
+export function SimpleValRef({
   valref,
 }: {
-  valref?: ValRef | undefined;
+  valref: ValRef | undefined;
 }): ReactElement {
-  if (isUndefined(valref)) {
-    return <Text>Not found</Text>;
-  }
-  const isVal = chkValue(valref);
-  const isRef = chkRef(valref);
-  const title = isVal ? 'Value:' : isRef ? 'Ref' : 'Null';
-  const data = isRef ? valref.ref : isVal ? valref.val.toFixed(2) : 'null';
-  return (
+  return isUndefined(valref) ? (
+    <Text color="red">Undefined!</Text>
+  ) : chkRef(valref) ? (
     <Text>
-      {title}&nbsp;<code>{data}</code>
+      Named Value: <code>{valref.ref}</code>
     </Text>
+  ) : (
+    <code>{FormatValue(valref.val)}</code>
   );
-}
-
-// TODO: Make this remove all trailing zeros, and then a trailing decimal point
-export function FormatValue(val: number): string {
-  const fixed = val.toFixed(3);
-  return fixed;
-}
-
-export function SimpleValRef({ valref }: { valref: ValRef }): ReactElement {
-  return <code>{chkRef(valref) ? valref.ref : FormatValue(valref.val)}</code>;
 }

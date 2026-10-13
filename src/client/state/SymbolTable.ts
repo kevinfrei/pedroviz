@@ -4,7 +4,7 @@ import { atom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 import { atomWithStorage } from 'jotai/utils';
 
-import { SymbolTable } from '../../DataTypes';
+import { NamedValues, SymbolTable } from '../../DataTypes';
 import { SAMPLE_AUTONOMOUS_PRESET } from '../constants';
 
 export const DataType = Object.freeze({
@@ -48,3 +48,21 @@ export const activeTabAtom = atomWithStorage<string>(
   undefined,
   { getOnInit: true },
 );
+
+export function MapToRecord<T>(map: Map<string, T>): Record<string, T> {
+  const res: Record<string, T> = {};
+  map.forEach((val, key) => {
+    res[key] = val;
+  });
+  return res;
+}
+export const namedValuesAtom = atom<Promise<NamedValues>>(async (get) => {
+  const symbolTable = await get(symbolTableAtom);
+  return {
+    values: MapToRecord(symbolTable.values),
+    poses: MapToRecord(symbolTable.poses),
+    interpolations: MapToRecord(symbolTable.interpolations),
+    curves: MapToRecord(symbolTable.curves),
+    paths: MapToRecord(symbolTable.paths),
+  };
+});

@@ -21,20 +21,19 @@ const columns: TableColumnDefinition<ListItem>[] = [
   createTableColumn<ListItem>({
     columnId: 'name',
     compare: (a, b) => a[0].localeCompare(b[0]),
-    renderHeaderCell: () => <Text weight="bold">Name</Text>,
+    renderHeaderCell: () => <Text weight="bold">Value Name</Text>,
     renderCell: (li) => <code>{li[0]}</code>,
   }),
   createTableColumn<ListItem>({
     columnId: 'value',
     compare: (a, b) => ValueSorter(a[1], b[1]),
-    renderHeaderCell: () => <Text weight="bold">Value/Reference</Text>,
+    renderHeaderCell: () => <Text weight="bold">Value / Reference</Text>,
     renderCell: (nv) => <SimpleValRef valref={nv[1]} />,
   }),
 ];
 
 export function ValuesList(): ReactElement {
   const valuesState = useAtom(symbolTableValuesAtom);
-
   return (
     <SearchableTable
       dataType={DataType.Values}

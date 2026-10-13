@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 // Simple types (these live in the JSON file, too)
 
 export type Ref = { ref: string };

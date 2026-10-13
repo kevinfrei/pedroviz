@@ -9,8 +9,8 @@ import {
   Text,
 } from '@fluentui/react-components';
 
-import { chkRef, getInterpType } from '../../DataTypeChecks';
 import { InterpRef } from '../../DataTypes';
+import { SimpleInterpRef } from '../Editors/InterpRef';
 import { DataType, symbolTableInterpolationsAtom } from '../state/SymbolTable';
 import { SearchableTable } from './SearchableTable';
 import { InterpSorter } from './Sort';
@@ -25,17 +25,10 @@ const columns: TableColumnDefinition<ListItem>[] = [
     renderCell: (li) => <code>{li[0]}</code>,
   }),
   createTableColumn<ListItem>({
-    columnId: 'Type',
+    columnId: 'Type / Reference',
     compare: (a, b) => InterpSorter(a[1], b[1]),
     renderHeaderCell: () => <Text weight="bold">Type/Ref</Text>,
-    renderCell: (li) =>
-      chkRef(li[1]) ? (
-        <Text>
-          Interpolation: <code>{li[1].ref}</code>
-        </Text>
-      ) : (
-        <code>{getInterpType(li[1])}</code>
-      ),
+    renderCell: (li) => <SimpleInterpRef interpref={li[1]} />,
   }),
 ];
 

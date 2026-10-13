@@ -18,7 +18,7 @@ import {
   HeadingRefInline,
   ResolvedHeadingInline,
 } from './HeadingRef';
-import { ResolvedValueInline, ValRefControl, ValRefInline } from './ValRef';
+import { ResolvedValueInline, SimpleValRef, ValRefControl } from './ValRef';
 
 // Filter out pose names that would result in errors
 function validPosesForRef(
@@ -168,26 +168,26 @@ function ResolvedPose({ pose }: { pose: ResolvedPose }): ReactElement {
   );
 }
 
-export function PoseRefInline({
+export function SimplePoseRef({
   poseref,
 }: {
   poseref: PoseRef | undefined;
 }): ReactElement {
   if (isUndefined(poseref)) {
-    return <>Not found</>;
+    return <Text color="red">Undefined!</Text>;
   }
   if (chkRef(poseref)) {
     return (
-      <>
-        Ref <code>{poseref.ref}</code>
-      </>
+      <Text>
+        Named Pose <code>{poseref.ref}</code>
+      </Text>
     );
   }
   const coord = (
     <>
       X:
-      <ValRefInline valref={poseref.X} />, Y:
-      <ValRefInline valref={poseref.Y} />
+      <SimpleValRef valref={poseref.X} />, Y:
+      <SimpleValRef valref={poseref.Y} />
     </>
   );
   const heading = hasField(poseref, 'heading') ? (
@@ -199,9 +199,9 @@ export function PoseRefInline({
     <></>
   );
   return (
-    <>
+    <Text>
       {coord}
       {heading}
-    </>
+    </Text>
   );
 }
