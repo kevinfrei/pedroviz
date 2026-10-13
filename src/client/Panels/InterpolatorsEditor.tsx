@@ -1,26 +1,15 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { ReactElement, useState } from 'react';
+import { ReactElement } from 'react';
 import { useAtom } from 'jotai';
 
-import {
-  Input,
-  Text,
-  Toolbar,
-  ToolbarButton,
-} from '@fluentui/react-components';
-import { AddRegular, SearchRegular } from '@fluentui/react-icons';
+import { Text } from '@fluentui/react-components';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 
-import {
-  getInterpType,
-  NewMapAdd,
-  NewMapDelete,
-  NewMapRename,
-} from '../../DataTypeChecks';
+import { NewMapAdd, NewMapDelete, NewMapRename } from '../../DataTypeChecks';
 import { InterpRef } from '../../DataTypes';
-import { InterpRefControl } from '../ItemEditor/InterpRef';
-import { InterpolatorsList } from '../ItemLists/InterpolatorsList';
+import { InterpRefControl } from '../Editors/InterpRef';
+import { InterpolatorsList } from '../Lists/Interpolators';
 import {
   DataType,
   selectedKeyAtom,

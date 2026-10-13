@@ -12,8 +12,8 @@ import {
 import { Group, Panel, Separator } from 'react-resizable-panels';
 
 import { NewMapAdd, NewMapDelete, NewMapRename } from '../../DataTypeChecks';
-import { PoseRefControl } from '../ItemEditor/PoseRef';
-import { PosesList } from '../ItemLists/PosesList';
+import { PoseRefControl } from '../Editors/PoseRef';
+import { PosesList } from '../Lists/Poses';
 import {
   DataType,
   selectedKeyAtom,

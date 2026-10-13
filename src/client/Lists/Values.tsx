@@ -1,32 +1,18 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { ReactElement, useState } from 'react';
+import { ReactElement } from 'react';
 import { useAtom } from 'jotai';
 
 import {
   createTableColumn,
-  DataGrid,
-  DataGridBody,
-  DataGridCell,
-  DataGridHeader,
-  DataGridHeaderCell,
-  DataGridRow,
-  Input,
   TableColumnDefinition,
   Text,
-  Toolbar,
-  ToolbarButton,
 } from '@fluentui/react-components';
-import { AddRegular, SearchRegular } from '@fluentui/react-icons';
 
 import { ValRef } from '../../DataTypes';
-import { SimpleValRef } from '../ItemEditor/ValRef';
-import {
-  DataType,
-  selectedKeyAtom,
-  symbolTableValuesAtom,
-} from '../state/SymbolTable';
-import { useListSelection } from './Selection';
+import { SimpleValRef } from '../Editors/ValRef';
+import { DataType, symbolTableValuesAtom } from '../state/SymbolTable';
+import { SearchableTable } from './SearchableTable';
 import { ValueSorter } from './Sort';
 
 type ListItem = [string, ValRef];
@@ -47,35 +33,23 @@ const columns: TableColumnDefinition<ListItem>[] = [
 ];
 
 export function ValuesList(): ReactElement {
-  const valuesPair = useAtom(symbolTableValuesAtom);
-  const [values] = valuesPair;
-  const selectionPair = useAtom(selectedKeyAtom);
-  const [search, setSearch] = useState('');
-
-  const [selectedRows, onSelChanged, clearSelection, handleAdd] =
-    useListSelection(valuesPair, selectionPair, DataType.Values, { val: 0 });
-
-  const keys = new Set(
-    values.keys().filter((k) => k.toLowerCase().includes(search.toLowerCase())),
-  );
-  const items: ListItem[] = [...values.entries()].filter(([str]) =>
-    keys.has(str),
-  );
+  const valuesState = useAtom(symbolTableValuesAtom);
 
   return (
-    <>
-      <Toolbar>
-        <Text>Values ({values.size})</Text>
-        <ToolbarButton onClick={handleAdd} icon={<AddRegular />}>
-          Create Value
-        </ToolbarButton>
-      </Toolbar>
-      <Input
-        type="text"
-        contentBefore={<SearchRegular />}
-        value={search}
-        placeholder="Search Values"
-        onChange={(_, d) => setSearch(d.value)}
+    <SearchableTable
+      name="Value"
+      dataType={DataType.Values}
+      columns={columns}
+      itemsState={valuesState}
+      newItem={{ val: 0 }}
+    />
+  );
+  /*    <>
+      <ListToolbar
+        count={values.size}
+        add={handleAdd}
+        name="Value"
+        searchState={searchState}
       />
       {keys.size === 0 ? (
         <Text>No values found.</Text>
@@ -110,5 +84,5 @@ export function ValuesList(): ReactElement {
         </DataGrid>
       )}
     </>
-  );
+  );*/
 }

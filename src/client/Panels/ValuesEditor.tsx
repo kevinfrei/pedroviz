@@ -6,8 +6,8 @@ import { useAtom } from 'jotai';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 
 import { NewMapAdd, NewMapDelete, NewMapRename } from '../../DataTypeChecks';
-import { ValRefControl } from '../ItemEditor/ValRef';
-import { ValuesList } from '../ItemLists/ValuesList';
+import { ValRefControl } from '../Editors/ValRef';
+import { ValuesList } from '../Lists/Values';
 import {
   DataType,
   selectedKeyAtom,

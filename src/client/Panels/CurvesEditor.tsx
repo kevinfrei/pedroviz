@@ -20,7 +20,7 @@ import {
   NewMapRename,
 } from '../../DataTypeChecks';
 import { CurveRef } from '../../DataTypes';
-import { CurveRefControl } from '../ItemEditor/CurveRef';
+import { CurveRefControl } from '../Editors/CurveRef';
 import {
   DataType,
   selectedKeyAtom,

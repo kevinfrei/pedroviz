@@ -5,7 +5,12 @@ import { DataGridProps } from '@fluentui/react-components';
 import { isDefined, isUndefined } from '@freik/typechk';
 
 import { NewMapAdd, NewMapDelete } from '../../DataTypeChecks';
-import { DataType, DataTypeNames, SelectedKey } from '../state/SymbolTable';
+import {
+  DataType,
+  DataTypeNames,
+  SelectedKey,
+  selectedKeyAtom,
+} from '../state/SymbolTable';
 import { useToast } from '../ui-tools/NotificationToast';
 
 export function getSelection(sel: SelectedKey, type: DataType): Set<string> {
@@ -24,16 +29,13 @@ export type ListSelectionHelper = [
 ];
 
 export function useListSelection<T>(
-  [items, setItems]: ReturnType<
-    typeof useAtom<Map<string, T>, [SetStateAction<Map<string, T>>], void>
-  >,
-  [selected, setSelected]: ReturnType<
-    typeof useAtom<SelectedKey, [SetStateAction<SelectedKey>], void>
-  >,
+  [items, setItems]: [Map<string, T>, (map: Map<string, T>) => void],
   type: DataType,
   newItem: T,
 ): ListSelectionHelper {
   const setToast = useToast();
+  const [selected, setSelected] = useAtom(selectedKeyAtom);
+
   const selectedRows = getSelection(selected, type);
   const onSelectionChange: DataGridProps['onSelectionChange'] = useCallback(
     (_, data) => {

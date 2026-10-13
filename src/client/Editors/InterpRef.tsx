@@ -5,7 +5,7 @@ import { useAtomValue } from 'jotai';
 
 import { Button, Checkbox, Select } from '@fluentui/react-components';
 import { AddRegular, DeleteRegular } from '@fluentui/react-icons';
-import { hasField, isDefined, isError } from '@freik/typechk';
+import { hasField, isError } from '@freik/typechk';
 
 import {
   chkConstInterp,

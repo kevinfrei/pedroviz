@@ -12,12 +12,12 @@ import {
   Text,
 } from '@fluentui/react-components';
 
-import { CurvesEditor } from './EditorPanels/CurvesEditor';
-import { InterpolatorsEditor } from './EditorPanels/InterpolatorsEditor';
-import { JsonEditor } from './EditorPanels/JsonEditor';
-import { PathsEditor } from './EditorPanels/PathsEditor';
-import { PosesEditor } from './EditorPanels/PosesEditor';
-import { ValuesEditor } from './EditorPanels/ValuesEditor';
+import { CurvesEditor } from './Panels/CurvesEditor';
+import { InterpolatorsEditor } from './Panels/InterpolatorsEditor';
+import { JsonEditor } from './Panels/JsonEditor';
+import { PathsEditor } from './Panels/PathsEditor';
+import { PosesEditor } from './Panels/PosesEditor';
+import { ValuesEditor } from './Panels/ValuesEditor';
 import { activeTabAtom } from './state/SymbolTable';
 import { SelectedClassAtom, SelectedPathAtom } from './state/UserCode';
 

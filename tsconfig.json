@@ -28,6 +28,6 @@
     "noPropertyAccessFromIndexSignature": false,
     "types": ["bun", "react", "react-dom", "node"]
   },
-  "include": ["src", "src/client/ItemEditor/.tsx"],
+  "include": ["src"],
   "exclude": ["dist", "node_modules"]
 }

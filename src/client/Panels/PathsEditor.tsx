@@ -25,8 +25,8 @@ import {
   NewMapUpdate,
 } from '../../DataTypeChecks';
 import { InterpRef } from '../../DataTypes';
-import { CurveRefControl } from '../ItemEditor/CurveRef';
-import { InterpRefControl } from '../ItemEditor/InterpRef';
+import { CurveRefControl } from '../Editors/CurveRef';
+import { InterpRefControl } from '../Editors/InterpRef';
 import {
   DataType,
   selectedKeyAtom,
