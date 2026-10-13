@@ -140,11 +140,21 @@ export function ValRefInline({
   }
   const isVal = chkValue(valref);
   const isRef = chkRef(valref);
-  const title = isVal ? 'Value' : isRef ? 'Ref' : 'Null';
+  const title = isVal ? 'Value:' : isRef ? 'Ref' : 'Null';
   const data = isRef ? valref.ref : isVal ? valref.val.toFixed(2) : 'null';
   return (
     <Text>
       {title}&nbsp;<code>{data}</code>
     </Text>
   );
+}
+
+// TODO: Make this remove all trailing zeros, and then a trailing decimal point
+export function FormatValue(val: number): string {
+  const fixed = val.toFixed(3);
+  return fixed;
+}
+
+export function SimpleValRef({ valref }: { valref: ValRef }): ReactElement {
+  return <code>{chkRef(valref) ? valref.ref : FormatValue(valref.val)}</code>;
 }

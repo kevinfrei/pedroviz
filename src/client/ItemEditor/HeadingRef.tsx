@@ -28,7 +28,7 @@ import { resolveHeadingRef, resolvePoseRef } from '../Resolvers';
 import { symbolTableAtom } from '../state/SymbolTable';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
 import { PoseRefInline } from './PoseRef';
-import { ValRefInline } from './ValRef';
+import { SimpleValRef, ValRefInline } from './ValRef';
 
 // Filter out pose names that would result in errors
 function validPosesForRef(
@@ -238,5 +238,25 @@ export function HeadingRefInline({
         {suffix}
       </code>
     </Text>
+  );
+}
+
+export function SimpleHeadingRef({
+  headingref,
+}: {
+  headingref: HeadingRef;
+}): ReactElement {
+  if (chkRef(headingref)) {
+    return (
+      <Text>
+        Heading from <code>{headingref.ref}</code>
+      </Text>
+    );
+  }
+  return (
+    <>
+      <SimpleValRef valref={headingref.angle} />
+      {headingref.inRadians ? <code>&nbsp;rads</code> : <code>°</code>}
+    </>
   );
 }

@@ -9,16 +9,14 @@ import {
   Toolbar,
   ToolbarButton,
 } from '@fluentui/react-components';
-import { AddRegular, SearchRegular } from '@fluentui/react-icons';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 
 import { NewMapAdd, NewMapDelete, NewMapRename } from '../../DataTypeChecks';
-import { PoseRefControl, PoseRefInline } from '../ItemEditor/PoseRef';
-import { resolvePoseRef } from '../Resolvers';
+import { PoseRefControl } from '../ItemEditor/PoseRef';
+import { PosesList } from '../ItemLists/PosesList';
 import {
   DataType,
   selectedKeyAtom,
-  symbolTableAtom,
   symbolTablePosesAtom,
 } from '../state/SymbolTable';
 import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
@@ -26,34 +24,12 @@ import { useToast } from '../ui-tools/NotificationToast';
 
 // Poses Store Editor
 export function PosesEditor(): ReactElement {
-  const symbolTable = useAtomValue(symbolTableAtom);
   const [poses, setPoses] = useAtom(symbolTablePosesAtom);
   const [selected, setSelected] = useAtom(selectedKeyAtom);
-  const [search, setSearch] = useState('');
   const setToast = useToast();
 
-  const lsearch = search.toLowerCase();
-  const keys = Array.from(poses.keys()).filter((k) =>
-    k.toLowerCase().includes(lsearch),
-  );
-
-  const activeKey = selected.get(DataType.Poses) || keys[0] || '';
-  const activePose = poses.get(activeKey);
-
-  const handleAdd = () => {
-    let count = 1;
-    while (poses.has(`newPose${count}`)) count++;
-    const newKey = `newPose${count}`;
-    setPoses(
-      NewMapAdd(poses, newKey, {
-        X: { val: 0 },
-        Y: { val: 0 },
-        heading: { angle: { val: 0 }, inRadians: true },
-      }),
-    );
-    setSelected(NewMapAdd(selected, DataType.Poses, newKey));
-    setToast(`Added pose "${newKey}"`);
-  };
+  const activeKey = selected.get(DataType.Poses);
+  const activePose = activeKey && poses.get(activeKey);
 
   const handleRename = (oldKey: string, newKey: string) => {
     const newMap = NewMapRename(poses, oldKey, newKey);
@@ -82,40 +58,7 @@ export function PosesEditor(): ReactElement {
   return (
     <Group>
       <Panel>
-        <Toolbar>
-          <Text>Poses ({poses.size})</Text>
-          <ToolbarButton onClick={handleAdd} icon={<AddRegular />}>
-            Create Pose
-          </ToolbarButton>
-        </Toolbar>
-
-        <Input
-          contentBefore={<SearchRegular />}
-          type="text"
-          placeholder="Search Poses"
-          value={search}
-          onChange={(_, d) => setSearch(d.value)}
-        />
-
-        <div>
-          {keys.length === 0 ? (
-            <Text>No poses found.</Text>
-          ) : (
-            keys.map((k) => {
-              const res = resolvePoseRef({ ref: k }, symbolTable);
-              return (
-                <div
-                  key={k}
-                  onClick={() =>
-                    setSelected(NewMapAdd(selected, DataType.Poses, k))
-                  }>
-                  <span>{k}</span>&nbsp;
-                  <PoseRefInline poseref={poses.get(k)} />
-                </div>
-              );
-            })
-          )}
-        </div>
+        <PosesList />
       </Panel>
       <Separator />
       <Panel>

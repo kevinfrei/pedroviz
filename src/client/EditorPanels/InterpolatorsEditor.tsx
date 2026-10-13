@@ -20,6 +20,7 @@ import {
 } from '../../DataTypeChecks';
 import { InterpRef } from '../../DataTypes';
 import { InterpRefControl } from '../ItemEditor/InterpRef';
+import { InterpolatorsList } from '../ItemLists/InterpolatorsList';
 import {
   DataType,
   selectedKeyAtom,
@@ -34,26 +35,10 @@ export function InterpolatorsEditor(): ReactElement {
     symbolTableInterpolationsAtom,
   );
   const [selected, setSelected] = useAtom(selectedKeyAtom);
-  const [search, setSearch] = useState('');
   const setToast = useToast();
-  const lsearch = search.toLowerCase();
 
-  const keys = Array.from(interpolations.keys()).filter((k) =>
-    k.toLowerCase().includes(lsearch),
-  );
-
-  const activeKey = selected.get(DataType.Interpolations) || keys[0] || '';
-  const activeInterp = interpolations.get(activeKey);
-
-  const handleAdd = () => {
-    let count = 1;
-    while (interpolations.has(`newInterpolator${count}`)) count++;
-    const newKey = `newInterpolator${count}`;
-
-    setInterpolations(NewMapAdd(interpolations, newKey, { reversed: false }));
-    setSelected(NewMapAdd(selected, DataType.Interpolations, newKey));
-    setToast(`Added interpolator "${newKey}"`);
-  };
+  const activeKey = selected.get(DataType.Interpolations);
+  const activeInterp = activeKey && interpolations.get(activeKey);
 
   const handleRename = (oldKey: string, newKey: string) => {
     const newMap = NewMapRename(interpolations, oldKey, newKey);
@@ -81,37 +66,7 @@ export function InterpolatorsEditor(): ReactElement {
   return (
     <Group>
       <Panel>
-        <Toolbar>
-          <Text>Interpolators ({interpolations.size})</Text>
-          <ToolbarButton icon={<AddRegular />} onClick={handleAdd}>
-            Create Interpolator
-          </ToolbarButton>
-        </Toolbar>
-
-        <Input
-          contentBefore={<SearchRegular />}
-          type="text"
-          placeholder="Search Interpolators"
-          value={search}
-          onChange={(_, d) => setSearch(d.value)}
-        />
-
-        <div>
-          {keys.length === 0 ? (
-            <div>No interpolators found.</div>
-          ) : (
-            keys.map((k) => (
-              <div
-                key={k}
-                onClick={() =>
-                  setSelected(NewMapAdd(selected, DataType.Interpolations, k))
-                }>
-                <Text>{k}</Text>&nbsp;
-                <Text>{getInterpType(interpolations.get(k)!)}</Text>
-              </div>
-            ))
-          )}
-        </div>
+        <InterpolatorsList />
       </Panel>
       <Separator />
       <Panel>

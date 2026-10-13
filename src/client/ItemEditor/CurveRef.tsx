@@ -13,7 +13,7 @@ import {
   ToolbarButton,
 } from '@fluentui/react-components';
 import { AddRegular, DeleteRegular } from '@fluentui/react-icons';
-import { isError } from 'node_modules/@freik/typechk/lib/esm';
+import { isError } from '@freik/typechk';
 
 import { chkRef } from '../../DataTypeChecks';
 import { CurveRef, InterpRef, SymbolTable } from '../../DataTypes';
