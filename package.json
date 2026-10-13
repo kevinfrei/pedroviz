@@ -25,6 +25,7 @@
   "prepare": "simple-git-hooks",
   "dependencies": {
     "@ctrl/tinycolor": "^4.2.1",
+    "@fluentui-contrib/react-draggable-dialog": "^0.2.5",
     "@fluentui/react-components": "^9.74.9",
     "@fluentui/react-icons": "^2.0.344",
     "@fluentui/tokens": "^1.0.0-alpha.24",

@@ -27,6 +27,7 @@ import { ToastId } from './state/BasicState';
 import { ThemeAtom } from './state/SavedSettings';
 import { getStore } from './state/Storage';
 import { FullDatabaseAtom } from './state/UserCode';
+import { MovableCanvas } from './ui-tools/MovableCanvas';
 
 const useStyles = makeStyles({
   toolbar: {
@@ -49,6 +50,7 @@ function MyApp(): ReactElement {
                 <FileSelector />
                 <ToolbarDivider />
                 <ClassSelector />
+                {/* <MovableCanvas /> */}
               </ToolbarGroup>
               <Button onClick={() => rescanCode()}>
                 {Strings.rescan_source}
