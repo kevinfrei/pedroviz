@@ -37,52 +37,10 @@ export function ValuesList(): ReactElement {
 
   return (
     <SearchableTable
-      name="Value"
       dataType={DataType.Values}
       columns={columns}
       itemsState={valuesState}
       newItem={{ val: 0 }}
     />
   );
-  /*    <>
-      <ListToolbar
-        count={values.size}
-        add={handleAdd}
-        name="Value"
-        searchState={searchState}
-      />
-      {keys.size === 0 ? (
-        <Text>No values found.</Text>
-      ) : (
-        <DataGrid
-          items={items}
-          columns={columns}
-          sortable
-          resizableColumns
-          getRowId={(itm: ListItem) => itm[0]}
-          selectionMode="single"
-          selectedItems={selectedRows}
-          onSelectionChange={onSelChanged}>
-          <DataGridHeader>
-            <DataGridRow>
-              {({ renderHeaderCell }) => (
-                <DataGridHeaderCell>{renderHeaderCell()}</DataGridHeaderCell>
-              )}
-            </DataGridRow>
-          </DataGridHeader>
-          <DataGridBody<ListItem>>
-            {({ item, rowId }) => (
-              <DataGridRow<ListItem>
-                key={rowId}
-                onClick={() => clearSelection(item[0])}>
-                {({ renderCell, columnId }) => (
-                  <DataGridCell>{renderCell(item)}</DataGridCell>
-                )}
-              </DataGridRow>
-            )}
-          </DataGridBody>
-        </DataGrid>
-      )}
-    </>
-  );*/
 }

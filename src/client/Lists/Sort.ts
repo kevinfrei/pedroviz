@@ -7,7 +7,10 @@ import {
   getInterpType,
 } from '../../DataTypeChecks';
 import {
+  Curve,
+  CurveRef,
   HeadingRef,
+  HeadingVal,
   InterpRef,
   Pose,
   PoseRef,
@@ -16,16 +19,24 @@ import {
   Value,
 } from '../../DataTypes';
 
+function CheckRefs(ar: unknown, br: unknown): number {
+  const a = chkRef(ar);
+  const b = chkRef(br);
+  if (a != b) {
+    return a ? -1 : 1;
+  }
+  if (a && b) {
+    return ar.ref.localeCompare(br.ref);
+  }
+  return Number.NaN;
+}
+
 export function ValueSorter(av: ValRef, bv: ValRef): number {
-  const avVal = chkValue(av);
-  const bvVal = chkValue(bv);
-  if (avVal !== bvVal) {
-    return avVal ? -1 : 1;
+  const refRes = CheckRefs(av, bv);
+  if (!isNaN(refRes)) {
+    return refRes;
   }
-  if (avVal) {
-    return av.val - (bv as Value).val;
-  }
-  return av.ref.localeCompare((bv as Ref).ref);
+  return (av as Value).val - (bv as Value).val;
 }
 
 export function HeadingSorter(
@@ -37,36 +48,58 @@ export function HeadingSorter(
   if (ad !== bd) {
     return ah ? -1 : 1;
   }
-  if (chkHeadingVal(ah) && chkHeadingVal(bh)) {
-    return ValueSorter(ah.angle, bh.angle);
-  } else {
-    return chkRef(ah) ? -1 : 1;
+  if (ad) {
+    return 0;
   }
+  const refRes = CheckRefs(ah, bh);
+  if (!isNaN(refRes)) {
+    return refRes;
+  }
+  return ValueSorter((ah as HeadingVal).angle, (bh as HeadingVal).angle);
 }
 
-export function PoseSorter(ap: PoseRef, bp: PoseRef): number {
-  const aRef = chkRef(ap);
-  const bRef = chkRef(bp);
-  if (aRef !== bRef) {
-    return aRef ? -1 : 1;
+export function PoseXSorter(ap: PoseRef, bp: PoseRef): number {
+  const refRes = CheckRefs(ap, bp);
+  if (!isNaN(refRes)) {
+    return refRes;
   }
-  if (aRef) {
-    return ap.ref.localeCompare((bp as Ref).ref);
+  return ValueSorter((ap as Pose).X, (bp as Pose).X);
+}
+
+export function PoseYSorter(ap: PoseRef, bp: PoseRef): number {
+  const refRes = CheckRefs(ap, bp);
+  if (!isNaN(refRes)) {
+    return refRes;
   }
-  // They're both Pose's, not PoseRef's:
-  return ValueSorter(ap.X, (bp as Pose).X);
+  return ValueSorter((ap as Pose).Y, (bp as Pose).Y);
+}
+
+export function PoseHeadingSorter(ap: PoseRef, bp: PoseRef): number {
+  const refRes = CheckRefs(ap, bp);
+  if (!isNaN(refRes)) {
+    return refRes;
+  }
+  return HeadingSorter((ap as Pose).heading, (bp as Pose).heading);
 }
 
 export function InterpSorter(ai: InterpRef, bi: InterpRef): number {
-  const aRef = chkRef(ai);
-  const bRef = chkRef(bi);
-  if (aRef !== bRef) {
-    return aRef ? -1 : 1;
+  const refRes = CheckRefs(ai, bi);
+  if (!isNaN(refRes)) {
+    return refRes;
   }
-  if (aRef) {
-    return ai.ref.localeCompare((bi as Ref).ref);
+  return getInterpType(ai).localeCompare(getInterpType(bi));
+}
+
+export function CurveSorter(ac: CurveRef, bc: CurveRef): number {
+  const refRes = CheckRefs(ac, bc);
+  if (!isNaN(refRes)) {
+    return refRes;
   }
-  const at = getInterpType(ai);
-  const bt = getInterpType(bi);
-  return at.localeCompare(bt);
+  const a = ac as Curve;
+  const b = bc as Curve;
+  const maybe = a.points.length - b.points.length;
+  if (maybe !== 0) {
+    return maybe;
+  }
+  return InterpSorter(a.interpolation, b.interpolation);
 }

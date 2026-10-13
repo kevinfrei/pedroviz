@@ -43,7 +43,6 @@ export function InterpolatorsList(): ReactElement {
   const interpolationsState = useAtom(symbolTableInterpolationsAtom);
   return (
     <SearchableTable
-      name="Interpolator"
       dataType={DataType.Interpolations}
       columns={columns}
       itemsState={interpolationsState}

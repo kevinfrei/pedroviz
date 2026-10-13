@@ -1,26 +1,15 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { ReactElement, useState } from 'react';
+import { ReactElement } from 'react';
 import { useAtom } from 'jotai';
 
-import {
-  Input,
-  Text,
-  Toolbar,
-  ToolbarButton,
-} from '@fluentui/react-components';
-import { AddRegular, SearchRegular } from '@fluentui/react-icons';
+import { Text } from '@fluentui/react-components';
 import { Group, Panel, Separator } from 'react-resizable-panels';
-import { isUndefined } from '@freik/typechk';
 
-import {
-  chkRef,
-  NewMapAdd,
-  NewMapDelete,
-  NewMapRename,
-} from '../../DataTypeChecks';
+import { NewMapAdd, NewMapDelete, NewMapRename } from '../../DataTypeChecks';
 import { CurveRef } from '../../DataTypes';
 import { CurveRefControl } from '../Editors/CurveRef';
+import { CurvesList } from '../Lists/Curves';
 import {
   DataType,
   selectedKeyAtom,
@@ -33,37 +22,10 @@ import { useToast } from '../ui-tools/NotificationToast';
 export function CurvesEditor(): ReactElement {
   const [curves, setCurves] = useAtom(symbolTableCurvesAtom);
   const [selected, setSelected] = useAtom(selectedKeyAtom);
-  const [search, setSearch] = useState('');
   const setToast = useToast();
-  const lsearch = search.toLowerCase();
 
-  const keys = Array.from(curves.keys()).filter((k) =>
-    k.toLowerCase().includes(lsearch),
-  );
-
-  const activeKey = selected.get(DataType.Curves) || keys[0] || '';
-  const activeCurve = curves.get(activeKey);
-
-  const handleAdd = () => {
-    let count = 1;
-    while (curves.has(`newCurve${count}`)) count++;
-    const newKey = `newCurve${count}`;
-
-    setCurves(
-      NewMapAdd(curves, newKey, {
-        points: [
-          {
-            X: { val: 0 },
-            Y: { val: 0 },
-            heading: { angle: { val: 0 }, inRadians: false },
-          },
-        ],
-        interpolation: { reversed: false },
-      }),
-    );
-    setSelected(NewMapAdd(selected, DataType.Curves, newKey));
-    setToast(`Added curve "${newKey}"`);
-  };
+  const activeKey = selected.get(DataType.Curves);
+  const activeCurve = activeKey && curves.get(activeKey);
 
   const handleRename = (oldKey: string, newKey: string) => {
     const newMap = NewMapRename(curves, oldKey, newKey);
@@ -91,35 +53,7 @@ export function CurvesEditor(): ReactElement {
   return (
     <Group>
       <Panel>
-        <Toolbar>
-          <Text>Curves ({curves.size})</Text>
-          <ToolbarButton icon={<AddRegular />} onClick={handleAdd}>
-            Create Curve/Line
-          </ToolbarButton>
-        </Toolbar>
-        <Input
-          contentBefore={<SearchRegular />}
-          type="text"
-          placeholder="Search curves..."
-          value={search}
-          onChange={(_, d) => setSearch(d.value)}
-        />
-        <div>
-          {keys.length === 0 ? (
-            <Text>No curves found.</Text>
-          ) : (
-            keys.map((k) => (
-              <div
-                key={k}
-                onClick={() =>
-                  setSelected(NewMapAdd(selected, DataType.Curves, k))
-                }>
-                <span>{k}</span>&nbsp;
-                <CurveRefPointCount curveref={curves.get(k)} />
-              </div>
-            ))
-          )}
-        </div>
+        <CurvesList />
       </Panel>
       <Separator />
       <Panel>
@@ -146,22 +80,4 @@ export function CurvesEditor(): ReactElement {
       </Panel>
     </Group>
   );
-}
-
-function CurveRefPointCount({
-  curveref,
-}: {
-  curveref: CurveRef | undefined;
-}): ReactElement {
-  if (isUndefined(curveref)) {
-    return <>Not found!</>;
-  }
-  if (chkRef(curveref)) {
-    return (
-      <>
-        Reference to <code>{curveref.ref}</code>
-      </>
-    );
-  }
-  return <>{curveref.points.length} pts</>;
 }
