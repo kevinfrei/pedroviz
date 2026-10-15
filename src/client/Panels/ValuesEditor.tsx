@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { ReactElement, useState } from 'react';
+import { ReactElement } from 'react';
 import { useAtom } from 'jotai';
 
-import { Group, Panel, Separator } from 'react-resizable-panels';
+import { isUndefined } from '@freik/typechk';
 
 import { NewMapAdd, NewMapDelete, NewMapRename } from '../../DataTypeChecks';
 import { ValRefControl } from '../Editors/ValRef';
@@ -13,7 +13,7 @@ import {
   selectedKeyAtom,
   symbolTableValuesAtom,
 } from '../state/SymbolTable';
-import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
+import { ItemEditor } from '../ui-tools/ItemEditorWrapper';
 import { useToast } from '../ui-tools/NotificationToast';
 
 export function ValuesEditor(): ReactElement {
@@ -22,7 +22,9 @@ export function ValuesEditor(): ReactElement {
   const setToast = useToast();
 
   const activeKey = selected.get(DataType.Values);
-  const activeValue = activeKey && values.get(activeKey);
+  const activeValue = isUndefined(activeKey)
+    ? undefined
+    : values.get(activeKey);
 
   const handleRename = (oldKey: string, newKey: string) => {
     const newMap = NewMapRename(values, oldKey, newKey);
@@ -49,33 +51,23 @@ export function ValuesEditor(): ReactElement {
   };
 
   return (
-    <Group>
-      <Panel>
-        <ValuesList />
-      </Panel>
-      <Separator />
-      <Panel>
-        {activeKey && activeValue ? (
-          <>
-            <NameChangeDelete
-              title="Selected Value Name"
-              name={activeKey}
-              handleRename={handleRename}
-              handleDelete={handleDelete}
-            />
-            <ValRefControl
-              label="Value or Reference"
-              item={activeValue}
-              name={activeKey}
-              onChange={(newVal) =>
-                setValues(NewMapAdd(values, activeKey, newVal))
-              }
-            />
-          </>
-        ) : (
-          <div>Select or create a value to edit.</div>
-        )}
-      </Panel>
-    </Group>
+    <>
+      <ValuesList />
+      <ItemEditor
+        open={!!activeValue}
+        type={DataType.Values}
+        name={activeKey || ''}
+        handleRename={handleRename}
+        handleDelete={handleDelete}>
+        <ValRefControl
+          label="Value or Reference"
+          item={activeValue!}
+          name={activeKey}
+          onChange={(newVal) =>
+            setValues(NewMapAdd(values, activeKey!, newVal))
+          }
+        />
+      </ItemEditor>
+    </>
   );
 }

@@ -27,7 +27,7 @@ export function TeamSelector(): ReactElement {
   }, [teams, setTeam]);
   return (
     <>
-      <Label className="pathLabel">Robot:</Label>
+      <Label className="pathLabel">Robot:&nbsp;</Label>
       <AutoSelector
         prompt={Strings.select_a_bot}
         items={teams}
@@ -64,7 +64,7 @@ export function FileSelector(): ReactElement {
   return (
     <>
       <Label className="pathLabel" htmlFor="select_a_file">
-        File:
+        File:&nbsp;
       </Label>
       <AutoSelector
         id="select_a_file"
@@ -90,7 +90,7 @@ export function ClassSelector(): ReactElement {
       <Label
         className="pathLabel"
         style={{ paddingRight: 12, backgroundColor: 'green' }}>
-        Class:
+        Class:&nbsp;
       </Label>
       <AutoSelector
         prompt={Strings.select_a_class}

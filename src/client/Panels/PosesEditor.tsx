@@ -1,15 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { ReactElement, useState } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+import { ReactElement } from 'react';
+import { useAtom } from 'jotai';
 
-import {
-  Input,
-  Text,
-  Toolbar,
-  ToolbarButton,
-} from '@fluentui/react-components';
-import { Group, Panel, Separator } from 'react-resizable-panels';
+import { isUndefined } from '@freik/typechk';
 
 import { NewMapAdd, NewMapDelete, NewMapRename } from '../../DataTypeChecks';
 import { PoseRefControl } from '../Editors/PoseRef';
@@ -19,7 +13,7 @@ import {
   selectedKeyAtom,
   symbolTablePosesAtom,
 } from '../state/SymbolTable';
-import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
+import { ItemEditor } from '../ui-tools/ItemEditorWrapper';
 import { useToast } from '../ui-tools/NotificationToast';
 
 // Poses Store Editor
@@ -29,7 +23,7 @@ export function PosesEditor(): ReactElement {
   const setToast = useToast();
 
   const activeKey = selected.get(DataType.Poses);
-  const activePose = activeKey && poses.get(activeKey);
+  const activePose = isUndefined(activeKey) ? undefined : poses.get(activeKey);
 
   const handleRename = (oldKey: string, newKey: string) => {
     const newMap = NewMapRename(poses, oldKey, newKey);
@@ -56,34 +50,24 @@ export function PosesEditor(): ReactElement {
   };
 
   return (
-    <Group>
-      <Panel>
-        <PosesList />
-      </Panel>
-      <Separator />
-      <Panel>
-        {activeKey && activePose ? (
-          <>
-            <NameChangeDelete
-              title="Selected Pose Name"
-              name={activeKey}
-              handleRename={handleRename}
-              handleDelete={handleDelete}
-            />
-            <PoseRefControl
-              label="Pose Coordinates & Heading"
-              item={activePose}
-              name={activeKey}
-              onChange={(updatedPose) => {
-                setPoses(NewMapAdd(poses, activeKey, updatedPose));
-                setToast(`Updated pose "${activeKey}"`);
-              }}
-            />
-          </>
-        ) : (
-          <Text>Select or create a pose to edit.</Text>
-        )}
-      </Panel>
-    </Group>
+    <>
+      <PosesList />
+      <ItemEditor
+        open={!!activePose}
+        type={DataType.Poses}
+        name={activeKey || ''}
+        handleRename={handleRename}
+        handleDelete={handleDelete}>
+        <PoseRefControl
+          label="Pose Coordinates & Heading"
+          item={activePose!}
+          name={activeKey}
+          onChange={(updatedPose) => {
+            setPoses(NewMapAdd(poses, activeKey!, updatedPose));
+            setToast(`Updated pose "${activeKey}"`);
+          }}
+        />
+      </ItemEditor>
+    </>
   );
 }

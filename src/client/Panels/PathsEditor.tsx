@@ -3,10 +3,9 @@
 import { ReactElement } from 'react';
 import { useAtom } from 'jotai';
 
-import { Button, Text } from '@fluentui/react-components';
+import { Button } from '@fluentui/react-components';
 import { AddRegular, DeleteRegular } from '@fluentui/react-icons';
-import { Group, Panel, Separator } from 'react-resizable-panels';
-import { isDefined } from '@freik/typechk';
+import { isDefined, isUndefined } from '@freik/typechk';
 
 import {
   NewMapAdd,
@@ -14,7 +13,7 @@ import {
   NewMapRename,
   NewMapUpdate,
 } from '../../DataTypeChecks';
-import { InterpRef } from '../../DataTypes';
+import { InterpRef, Path } from '../../DataTypes';
 import { CurveRefControl } from '../Editors/CurveRef';
 import { InterpRefControl } from '../Editors/InterpRef';
 import { PathsList } from '../Lists/Paths';
@@ -23,7 +22,7 @@ import {
   selectedKeyAtom,
   symbolTablePathsAtom,
 } from '../state/SymbolTable';
-import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
+import { ItemEditor } from '../ui-tools/ItemEditorWrapper';
 import { useToast } from '../ui-tools/NotificationToast';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
 
@@ -34,7 +33,7 @@ export function PathsEditor(): ReactElement {
   const setToast = useToast();
 
   const activeKey = selected.get(DataType.Paths);
-  const activePath = activeKey && paths.get(activeKey);
+  const activePath = isUndefined(activeKey) ? undefined : paths.get(activeKey);
 
   const handleRename = (oldKey: string, newKey: string) => {
     const newMap = NewMapRename(paths, oldKey, newKey);
@@ -62,108 +61,97 @@ export function PathsEditor(): ReactElement {
   };
 
   return (
-    <Group>
-      <Panel>
-        <PathsList />{' '}
-      </Panel>
-      <Separator />
-      <Panel>
-        {activeKey && activePath ? (
+    <>
+      <PathsList />
+
+      <ItemEditor
+        open={!!activePath}
+        name={activeKey || ''}
+        type={DataType.Paths}
+        handleRename={handleRename}
+        handleDelete={handleDelete}>
+        <TitleWrapper title="Path Curves/Lines">
           <>
-            <NameChangeDelete
-              title="Selected Path Name"
-              name={activeKey}
-              handleRename={handleRename}
-              handleDelete={handleDelete}
-            />
-            <TitleWrapper title="Path Curves/Lines">
-              <>
-                <Button
-                  icon={<AddRegular />}
-                  onClick={() => {
-                    const curvesList = activePath.curves || [];
-                    const updatedPath = {
-                      ...activePath,
-                      curves: [
-                        ...curvesList,
+            <Button
+              icon={<AddRegular />}
+              onClick={() => {
+                const curvesList = activePath?.curves || [];
+                const updatedPath = {
+                  ...activePath,
+                  curves: [
+                    ...curvesList,
+                    {
+                      points: [
                         {
-                          points: [
-                            {
-                              X: { val: 0 },
-                              Y: { val: 0 },
-                              Heading: { val: 0 },
-                              inRadians: false,
-                            },
-                          ],
-                          interpolation: { reversed: false },
+                          X: { val: 0 },
+                          Y: { val: 0 },
+                          Heading: { val: 0 },
+                          inRadians: false,
                         },
                       ],
-                    };
-                    setPaths(NewMapUpdate(paths, activeKey, updatedPath));
-                  }}>
-                  Add Curve
-                </Button>
-
-                {(activePath.curves || []).map((cRef, cIdx) => (
-                  <div key={cIdx}>
-                    <div>
-                      <span>Curve Segment #{cIdx + 1}</span>
-                      <Button
-                        icon={<DeleteRegular />}
-                        onClick={() => {
-                          const newCurves = activePath.curves.filter(
-                            (_, i) => i !== cIdx,
-                          );
-                          setPaths(
-                            NewMapUpdate(paths, activeKey, {
-                              ...activePath,
-                              curves: newCurves,
-                            }),
-                          );
-                        }}
-                        title="Remove Curve Segment"
-                      />
-                    </div>
-                    <CurveRefControl
-                      label={`Segment ${cIdx + 1}`}
-                      item={cRef}
-                      onChange={(newCRef) => {
-                        const newCurves = [...activePath.curves];
-                        newCurves[cIdx] = newCRef;
-                        setPaths(
-                          NewMapUpdate(paths, activeKey, {
-                            ...activePath,
-                            curves: newCurves,
-                          }),
-                        );
-                      }}
-                    />
-                  </div>
-                ))}
-
-                <InterpRefControl
-                  label="Global Path Override Interpolator (Optional)"
-                  showNone={true}
-                  item={activePath.globalInterpolator}
-                  onChange={(globalInterpolator: InterpRef | null) => {
-                    const val = { ...activePath };
-                    if (globalInterpolator === null) {
-                      if (isDefined(val.globalInterpolator)) {
-                        delete val.globalInterpolator;
-                      }
-                    } else {
-                      val.globalInterpolator = globalInterpolator;
-                    }
-                    setPaths(NewMapUpdate(paths, activeKey, val));
+                      interpolation: { reversed: false },
+                    },
+                  ],
+                };
+                setPaths(NewMapUpdate(paths, activeKey!, updatedPath));
+              }}>
+              Add Curve
+            </Button>
+            {(activePath?.curves || []).map((cRef, cIdx) => (
+              <div key={cIdx}>
+                <div>
+                  <span>Curve Segment #{cIdx + 1}</span>
+                  <Button
+                    icon={<DeleteRegular />}
+                    onClick={() => {
+                      const newCurves = (activePath?.curves || []).filter(
+                        (_, i) => i !== cIdx,
+                      );
+                      setPaths(
+                        NewMapUpdate(paths, activeKey!, {
+                          ...activePath,
+                          curves: newCurves,
+                        }),
+                      );
+                    }}
+                    title="Remove Curve Segment"
+                  />
+                </div>
+                <CurveRefControl
+                  label={`Segment ${cIdx + 1}`}
+                  item={cRef}
+                  onChange={(newCRef) => {
+                    const newCurves = [...(activePath?.curves || [])];
+                    newCurves[cIdx] = newCRef;
+                    setPaths(
+                      NewMapUpdate(paths, activeKey!, {
+                        ...activePath,
+                        curves: newCurves,
+                      }),
+                    );
                   }}
                 />
-              </>
-            </TitleWrapper>
+              </div>
+            ))}
+            <InterpRefControl
+              label="Path-wide Interpolator (Optional)"
+              showNone={true}
+              item={activePath?.globalInterpolator}
+              onChange={(globalInterpolator: InterpRef | null) => {
+                const val = { ...activePath } as Path;
+                if (globalInterpolator === null) {
+                  if (isDefined(val.globalInterpolator)) {
+                    delete val.globalInterpolator;
+                  }
+                } else {
+                  val.globalInterpolator = globalInterpolator;
+                }
+                setPaths(NewMapUpdate(paths, activeKey!, val));
+              }}
+            />
           </>
-        ) : (
-          <Text>Select or create a path sequence to edit.</Text>
-        )}
-      </Panel>
-    </Group>
+        </TitleWrapper>
+      </ItemEditor>
+    </>
   );
 }

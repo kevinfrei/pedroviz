@@ -32,6 +32,7 @@ import {
   Text,
 } from '@fluentui/react-components';
 import {
+  Dismiss24Regular,
   SettingsFilled,
   WeatherMoonFilled,
   WeatherSunnyRegular,
@@ -438,30 +439,38 @@ export function Settings(): ReactElement {
     ],
   );
   return (
-    <Dialog modalType="non-modal">
+    <Dialog modalType="modal">
       <DialogTrigger disableButtonEnhancement>
         <Button icon={<SettingsFilled />} appearance="transparent" />
       </DialogTrigger>
       <DialogSurface>
         <DialogBody>
-          <DialogTitle style={{ textAlign: 'center' }}>Settings</DialogTitle>
+          <DialogTitle
+            action={
+              <DialogTrigger action="close">
+                <Button
+                  appearance="subtle"
+                  aria-label="close"
+                  icon={<Dismiss24Regular />}
+                />
+              </DialogTrigger>
+            }
+            style={{ textAlign: 'center' }}>
+            Settings
+          </DialogTitle>
           <DialogContent className="two-column">
-            <span>
-              <TabList
-                onTabSelect={onTabSelect}
-                vertical
-                size="large"
-                defaultSelectedValue={'General'}>
-                <Tab value="General">General</Tab>
-                <Tab value="Robot">Robot</Tab>
-                <Tab value="Paths">Paths</Tab>
-              </TabList>
-            </span>
-            <span>
-              {selectedTab === 'General' && GeneralSettings}
-              {selectedTab === 'Robot' && BotSettings}
-              {selectedTab === 'Paths' && DrawingSettings}
-            </span>
+            <TabList
+              onTabSelect={onTabSelect}
+              vertical
+              size="large"
+              defaultSelectedValue={'General'}>
+              <Tab value="General">General</Tab>
+              <Tab value="Robot">Robot</Tab>
+              <Tab value="Paths">Paths</Tab>
+            </TabList>
+            {selectedTab === 'General' && GeneralSettings}
+            {selectedTab === 'Robot' && BotSettings}
+            {selectedTab === 'Paths' && DrawingSettings}
           </DialogContent>
         </DialogBody>
       </DialogSurface>

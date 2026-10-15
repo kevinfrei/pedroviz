@@ -1,21 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { ReactElement, useState } from 'react';
+import { ReactElement } from 'react';
 import { useAtom } from 'jotai';
 
-import {
-  DraggableDialog,
-  DraggableDialogHandle,
-  DraggableDialogSurface,
-} from '@fluentui-contrib/react-draggable-dialog';
-import {
-  Button,
-  DialogActions,
-  DialogBody,
-  DialogContent,
-  DialogTitle,
-} from '@fluentui/react-components';
-import { isUndefined } from 'node_modules/@freik/typechk/lib/esm';
+import { isUndefined } from '@freik/typechk';
 
 import { NewMapAdd, NewMapDelete, NewMapRename } from '../../DataTypeChecks';
 import { CurveRef } from '../../DataTypes';
@@ -26,7 +14,7 @@ import {
   selectedKeyAtom,
   symbolTableCurvesAtom,
 } from '../state/SymbolTable';
-import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
+import { ItemEditor } from '../ui-tools/ItemEditorWrapper';
 import { useToast } from '../ui-tools/NotificationToast';
 
 // Curves Store Editor
@@ -40,12 +28,6 @@ export function CurvesEditor(): ReactElement {
     ? undefined
     : curves.get(activeKey);
 
-  const setOpen = (open: boolean) => {
-    const res = NewMapDelete(selected, DataType.Curves);
-    if (res) {
-      setSelected(res);
-    }
-  };
   const handleRename = (oldKey: string, newKey: string) => {
     const newMap = NewMapRename(curves, oldKey, newKey);
     if (newMap) {
@@ -72,46 +54,26 @@ export function CurvesEditor(): ReactElement {
   return (
     <>
       <CurvesList />
-      <DraggableDialog
+      <ItemEditor
         open={!!activeCurve}
-        modalType="non-modal"
-        onOpenChange={(e, data) => setOpen(data.open)}>
-        <DraggableDialogSurface>
-          <DialogBody>
-            <DraggableDialogHandle>
-              <DialogTitle>Curve Editor</DialogTitle>
-            </DraggableDialogHandle>
-            <DialogContent>
-              <>
-                <NameChangeDelete
-                  title="Name"
-                  name={activeKey || ''}
-                  handleRename={handleRename}
-                  handleDelete={handleDelete}
-                />
-                <CurveRefControl
-                  label="Curve Definition"
-                  item={activeCurve as CurveRef}
-                  name={activeKey}
-                  onChange={(updatedCurve: CurveRef) => {
-                    setCurves(
-                      NewMapAdd(curves, activeKey, updatedCurve) as Map<
-                        string,
-                        CurveRef
-                      >,
-                    );
-                  }}
-                />
-              </>
-            </DialogContent>
-            <DialogActions>
-              <Button appearance="secondary" onClick={() => setOpen(false)}>
-                Close
-              </Button>
-            </DialogActions>
-          </DialogBody>
-        </DraggableDialogSurface>
-      </DraggableDialog>
+        name={activeKey || ''}
+        type={DataType.Curves}
+        handleRename={handleRename}
+        handleDelete={handleDelete}>
+        <CurveRefControl
+          label="Curve Definition"
+          item={activeCurve as CurveRef}
+          name={activeKey}
+          onChange={(updatedCurve: CurveRef) => {
+            setCurves(
+              NewMapAdd(curves, activeKey, updatedCurve) as Map<
+                string,
+                CurveRef
+              >,
+            );
+          }}
+        />
+      </ItemEditor>
     </>
   );
 }

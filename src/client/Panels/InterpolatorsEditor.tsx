@@ -3,8 +3,7 @@
 import { ReactElement } from 'react';
 import { useAtom } from 'jotai';
 
-import { Text } from '@fluentui/react-components';
-import { Group, Panel, Separator } from 'react-resizable-panels';
+import { isUndefined } from '@freik/typechk';
 
 import { NewMapAdd, NewMapDelete, NewMapRename } from '../../DataTypeChecks';
 import { InterpRef } from '../../DataTypes';
@@ -15,7 +14,7 @@ import {
   selectedKeyAtom,
   symbolTableInterpolationsAtom,
 } from '../state/SymbolTable';
-import { NameChangeDelete } from '../ui-tools/NameChangeDelete';
+import { ItemEditor } from '../ui-tools/ItemEditorWrapper';
 import { useToast } from '../ui-tools/NotificationToast';
 
 // Interpolators Store Editor
@@ -27,7 +26,9 @@ export function InterpolatorsEditor(): ReactElement {
   const setToast = useToast();
 
   const activeKey = selected.get(DataType.Interpolations);
-  const activeInterp = activeKey && interpolations.get(activeKey);
+  const activeInterp = isUndefined(activeKey)
+    ? undefined
+    : interpolations.get(activeKey);
 
   const handleRename = (oldKey: string, newKey: string) => {
     const newMap = NewMapRename(interpolations, oldKey, newKey);
@@ -53,34 +54,25 @@ export function InterpolatorsEditor(): ReactElement {
   };
 
   return (
-    <Group>
-      <Panel>
-        <InterpolatorsList />
-      </Panel>
-      <Separator />
-      <Panel>
-        {activeKey && activeInterp ? (
-          <>
-            <NameChangeDelete
-              title="Selected Interpolator Name"
-              name={activeKey}
-              handleRename={handleRename}
-              handleDelete={handleDelete}
-            />
-            <InterpRefControl
-              label="Interpolator Definition"
-              item={activeInterp}
-              onChange={(updatedInterp: InterpRef) =>
-                setInterpolations(
-                  NewMapAdd(interpolations, activeKey, updatedInterp),
-                )
-              }
-            />
-          </>
-        ) : (
-          <Text>Select or create an interpolator to edit.</Text>
-        )}
-      </Panel>
-    </Group>
+    <>
+      <InterpolatorsList />
+
+      <ItemEditor
+        open={!!activeInterp}
+        name={activeKey || ''}
+        type={DataType.Interpolations}
+        handleRename={handleRename}
+        handleDelete={handleDelete}>
+        <InterpRefControl
+          label="Interpolator Definition"
+          item={activeInterp as InterpRef}
+          onChange={(updatedInterp: InterpRef) =>
+            setInterpolations(
+              NewMapAdd(interpolations, activeKey!, updatedInterp),
+            )
+          }
+        />
+      </ItemEditor>
+    </>
   );
 }

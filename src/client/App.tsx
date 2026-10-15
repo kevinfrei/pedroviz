@@ -9,7 +9,6 @@ import {
   makeStyles,
   Toaster,
   Toolbar,
-  ToolbarDivider,
   ToolbarGroup,
   webDarkTheme,
   webLightTheme,
@@ -21,13 +20,12 @@ import { CodeIssues } from './CodeIssues';
 import { Strings } from './constants';
 import { FieldRenderer } from './FieldRenderer';
 import { PathsDataDisplay } from './PathsDataDisplay';
-import { ClassSelector, FileSelector, TeamSelector } from './PathSelector';
+import { TeamSelector } from './PathSelector';
 import { Settings } from './Settings';
 import { ToastId } from './state/BasicState';
 import { ThemeAtom } from './state/SavedSettings';
 import { getStore } from './state/Storage';
 import { FullDatabaseAtom } from './state/UserCode';
-import { MovableCanvas } from './ui-tools/MovableCanvas';
 
 const useStyles = makeStyles({
   toolbar: {
@@ -41,21 +39,25 @@ function MyApp(): ReactElement {
   return (
     <div className="app">
       <Group className="main">
+        <Panel className="display">
+          <SpinSuspense>
+            <FieldRenderer />
+          </SpinSuspense>
+        </Panel>
+        <Separator id="view-separator" />
         <Panel className="sidebar">
           <SpinSuspense>
             <Toolbar size="medium" className={toolbarStyle.toolbar}>
               <ToolbarGroup>
-                <TeamSelector />
-                <ToolbarDivider />
-                <FileSelector />
-                <ToolbarDivider />
-                <ClassSelector />
-                {/* <MovableCanvas /> */}
+                <Settings />
+                <div style={{ width: '8px' }} />
+                <Button onClick={() => rescanCode()}>
+                  {Strings.rescan_source}
+                </Button>
               </ToolbarGroup>
-              <Button onClick={() => rescanCode()}>
-                {Strings.rescan_source}
-              </Button>
-              <Settings />
+              <ToolbarGroup>
+                <TeamSelector />
+              </ToolbarGroup>
             </Toolbar>
           </SpinSuspense>
           <SpinSuspense>
@@ -63,12 +65,6 @@ function MyApp(): ReactElement {
             <CodeIssues />
           </SpinSuspense>
           <Toaster toasterId={ToastId} position="top" />
-        </Panel>
-        <Separator id="view-separator" />
-        <Panel className="display">
-          <SpinSuspense>
-            <FieldRenderer />
-          </SpinSuspense>
         </Panel>
       </Group>
     </div>
