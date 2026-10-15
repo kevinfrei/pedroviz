@@ -18,6 +18,17 @@ import {
   ConcretePointHeading,
   ConcreteSimpleHeading,
   ConcreteTangentHeading,
+  EvalCurve,
+  EvalInterpConstant,
+  EvalInterpFacing,
+  EvalInterpLinear,
+  EvalInterpolator,
+  EvalInterpPiece,
+  EvalInterpPiecewise,
+  EvalInterpSimple,
+  EvalInterpTangent,
+  EvalPath,
+  EvalPose,
 } from './ConcreteEvalTypes';
 
 const chkPoint = chkObjectOfExactType({ x: isNumber, y: isNumber });
@@ -73,4 +84,52 @@ const chkConcretePieceWiseHeading =
 const chkConcreteHeading = chkAnyOf(
   chkConcretePieceWiseHeading,
   chkConcreteSimpleHeading,
+);
+
+export const chkEvalPose = chkObjectOfExactType<EvalPose>(
+  { x: isNumber, y: isNumber },
+  { radians: isNumber },
+);
+export const chkEvalInterpTangent = chkObjectOfExactType<EvalInterpTangent>({
+  reversed: isBoolean,
+});
+export const chkEvalInterpConstant = chkObjectOfExactType<EvalInterpConstant>({
+  radians: isNumber,
+});
+export const chkEvalInterpLinear = chkObjectOfExactType<EvalInterpLinear>({
+  startRadians: isNumber,
+  endRadians: isNumber,
+  longWay: isBoolean,
+});
+export const chkEvalInterpFacing = chkObjectOfExactType<EvalInterpFacing>({
+  x: isNumber,
+  y: isNumber,
+});
+export const chkEvalInterpSimple: typecheck<EvalInterpSimple> = chkAnyOf(
+  chkEvalInterpConstant,
+  chkEvalInterpFacing,
+  chkEvalInterpLinear,
+  chkEvalInterpTangent,
+);
+export const chkEvalInterpPiece = chkObjectOfExactType<EvalInterpPiece>({
+  until: isNumber,
+  interp: chkEvalInterpSimple,
+});
+export const chkEvalInterpPiecewise: typecheck<EvalInterpPiecewise> =
+  chkArrayOf(chkEvalInterpPiece);
+export const chkEvalInterpolator: typecheck<EvalInterpolator> = chkAnyOf(
+  chkEvalInterpSimple,
+  chkEvalInterpPiecewise,
+);
+export const chkEvalCurve = chkObjectOfExactType<EvalCurve>({
+  points: chkArrayOf(chkEvalPose),
+  interpolator: chkEvalInterpolator,
+});
+export const chkEvalPath = chkObjectOfExactType<EvalPath>(
+  {
+    curves: chkArrayOf(chkEvalCurve),
+  },
+  {
+    globalInterpolator: chkEvalInterpolator,
+  },
 );
