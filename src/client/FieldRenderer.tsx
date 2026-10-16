@@ -11,6 +11,7 @@ import { animateBot, BotAnimationState } from './BotAnimation';
 import {
   ConcreteHeading,
   CurveDetail,
+  EvalCurveDetail,
   EvalInterpolator,
   Point,
 } from './ConcreteEvalTypes';
@@ -371,14 +372,20 @@ function renderPath(
 
 function renderDTOPath(
   ctx: CanvasRenderingContext2D,
-  curve: CurveDetail,
+  curve: EvalCurveDetail,
   interpolator: EvalInterpolator | false,
   pathStyle: PathStyle,
   color: string,
 ) {
-  console.log('curve', curve.length, curve.points[0]?.x, curve.points[0]?.y);
-
   renderCurve(ctx, curve, color, pathStyle.Curves);
+  if (shouldDrawCurve(pathStyle.Curves)) {
+    drawControlPoints(
+      ctx,
+      pathStyle.Curves.ControlPoint,
+      curve.controlPoints,
+      color,
+    );
+  }
 }
 
 function drawPoint(

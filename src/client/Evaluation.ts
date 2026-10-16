@@ -289,7 +289,10 @@ export function EvaluateSymbols(symbolTable: SymbolTable): EvalSymbols {
     } else */ if (points.length < 2) {
       return MakeError('Curve with fewer than 2 points!');
     } else {
-      return { interpolator, points: getCurveDetail(points) };
+      return {
+        interpolator,
+        points: { ...getCurveDetail(points), controlPoints: points },
+      };
     }
   }
 

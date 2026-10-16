@@ -50,7 +50,11 @@ export type ConcreteSimpleHeading =
 export type ConcreteHeading = ConcreteSimpleHeading | ConcretePiecewiseHeading;
 
 export type EvalPose = { x: number; y: number; radians?: number };
-export type EvalCurveDetail = { length: number; points: Point[] };
+export type EvalCurveDetail = {
+  length: number;
+  points: Point[];
+  controlPoints: EvalPose[];
+};
 export type EvalInterpTangent = { reversed: boolean };
 export type EvalInterpConstant = { radians: number };
 export type EvalInterpLinear = {

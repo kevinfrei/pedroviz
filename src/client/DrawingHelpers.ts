@@ -28,21 +28,19 @@ function getBezierPoints(curveControlPoints: Point[]): Point[] {
   return pts;
 }
 
-export function getCurveDetail(curveControlPoints: Point[]): CurveDetail {
-  if (curveControlPoints.length < 2) {
+export function getCurveDetail(controlPoints: Point[]): CurveDetail {
+  if (controlPoints.length < 2) {
     return { length: 0, points: [] };
   }
-  const points: Point[] = getBezierPoints(curveControlPoints);
+  const points: Point[] = getBezierPoints(controlPoints);
   let length = 0;
-  let lastPt = curveControlPoints[0]!;
+  let lastPt = controlPoints[0]!;
   for (const pt of points) {
     length += ptDistance(lastPt, pt);
     lastPt = pt;
   }
-  length += ptDistance(
-    lastPt,
-    curveControlPoints[curveControlPoints.length - 1]!,
-  );
+  length += ptDistance(lastPt, controlPoints[controlPoints.length - 1]!);
+  points.push(lastPt);
   return { length, points };
 }
 

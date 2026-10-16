@@ -102,6 +102,7 @@ export const chkEvalPose = chkObjectOfExactType<EvalPose>(
 export const chkEvalCurveDetail = chkObjectOfExactType<EvalCurveDetail>({
   length: isNumber,
   points: chkArrayOf(chkPoint),
+  controlPoints: chkArrayOf(chkEvalPose),
 });
 export const chkEvalInterpTangent = chkObjectOfExactType<EvalInterpTangent>({
   reversed: isBoolean,
