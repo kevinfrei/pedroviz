@@ -14,9 +14,9 @@ import {
   NewMapUpdate,
 } from '../../DataTypeChecks';
 import { InterpRef, Path } from '../../DataTypes';
-import { CurveRefControl } from '../Editors/CurveRef';
-import { InterpRefControl } from '../Editors/InterpRef';
-import { PathsList } from '../Lists/Paths';
+import { CurveRefEditor } from '../Editors/CurveRefEditor';
+import { InterpRefEditor } from '../Editors/InterpRefEditor';
+import { PathsList } from '../Lists/PathsList';
 import {
   DataType,
   selectedKeyAtom,
@@ -27,7 +27,7 @@ import { useToast } from '../ui-tools/NotificationToast';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
 
 // Paths Store Editor
-export function PathsEditor(): ReactElement {
+export function PathsView(): ReactElement {
   const [paths, setPaths] = useAtom(symbolTablePathsAtom);
   const [selected, setSelected] = useAtom(selectedKeyAtom);
   const setToast = useToast();
@@ -117,7 +117,7 @@ export function PathsEditor(): ReactElement {
                     title="Remove Curve Segment"
                   />
                 </div>
-                <CurveRefControl
+                <CurveRefEditor
                   label={`Segment ${cIdx + 1}`}
                   item={cRef}
                   onChange={(newCRef) => {
@@ -133,7 +133,7 @@ export function PathsEditor(): ReactElement {
                 />
               </div>
             ))}
-            <InterpRefControl
+            <InterpRefEditor
               label="Path-wide Interpolator (Optional)"
               showNone={true}
               item={activePath?.globalInterpolator}

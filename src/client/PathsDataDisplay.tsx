@@ -12,12 +12,12 @@ import {
   Text,
 } from '@fluentui/react-components';
 
-import { CurvesEditor } from './Panels/CurvesEditor';
-import { InterpolatorsEditor } from './Panels/InterpolatorsEditor';
-import { JsonEditor } from './Panels/JsonEditor';
-import { PathsEditor } from './Panels/PathsEditor';
-import { PosesEditor } from './Panels/PosesEditor';
-import { ValuesEditor } from './Panels/ValuesEditor';
+import { CurvesView } from './Panels/CurvesView';
+import { InterpolatorsView } from './Panels/InterpolatorsView';
+import { JsonView } from './Panels/JsonView';
+import { PathsView } from './Panels/PathsView';
+import { PosesView } from './Panels/PosesView';
+import { ValuesView } from './Panels/ValuesView';
 import { activeTabAtom } from './state/SymbolTable';
 import { SelectedClassAtom, SelectedPathAtom } from './state/UserCode';
 
@@ -27,12 +27,12 @@ export function PathsDataDisplay({
   expand?: boolean;
 }): ReactElement {
   const tabInfo: [string, string | ReactElement, ReactElement][] = [
-    ['v', 'Values', <ValuesEditor />],
-    ['p', 'Poses', <PosesEditor />],
-    ['i', 'Interpolations', <InterpolatorsEditor />],
-    ['c', 'Lines & Curves', <CurvesEditor />],
-    ['P', 'Paths', <PathsEditor />],
-    ['j', 'Raw JSON', <JsonEditor />],
+    ['v', 'Values', <ValuesView />],
+    ['p', 'Poses', <PosesView />],
+    ['i', 'Interpolations', <InterpolatorsView />],
+    ['c', 'Lines & Curves', <CurvesView />],
+    ['P', 'Paths', <PathsView />],
+    ['j', 'Raw JSON', <JsonView />],
   ];
 
   const selFile = useAtomValue(SelectedPathAtom);

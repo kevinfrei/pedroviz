@@ -25,9 +25,9 @@ import {
 import { resolveInterpRef } from '../Resolvers';
 import { symbolTableAtom } from '../state/SymbolTable';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
-import { HeadingRefControl } from './HeadingRef';
-import { PoseRefControl } from './PoseRef';
-import { ValRefControl } from './ValRef';
+import { HeadingRefEditor } from './HeadingRefEditor';
+import { PoseRefEditor } from './PoseRefEditor';
+import { ValRefEditor } from './ValRefEditor';
 
 const zeroHeading: HeadingVal = { angle: { val: 0 }, inRadians: false };
 const one80Heading: HeadingVal = { angle: { val: 180 }, inRadians: false };
@@ -65,21 +65,21 @@ function validInterpsForRef(
   );
 }
 
-export type InterpRefControlPropsWithShow = {
+export type InterpRefEditorPropsWithShow = {
   label: string;
   item?: InterpRef;
   showNone: true;
   name?: string;
   onChange: (interp: InterpRef | null) => void;
 };
-export type InterpRefControlPropsNoShow = {
+export type InterpRefEditorPropsNoShow = {
   label: string;
   item: InterpRef;
   name?: string;
   onChange: (interp: InterpRef) => void;
 };
-export function InterpRefControl(
-  props: InterpRefControlPropsWithShow | InterpRefControlPropsNoShow,
+export function InterpRefEditor(
+  props: InterpRefEditorPropsWithShow | InterpRefEditorPropsNoShow,
 ): ReactElement {
   const { label, item, onChange } = props;
   const showNone = hasField(props, 'showNone') ? props.showNone : false;
@@ -170,7 +170,7 @@ export function InterpRefControl(
         )}
 
         {chkConstInterp(item) && (
-          <HeadingRefControl
+          <HeadingRefEditor
             label="Heading Value"
             item={item.heading || { angle: { val: 0 }, inRadians: false }}
             onChange={(hr) => onChange({ heading: hr })}
@@ -178,7 +178,7 @@ export function InterpRefControl(
         )}
 
         {chkFacePtInterp(item) && (
-          <PoseRefControl
+          <PoseRefEditor
             label="Target Point Pose"
             item={
               item?.point || {
@@ -194,12 +194,12 @@ export function InterpRefControl(
 
         {chkLinearInterp(item) && (
           <div>
-            <HeadingRefControl
+            <HeadingRefEditor
               label="Start Heading"
               item={item.start || zeroHeading}
               onChange={(start) => onChange({ ...item, start })}
             />
-            <HeadingRefControl
+            <HeadingRefEditor
               label="End Heading"
               item={item?.end || one80Heading}
               onChange={(end) => onChange({ ...item, end })}
@@ -258,7 +258,7 @@ export function InterpRefControl(
                   />
                 </div>
 
-                <ValRefControl
+                <ValRefEditor
                   label="Until (% of path complete)"
                   item={piece.until}
                   onChange={(until) => {
@@ -268,7 +268,7 @@ export function InterpRefControl(
                   }}
                 />
 
-                <InterpRefControl
+                <InterpRefEditor
                   label="Segment Interpolator"
                   item={piece.interpolator}
                   name={props.name}

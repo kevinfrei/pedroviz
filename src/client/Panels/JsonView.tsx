@@ -7,7 +7,7 @@ import { Text } from '@fluentui/react-components';
 
 import { namedValuesAtom } from '../state/SymbolTable';
 
-export function JsonEditor(): ReactElement {
+export function JsonView(): ReactElement {
   const namedValues = useAtomValue(namedValuesAtom);
   const json = JSON.stringify(namedValues, null, 2).split('\n');
   return (

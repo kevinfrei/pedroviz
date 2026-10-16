@@ -27,8 +27,8 @@ import { ResolvedHeading } from '../ResolvedTypes';
 import { resolveHeadingRef, resolvePoseRef } from '../Resolvers';
 import { symbolTableAtom } from '../state/SymbolTable';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
-import { SimplePoseRef } from './PoseRef';
-import { SimpleValRef } from './ValRef';
+import { SimplePoseRef } from './PoseRefEditor';
+import { SimpleValRef } from './ValRefEditor';
 
 // Filter out pose names that would result in errors
 function validPosesForRef(
@@ -57,7 +57,7 @@ const hrIsRef = chkObjectOfExactType<{ angle: Ref; inRadians: boolean }>({
   inRadians: isBoolean,
 });
 
-export type HeadingRefControlProps = {
+export type HeadingRefEditorProps = {
   label: string;
   item: HeadingRef;
   onChange: (headingRef: HeadingRef) => void;
@@ -65,11 +65,11 @@ export type HeadingRefControlProps = {
 
 // HeadingRef Control: Switch between Inline ({ angle: ValRef, inRadians: Boolean }) and PoseRef ({ ref })
 // This is intentionally not allowing inline poses. I think that's probably silly/unnecessary anyway.
-export function HeadingRefControl({
+export function HeadingRefEditor({
   label,
   item,
   onChange,
-}: HeadingRefControlProps): ReactElement {
+}: HeadingRefEditorProps): ReactElement {
   const symbolTable = useAtomValue(symbolTableAtom);
   const valueKeys = [...symbolTable.values.keys()];
   const validPoseKeys = validPosesForRef(

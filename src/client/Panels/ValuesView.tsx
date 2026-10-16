@@ -6,8 +6,8 @@ import { useAtom } from 'jotai';
 import { isUndefined } from '@freik/typechk';
 
 import { NewMapAdd, NewMapDelete, NewMapRename } from '../../DataTypeChecks';
-import { ValRefControl } from '../Editors/ValRef';
-import { ValuesList } from '../Lists/Values';
+import { ValRefEditor } from '../Editors/ValRefEditor';
+import { ValuesList } from '../Lists/ValuesList';
 import {
   DataType,
   selectedKeyAtom,
@@ -16,7 +16,7 @@ import {
 import { ItemEditor } from '../ui-tools/ItemEditorWrapper';
 import { useToast } from '../ui-tools/NotificationToast';
 
-export function ValuesEditor(): ReactElement {
+export function ValuesView(): ReactElement {
   const [values, setValues] = useAtom(symbolTableValuesAtom);
   const [selected, setSelected] = useAtom(selectedKeyAtom);
   const setToast = useToast();
@@ -59,7 +59,7 @@ export function ValuesEditor(): ReactElement {
         name={activeKey || ''}
         handleRename={handleRename}
         handleDelete={handleDelete}>
-        <ValRefControl
+        <ValRefEditor
           label="Value or Reference"
           item={activeValue!}
           name={activeKey}

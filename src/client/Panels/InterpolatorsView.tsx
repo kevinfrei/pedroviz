@@ -7,8 +7,8 @@ import { isUndefined } from '@freik/typechk';
 
 import { NewMapAdd, NewMapDelete, NewMapRename } from '../../DataTypeChecks';
 import { InterpRef } from '../../DataTypes';
-import { InterpRefControl } from '../Editors/InterpRef';
-import { InterpolatorsList } from '../Lists/Interpolators';
+import { InterpRefEditor } from '../Editors/InterpRefEditor';
+import { InterpolatorsList } from '../Lists/InterpolatorsList';
 import {
   DataType,
   selectedKeyAtom,
@@ -18,7 +18,7 @@ import { ItemEditor } from '../ui-tools/ItemEditorWrapper';
 import { useToast } from '../ui-tools/NotificationToast';
 
 // Interpolators Store Editor
-export function InterpolatorsEditor(): ReactElement {
+export function InterpolatorsView(): ReactElement {
   const [interpolations, setInterpolations] = useAtom(
     symbolTableInterpolationsAtom,
   );
@@ -56,14 +56,13 @@ export function InterpolatorsEditor(): ReactElement {
   return (
     <>
       <InterpolatorsList />
-
       <ItemEditor
         open={!!activeInterp}
         name={activeKey || ''}
         type={DataType.Interpolations}
         handleRename={handleRename}
         handleDelete={handleDelete}>
-        <InterpRefControl
+        <InterpRefEditor
           label="Interpolator Definition"
           item={activeInterp as InterpRef}
           onChange={(updatedInterp: InterpRef) =>

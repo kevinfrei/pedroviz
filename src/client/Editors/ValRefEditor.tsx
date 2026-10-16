@@ -36,7 +36,7 @@ function validValuesForRef(
   );
 }
 
-export type ValRefControlProps = {
+export type ValRefEditorProps = {
   label: string;
   item: ValRef;
   name?: string;
@@ -44,12 +44,12 @@ export type ValRefControlProps = {
 };
 
 // ValRef Control: Switch between Inline ({ val }) and Ref ({ ref })
-export function ValRefControl({
+export function ValRefEditor({
   label,
   item,
   name,
   onChange,
-}: ValRefControlProps): ReactElement {
+}: ValRefEditorProps): ReactElement {
   const symbolTable = useAtomValue(symbolTableAtom);
   const valueKeys = [...symbolTable.values.keys()];
   const isRef = chkRef(item);

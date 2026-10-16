@@ -20,8 +20,8 @@ import { CurveRef, InterpRef, SymbolTable } from '../../DataTypes';
 import { resolveCurveRef } from '../Resolvers';
 import { symbolTableAtom } from '../state/SymbolTable';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
-import { InterpRefControl } from './InterpRef';
-import { PoseRefControl } from './PoseRef';
+import { InterpRefEditor } from './InterpRefEditor';
+import { PoseRefEditor } from './PoseRefEditor';
 
 // Filter out interpolation names that would result in errors
 function validCurvesForRef(
@@ -39,19 +39,19 @@ function validCurvesForRef(
   );
 }
 
-export type CurveRefControlProps = {
+export type CurveRefEditorProps = {
   label: string;
   item: CurveRef;
   name?: string;
   onChange: (ncr: CurveRef) => void;
 };
 // CurveRef Control: Inline Curve vs Ref ({ ref })
-export function CurveRefControl({
+export function CurveRefEditor({
   label,
   item,
   name,
   onChange,
-}: CurveRefControlProps): ReactElement {
+}: CurveRefEditorProps): ReactElement {
   const symbolTable = useAtomValue(symbolTableAtom);
   const curveKeys = validCurvesForRef(
     Array.from(symbolTable.curves.keys()),
@@ -151,7 +151,7 @@ export function CurveRefControl({
                       />
                     )}
                   </div>
-                  <PoseRefControl
+                  <PoseRefEditor
                     label={`Point ${pIdx + 1}`}
                     item={pt}
                     onChange={(newPt) => {
@@ -164,7 +164,7 @@ export function CurveRefControl({
               ))}
             </div>
 
-            <InterpRefControl
+            <InterpRefEditor
               label="Curve Interpolator"
               item={item?.interpolation || { reversed: false }}
               onChange={(interpolation: InterpRef) =>

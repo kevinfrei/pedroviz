@@ -6,8 +6,8 @@ import { useAtom } from 'jotai';
 import { isUndefined } from '@freik/typechk';
 
 import { NewMapAdd, NewMapDelete, NewMapRename } from '../../DataTypeChecks';
-import { PoseRefControl } from '../Editors/PoseRef';
-import { PosesList } from '../Lists/Poses';
+import { PoseRefEditor } from '../Editors/PoseRefEditor';
+import { PosesList } from '../Lists/PosesList';
 import {
   DataType,
   selectedKeyAtom,
@@ -17,7 +17,7 @@ import { ItemEditor } from '../ui-tools/ItemEditorWrapper';
 import { useToast } from '../ui-tools/NotificationToast';
 
 // Poses Store Editor
-export function PosesEditor(): ReactElement {
+export function PosesView(): ReactElement {
   const [poses, setPoses] = useAtom(symbolTablePosesAtom);
   const [selected, setSelected] = useAtom(selectedKeyAtom);
   const setToast = useToast();
@@ -58,7 +58,7 @@ export function PosesEditor(): ReactElement {
         name={activeKey || ''}
         handleRename={handleRename}
         handleDelete={handleDelete}>
-        <PoseRefControl
+        <PoseRefEditor
           label="Pose Coordinates & Heading"
           item={activePose!}
           name={activeKey}

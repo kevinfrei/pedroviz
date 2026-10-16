@@ -7,8 +7,8 @@ import { isUndefined } from '@freik/typechk';
 
 import { NewMapAdd, NewMapDelete, NewMapRename } from '../../DataTypeChecks';
 import { CurveRef } from '../../DataTypes';
-import { CurveRefControl } from '../Editors/CurveRef';
-import { CurvesList } from '../Lists/Curves';
+import { CurveRefEditor } from '../Editors/CurveRefEditor';
+import { CurvesList } from '../Lists/CurvesList';
 import {
   DataType,
   selectedKeyAtom,
@@ -18,7 +18,7 @@ import { ItemEditor } from '../ui-tools/ItemEditorWrapper';
 import { useToast } from '../ui-tools/NotificationToast';
 
 // Curves Store Editor
-export function CurvesEditor(): ReactElement {
+export function CurvesView(): ReactElement {
   const [curves, setCurves] = useAtom(symbolTableCurvesAtom);
   const [selected, setSelected] = useAtom(selectedKeyAtom);
   const setToast = useToast();
@@ -60,7 +60,7 @@ export function CurvesEditor(): ReactElement {
         type={DataType.Curves}
         handleRename={handleRename}
         handleDelete={handleDelete}>
-        <CurveRefControl
+        <CurveRefEditor
           label="Curve Definition"
           item={activeCurve as CurveRef}
           name={activeKey}

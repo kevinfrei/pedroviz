@@ -10,7 +10,7 @@ import {
 } from '@fluentui/react-components';
 
 import { Path } from '../../DataTypes';
-import { SimpleInterpRef } from '../Editors/InterpRef';
+import { SimpleInterpRef } from '../Editors/InterpRefEditor';
 import { DataType, symbolTablePathsAtom } from '../state/SymbolTable';
 import { SearchableTable } from './SearchableTable';
 import { CurveArraySorter, MaybeInterpSorter } from './Sort';

@@ -11,8 +11,8 @@ import {
 
 import { chkRef } from '../../DataTypeChecks';
 import { Pose, PoseRef, Ref } from '../../DataTypes';
-import { SimpleHeadingRef } from '../Editors/HeadingRef';
-import { SimpleValRef } from '../Editors/ValRef';
+import { SimpleHeadingRef } from '../Editors/HeadingRefEditor';
+import { SimpleValRef } from '../Editors/ValRefEditor';
 import { DataType, symbolTablePosesAtom } from '../state/SymbolTable';
 import { SearchableTable } from './SearchableTable';
 import {

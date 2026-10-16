@@ -10,7 +10,7 @@ import {
 } from '@fluentui/react-components';
 
 import { InterpRef } from '../../DataTypes';
-import { SimpleInterpRef } from '../Editors/InterpRef';
+import { SimpleInterpRef } from '../Editors/InterpRefEditor';
 import { DataType, symbolTableInterpolationsAtom } from '../state/SymbolTable';
 import { SearchableTable } from './SearchableTable';
 import { InterpSorter } from './Sort';

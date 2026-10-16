@@ -14,11 +14,15 @@ import { resolvePoseRef } from '../Resolvers';
 import { symbolTableAtom } from '../state/SymbolTable';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
 import {
-  HeadingRefControl,
+  HeadingRefEditor,
   HeadingRefInline,
   ResolvedHeadingInline,
-} from './HeadingRef';
-import { ResolvedValueInline, SimpleValRef, ValRefControl } from './ValRef';
+} from './HeadingRefEditor';
+import {
+  ResolvedValueInline,
+  SimpleValRef,
+  ValRefEditor,
+} from './ValRefEditor';
 
 // Filter out pose names that would result in errors
 function validPosesForRef(
@@ -36,7 +40,7 @@ function validPosesForRef(
   );
 }
 
-export type PoseRefControlProps = {
+export type PoseRefEditorProps = {
   label: string;
   item: PoseRef;
   name?: string;
@@ -44,12 +48,12 @@ export type PoseRefControlProps = {
 };
 
 // PoseRef Control: Switch between Inline ({ X, Y, Heading, inRadians }) and Ref ({ ref })
-export function PoseRefControl({
+export function PoseRefEditor({
   label,
   item,
   name,
   onChange,
-}: PoseRefControlProps): ReactElement {
+}: PoseRefEditorProps): ReactElement {
   const symbolTable = useAtomValue(symbolTableAtom);
   const validPoseKeys = validPosesForRef(
     Array.from(symbolTable.poses.keys()),
@@ -113,17 +117,17 @@ export function PoseRefControl({
           </span>
         ) : (
           <div>
-            <ValRefControl
+            <ValRefEditor
               label="X Coordinate"
               item={item?.X || { val: 0 }}
               onChange={(X) => onChange({ ...item, X })}
             />
-            <ValRefControl
+            <ValRefEditor
               label="Y Coordinate"
               item={item?.Y || { val: 0 }}
               onChange={(Y) => onChange({ ...item, Y })}
             />
-            <HeadingRefControl
+            <HeadingRefEditor
               label="Heading Angle"
               item={item?.heading || { angle: { val: 0 }, inRadians: false }}
               onChange={(Heading) => onChange({ ...item, heading: Heading })}
