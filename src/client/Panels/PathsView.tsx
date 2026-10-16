@@ -1,18 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { ReactElement } from 'react';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 
 import { Button } from '@fluentui/react-components';
 import { AddRegular, DeleteRegular } from '@fluentui/react-icons';
 import { isDefined, isUndefined } from '@freik/typechk';
 
-import {
-  NewMapAdd,
-  NewMapDelete,
-  NewMapRename,
-  NewMapUpdate,
-} from '../../DataTypeChecks';
+import { NewMapUpdate } from '../../DataTypeChecks';
 import { InterpRef, Path } from '../../DataTypes';
 import { CurveRefEditor } from '../Editors/CurveRefEditor';
 import { InterpRefEditor } from '../Editors/InterpRefEditor';
@@ -23,42 +18,15 @@ import {
   symbolTablePathsAtom,
 } from '../state/SymbolTable';
 import { ItemEditor } from '../ui-tools/ItemEditorWrapper';
-import { useToast } from '../ui-tools/NotificationToast';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
 
 // Paths Store Editor
 export function PathsView(): ReactElement {
   const [paths, setPaths] = useAtom(symbolTablePathsAtom);
-  const [selected, setSelected] = useAtom(selectedKeyAtom);
-  const setToast = useToast();
+  const selected = useAtomValue(selectedKeyAtom);
 
   const activeKey = selected.get(DataType.Paths);
   const activePath = isUndefined(activeKey) ? undefined : paths.get(activeKey);
-
-  const handleRename = (oldKey: string, newKey: string) => {
-    const newMap = NewMapRename(paths, oldKey, newKey);
-    if (newMap) {
-      setPaths(newMap);
-      setSelected(NewMapAdd(selected, DataType.Paths, newKey));
-    }
-  };
-
-  const handleDelete = (keyToDelete: string) => {
-    const newMap = NewMapDelete(paths, keyToDelete);
-    if (newMap) {
-      setPaths(newMap);
-      const remaining = Array.from(newMap.keys());
-      const update = remaining.length
-        ? NewMapAdd(selected, DataType.Paths, remaining[0]!)
-        : NewMapDelete(selected, DataType.Paths);
-      if (update) {
-        setSelected(update);
-      }
-      setToast(`Deleted path "${keyToDelete}"`);
-    } else {
-      setToast(`Failed to delete path "${keyToDelete}"`, 'error');
-    }
-  };
 
   return (
     <>
@@ -68,8 +36,8 @@ export function PathsView(): ReactElement {
         open={!!activePath}
         name={activeKey || ''}
         type={DataType.Paths}
-        handleRename={handleRename}
-        handleDelete={handleDelete}>
+        items={paths}
+        setItems={setPaths}>
         <TitleWrapper title="Path Curves/Lines">
           <>
             <Button

@@ -17,9 +17,10 @@ import {
   ToolbarGroup,
 } from '@fluentui/react-components';
 import { DeleteRegular, Dismiss24Regular } from '@fluentui/react-icons';
-import { NewMapDelete } from 'src/DataTypeChecks';
+import { NewMapAdd, NewMapDelete, NewMapRename } from 'src/DataTypeChecks';
 
 import { DataType, DataTypeNames, selectedKeyAtom } from '../state/SymbolTable';
+import { useToast } from './NotificationToast';
 
 const useStyles = makeStyles({
   toolbar: {
@@ -27,26 +28,27 @@ const useStyles = makeStyles({
   },
 });
 
-export type ItemEditorProps = {
+export type ItemEditorProps<T> = {
   name: string;
-  handleRename: (oldName: string, newName: string) => void;
-  handleDelete: (name: string) => void;
+  items: Map<string, T>;
+  setItems: (newItems: Map<string, T>) => void;
   children: ReactElement | ReactElement[];
   type: DataType;
   open: boolean;
 };
 
-export function ItemEditor({
+export function ItemEditor<T>({
   name,
-  handleRename,
-  handleDelete,
+  items,
+  setItems,
   children,
   type,
   open,
-}: ItemEditorProps): ReactElement {
+}: ItemEditorProps<T>): ReactElement {
   const id = useId();
   const toolbarStyle = useStyles();
   const [selected, setSelected] = useAtom(selectedKeyAtom);
+  const setToast = useToast();
 
   const typeName = DataTypeNames[type];
   const setOpen = (open: boolean) => {
@@ -57,6 +59,33 @@ export function ItemEditor({
       }
     }
   };
+
+  const handleRename = (oldKey: string, newKey: string) => {
+    const newMap = NewMapRename(items, oldKey, newKey);
+    if (newMap) {
+      setItems(newMap);
+      setSelected(NewMapAdd(selected, type, newKey));
+      setToast(`Renamed ${typeName} "${oldKey}" to "${newKey}"`);
+    }
+  };
+
+  const handleDelete = (keyToDelete: string) => {
+    const newMap = NewMapDelete(items, keyToDelete);
+    if (newMap) {
+      setItems(newMap);
+      const remaining = Array.from(newMap.keys());
+      const update = remaining.length
+        ? NewMapAdd(selected, type, remaining[0]!)
+        : NewMapDelete(selected, type);
+      if (update) {
+        setSelected(update);
+      }
+      setToast(`Deleted ${typeName} "${keyToDelete}"`);
+    } else {
+      setToast(`Failed to delete ${typeName} "${keyToDelete}"`, 'error');
+    }
+  };
+
   return (
     <OverlayDrawer
       style={{ zIndex: 100, width: '350px' }}
