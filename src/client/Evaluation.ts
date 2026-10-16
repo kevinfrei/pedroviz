@@ -36,12 +36,14 @@ import {
   chkEvalPose,
 } from './ConcreteEvalTypeCheck';
 import {
+  CorrectSymbols,
   EvalCurve,
   EvalInterpolator,
   EvalPath,
   EvalPose,
   EvalSymbols,
 } from './ConcreteEvalTypes';
+import { getCurveDetail, ptDistance } from './DrawingHelpers';
 
 export function EvaluateSymbols(symbolTable: SymbolTable): EvalSymbols {
   const evalSyms: EvalSymbols = {
@@ -276,7 +278,17 @@ export function EvaluateSymbols(symbolTable: SymbolTable): EvalSymbols {
       }
       points.push(ep);
     }
-    return { interpolator, points };
+    // Okay now let's turn all the bezier curve paths into actual beziers:
+    if (points.length === 2) {
+      return {
+        interpolator,
+        points: { length: ptDistance(points[0]!, points[1]!), points },
+      };
+    } else if (points.length < 2) {
+      return MakeError('Curve with fewer than 2 points!');
+    } else {
+      return { interpolator, points: getCurveDetail(points) };
+    }
   }
 
   function evaluatePath(path: Path): ErrorOr<EvalPath> {
@@ -323,4 +335,19 @@ export function EvaluateSymbols(symbolTable: SymbolTable): EvalSymbols {
 
   // TODO: Report errors!
   return evalSyms;
+}
+
+function notError<T>(n_err: [string, ErrorOr<T>]): n_err is [string, T] {
+  return !isError(n_err[1]);
+}
+
+export function CalculateItems(evalSyms: EvalSymbols): CorrectSymbols {
+  const correctSymbols: CorrectSymbols = {
+    values: new Map(evalSyms.values.entries().filter(notError)),
+    poses: new Map(evalSyms.poses.entries().filter(notError)),
+    interpolators: new Map(evalSyms.interpolators.entries().filter(notError)),
+    curves: new Map(evalSyms.curves.entries().filter(notError)),
+    paths: new Map(evalSyms.paths.entries().filter(notError)),
+  };
+  return correctSymbols;
 }

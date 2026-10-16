@@ -3,6 +3,7 @@
 import { ErrorOr } from 'node_modules/@freik/typechk/lib/esm';
 
 export type Point = { x: number; y: number; h?: number };
+export type CurveDetail = { length: number; points: Point[] };
 
 export const ConcreteHeadingType = Object.freeze({
   Tangent: 'T',
@@ -56,13 +57,13 @@ export type EvalInterpLinear = {
   endRadians: number;
   longWay: boolean;
 };
-export type EvalInterpFacing = { x: number; y: number };
+export type EvalInterpFacing = Point;
 export type EvalInterpSimple =
   EvalInterpConstant | EvalInterpFacing | EvalInterpLinear | EvalInterpTangent;
 export type EvalInterpPiece = { until: number; interp: EvalInterpSimple };
 export type EvalInterpPiecewise = EvalInterpPiece[];
 export type EvalInterpolator = EvalInterpSimple | EvalInterpPiecewise;
-export type EvalCurve = { points: EvalPose[]; interpolator: EvalInterpolator };
+export type EvalCurve = { points: CurveDetail; interpolator: EvalInterpolator };
 export type EvalPath = {
   curves: EvalCurve[];
   globalInterpolator?: EvalInterpolator;
@@ -74,4 +75,12 @@ export type EvalSymbols = {
   interpolators: Map<string, ErrorOr<EvalInterpolator>>;
   curves: Map<string, ErrorOr<EvalCurve>>;
   paths: Map<string, ErrorOr<EvalPath>>;
+};
+
+export type CorrectSymbols = {
+  values: Map<string, number>;
+  poses: Map<string, EvalPose>;
+  interpolators: Map<string, EvalInterpolator>;
+  curves: Map<string, EvalCurve>;
+  paths: Map<string, EvalPath>;
 };

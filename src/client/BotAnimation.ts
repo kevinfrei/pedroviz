@@ -3,13 +3,8 @@
 import { isDefined, isUndefined } from '@freik/typechk';
 
 import { PathChainName } from '../CodeTypes';
-import { ConcreteHeading, Point } from './ConcreteEvalTypes';
-import {
-  addHeadingToCurve,
-  CurveDetail,
-  getCurveDetail,
-  rotPt,
-} from './DrawingHelpers';
+import { ConcreteHeading, CurveDetail, Point } from './ConcreteEvalTypes';
+import { addHeadingToCurve, getCurveDetail, rotPt } from './DrawingHelpers';
 import { BotDrawStyle, BotShapes } from './types';
 
 export type BotAnimationState = {

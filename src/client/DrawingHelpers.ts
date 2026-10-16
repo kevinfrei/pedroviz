@@ -5,11 +5,10 @@ import {
   ConcreteHeading,
   ConcreteHeadingType,
   ConcreteSimpleHeading,
+  CurveDetail,
   Point,
 } from './ConcreteEvalTypes';
 import { bezierLength, deCasteljau } from './ui-tools/bezier';
-
-export type CurveDetail = { length: number; points: Point[] };
 
 export function rotPt(offs: Point): Point {
   const cos = Math.cos(offs.h!);
@@ -19,7 +18,7 @@ export function rotPt(offs: Point): Point {
   return { x, y };
 }
 
-/*export*/ function getBezierPoints(curveControlPoints: Point[]): Point[] {
+function getBezierPoints(curveControlPoints: Point[]): Point[] {
   const len = bezierLength(curveControlPoints);
   const pts: Point[] = [];
   for (let t = 0; t <= 1.0; t += 1 / len) {

@@ -8,15 +8,20 @@ import { isDefined, isUndefined } from '@freik/typechk';
 
 import { BezierRef, ParsedClass, PathChainName, PoseRef } from '../CodeTypes';
 import { animateBot, BotAnimationState } from './BotAnimation';
-import { ConcreteHeading, Point } from './ConcreteEvalTypes';
+import {
+  ConcreteHeading,
+  CurveDetail,
+  EvalInterpolator,
+  Point,
+} from './ConcreteEvalTypes';
 import {
   addHeadingToCurve,
   CloseTo,
-  CurveDetail,
   getCurveDetail,
   ptDistance,
   vector,
 } from './DrawingHelpers';
+import { CalculateItems, EvaluateSymbols } from './Evaluation';
 import { calcBezierRef, calcInterp, calcPoseRef } from './ExpressionEval';
 import {
   BotDrawStyleAtom,
@@ -27,6 +32,7 @@ import {
   ShowPathHeadingAtom,
   ThemeAtom,
 } from './state/SavedSettings';
+import { symbolTableAtom } from './state/SymbolTable';
 import {
   ColorsAtom,
   FocusedCurveAtom,
@@ -63,6 +69,8 @@ export function FieldRenderer(): ReactElement {
   const focusedCurve = useAtomValue(FocusedCurveAtom);
   const focusedPath = useAtomValue(FocusedPathAtom);
 
+  const symbolTable = useAtomValue(symbolTableAtom);
+
   const concretePaths = new Map(
     allPCs.map((npc) => [
       npc.name,
@@ -74,6 +82,9 @@ export function FieldRenderer(): ReactElement {
   );
 
   const points = [...concretePaths.values()].flatMap((val) => val);
+
+  const evaluated = EvaluateSymbols(symbolTable);
+  const correct = CalculateItems(evaluated);
 
   const renderField = useCallback(
     (ctx: CanvasRenderingContext2D, dpr: number) => {
@@ -99,6 +110,30 @@ export function FieldRenderer(): ReactElement {
           pathStyle,
         ),
       );
+      correct.curves
+        .values()
+        .forEach(({ points, interpolator }) =>
+          renderDTOPath(
+            ctx,
+            points,
+            showPathHeadings ? interpolator : false,
+            pathStyle,
+            colors[0]!,
+          ),
+        );
+      correct.paths.values().forEach(({ curves, globalInterpolator }) => {
+        curves.forEach(({ points, interpolator }) =>
+          renderDTOPath(
+            ctx,
+            points,
+            showPathHeadings
+              ? globalInterpolator || interpolator || false
+              : false,
+            pathStyle,
+            colors[0]!,
+          ),
+        );
+      });
 
       if (isDefined(focusedPose)) {
         drawFocusedPose(poseOpts, ctx, focusedPose.pose, file);
@@ -108,20 +143,19 @@ export function FieldRenderer(): ReactElement {
       }
     },
     [
-      coordViz,
-      theme,
-      showPathHeadings,
-      pathStyle,
-      focusedCurve,
-      focusedPose,
-      poseOpts,
-      curveOpts,
       allPCs,
       colors,
-      points,
-      focusedPose,
-      focusedCurve,
+      coordViz,
+      curveOpts,
       file,
+      focusedCurve,
+      focusedPose,
+      pathStyle,
+      points,
+      poseOpts,
+      showPathHeadings,
+      symbolTable,
+      theme,
     ],
   );
 
@@ -331,6 +365,16 @@ function renderPath(
       pathStyle.Heading,
     );
   }
+}
+
+function renderDTOPath(
+  ctx: CanvasRenderingContext2D,
+  curve: CurveDetail,
+  interpolator: EvalInterpolator | false,
+  pathStyle: PathStyle,
+  color: string,
+) {
+  renderCurve(ctx, curve, color, pathStyle.Curves);
 }
 
 function drawPoint(
