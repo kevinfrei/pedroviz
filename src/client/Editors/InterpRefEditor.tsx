@@ -17,6 +17,7 @@ import {
   getInterpType,
 } from '../../DataTypeChecks';
 import {
+  HeadingRef,
   HeadingVal,
   InterpNames,
   InterpRef,
@@ -173,7 +174,7 @@ export function InterpRefEditor(
           <HeadingRefEditor
             label="Heading Value"
             item={item.heading || { angle: { val: 0 }, inRadians: false }}
-            onChange={(hr) => onChange({ heading: hr })}
+            onChange={(hr: HeadingRef) => onChange({ heading: hr })}
           />
         )}
 
@@ -197,12 +198,12 @@ export function InterpRefEditor(
             <HeadingRefEditor
               label="Start Heading"
               item={item.start || zeroHeading}
-              onChange={(start) => onChange({ ...item, start })}
+              onChange={(start: HeadingRef) => onChange({ ...item, start })}
             />
             <HeadingRefEditor
               label="End Heading"
               item={item?.end || one80Heading}
-              onChange={(end) => onChange({ ...item, end })}
+              onChange={(end: HeadingRef) => onChange({ ...item, end })}
             />
             <Checkbox
               label="Turn the 'long way'"

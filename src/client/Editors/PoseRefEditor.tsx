@@ -8,7 +8,7 @@ import { AlertFilled } from '@fluentui/react-icons';
 import { hasField, isDefined, isError, isUndefined } from '@freik/typechk';
 
 import { chkErr, chkRef } from '../../DataTypeChecks';
-import { PoseRef, SymbolTable } from '../../DataTypes';
+import { HeadingRef, PoseRef, SymbolTable } from '../../DataTypes';
 import { ResolvedPose } from '../ResolvedTypes';
 import { resolvePoseRef } from '../Resolvers';
 import { symbolTableAtom } from '../state/SymbolTable';
@@ -129,8 +129,15 @@ export function PoseRefEditor({
             />
             <HeadingRefEditor
               label="Heading Angle"
-              item={item?.heading || { angle: { val: 0 }, inRadians: false }}
-              onChange={(Heading) => onChange({ ...item, heading: Heading })}
+              optional={true}
+              item={item?.heading || null}
+              onChange={(heading: HeadingRef | null) => {
+                if (isDefined(heading) && heading !== null) {
+                  onChange({ ...item, heading });
+                } else {
+                  onChange({ X: item.X, Y: item.Y });
+                }
+              }}
             />
           </div>
         )}

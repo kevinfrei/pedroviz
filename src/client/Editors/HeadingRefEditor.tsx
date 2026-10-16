@@ -14,6 +14,7 @@ import {
 import { AlertFilled } from '@fluentui/react-icons';
 import {
   chkObjectOfExactType,
+  hasField,
   isBoolean,
   isDefined,
   isError,
@@ -45,7 +46,7 @@ function validPosesForRef(
   });
 }
 
-type HeadingType = 'pose' | 'ref' | 'val';
+type HeadingType = 'pose' | 'ref' | 'val' | 'none';
 
 const hrIsPose: typecheck<Ref> = chkRef;
 const hrIsVal = chkObjectOfExactType<{ angle: Value; inRadians: boolean }>({
@@ -57,27 +58,48 @@ const hrIsRef = chkObjectOfExactType<{ angle: Ref; inRadians: boolean }>({
   inRadians: isBoolean,
 });
 
-export type HeadingRefEditorProps = {
+function getHeadingType(item: HeadingRef | null): HeadingType {
+  if (hrIsPose(item)) {
+    return 'pose';
+  } else if (hrIsRef(item)) {
+    return 'ref';
+  } else if (hrIsVal(item)) {
+    return 'val';
+  } else {
+    return 'none';
+  }
+}
+
+type HeadingRefEditorNullableProps = {
   label: string;
-  item: HeadingRef;
+  item: HeadingRef | null;
+  onChange: (headingRef: HeadingRef | null) => void;
+  optional: true;
+};
+
+type HeadingRefEditorNonnullableProps = {
+  label: string;
+  item: HeadingRef | null;
   onChange: (headingRef: HeadingRef) => void;
 };
 
+type HeadingRefEditorProps =
+  HeadingRefEditorNonnullableProps | HeadingRefEditorNullableProps;
+
 // HeadingRef Control: Switch between Inline ({ angle: ValRef, inRadians: Boolean }) and PoseRef ({ ref })
 // This is intentionally not allowing inline poses. I think that's probably silly/unnecessary anyway.
-export function HeadingRefEditor({
-  label,
-  item,
-  onChange,
-}: HeadingRefEditorProps): ReactElement {
+export function HeadingRefEditor(props: HeadingRefEditorProps): ReactElement {
+  const headingOptional = hasField(props, 'optional') && props.optional;
+  const { item, label, onChange } = props;
   const symbolTable = useAtomValue(symbolTableAtom);
   const valueKeys = [...symbolTable.values.keys()];
   const validPoseKeys = validPosesForRef(
     [...symbolTable.poses.keys()],
     symbolTable,
   );
-  const headingType = hrIsPose(item) ? 'pose' : hrIsRef(item) ? 'ref' : 'val';
-  const resolved = resolveHeadingRef(item, symbolTable);
+  const headingType = getHeadingType(item);
+  const resolved = item === null ? null : resolveHeadingRef(item, symbolTable);
+  console.log('type', headingType);
   const setType = (type: HeadingType) => {
     switch (type) {
       case 'pose': {
@@ -94,22 +116,37 @@ export function HeadingRefEditor({
         onChange({ angle: { val: 0 }, inRadians: false });
         break;
       }
+      case 'none': {
+        onChange(null!);
+        break;
+      }
     }
   };
-
+  const chooser = headingOptional ? (
+    <Select
+      value={headingType}
+      onChange={(_, d) => setType(d.value as HeadingType)}>
+      <option value="none">No Heading</option>
+      <option value="val">Value</option>
+      <option value="ref">Named Value</option>
+      <option value="pose">Named Pose</option>
+    </Select>
+  ) : (
+    <RadioGroup
+      value={headingType}
+      layout="horizontal"
+      onChange={(_, data) => {
+        setType(data.value as HeadingType);
+      }}>
+      <Radio value="val" label="Value" />
+      <Radio value="ref" label="Named Value" />
+      <Radio value="pose" label="Named Pose" />
+    </RadioGroup>
+  );
   return (
     <TitleWrapper title={label}>
       <>
-        <RadioGroup
-          value={headingType}
-          layout="horizontal"
-          onChange={(_, data) => {
-            setType(data.value as HeadingType);
-          }}>
-          <Radio value="val" label="Value" />
-          <Radio value="ref" label="Named Value" />
-          <Radio value="pose" label="Named Pose" />
-        </RadioGroup>
+        {chooser}
         {hrIsPose(item) && (
           // Pose Reference
           <>
@@ -141,7 +178,7 @@ export function HeadingRefEditor({
             )}
           </>
         )}
-        {!hrIsPose(item) && (
+        {!hrIsPose(item) && !!item && (
           <>
             {hrIsVal(item) && (
               // Numeric Angle value
