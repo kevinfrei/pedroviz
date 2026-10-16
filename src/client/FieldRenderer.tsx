@@ -110,6 +110,8 @@ export function FieldRenderer(): ReactElement {
           pathStyle,
         ),
       );
+      console.log('Curve Count', correct.curves.size);
+      console.log('Path Count', correct.paths.size);
       correct.curves
         .values()
         .forEach(({ points, interpolator }) =>
@@ -374,6 +376,8 @@ function renderDTOPath(
   pathStyle: PathStyle,
   color: string,
 ) {
+  console.log('curve', curve.length, curve.points[0]?.x, curve.points[0]?.y);
+
   renderCurve(ctx, curve, color, pathStyle.Curves);
 }
 

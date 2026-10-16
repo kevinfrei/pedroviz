@@ -50,6 +50,7 @@ export type ConcreteSimpleHeading =
 export type ConcreteHeading = ConcreteSimpleHeading | ConcretePiecewiseHeading;
 
 export type EvalPose = { x: number; y: number; radians?: number };
+export type EvalCurveDetail = { length: number; points: Point[] };
 export type EvalInterpTangent = { reversed: boolean };
 export type EvalInterpConstant = { radians: number };
 export type EvalInterpLinear = {
@@ -63,7 +64,10 @@ export type EvalInterpSimple =
 export type EvalInterpPiece = { until: number; interp: EvalInterpSimple };
 export type EvalInterpPiecewise = EvalInterpPiece[];
 export type EvalInterpolator = EvalInterpSimple | EvalInterpPiecewise;
-export type EvalCurve = { points: CurveDetail; interpolator: EvalInterpolator };
+export type EvalCurve = {
+  points: EvalCurveDetail;
+  interpolator: EvalInterpolator;
+};
 export type EvalPath = {
   curves: EvalCurve[];
   globalInterpolator?: EvalInterpolator;

@@ -2,7 +2,15 @@
 
 import { isDefined } from '@freik/typechk';
 
-import { SymbolTable } from '../DataTypes';
+import {
+  CurveRef,
+  InterpRef,
+  Path,
+  Pose,
+  PoseRef,
+  SymbolTable,
+  ValRef,
+} from '../DataTypes';
 
 export function RecordToMap<T>(
   obj: Record<string, T> | undefined,
@@ -24,7 +32,7 @@ export const Strings = {
 };
 
 export const SAMPLE_AUTONOMOUS_PRESET: SymbolTable = {
-  values: RecordToMap({
+  values: RecordToMap<ValRef>({
     startX: { val: 15.0 },
     startY: { val: 12.0 },
     startHeading: { val: 0.0 },
@@ -34,28 +42,27 @@ export const SAMPLE_AUTONOMOUS_PRESET: SymbolTable = {
     midpointX: { val: 71.5 },
     midpointY: { val: 71.5 },
     cutoffStep: { val: 0.5 },
+    valRef: { ref: 'targetHeading' },
   }),
-  poses: RecordToMap({
+  poses: RecordToMap<PoseRef>({
     startPose: {
       X: { ref: 'startX' },
       Y: { ref: 'startY' },
-      Heading: { ref: 'startHeading' },
-      inRadians: false,
+      heading: { angle: { ref: 'startHeading' }, inRadians: false },
     },
     waypointPose: {
       X: { ref: 'midpointX' },
       Y: { ref: 'midpointY' },
-      Heading: { val: 135.0 },
-      inRadians: false,
+      heading: { angle: { val: 135.0 }, inRadians: false },
     },
     targetPose: {
       X: { ref: 'targetX' },
       Y: { ref: 'targetY' },
-      Heading: { ref: 'targetHeading' },
-      inRadians: false,
+      heading: { ref: 'waypointPose' },
     },
+    refPose: { ref: 'waypointPose' },
   }),
-  interpolations: RecordToMap({
+  interpolations: RecordToMap<InterpRef>({
     tangentInterp: { reversed: false },
     linearHeadingInterp: {
       start: { ref: 'startPose' },
@@ -81,9 +88,13 @@ export const SAMPLE_AUTONOMOUS_PRESET: SymbolTable = {
       ],
     },
   }),
-  curves: RecordToMap({
+  curves: RecordToMap<CurveRef>({
     approachCurve: {
-      points: [{ ref: 'startPose' }, { ref: 'waypointPose' }],
+      points: [
+        { ref: 'startPose' },
+        { X: { val: 15 }, Y: { val: 33 } },
+        { ref: 'waypointPose' },
+      ],
       interpolation: { ref: 'tangentInterp' },
     },
     finishCurve: {
@@ -91,7 +102,7 @@ export const SAMPLE_AUTONOMOUS_PRESET: SymbolTable = {
       interpolation: { ref: 'linearHeadingInterp' },
     },
   }),
-  paths: RecordToMap({
+  paths: RecordToMap<Path>({
     mainAutoPath: {
       curves: [{ ref: 'approachCurve' }, { ref: 'finishCurve' }],
       globalInterpolator: { ref: 'tangentInterp' },

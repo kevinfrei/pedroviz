@@ -2,6 +2,7 @@
 
 import {
   ErrorOr,
+  ErrorVal,
   hasFieldOf,
   isError,
   isNumber,
@@ -31,6 +32,7 @@ import {
 } from '../DataTypes';
 import {
   chkEvalCurve,
+  chkEvalInterpolator,
   chkEvalInterpSimple,
   chkEvalInterpTangent,
   chkEvalPose,
@@ -74,7 +76,7 @@ export function EvaluateSymbols(symbolTable: SymbolTable): EvalSymbols {
     } else if (chkType(ev)) {
       return ev;
     } else if (!isUndefined(ev)) {
-      return MakeError(`Unexpected error for ${name} reference ${ref.ref}`);
+      return MakeError(`Type mismatch error for ${name} reference ${ref.ref}`);
     }
     // Hasn't been evaluated: Evaluate it.
     const vr = symTable.get(ref.ref);
@@ -119,7 +121,7 @@ export function EvaluateSymbols(symbolTable: SymbolTable): EvalSymbols {
       }
       if (!hasFieldOf(pv, 'radians', isNumber)) {
         return MakeError(
-          `Pose referenced by heading ${headingRef.ref} is missing a heading!`,
+          `Pose referenced by heading ${headingRef.ref} is missing a heading ${Object.keys(pv).join(':')}`,
         );
       }
       return pv.radians;
@@ -179,7 +181,7 @@ export function EvaluateSymbols(symbolTable: SymbolTable): EvalSymbols {
         interp,
         evalSyms.interpolators,
         symbolTable.interpolations,
-        chkEvalInterpTangent,
+        chkEvalInterpolator,
         evaluateInterp,
         seen,
       );
@@ -279,12 +281,12 @@ export function EvaluateSymbols(symbolTable: SymbolTable): EvalSymbols {
       points.push(ep);
     }
     // Okay now let's turn all the bezier curve paths into actual beziers:
-    if (points.length === 2) {
+    /*    if (points.length === 2) {
       return {
         interpolator,
-        points: { length: ptDistance(points[0]!, points[1]!), points },
+        points: { length: ptDistance(points[0]!, points[1]!), points: points.map(p => ({ x: p.x, y: p.y })) },
       };
-    } else if (points.length < 2) {
+    } else */ if (points.length < 2) {
       return MakeError('Curve with fewer than 2 points!');
     } else {
       return { interpolator, points: getCurveDetail(points) };
@@ -340,6 +342,11 @@ export function EvaluateSymbols(symbolTable: SymbolTable): EvalSymbols {
 function notError<T>(n_err: [string, ErrorOr<T>]): n_err is [string, T] {
   return !isError(n_err[1]);
 }
+function onlyError<T>(
+  n_err: [string, ErrorOr<T>],
+): n_err is [string, ErrorVal] {
+  return isError(n_err[1]);
+}
 
 export function CalculateItems(evalSyms: EvalSymbols): CorrectSymbols {
   const correctSymbols: CorrectSymbols = {
@@ -349,5 +356,27 @@ export function CalculateItems(evalSyms: EvalSymbols): CorrectSymbols {
     curves: new Map(evalSyms.curves.entries().filter(notError)),
     paths: new Map(evalSyms.paths.entries().filter(notError)),
   };
+  evalSyms.values
+    .entries()
+    .filter(onlyError)
+    .forEach(([str, err]) => console.log('Value', str, err.errors().join(';')));
+  evalSyms.poses
+    .entries()
+    .filter(onlyError)
+    .forEach(([str, err]) => console.log('Pose', str, err.errors().join(';')));
+  evalSyms.interpolators
+    .entries()
+    .filter(onlyError)
+    .forEach(([str, err]) =>
+      console.log('Interp', str, err.errors().join(';')),
+    );
+  evalSyms.curves
+    .entries()
+    .filter(onlyError)
+    .forEach(([str, err]) => console.log('Curve', str, err.errors().join(';')));
+  evalSyms.paths
+    .entries()
+    .filter(onlyError)
+    .forEach(([str, err]) => console.log('Path', str, err.errors().join(';')));
   return correctSymbols;
 }

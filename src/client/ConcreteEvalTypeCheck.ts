@@ -18,7 +18,9 @@ import {
   ConcretePointHeading,
   ConcreteSimpleHeading,
   ConcreteTangentHeading,
+  CurveDetail,
   EvalCurve,
+  EvalCurveDetail,
   EvalInterpConstant,
   EvalInterpFacing,
   EvalInterpLinear,
@@ -29,10 +31,17 @@ import {
   EvalInterpTangent,
   EvalPath,
   EvalPose,
+  Point,
 } from './ConcreteEvalTypes';
 
-const chkPoint = chkObjectOfExactType({ x: isNumber, y: isNumber });
-
+const chkPoint = chkObjectOfExactType<Point>(
+  { x: isNumber, y: isNumber },
+  { h: isNumber },
+);
+const chkCurveDetail = chkObjectOfExactType<CurveDetail>({
+  length: isNumber,
+  points: chkArrayOf(chkPoint),
+});
 const chkConcreteTangentHeading = chkObjectOfExactType<ConcreteTangentHeading>({
   type: (t: unknown): t is typeof ConcreteHeadingType.Tangent =>
     t === ConcreteHeadingType.Tangent,
@@ -90,6 +99,10 @@ export const chkEvalPose = chkObjectOfExactType<EvalPose>(
   { x: isNumber, y: isNumber },
   { radians: isNumber },
 );
+export const chkEvalCurveDetail = chkObjectOfExactType<EvalCurveDetail>({
+  length: isNumber,
+  points: chkArrayOf(chkPoint),
+});
 export const chkEvalInterpTangent = chkObjectOfExactType<EvalInterpTangent>({
   reversed: isBoolean,
 });
@@ -122,7 +135,7 @@ export const chkEvalInterpolator: typecheck<EvalInterpolator> = chkAnyOf(
   chkEvalInterpPiecewise,
 );
 export const chkEvalCurve = chkObjectOfExactType<EvalCurve>({
-  points: chkArrayOf(chkEvalPose),
+  points: chkEvalCurveDetail,
   interpolator: chkEvalInterpolator,
 });
 export const chkEvalPath = chkObjectOfExactType<EvalPath>(
