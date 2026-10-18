@@ -13,6 +13,7 @@ import {
   CurveDetail,
   EvalCurveDetail,
   EvalInterpolator,
+  EvalPose,
   Point,
 } from './ConcreteEvalTypes';
 import {
@@ -102,29 +103,7 @@ export function FieldRenderer(): ReactElement {
       renderCoordinateLegend(ctx, 1, scale, theme);
       ctx.globalAlpha = 1.0;
 
-      points.forEach(([ctrlPoints, facing], index) =>
-        renderPath(
-          ctx,
-          ctrlPoints,
-          showPathHeadings ? facing : false,
-          colors[index % colors.length]!,
-          pathStyle,
-        ),
-      );
-      console.log('Curve Count', correct.curves.size);
-      console.log('Path Count', correct.paths.size);
-      correct.curves
-        .values()
-        .forEach(({ points, interpolator }) =>
-          renderDTOPath(
-            ctx,
-            points,
-            showPathHeadings ? interpolator : false,
-            pathStyle,
-            colors[0]!,
-          ),
-        );
-      correct.paths.values().forEach(({ curves, globalInterpolator }) => {
+      correct.paths.forEach(({ curves, globalInterpolator } /*, name */) => {
         curves.forEach(({ points, interpolator }) =>
           renderDTOPath(
             ctx,
@@ -138,6 +117,25 @@ export function FieldRenderer(): ReactElement {
         );
       });
 
+      // TODO: Draw the selected curve differently
+      correct.curves.forEach(({ points, interpolator } /*, name*/) =>
+        renderDTOPath(
+          ctx,
+          points,
+          showPathHeadings ? interpolator : false,
+          pathStyle,
+          colors[1]!,
+        ),
+      );
+
+      // Draw all the points, headings, and values
+      drawControlPoints(
+        ctx,
+        pathStyle.Curves.ControlPoint,
+        correct.curves.values().flatMap((curve) => curve.points.controlPoints),
+        colors[2]!,
+      );
+
       if (isDefined(focusedPose)) {
         drawFocusedPose(poseOpts, ctx, focusedPose.pose, file);
       }
@@ -149,6 +147,7 @@ export function FieldRenderer(): ReactElement {
       allPCs,
       colors,
       coordViz,
+      correct,
       curveOpts,
       file,
       focusedCurve,
@@ -341,7 +340,7 @@ function shouldDrawCurve(curveStyle: CurveStyle): boolean {
   );
 }
 
-function renderPath(
+/* function renderPath(
   ctx: CanvasRenderingContext2D,
   curveControlPoints: Point[],
   heading: ConcreteHeading | false,
@@ -368,8 +367,9 @@ function renderPath(
       pathStyle.Heading,
     );
   }
-}
+} */
 
+// TODO: Draw the heading lines!
 function renderDTOPath(
   ctx: CanvasRenderingContext2D,
   curve: EvalCurveDetail,
@@ -390,7 +390,7 @@ function renderDTOPath(
 
 function drawPoint(
   ctx: CanvasRenderingContext2D,
-  pt: Point,
+  pt: EvalPose,
   style: ControlPointStyle,
 ) {
   ctx.lineWidth = style.Thickness;
@@ -428,7 +428,7 @@ function drawPoint(
 function drawControlPoints(
   ctx: CanvasRenderingContext2D,
   opts: ControlPointStyle,
-  curveControlPoints: Point[],
+  curveControlPoints: Iterable<EvalPose>,
   color: string,
 ) {
   ctx.beginPath();
