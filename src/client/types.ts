@@ -105,6 +105,7 @@ export type NameLookup = {
   db: () => PathDatabase | undefined;
 };
 
+/*
 export type HasItem<T> = {
   has: (item: T) => boolean;
 };
@@ -112,32 +113,7 @@ export type HasItem<T> = {
 export type HasKeys<T> = HasItem<T> & {
   keys: () => Iterable<T>;
 };
-
-export const ValidateState = Object.freeze({
-  Error: 'error',
-  Warning: 'warning',
-  Success: 'success',
-  None: 'none',
-} as const);
-export type ValidationState =
-  (typeof ValidateState)[keyof typeof ValidateState];
-
-export type ValidationData = {
-  message: string;
-  state: ValidationState;
-};
-
-export const ValidData: ValidationData = Object.freeze({
-  message: '',
-  state: ValidateState.None,
-} as const);
-
-export function ValidationResult(
-  message: string,
-  state: ValidationState,
-): ValidationData {
-  return { message, state };
-}
+*/
 
 export type ResponsiveAnchor = {
   x: 'left' | 'center' | 'right';

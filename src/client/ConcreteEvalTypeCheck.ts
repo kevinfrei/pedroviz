@@ -99,7 +99,7 @@ export const chkEvalPose = chkObjectOfExactType<EvalPose>(
   { x: isNumber, y: isNumber },
   { radians: isNumber },
 );
-export const chkEvalCurveDetail = chkObjectOfExactType<EvalCurveDetail>({
+/*export*/ const chkEvalCurveDetail = chkObjectOfExactType<EvalCurveDetail>({
   length: isNumber,
   points: chkArrayOf(chkPoint),
   controlPoints: chkArrayOf(chkEvalPose),
@@ -107,15 +107,16 @@ export const chkEvalCurveDetail = chkObjectOfExactType<EvalCurveDetail>({
 export const chkEvalInterpTangent = chkObjectOfExactType<EvalInterpTangent>({
   reversed: isBoolean,
 });
-export const chkEvalInterpConstant = chkObjectOfExactType<EvalInterpConstant>({
-  radians: isNumber,
-});
-export const chkEvalInterpLinear = chkObjectOfExactType<EvalInterpLinear>({
+/*export*/ const chkEvalInterpConstant =
+  chkObjectOfExactType<EvalInterpConstant>({
+    radians: isNumber,
+  });
+/*export*/ const chkEvalInterpLinear = chkObjectOfExactType<EvalInterpLinear>({
   startRadians: isNumber,
   endRadians: isNumber,
   longWay: isBoolean,
 });
-export const chkEvalInterpFacing = chkObjectOfExactType<EvalInterpFacing>({
+/*export*/ const chkEvalInterpFacing = chkObjectOfExactType<EvalInterpFacing>({
   x: isNumber,
   y: isNumber,
 });
@@ -125,11 +126,11 @@ export const chkEvalInterpSimple: typecheck<EvalInterpSimple> = chkAnyOf(
   chkEvalInterpLinear,
   chkEvalInterpTangent,
 );
-export const chkEvalInterpPiece = chkObjectOfExactType<EvalInterpPiece>({
+/*export*/ const chkEvalInterpPiece = chkObjectOfExactType<EvalInterpPiece>({
   until: isNumber,
   interp: chkEvalInterpSimple,
 });
-export const chkEvalInterpPiecewise: typecheck<EvalInterpPiecewise> =
+/*export*/ const chkEvalInterpPiecewise: typecheck<EvalInterpPiecewise> =
   chkArrayOf(chkEvalInterpPiece);
 export const chkEvalInterpolator: typecheck<EvalInterpolator> = chkAnyOf(
   chkEvalInterpSimple,
@@ -139,7 +140,7 @@ export const chkEvalCurve = chkObjectOfExactType<EvalCurve>({
   points: chkEvalCurveDetail,
   interpolator: chkEvalInterpolator,
 });
-export const chkEvalPath = chkObjectOfExactType<EvalPath>(
+/*export*/ const chkEvalPath = chkObjectOfExactType<EvalPath>(
   {
     curves: chkArrayOf(chkEvalCurve),
   },

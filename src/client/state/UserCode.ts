@@ -2,7 +2,6 @@
 
 import { atom, WritableAtom } from 'jotai';
 import { atomFamily } from 'jotai-family';
-import { focusAtom } from 'jotai-optics';
 import {
   atomWithRefresh,
   atomWithStorage,
@@ -14,13 +13,10 @@ import { ErrorOr, isError } from '@freik/typechk';
 
 import { MakeEmptyParsedClass } from '../../CodeTypeCheck';
 import {
-  NamedBezier,
   NamedPathChain,
   NamedPose,
   NamedValue,
   ParsedClass,
-  PoseName,
-  PoseRef,
   ValueName,
 } from '../../CodeTypes';
 import {
@@ -40,7 +36,7 @@ import {
 import { OneFileIndex } from '../types';
 import { darkOnWhite, lightOnBlack } from '../ui-tools/Colors';
 import { GetFullDb, LoadAndIndexFile, PutFullDb, UpdateIndexFile } from './API';
-import { EmptyMappedFile, GetNameLookup } from './IndexedFile';
+import { EmptyMappedFile } from './IndexedFile';
 import { DisplayOptionsAtom, ThemeAtom } from './SavedSettings';
 
 export const ColorsAtom = atom((get) => {
@@ -56,7 +52,6 @@ const ColorForNumber = atomFamily((index: number) =>
   }),
 );
 
-export const BlurAtom = atom('');
 let dbCache: PathDatabase | null = null;
 export const FullDatabaseAtom = atomWithRefresh(
   async () => {
@@ -67,24 +62,6 @@ export const FullDatabaseAtom = atomWithRefresh(
     await PutFullDb(val);
   },
 );
-
-const IndexedDatabaseAtom = atomWithRefresh(
-  async (get) => {
-    const db = await get(FullDatabaseAtom);
-    const index = GetNameLookup();
-    index.setDb(db);
-    return index;
-  } /*
-  async (get, set, val: NameLookup) => {
-    // TODO: This ain't done, not in the least
-    console.error('NYI: IndexedDatabaseAtom set');
-    const db = await get(FullDatabaseAtom);
-  },*/,
-);
-
-/*export*/ function ClearCache() {
-  dbCache = null;
-}
 
 const TeamPathsAtom = selectAtom(
   FullDatabaseAtom,
@@ -325,7 +302,7 @@ const MappedFileAtom = atom(
   },
 );
 
-export const NamedValuesAtom = selectAtom(
+/*export*/ const NamedValuesAtom = selectAtom(
   UnwrappedParsedClass,
   (pc) => pc.values,
 );
@@ -336,25 +313,9 @@ export const ValuesLookupAtom = atom((get): Map<ValueName, NamedValue> => {
 
 type MapAtom<Str, T> = WritableAtom<Promise<Map<Str, T>>, [Map<Str, T>], void>;
 
-/*
-const MappedValuesAtom: MapAtom<ValueName, ValueRef | RadiansRef> = focusAtom(
-  MappedFileAtom,
-  (optic) => optic.prop('namedValues'),
-);
-*/
 export const NamedPosesAtom = atom(async (get): Promise<NamedPose[]> => {
   const index = await get(SelectedParsedClassAtom);
   return index ? index.poses : [];
-});
-
-const MappedPosesAtom: MapAtom<PoseName, PoseRef> = focusAtom(
-  MappedFileAtom,
-  (optic) => optic.prop('namedPoses'),
-);
-
-export const NamedBeziersAtom = atom(async (get): Promise<NamedBezier[]> => {
-  const index = await get(SelectedParsedClassAtom);
-  return index ? index.beziers : [];
 });
 
 export const NamedPathChainsAtom = atom(
@@ -363,36 +324,11 @@ export const NamedPathChainsAtom = atom(
     return index?.pathChains || [];
   },
 );
-/*
-const MappedBeziersAtom: MapAtom<BezierName, BezierRef> = focusAtom(
-  MappedFileAtom,
-  (optic) => optic.prop('namedBeziers'),
-);
-*/
-function makeItemFromNameFamily<Str, T>(theAtom: MapAtom<Str, T>) {
-  return atomFamily((name: Str) =>
-    atom(
-      async (get) => (await get(theAtom)).get(name),
-      async (get, set, val: T) => {
-        const mappedItems = new Map(await get(theAtom));
-        mappedItems.set(name, val);
-        set(theAtom, mappedItems);
-      },
-    ),
-  );
-}
 
-// const ValueAtomFamily = makeItemFromNameFamily(MappedValuesAtom);
-export const PoseAtomFamily = makeItemFromNameFamily(MappedPosesAtom);
-
-export const FocusedPoseAtom = atom<NamedPose | undefined>(undefined);
-export const FocusedCurveAtom = atom<NamedBezier | undefined>(undefined);
 export const FocusedPathAtom = atom<NamedPathChain | undefined>(undefined);
 
 export const FieldConfigHashAtom = atom((get) => {
   const d = get(DisplayOptionsAtom);
   const c = get(UnwrappedParsedClass);
-  const p = get(FocusedPoseAtom);
-  const b = get(FocusedCurveAtom);
-  return JSON.stringify({ d, c, p, b });
+  return JSON.stringify({ d, c });
 });

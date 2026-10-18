@@ -6,13 +6,12 @@ import {
   CurveRef,
   InterpRef,
   Path,
-  Pose,
   PoseRef,
   SymbolTable,
   ValRef,
 } from '../DataTypes';
 
-export function RecordToMap<T>(
+/*export*/ function RecordToMap<T>(
   obj: Record<string, T> | undefined,
 ): Map<string, T> {
   return new Map<string, T>(

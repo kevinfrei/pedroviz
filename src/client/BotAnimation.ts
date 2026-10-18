@@ -2,13 +2,12 @@
 
 import { isDefined, isUndefined } from '@freik/typechk';
 
-import { PathChainName } from '../CodeTypes';
 import { ConcreteHeading, CurveDetail, Point } from './ConcreteEvalTypes';
 import { addHeadingToCurve, getCurveDetail, rotPt } from './DrawingHelpers';
 import { BotDrawStyle, BotShapes } from './types';
 
 export type BotAnimationState = {
-  name: PathChainName;
+  name: string | undefined;
   curveIndex: number;
   curvePoint: number;
   count: number;
@@ -19,7 +18,7 @@ const countDelay = 1;
 
 function initState(
   state: BotAnimationState,
-  name: PathChainName | undefined,
+  name: string | undefined,
   path: [Point[], ConcreteHeading][],
 ) {
   state.curves = path.map(([pts, ch]) => {
@@ -28,7 +27,7 @@ function initState(
     return cd;
   });
   state.count = 0;
-  state.name = name || ('' as PathChainName);
+  state.name = name;
   state.curvePoint = 0;
   state.curveIndex = 0;
 }
@@ -48,7 +47,7 @@ function nextState(state: BotAnimationState) {
 
 export function animateBot(
   ctx: CanvasRenderingContext2D,
-  name: PathChainName | undefined,
+  name: string | undefined,
   path: [Point[], ConcreteHeading][],
   state: BotAnimationState,
   botStyle: BotDrawStyle,

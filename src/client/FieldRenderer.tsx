@@ -6,7 +6,6 @@ import { useAtomValue } from 'jotai';
 import { tokens } from '@fluentui/tokens';
 import { isDefined, isUndefined } from '@freik/typechk';
 
-import { BezierRef, ParsedClass, PathChainName, PoseRef } from '../CodeTypes';
 import { animateBot, BotAnimationState } from './BotAnimation';
 import {
   ConcreteHeading,
@@ -17,15 +16,9 @@ import {
   EvalPose,
   Point,
 } from './ConcreteEvalTypes';
-import {
-  addHeadingToCurve,
-  CloseTo,
-  getCurveDetail,
-  ptDistance,
-  vector,
-} from './DrawingHelpers';
+import { CloseTo, ptDistance, vector } from './DrawingHelpers';
 import { CalculateItems, EvaluateSymbols } from './Evaluation';
-import { calcBezierRef, calcInterp, calcPoseRef } from './ExpressionEval';
+import { calcBezierRef, calcInterp } from './ExpressionEval';
 import {
   BotDrawStyleAtom,
   CoordVizPercentAtom,
@@ -35,12 +28,14 @@ import {
   ShowPathHeadingAtom,
   ThemeAtom,
 } from './state/SavedSettings';
-import { selectedKeyAtom, symbolTableAtom } from './state/SymbolTable';
+import {
+  selectedKeyAtom,
+  selectedPathOrCurveKeyAtom,
+  symbolTableAtom,
+} from './state/SymbolTable';
 import {
   ColorsAtom,
-  FocusedCurveAtom,
   FocusedPathAtom,
-  FocusedPoseAtom,
   NamedPathChainsAtom,
   SelectedParsedClassAtom,
 } from './state/UserCode';
@@ -68,12 +63,11 @@ export function FieldRenderer(): ReactElement {
   const allPCs = useAtomValue(NamedPathChainsAtom);
   const file = useAtomValue(SelectedParsedClassAtom);
 
-  const focusedPose = useAtomValue(FocusedPoseAtom);
-  const focusedCurve = useAtomValue(FocusedCurveAtom);
   const focusedPath = useAtomValue(FocusedPathAtom);
 
   const symbolTable = useAtomValue(symbolTableAtom);
   const selected = useAtomValue(selectedKeyAtom);
+  const selectedPathOrCurveKey = useAtomValue(selectedPathOrCurveKeyAtom);
 
   const concretePaths = new Map(
     allPCs.map((npc) => [
@@ -156,7 +150,7 @@ export function FieldRenderer(): ReactElement {
   );
 
   const animationStateRef = useRef<BotAnimationState>({
-    name: '' as PathChainName,
+    name: selectedPathOrCurveKey,
     curveIndex: 0,
     curvePoint: 0,
     count: 60,
@@ -174,14 +168,14 @@ export function FieldRenderer(): ReactElement {
       ctx.setTransform(scale, 0, 0, -scale, 0, size);
       animateBot(
         ctx,
-        focusedPath?.name,
+        selectedPathOrCurveKey,
         selectedConcretePath,
         animationStateRef.current,
         botStyle,
       );
       ctx.restore();
     },
-    [focusedPath, concretePaths, botStyle],
+    [selectedPathOrCurveKey, concretePaths, botStyle],
   );
 
   return (
@@ -196,120 +190,42 @@ export function FieldRenderer(): ReactElement {
 function drawFocusedPose(
   poseStyle: { Points: ControlPointStyle; Headings: HeadingStyle },
   ctx: CanvasRenderingContext2D,
-  focusedPose: PoseRef,
-  file: ParsedClass,
+  focusedPose: EvalPose,
 ) {
-  const pt = calcPoseRef(focusedPose, file);
-  ctx.beginPath();
   ctx.strokeStyle = tokens.colorNeutralForeground1; // TODO: Update this
-  drawPoint(ctx, pt, poseStyle.Points);
+  drawPoint(ctx, focusedPose, poseStyle.Points);
   ctx.stroke();
-  if (isDefined(pt.h)) {
+  if (isDefined(focusedPose.radians)) {
     drawHeadingLine(
       ctx,
       poseStyle.Headings,
       tokens.colorNeutralForeground1,
-      pt,
+      focusedPose,
     );
   }
 }
 
-function outlineText(
-  ctx: CanvasRenderingContext2D,
-  str: string,
-  x: number,
-  y: number,
-) {
-  ctx.strokeText(str, x, y);
-  ctx.fillText(str, x, y);
-}
-
-function drawLegend(
-  ctx: CanvasRenderingContext2D,
-  dpr: number,
-  scale: number,
-  theme: string,
-) {
-  ctx.save();
-  ctx.setTransform(dpr * scale, 0, 0, dpr * scale, 0, 0);
-  ctx.font = '4px sans-serif'; // Set font size and family
-  ctx.fillStyle = theme === 'light' ? 'black' : 'white'; // Set fill color for the text
-  ctx.strokeStyle = theme === 'light' ? 'white' : 'black';
-  ctx.lineWidth = 0.2;
-
-  // Draw the coordinate points
-  ctx.textAlign = 'start'; // Set text alignment (e.g., "start", "end", "center")
-  ctx.textBaseline = 'middle'; // Set vertical alignment (e.g., "top", "middle", "bottom")
-  outlineText(ctx, '(0,0)', 2, 139);
-  outlineText(ctx, '(0,144)', 2, 5);
-  ctx.textAlign = 'end'; // Set text alignment (e.g., "start", "end", "center")
-  outlineText(ctx, '(144,0)', 142, 5);
-  outlineText(ctx, '(144,144)', 142, 139);
-  ctx.textAlign = 'center'; // Set text alignment (e.g., "start", "end", "center")
-  outlineText(ctx, '(72,72)', 72, 72);
-
-  // Label the axis directions
-  outlineText(ctx, '+y', 71, 84.5);
-  outlineText(ctx, '-y', 71, 104.5);
-  outlineText(ctx, '-x', 62, 95);
-  outlineText(ctx, '+x', 82, 95);
-
-  // Label the compass angles
-  outlineText(ctx, '½π 90°', 72, 40);
-  outlineText(ctx, '0°', 81, 48);
-  outlineText(ctx, 'π 180°', 58, 48);
-  outlineText(ctx, '³/₂π 270°', 72, 56);
-
-  // Draw the axis directions
-  ctx.lineCap = 'round';
-  ctx.lineWidth = 0.5;
-  ctx.strokeStyle = theme === 'light' ? 'black' : 'white';
-  ctx.beginPath();
-  let xc = 72;
-  let yc = 95;
-  // Vertical double arrow:
-  ctx.moveTo(xc - 2, yc - 5);
-  ctx.lineTo(xc, yc - 7);
-  ctx.lineTo(xc + 2, yc - 5);
-  ctx.moveTo(xc, yc - 7);
-  ctx.lineTo(xc, yc + 7);
-  ctx.moveTo(xc + 2, yc + 5);
-  ctx.lineTo(xc, yc + 7);
-  ctx.lineTo(xc - 2, yc + 5);
-  // Horizontal double arrow
-  ctx.moveTo(xc - 5, yc - 2);
-  ctx.lineTo(xc - 7, yc);
-  ctx.lineTo(xc - 5, yc + 2);
-  ctx.moveTo(xc - 7, yc);
-  ctx.lineTo(xc + 7, yc);
-  ctx.moveTo(xc + 5, yc + 2);
-  ctx.lineTo(xc + 7, yc);
-  ctx.lineTo(xc + 5, yc - 2);
-  // Arrow for the compass
-  ctx.moveTo(77 + 1, 48 + 2);
-  ctx.lineTo(77, 48);
-  ctx.lineTo(77 - 1.75, 48 + 1.75);
-  ctx.stroke();
-  ctx.beginPath();
-  // Arc for the compass
-  ctx.arc(72, 48, 5, Math.PI * -0.25, 0, true);
-  ctx.stroke();
-  ctx.restore();
-}
-
 function drawCurveLine(
   ctx: CanvasRenderingContext2D,
-  curve: CurveDetail,
+  curve: EvalCurveDetail,
   color: string,
   opts: CurveStyle,
 ): void {
-  if (curve.length > 0 && !CloseTo(opts.Thickness, 0)) {
+  if (
+    curve.length > 0 &&
+    curve.controlPoints.length > 0 &&
+    !CloseTo(opts.Thickness, 0)
+  ) {
     ctx.beginPath();
     ctx.lineWidth = opts.Thickness;
     ctx.strokeStyle = color;
-    ctx.moveTo(curve.points[0]!.x, curve.points[0]!.y);
+    ctx.moveTo(curve.controlPoints[0]!.x, curve.controlPoints[0]!.y);
     for (const pt of curve.points) {
       ctx.lineTo(pt.x, pt.y);
+    }
+    const endpt = curve.controlPoints[curve.controlPoints.length - 1];
+    if (endpt) {
+      ctx.lineTo(endpt.x, endpt.y);
     }
     ctx.stroke();
   }
@@ -384,17 +300,6 @@ function drawControlPoints(
   ctx.stroke();
 }
 
-function drawColors(ctx: CanvasRenderingContext2D, colors: string[]) {
-  ctx.save();
-  for (let j = 0; j < colors.length; j++) {
-    ctx.beginPath();
-    ctx.fillStyle = colors[(j + 7) % colors.length]!;
-    ctx.fillRect(j * 4, 0, 4, 4);
-    ctx.stroke();
-  }
-  ctx.restore();
-}
-
 function drawHeadingLines(
   ctx: CanvasRenderingContext2D,
   color: string,
@@ -443,9 +348,9 @@ function drawHeadingLine(
   ctx: CanvasRenderingContext2D,
   style: HeadingStyle,
   color: string,
-  point: Point,
+  point: EvalPose,
 ) {
-  if (isUndefined(point.h)) {
+  if (isUndefined(point.radians)) {
     return;
   }
   ctx.beginPath();
@@ -453,7 +358,7 @@ function drawHeadingLine(
   ctx.lineWidth = style.Thickness;
   ctx.strokeStyle = color;
   ctx.moveTo(point.x, point.y);
-  const displacement = vector(point.h, style.Length);
+  const displacement = vector(point.radians, style.Length);
   const endx = point.x + displacement.x;
   const endy = point.y + displacement.y;
   ctx.lineTo(endx, endy);
@@ -473,4 +378,81 @@ function drawHeadingLine(
     endy - headSize * Math.sin(angle + style.ArrowAngle),
   );
   ctx.stroke();
+}
+
+function drawLegend(
+  ctx: CanvasRenderingContext2D,
+  dpr: number,
+  scale: number,
+  theme: string,
+) {
+  const outlineText = (str: string, x: number, y: number) => {
+    ctx.strokeText(str, x, y);
+    ctx.fillText(str, x, y);
+  };
+  ctx.save();
+  ctx.setTransform(dpr * scale, 0, 0, dpr * scale, 0, 0);
+  ctx.font = '4px sans-serif'; // Set font size and family
+  ctx.fillStyle = theme === 'light' ? 'black' : 'white'; // Set fill color for the text
+  ctx.strokeStyle = theme === 'light' ? 'white' : 'black';
+  ctx.lineWidth = 0.2;
+
+  // Draw the coordinate points
+  ctx.textAlign = 'start'; // Set text alignment (e.g., "start", "end", "center")
+  ctx.textBaseline = 'middle'; // Set vertical alignment (e.g., "top", "middle", "bottom")
+  outlineText('(0,0)', 2, 139);
+  outlineText('(0,144)', 2, 5);
+  ctx.textAlign = 'end'; // Set text alignment (e.g., "start", "end", "center")
+  outlineText('(144,0)', 142, 5);
+  outlineText('(144,144)', 142, 139);
+  ctx.textAlign = 'center'; // Set text alignment (e.g., "start", "end", "center")
+  outlineText('(72,72)', 72, 72);
+
+  // Label the axis directions
+  outlineText('+y', 71, 84.5);
+  outlineText('-y', 71, 104.5);
+  outlineText('-x', 62, 95);
+  outlineText('+x', 82, 95);
+
+  // Label the compass angles
+  outlineText('½π 90°', 72, 40);
+  outlineText('0°', 81, 48);
+  outlineText('π 180°', 58, 48);
+  outlineText('³/₂π 270°', 72, 56);
+
+  // Draw the axis directions
+  ctx.lineCap = 'round';
+  ctx.lineWidth = 0.5;
+  ctx.strokeStyle = theme === 'light' ? 'black' : 'white';
+  ctx.beginPath();
+  let xc = 72;
+  let yc = 95;
+  // Vertical double arrow:
+  ctx.moveTo(xc - 2, yc - 5);
+  ctx.lineTo(xc, yc - 7);
+  ctx.lineTo(xc + 2, yc - 5);
+  ctx.moveTo(xc, yc - 7);
+  ctx.lineTo(xc, yc + 7);
+  ctx.moveTo(xc + 2, yc + 5);
+  ctx.lineTo(xc, yc + 7);
+  ctx.lineTo(xc - 2, yc + 5);
+  // Horizontal double arrow
+  ctx.moveTo(xc - 5, yc - 2);
+  ctx.lineTo(xc - 7, yc);
+  ctx.lineTo(xc - 5, yc + 2);
+  ctx.moveTo(xc - 7, yc);
+  ctx.lineTo(xc + 7, yc);
+  ctx.moveTo(xc + 5, yc + 2);
+  ctx.lineTo(xc + 7, yc);
+  ctx.lineTo(xc + 5, yc - 2);
+  // Arrow for the compass
+  ctx.moveTo(77 + 1, 48 + 2);
+  ctx.lineTo(77, 48);
+  ctx.lineTo(77 - 1.75, 48 + 1.75);
+  ctx.stroke();
+  ctx.beginPath();
+  // Arc for the compass
+  ctx.arc(72, 48, 5, Math.PI * -0.25, 0, true);
+  ctx.stroke();
+  ctx.restore();
 }

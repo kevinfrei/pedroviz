@@ -90,7 +90,8 @@ export const isRadiansRef = chkObjectOfExactType<RadiansRef>({
   isRadiansRef,
 );
 
-export const isPoseName: typecheck<PoseName> = isString as typecheck<PoseName>;
+/*export*/ const isPoseName: typecheck<PoseName> =
+  isString as typecheck<PoseName>;
 /*export*/ const isAnonymousPose = chkObjectOfExactType<AnonymousPose>(
   {
     x: isValueRef,

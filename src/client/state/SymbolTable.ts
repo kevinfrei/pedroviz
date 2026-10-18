@@ -62,6 +62,15 @@ export const selectedItemKeyFamily = atomFamily((type: DataType) =>
     },
   ),
 );
+export const selectedPathOrCurveKeyAtom = atom((get) => {
+  const selPath = get(selectedItemKeyFamily(DataType.Paths));
+  if (selPath) {
+    return selPath;
+  }
+  const selCurve = get(selectedItemKeyFamily(DataType.Curves));
+  return isDefined(selCurve) ? selCurve : undefined;
+});
+
 export const activeTabAtom = atomWithStorage<string>(
   'activeTab',
   'v',
@@ -69,13 +78,14 @@ export const activeTabAtom = atomWithStorage<string>(
   { getOnInit: true },
 );
 
-export function MapToRecord<T>(map: Map<string, T>): Record<string, T> {
+/*export*/ function MapToRecord<T>(map: Map<string, T>): Record<string, T> {
   const res: Record<string, T> = {};
   map.forEach((val, key) => {
     res[key] = val;
   });
   return res;
 }
+
 export const namedValuesAtom = atom<Promise<NamedValues>>(async (get) => {
   const symbolTable = await get(symbolTableAtom);
   return {

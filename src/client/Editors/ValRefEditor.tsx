@@ -131,7 +131,7 @@ export function ResolvedValueInline({
 }
 
 // Maximally 4 digits of accuracy number to string conversion
-export function FormatValue(val: number): string {
+/*export*/ function FormatValue(val: number): string {
   return val.toFixed(4).replace(/\.?0+$/, '');
 }
 

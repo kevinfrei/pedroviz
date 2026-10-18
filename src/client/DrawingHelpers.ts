@@ -109,15 +109,15 @@ export function ptDistance(a: Point, b: Point): number {
   return Math.sqrt(delta.x * delta.x + delta.y * delta.y);
 }
 
-export function vector(angle: number, mag: number): Point {
-  return { x: Math.cos(angle) * mag, y: Math.sin(angle) * mag };
+export function vector(radians: number, mag: number): Point {
+  return { x: Math.cos(radians) * mag, y: Math.sin(radians) * mag };
 }
 
 function getAngle(pt: Point): number {
   return Math.atan2(pt.y, pt.x);
 }
 
-/*export*/ function calcSimpleHeading(
+function calcSimpleHeading(
   heading: ConcreteSimpleHeading,
   prev: Point | null,
   cur: Point,

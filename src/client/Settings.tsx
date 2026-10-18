@@ -5,6 +5,11 @@ import { useAtom, useAtomValue, WritableAtom } from 'jotai';
 
 import { TinyColor } from '@ctrl/tinycolor';
 import {
+  DraggableDialog,
+  DraggableDialogHandle,
+  DraggableDialogSurface,
+} from '@fluentui-contrib/react-draggable-dialog';
+import {
   Button,
   ColorSlider,
   ColorSliderProps,
@@ -439,25 +444,27 @@ export function Settings(): ReactElement {
     ],
   );
   return (
-    <Dialog modalType="modal">
+    <DraggableDialog modalType="modal">
       <DialogTrigger disableButtonEnhancement>
         <Button icon={<SettingsFilled />} appearance="transparent" />
       </DialogTrigger>
-      <DialogSurface>
+      <DraggableDialogSurface>
         <DialogBody>
-          <DialogTitle
-            action={
-              <DialogTrigger action="close">
-                <Button
-                  appearance="subtle"
-                  aria-label="close"
-                  icon={<Dismiss24Regular />}
-                />
-              </DialogTrigger>
-            }
-            style={{ textAlign: 'center' }}>
-            Settings
-          </DialogTitle>
+          <DraggableDialogHandle>
+            <DialogTitle
+              action={
+                <DialogTrigger action="close">
+                  <Button
+                    appearance="subtle"
+                    aria-label="close"
+                    icon={<Dismiss24Regular />}
+                  />
+                </DialogTrigger>
+              }
+              style={{ textAlign: 'center' }}>
+              Settings
+            </DialogTitle>
+          </DraggableDialogHandle>
           <DialogContent className="two-column">
             <TabList
               onTabSelect={onTabSelect}
@@ -473,7 +480,7 @@ export function Settings(): ReactElement {
             {selectedTab === 'Paths' && DrawingSettings}
           </DialogContent>
         </DialogBody>
-      </DialogSurface>
-    </Dialog>
+      </DraggableDialogSurface>
+    </DraggableDialog>
   );
 }
