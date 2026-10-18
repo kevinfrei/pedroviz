@@ -10,16 +10,14 @@ import { ValRefEditor } from '../Editors/ValRefEditor';
 import { ValuesList } from '../Lists/ValuesList';
 import {
   DataType,
-  selectedKeyAtom,
+  selectedItemKeyFamily,
   symbolTableValuesAtom,
 } from '../state/SymbolTable';
 import { ItemEditor } from '../ui-tools/ItemEditorWrapper';
 
 export function ValuesView(): ReactElement {
   const [values, setValues] = useAtom(symbolTableValuesAtom);
-  const selected = useAtomValue(selectedKeyAtom);
-
-  const activeKey = selected.get(DataType.Values);
+  const activeKey = useAtomValue(selectedItemKeyFamily(DataType.Values));
   const activeValue = isUndefined(activeKey)
     ? undefined
     : values.get(activeKey);

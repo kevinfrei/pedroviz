@@ -10,7 +10,7 @@ import { PoseRefEditor } from '../Editors/PoseRefEditor';
 import { PosesList } from '../Lists/PosesList';
 import {
   DataType,
-  selectedKeyAtom,
+  selectedItemKeyFamily,
   symbolTablePosesAtom,
 } from '../state/SymbolTable';
 import { ItemEditor } from '../ui-tools/ItemEditorWrapper';
@@ -18,9 +18,7 @@ import { ItemEditor } from '../ui-tools/ItemEditorWrapper';
 // Poses Store Editor
 export function PosesView(): ReactElement {
   const [poses, setPoses] = useAtom(symbolTablePosesAtom);
-  const selected = useAtomValue(selectedKeyAtom);
-
-  const activeKey = selected.get(DataType.Poses);
+  const activeKey = useAtomValue(selectedItemKeyFamily(DataType.Poses));
   const activePose = isUndefined(activeKey) ? undefined : poses.get(activeKey);
 
   return (

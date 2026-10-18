@@ -17,9 +17,13 @@ import {
   ToolbarGroup,
 } from '@fluentui/react-components';
 import { DeleteRegular, Dismiss24Regular } from '@fluentui/react-icons';
-import { NewMapAdd, NewMapDelete, NewMapRename } from 'src/DataTypeChecks';
+import { NewMapDelete, NewMapRename } from 'src/DataTypeChecks';
 
-import { DataType, DataTypeNames, selectedKeyAtom } from '../state/SymbolTable';
+import {
+  DataType,
+  DataTypeNames,
+  selectedItemKeyFamily,
+} from '../state/SymbolTable';
 import { useToast } from './NotificationToast';
 
 const useStyles = makeStyles({
@@ -47,16 +51,13 @@ export function ItemEditor<T>({
 }: ItemEditorProps<T>): ReactElement {
   const id = useId();
   const toolbarStyle = useStyles();
-  const [selected, setSelected] = useAtom(selectedKeyAtom);
+  const [selected, setSelected] = useAtom(selectedItemKeyFamily(type));
   const setToast = useToast();
 
   const typeName = DataTypeNames[type];
   const setOpen = (open: boolean) => {
     if (!open) {
-      const res = NewMapDelete(selected, type);
-      if (res) {
-        setSelected(res);
-      }
+      setSelected(undefined);
     }
   };
 
@@ -64,7 +65,7 @@ export function ItemEditor<T>({
     const newMap = NewMapRename(items, oldKey, newKey);
     if (newMap) {
       setItems(newMap);
-      setSelected(NewMapAdd(selected, type, newKey));
+      setSelected(newKey);
       setToast(`Renamed ${typeName} "${oldKey}" to "${newKey}"`);
     }
   };
@@ -74,12 +75,7 @@ export function ItemEditor<T>({
     if (newMap) {
       setItems(newMap);
       const remaining = Array.from(newMap.keys());
-      const update = remaining.length
-        ? NewMapAdd(selected, type, remaining[0]!)
-        : NewMapDelete(selected, type);
-      if (update) {
-        setSelected(update);
-      }
+      setSelected(remaining[0]);
       setToast(`Deleted ${typeName} "${keyToDelete}"`);
     } else {
       setToast(`Failed to delete ${typeName} "${keyToDelete}"`, 'error');

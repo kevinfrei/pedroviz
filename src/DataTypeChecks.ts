@@ -4,7 +4,6 @@ import {
   chkAnyOf,
   chkArrayOf,
   chkObjectOfExactType,
-  chkOneOf,
   isBoolean,
   isError,
   isNumber,

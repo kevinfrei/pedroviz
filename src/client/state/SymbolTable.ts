@@ -3,6 +3,10 @@
 import { atom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 import { atomWithStorage } from 'jotai/utils';
+import { atomFamily } from 'node_modules/jotai-family/dist';
+
+import { isDefined, isUndefined } from 'node_modules/@freik/typechk/lib/esm';
+import { NewMapAdd, NewMapDelete } from 'src/DataTypeChecks';
 
 import { NamedValues, SymbolTable } from '../../DataTypes';
 import { SAMPLE_AUTONOMOUS_PRESET } from '../constants';
@@ -42,6 +46,22 @@ export const symbolTablePathsAtom = focusAtom(symbolTableAtom, (optic) =>
   optic.prop('paths'),
 );
 export const selectedKeyAtom = atom<SelectedKey>(new Map());
+export const selectedItemKeyFamily = atomFamily((type: DataType) =>
+  atom(
+    (get) => {
+      return get(selectedKeyAtom).get(type);
+    },
+    (get, set, value: string | undefined) => {
+      const sel = get(selectedKeyAtom);
+      const newMap = isUndefined(value)
+        ? NewMapDelete(sel, type)
+        : NewMapAdd(sel, type, value);
+      if (isDefined(newMap)) {
+        set(selectedKeyAtom, newMap);
+      }
+    },
+  ),
+);
 export const activeTabAtom = atomWithStorage<string>(
   'activeTab',
   'v',

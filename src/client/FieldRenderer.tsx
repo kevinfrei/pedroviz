@@ -11,6 +11,7 @@ import { animateBot, BotAnimationState } from './BotAnimation';
 import {
   ConcreteHeading,
   CurveDetail,
+  EvalCurve,
   EvalCurveDetail,
   EvalInterpolator,
   EvalPose,
@@ -34,7 +35,7 @@ import {
   ShowPathHeadingAtom,
   ThemeAtom,
 } from './state/SavedSettings';
-import { symbolTableAtom } from './state/SymbolTable';
+import { selectedKeyAtom, symbolTableAtom } from './state/SymbolTable';
 import {
   ColorsAtom,
   FocusedCurveAtom,
@@ -72,6 +73,7 @@ export function FieldRenderer(): ReactElement {
   const focusedPath = useAtomValue(FocusedPathAtom);
 
   const symbolTable = useAtomValue(symbolTableAtom);
+  const selected = useAtomValue(selectedKeyAtom);
 
   const concretePaths = new Map(
     allPCs.map((npc) => [
@@ -100,12 +102,12 @@ export function FieldRenderer(): ReactElement {
       // or just a single line of code:
       ctx.setTransform(scale, 0, 0, -scale, 0, size);
       ctx.globalAlpha = coordViz;
-      renderCoordinateLegend(ctx, 1, scale, theme);
+      drawLegend(ctx, 1, scale, theme);
       ctx.globalAlpha = 1.0;
 
       correct.paths.forEach(({ curves, globalInterpolator } /*, name */) => {
-        curves.forEach(({ points, interpolator }) =>
-          renderDTOPath(
+        curves.forEach(({ points, interpolator }: EvalCurve) => {
+          drawCurve(
             ctx,
             points,
             showPathHeadings
@@ -113,35 +115,28 @@ export function FieldRenderer(): ReactElement {
               : false,
             pathStyle,
             colors[0]!,
-          ),
-        );
+          );
+        });
       });
 
       // TODO: Draw the selected curve differently
-      correct.curves.forEach(({ points, interpolator } /*, name*/) =>
-        renderDTOPath(
+      correct.curves.forEach(({ points, interpolator } /*, name*/) => {
+        drawCurve(
           ctx,
           points,
           showPathHeadings ? interpolator : false,
           pathStyle,
           colors[1]!,
-        ),
-      );
+        );
+      });
 
-      // Draw all the points, headings, and values
+      // Draw all the named points, as well
       drawControlPoints(
         ctx,
         pathStyle.Curves.ControlPoint,
-        correct.curves.values().flatMap((curve) => curve.points.controlPoints),
-        colors[2]!,
+        correct.poses.values(),
+        colors[3]!,
       );
-
-      if (isDefined(focusedPose)) {
-        drawFocusedPose(poseOpts, ctx, focusedPose.pose, file);
-      }
-      if (isDefined(focusedCurve)) {
-        drawFocusedCurve(curveOpts, ctx, focusedCurve.points, file);
-      }
     },
     [
       allPCs,
@@ -150,11 +145,10 @@ export function FieldRenderer(): ReactElement {
       correct,
       curveOpts,
       file,
-      focusedCurve,
-      focusedPose,
       pathStyle,
       points,
       poseOpts,
+      selected,
       showPathHeadings,
       symbolTable,
       theme,
@@ -199,17 +193,6 @@ export function FieldRenderer(): ReactElement {
   );
 }
 
-function drawFocusedCurve(
-  opts: CurveStyle,
-  ctx: CanvasRenderingContext2D,
-  focusedCurve: BezierRef,
-  file: ParsedClass,
-) {
-  const br = calcBezierRef(focusedCurve, file);
-  const curve = getCurveDetail(br);
-  renderCurve(ctx, curve, '#fff', opts);
-}
-
 function drawFocusedPose(
   poseStyle: { Points: ControlPointStyle; Headings: HeadingStyle },
   ctx: CanvasRenderingContext2D,
@@ -241,7 +224,7 @@ function outlineText(
   ctx.fillText(str, x, y);
 }
 
-function renderCoordinateLegend(
+function drawLegend(
   ctx: CanvasRenderingContext2D,
   dpr: number,
   scale: number,
@@ -314,7 +297,7 @@ function renderCoordinateLegend(
   ctx.restore();
 }
 
-function renderCurve(
+function drawCurveLine(
   ctx: CanvasRenderingContext2D,
   curve: CurveDetail,
   color: string,
@@ -332,60 +315,22 @@ function renderCurve(
   }
 }
 
-function shouldDrawCurve(curveStyle: CurveStyle): boolean {
-  return (
-    curveStyle.ControlPoint.Style != 'z' &&
-    !CloseTo(curveStyle.ControlPoint.Size, 0) &&
-    !CloseTo(curveStyle.ControlPoint.Thickness, 0)
-  );
-}
-
-/* function renderPath(
-  ctx: CanvasRenderingContext2D,
-  curveControlPoints: Point[],
-  heading: ConcreteHeading | false,
-  color: string,
-  pathStyle: PathStyle,
-) {
-  const curve = getCurveDetail(curveControlPoints);
-  renderCurve(ctx, curve, color, pathStyle.Curves);
-  if (shouldDrawCurve(pathStyle.Curves)) {
-    drawControlPoints(
-      ctx,
-      pathStyle.Curves.ControlPoint,
-      curveControlPoints,
-      color,
-    );
-  }
-  if (heading) {
-    addHeadingToCurve(curve, heading);
-    drawHeadingLines(
-      ctx,
-      color,
-      curve,
-      pathStyle.HeadingCount,
-      pathStyle.Heading,
-    );
-  }
-} */
-
 // TODO: Draw the heading lines!
-function renderDTOPath(
+function drawCurve(
   ctx: CanvasRenderingContext2D,
   curve: EvalCurveDetail,
   interpolator: EvalInterpolator | false,
   pathStyle: PathStyle,
   color: string,
 ) {
-  renderCurve(ctx, curve, color, pathStyle.Curves);
-  if (shouldDrawCurve(pathStyle.Curves)) {
-    drawControlPoints(
-      ctx,
-      pathStyle.Curves.ControlPoint,
-      curve.controlPoints,
-      color,
-    );
-  }
+  drawCurveLine(ctx, curve, color, pathStyle.Curves);
+  drawControlPoints(
+    ctx,
+    pathStyle.Curves.ControlPoint,
+    curve.controlPoints,
+    color,
+  );
+  // TODO: draw the heading interpolators
 }
 
 function drawPoint(

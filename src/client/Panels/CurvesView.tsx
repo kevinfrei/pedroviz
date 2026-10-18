@@ -11,7 +11,7 @@ import { CurveRefEditor } from '../Editors/CurveRefEditor';
 import { CurvesList } from '../Lists/CurvesList';
 import {
   DataType,
-  selectedKeyAtom,
+  selectedItemKeyFamily,
   symbolTableCurvesAtom,
 } from '../state/SymbolTable';
 import { ItemEditor } from '../ui-tools/ItemEditorWrapper';
@@ -19,9 +19,7 @@ import { ItemEditor } from '../ui-tools/ItemEditorWrapper';
 // Curves Store Editor
 export function CurvesView(): ReactElement {
   const [curves, setCurves] = useAtom(symbolTableCurvesAtom);
-  const selected = useAtomValue(selectedKeyAtom);
-
-  const activeKey = selected.get(DataType.Curves);
+  const activeKey = useAtomValue(selectedItemKeyFamily(DataType.Curves));
   const activeCurve = isUndefined(activeKey)
     ? undefined
     : curves.get(activeKey);

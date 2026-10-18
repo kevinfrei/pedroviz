@@ -14,7 +14,7 @@ import { InterpRefEditor } from '../Editors/InterpRefEditor';
 import { PathsList } from '../Lists/PathsList';
 import {
   DataType,
-  selectedKeyAtom,
+  selectedItemKeyFamily,
   symbolTablePathsAtom,
 } from '../state/SymbolTable';
 import { ItemEditor } from '../ui-tools/ItemEditorWrapper';
@@ -23,9 +23,7 @@ import { TitleWrapper } from '../ui-tools/TitleWrapper';
 // Paths Store Editor
 export function PathsView(): ReactElement {
   const [paths, setPaths] = useAtom(symbolTablePathsAtom);
-  const selected = useAtomValue(selectedKeyAtom);
-
-  const activeKey = selected.get(DataType.Paths);
+  const activeKey = useAtomValue(selectedItemKeyFamily(DataType.Paths));
   const activePath = isUndefined(activeKey) ? undefined : paths.get(activeKey);
 
   return (

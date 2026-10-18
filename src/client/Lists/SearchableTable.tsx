@@ -22,17 +22,12 @@ import { NewMapAdd, NewMapDelete } from '../../DataTypeChecks';
 import {
   DataType,
   DataTypeNames,
-  SelectedKey,
-  selectedKeyAtom,
+  selectedItemKeyFamily,
 } from '../state/SymbolTable';
 import { useToast } from '../ui-tools/NotificationToast';
 
-function getSelection(sel: SelectedKey, type: DataType): Set<string> {
-  const key = sel.get(type);
-  if (isUndefined(key)) {
-    return new Set();
-  }
-  return new Set([key]);
+function getSelection(sel: string | undefined): Set<string> {
+  return isUndefined(sel) ? new Set() : new Set([sel]);
 }
 
 type SearchableTableProps<T> = {
@@ -54,17 +49,14 @@ export function SearchableTable<T>({
   const [search, setSearch] = useState('');
   const [items, setItems] = itemsState;
 
-  const [selected, setSelected] = useAtom(selectedKeyAtom);
+  const [selected, setSelected] = useAtom(selectedItemKeyFamily(dataType));
 
-  const selectedRows = getSelection(selected, dataType);
+  const selectedRows = getSelection(selected);
   const setToast = useToast();
   const onSelChanged: DataGridProps['onSelectionChange'] = useCallback(
     (_, data) => {
       if (data.selectedItems.size === 0) {
-        const newMap = NewMapDelete(selected, dataType);
-        if (newMap) {
-          setSelected(newMap);
-        }
+        setSelected(undefined);
       } else {
         const item = [...data.selectedItems].pop();
         if (isUndefined(item)) {
@@ -74,7 +66,7 @@ export function SearchableTable<T>({
         if (isUndefined(ref)) {
           return;
         }
-        setSelected(NewMapAdd(selected, dataType, item as string));
+        setSelected(item as string);
       }
     },
     [setSelected, selected, items, dataType],
@@ -82,14 +74,7 @@ export function SearchableTable<T>({
 
   // This enables deselection
   const clearSelection = (id: string) => {
-    if (selected.get(dataType) === id) {
-      const newMap = NewMapDelete(selected, dataType);
-      if (isDefined(newMap)) {
-        setSelected(newMap);
-      }
-    } else {
-      setSelected(NewMapAdd(selected, dataType, id));
-    }
+    setSelected(selected === id ? undefined : id);
   };
 
   const handleAdd = () => {
@@ -101,7 +86,7 @@ export function SearchableTable<T>({
     const newKey = `new${name}${count}`;
 
     setItems(NewMapAdd(items, newKey, newItem));
-    setSelected(NewMapAdd(selected, dataType, newKey));
+    setSelected(newKey);
     setToast(`Added ${name.toLocaleLowerCase()} "${newKey}"`);
   };
 

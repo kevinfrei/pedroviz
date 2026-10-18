@@ -11,7 +11,7 @@ import { InterpRefEditor } from '../Editors/InterpRefEditor';
 import { InterpolatorsList } from '../Lists/InterpolatorsList';
 import {
   DataType,
-  selectedKeyAtom,
+  selectedItemKeyFamily,
   symbolTableInterpolationsAtom,
 } from '../state/SymbolTable';
 import { ItemEditor } from '../ui-tools/ItemEditorWrapper';
@@ -21,9 +21,9 @@ export function InterpolatorsView(): ReactElement {
   const [interpolations, setInterpolations] = useAtom(
     symbolTableInterpolationsAtom,
   );
-  const selected = useAtomValue(selectedKeyAtom);
-
-  const activeKey = selected.get(DataType.Interpolations);
+  const activeKey = useAtomValue(
+    selectedItemKeyFamily(DataType.Interpolations),
+  );
   const activeInterp = isUndefined(activeKey)
     ? undefined
     : interpolations.get(activeKey);
