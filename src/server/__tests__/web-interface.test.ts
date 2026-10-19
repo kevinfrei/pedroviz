@@ -35,7 +35,7 @@ describe('The basic web interfaces', () => {
     if (!chkPathDatabase(data)) {
       return false;
     }
-    expect(data.TeamPaths.size()).toEqual(2);
+    expect(data.TeamPath.size).toEqual(2);
     const dbRes2 = await LoadDatabase();
     expect(dbRes2.ok).toBeTrue();
     expect(dbRes2.status).toEqual(200);
@@ -46,7 +46,7 @@ describe('The basic web interfaces', () => {
     if (!chkPathDatabase(data2)) {
       return false;
     }
-    expect(data2.TeamPaths.has('LearnBot' as Team)).toBeTrue();
+    expect(data2.TeamPath.has('LearnBot' as Team)).toBeTrue();
   });
   test('LoadPath', async () => {
     await RescanSourceCode();
@@ -71,7 +71,7 @@ describe('The basic web interfaces', () => {
     if (!chkPathDatabase(data2)) {
       return false;
     }
-    expect(data2.TeamPaths.has('LearnBot' as Team)).toBeTrue();
+    expect(data2.TeamPath.has('LearnBot' as Team)).toBeTrue();
     const newDB = {
       TeamPaths: MakeMultiMap(),
       PathClasses: MakeMultiMap(),
@@ -88,6 +88,6 @@ describe('The basic web interfaces', () => {
     if (!chkPathDatabase(data)) {
       return false;
     }
-    expect(data.TeamPaths.size()).toEqual(2);
+    expect(data.TeamPath.size).toEqual(2);
   });
 });

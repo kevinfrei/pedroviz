@@ -4,7 +4,6 @@ import { Fragment, ReactElement, Suspense } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 
 import {
-  InfoLabel,
   SelectTabData,
   SelectTabEvent,
   Tab,
@@ -36,13 +35,12 @@ export function PathsDataDisplay({
   ];
 
   const selFile = useAtomValue(SelectedPathAtom);
-  const selClass = useAtomValue(SelectedClassAtom);
   const [activeTab, setActiveTab] = useAtom(activeTabAtom);
   const onTabSelect = (event: SelectTabEvent, data: SelectTabData) => {
     setActiveTab(data.value as string);
   };
 
-  if (selFile.length === 0 || selClass.length === 0) {
+  if (selFile.length === 0) {
     return <Text size={600}>Please select a file & class to view.</Text>;
   }
   return (

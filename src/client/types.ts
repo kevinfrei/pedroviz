@@ -2,20 +2,6 @@
 
 import { CSSProperties } from 'react';
 
-import {
-  AnonymousPathChain,
-  BezierName,
-  BezierRef,
-  ParsedClass,
-  PathChainName,
-  PoseName,
-  PoseRef,
-  RadiansRef,
-  ValueName,
-  ValueRef,
-} from '../CodeTypes';
-import { PathDatabase } from '../IpcTypes';
-
 export const CtrlPtStyles = Object.freeze({
   Circle: 'o',
   Triangle: 't',
@@ -80,40 +66,6 @@ export type DisplayOptions = {
   Paths: PathStyle;
   BotDrawing: BotDrawStyle;
 };
-
-export type OneFileIndex = {
-  container: ParsedClass;
-  namedValues: Map<ValueName, ValueRef | RadiansRef>;
-  namedPoses: Map<PoseName, PoseRef>;
-  namedBeziers: Map<BezierName, BezierRef>;
-  namedPathChains: Map<PathChainName, AnonymousPathChain>;
-  staticShortcuts: Map<string, string>;
-};
-
-export type NameLookup = {
-  findValue: (
-    val: ValueName,
-    context: ParsedClass,
-  ) => ValueRef | RadiansRef | undefined;
-  findPose: (pose: PoseName, context: ParsedClass) => PoseRef | undefined;
-  findBezier: (bez: BezierName, context: ParsedClass) => BezierRef | undefined;
-  findPath: (
-    pc: PathChainName,
-    context: ParsedClass,
-  ) => AnonymousPathChain | undefined;
-  setDb: (db: PathDatabase) => void;
-  db: () => PathDatabase | undefined;
-};
-
-/*
-export type HasItem<T> = {
-  has: (item: T) => boolean;
-};
-
-export type HasKeys<T> = HasItem<T> & {
-  keys: () => Iterable<T>;
-};
-*/
 
 export type ResponsiveAnchor = {
   x: 'left' | 'center' | 'right';

@@ -27,7 +27,7 @@ import { anyItems, MakeParsedClass } from './PathChainLoader';
 
 const database: PathDatabase = {
   HasFieldImage: false,
-  TeamPaths: MakeMultiMap<Team, FilePathKey>(),
+  TeamPath: new Map<Team, FilePathKey>(),
   PathClasses: MakeMultiMap<FilePathKey, ClassKey>(),
   ParsedClasses: new Map<ClassKey, ParsedClass>(),
 };
@@ -63,7 +63,7 @@ function RegisterTopLevelParsedClass(
     return;
   }
   const pathKey = GetPathKey(team, path);
-  database.TeamPaths.set(team, pathKey);
+  database.TeamPath.set(team, pathKey);
   ForEachPathChainIndex(pc, (pc) => {
     const classKey = GetClassKey(pathKey, pc.name);
     database.PathClasses.set(pathKey, classKey);
@@ -92,13 +92,13 @@ export async function RescanSourceCode(): Promise<PathDatabase> {
 }
 
 export function ResetDatabase() {
-  database.TeamPaths.clear();
+  database.TeamPath.clear();
   database.PathClasses.clear();
   database.ParsedClasses.clear();
 }
 
 export function ReplaceDatabase(db: PathDatabase) {
-  database.TeamPaths = db.TeamPaths;
+  database.TeamPath = db.TeamPath;
   database.PathClasses = db.PathClasses;
   database.ParsedClasses = db.ParsedClasses;
 }

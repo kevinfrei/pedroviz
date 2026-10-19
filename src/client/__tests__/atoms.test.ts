@@ -30,7 +30,7 @@ import {
   FullDatabaseAtom,
   // IndexedDatabaseAtom,
   // PathKeysForSelectedTeamAtom,
-  PathsForSelectedTeamAtom,
+  PathForSelectedTeamAtom,
   SelectedClassAtom,
   SelectedPathAtom,
   SelectedTeamAtom,
@@ -48,14 +48,14 @@ const status = {
 };
 const database: PathDatabase = {
   HasFieldImage: false,
-  TeamPaths: MakeMultiMap<Team, FilePathKey>([
+  TeamPath: new Map<Team, FilePathKey>([
     [
       'team1' as Team,
-      ['team1*path1.java' as FilePathKey, 'team1*path2.java' as FilePathKey],
+      'team1*src/main/assets/path/pedropaths.json' as FilePathKey,
     ],
     [
       'team2' as Team,
-      ['team2*path3.java' as FilePathKey, 'team2*path4.java' as FilePathKey],
+      'team2*src/main/assets/path/pedropaths.json' as FilePathKey,
     ],
   ]),
   PathClasses: MakeMultiMap<FilePathKey, ClassKey>([
@@ -88,7 +88,7 @@ async function MyFetchFunc(
           db?.ParsedClasses || new Map<ClassKey, ParsedClass>();
         database.PathClasses =
           db?.PathClasses || MakeMultiMap<FilePathKey, ClassKey>();
-        database.TeamPaths = db?.TeamPaths || MakeMultiMap<Team, FilePathKey>();
+        database.TeamPath = db?.TeamPath || new Map<Team, FilePathKey>();
       }
       return new Response('', status);
     }
@@ -132,12 +132,11 @@ describe('Atom Capabilities', () => {
     //   new Set(['team2*path3.java' as PathKey, 'team2*path4.java' as PathKey]),
     // );
     const selPaths = await act(() =>
-      renderHook(() => useAtom(PathsForSelectedTeamAtom)),
+      renderHook(() => useAtom(PathForSelectedTeamAtom)),
     );
-    expect(selPaths.result.current[0]).toEqual([
-      'path3.java',
-      'path4.java',
-    ] as FilePath[]);
+    expect(selPaths.result.current[0]).toEqual(
+      'src/main/assets/path/pedropaths.json' as FilePath,
+    );
     const selPath = await act(() =>
       renderHook(() => useAtom(SelectedPathAtom)),
     );
@@ -176,11 +175,11 @@ describe('Atom Capabilities', () => {
     expect(JSON.parse(Pickle(dbVal))).toEqual(JSON.parse(Pickle(database)));
     database.ParsedClasses.clear();
     database.PathClasses.clear();
-    database.TeamPaths.clear();
+    database.TeamPath.clear();
     db.result.current[1](dbVal);
     expect(database.ParsedClasses.size).toEqual(4);
     expect(database.PathClasses.size()).toEqual(4);
-    expect(database.TeamPaths.size()).toEqual(2);
+    expect(database.TeamPath.size).toEqual(2);
     // const idb = await act(() =>
     //   renderHook(() => useAtomValue(IndexedDatabaseAtom)),
     // );

@@ -10,7 +10,7 @@ import { chkPathKey } from '../../IpcTypeCheck';
 import { FilePath, Team } from '../../IpcTypes';
 import {
   FindRelativeRepoRoot,
-  GetPathFiles,
+  GetPathFile,
   GetTeamDirectories,
   GetTeamPaths,
 } from '../getpaths';
@@ -65,18 +65,17 @@ describe('team path exploration', () => {
 
   test('getPathFiles finds path files', async () => {
     const repoRoot = await getTestRepoPath();
-    const pathFiles = await GetPathFiles(repoRoot, 'TeamA');
-    expect(pathFiles.length).toBe(3);
-    expect(pathFiles).toContain('TeamTestPaths.java' as FilePath);
-    expect(pathFiles).toContain(
-      path.join('subdir', 'PathsLiveHere.java') as FilePath,
+    const pathFile = await GetPathFile(repoRoot, 'TeamA');
+    expect(pathFile).toEndWith('pedropaths.java' as FilePath);
+    expect(pathFile).toEndWith(
+      path.join('src/main/assets/paths', 'pedropaths.java') as FilePath,
     );
   });
 
   test('getPathFiles finds no path files', async () => {
     const repoRoot = await getTestRepoPath();
-    const pathFiles = await GetPathFiles(repoRoot, 'TeamB');
-    expect(pathFiles).toEqual([]);
+    const pathFiles = await GetPathFile(repoRoot, 'TeamB');
+    expect(pathFiles).toBeUndefined();
   });
 
   test('GetTeamPaths', async () => {

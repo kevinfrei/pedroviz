@@ -9,7 +9,7 @@ import {
   unwrap,
 } from 'jotai/utils';
 
-import { ErrorOr, isError } from '@freik/typechk';
+import { ErrorOr, isDefined, isError } from '@freik/typechk';
 
 import { MakeEmptyParsedClass } from '../../CodeTypeCheck';
 import {
@@ -65,7 +65,7 @@ export const FullDatabaseAtom = atomWithRefresh(
 
 const TeamPathsAtom = selectAtom(
   FullDatabaseAtom,
-  async (db) => (await db).TeamPaths,
+  async (db) => (await db).TeamPath,
 );
 const PathClassesAtom = selectAtom(
   FullDatabaseAtom,
@@ -85,17 +85,16 @@ export const TeamsAtom = atom(async (get): Promise<Team[]> => {
   return [...tp.keys()];
 });
 
-const PathKeysForTeamFamily = atomFamily((team: Team) =>
-  atom(async (get): Promise<Set<FilePathKey>> => {
-    return (await get(TeamPathsAtom)).get(team) || new Set();
+const PathKeyForTeamFamily = atomFamily((team: Team) =>
+  atom(async (get): Promise<FilePathKey | undefined> => {
+    return (await get(TeamPathsAtom)).get(team) || undefined;
   }),
 );
 
-const PathsForTeamFamily = atomFamily((team: Team) =>
-  atom(async (get): Promise<FilePath[]> => {
-    return [...(await get(PathKeysForTeamFamily(team))).keys()].map(
-      FilePathFromKey,
-    );
+const PathForTeamFamily = atomFamily((team: Team) =>
+  atom(async (get): Promise<FilePath | undefined> => {
+    const pathKey = await get(PathKeyForTeamFamily(team));
+    return isDefined(pathKey) ? FilePathFromKey(pathKey) : undefined;
   }),
 );
 
@@ -113,17 +112,17 @@ const ClassesForPathKeyFamily = atomFamily((pk: FilePathKey) =>
   }),
 );
 
-const PathKeysForSelectedTeamAtom = atom(
-  async (get): Promise<Set<FilePathKey>> => {
+const PathKeyForSelectedTeamAtom = atom(
+  async (get): Promise<FilePathKey | undefined> => {
     const selTeam = await get(SelectedTeamAtom);
-    return await get(PathKeysForTeamFamily(selTeam));
+    return await get(PathKeyForTeamFamily(selTeam));
   },
 );
 
-export const PathsForSelectedTeamAtom = atom(
-  async (get): Promise<FilePath[]> => {
+export const PathForSelectedTeamAtom = atom(
+  async (get): Promise<FilePath | undefined> => {
     const selTeam = await get(SelectedTeamAtom);
-    return await get(PathsForTeamFamily(selTeam));
+    return await get(PathForTeamFamily(selTeam));
   },
 );
 
@@ -173,9 +172,9 @@ const SelectedPathKeyAtom = atom(
     if (selTeam === '') {
       return '' as FilePathKey;
     }
-    const pathsForTeam = await get(PathKeysForSelectedTeamAtom);
-    if (pathsForTeam.size === 1) {
-      return [...pathsForTeam.keys()][0]! as FilePathKey;
+    const pathForTeam = await get(PathKeyForSelectedTeamAtom);
+    if (isDefined(pathForTeam)) {
+      return pathForTeam;
     }
     return selPath as FilePathKey;
   },

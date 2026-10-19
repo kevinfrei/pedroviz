@@ -471,16 +471,19 @@ export const fullParsedClass: ParsedClass = {
 
 export const testDatabase: PathDatabase = {
   HasFieldImage: false,
-  TeamPaths: MakeMultiMap<Team, FilePathKey>([
+  TeamPath: new Map<Team, FilePathKey>([
     [
       'team1' as Team,
-      ['team1*path1.java' as FilePathKey, 'team1*path2.java' as FilePathKey],
+      'team1*src/main/assets/paths/pedropaths.json' as FilePathKey,
     ],
     [
       'team2' as Team,
-      ['team2*path3.java' as FilePathKey, 'team2*path4.java' as FilePathKey],
+      'team2*src/main/assets/paths/pedropaths.json' as FilePathKey,
     ],
-    ['LearnBot' as Team, ['LearnBot*TestPaths.java' as FilePathKey]],
+    [
+      'LearnBot' as Team,
+      'LearnBot*src/main/assets/paths/pedropaths.json' as FilePathKey,
+    ],
   ]),
   PathClasses: MakeMultiMap<FilePathKey, ClassKey>([
     ['team1*path1.java' as FilePathKey, ['team1*path1.java;a' as ClassKey]],
@@ -615,14 +618,14 @@ export const status = {
 
 export const databaseForUITest: PathDatabase = {
   HasFieldImage: false,
-  TeamPaths: MakeMultiMap<Team, FilePathKey>([
+  TeamPath: new Map<Team, FilePathKey>([
     [
       'team1' as Team,
-      ['team1*path1.java' as FilePathKey, 'team1*path2.java' as FilePathKey],
+      'team1*src/main/assets/paths/pedropaths.json' as FilePathKey,
     ],
     [
       'team2' as Team,
-      ['team2*path3.java' as FilePathKey, 'team2*path4.java' as FilePathKey],
+      'team2*src/main/assets/paths/pedropaths.json' as FilePathKey,
     ],
   ]),
   PathClasses: MakeMultiMap<FilePathKey, ClassKey>([

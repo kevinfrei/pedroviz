@@ -3,15 +3,12 @@
 import { ReactElement, useEffect } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 
-import { Label } from '@fluentui/react-components';
+import { Button, Label, Text } from '@fluentui/react-components';
+import { ArrowDownloadRegular } from '@fluentui/react-icons';
 
-import { FilePath } from '../IpcTypes';
 import { Strings } from './constants';
 import {
-  ClassesForSelectedPathAtom,
-  PathsForSelectedTeamAtom,
-  SelectedClassAtom,
-  SelectedPathAtom,
+  PathForSelectedTeamAtom,
   SelectedTeamAtom,
   TeamsAtom,
 } from './state/UserCode';
@@ -39,65 +36,14 @@ export function TeamSelector(): ReactElement {
 }
 
 export function FileSelector(): ReactElement {
-  let files = useAtomValue(PathsForSelectedTeamAtom);
-  const [file, setFile] = useAtom(SelectedPathAtom);
-  // if all the files have a common folder prefix, filter the prefix out
-  let prefix = '';
-  if (files.length > 1) {
-    let tryIt = files[0]!.indexOf('/');
-    while (tryIt >= 0) {
-      const tryPrefix = files[0]!.substring(0, tryIt + 1);
-      if (files.every((p) => p.startsWith(tryPrefix))) {
-        prefix += tryPrefix;
-        files = files.map((p) => p.substring(tryIt + 1) as FilePath);
-        tryIt = files[0]!.indexOf('/');
-      } else {
-        break;
-      }
-    }
-  }
-  useEffect(() => {
-    if (files.length === 1) {
-      setFile(files[0]!);
-    }
-  }, [files, setFile]);
-  return (
-    <>
-      <Label className="pathLabel" htmlFor="select_a_file">
-        File:&nbsp;
-      </Label>
-      <AutoSelector
-        id="select_a_file"
-        prompt={Strings.select_a_file}
-        items={files}
-        selected={file.substring(prefix.length)}
-        setSelected={(item) => setFile((prefix + item) as FilePath)}
-      />
-    </>
-  );
-}
-
-export function ClassSelector(): ReactElement {
-  const classes = useAtomValue(ClassesForSelectedPathAtom);
-  const [classSel, setClass] = useAtom(SelectedClassAtom);
-  useEffect(() => {
-    if (classes.length === 1) {
-      setClass(classes[0]!);
-    }
-  }, [classes, setClass]);
-  return (
-    <>
-      <Label
-        className="pathLabel"
-        style={{ paddingRight: 12, backgroundColor: 'green' }}>
-        Class:&nbsp;
-      </Label>
-      <AutoSelector
-        prompt={Strings.select_a_class}
-        items={classes}
-        selected={classSel}
-        setSelected={setClass}
-      />
-    </>
+  const file = useAtomValue(PathForSelectedTeamAtom);
+  return file ? (
+    <Text>{file}</Text>
+  ) : (
+    <Button
+      icon={<ArrowDownloadRegular />}
+      onClick={() => alert('not yet implemented')}>
+      {Strings.install_files}
+    </Button>
   );
 }

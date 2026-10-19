@@ -20,7 +20,7 @@ import { CodeIssues } from './CodeIssues';
 import { Strings } from './constants';
 import { FieldRenderer } from './FieldRenderer';
 import { PathsDataDisplay } from './PathsDataDisplay';
-import { TeamSelector } from './PathSelector';
+import { FileSelector, TeamSelector } from './PathSelector';
 import { Settings } from './Settings';
 import { ToastId } from './state/BasicState';
 import { ThemeAtom } from './state/SavedSettings';
@@ -57,6 +57,7 @@ function MyApp(): ReactElement {
               </ToolbarGroup>
               <ToolbarGroup>
                 <TeamSelector />
+                <FileSelector />
               </ToolbarGroup>
             </Toolbar>
           </SpinSuspense>

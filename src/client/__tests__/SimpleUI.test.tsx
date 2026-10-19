@@ -31,7 +31,7 @@ import { getStore } from '../state/Storage';
 import {
   ColorsAtom,
   NamedPosesAtom,
-  PathsForSelectedTeamAtom,
+  PathForSelectedTeamAtom,
   SelectedClassAtom,
   SelectedPathAtom,
   SelectedTeamAtom,
@@ -179,7 +179,7 @@ describe('Simplest UI validation', () => {
       await store.set(SelectedTeamAtom, 'team3');
     });
     await act(async () => {
-      expect(await store.get(PathsForSelectedTeamAtom)).toEqual([]);
+      expect(await store.get(PathForSelectedTeamAtom)).toBeUndefined();
     });
   });
 });
@@ -201,7 +201,9 @@ describe('SchemaAtom tests', () => {
       await store.set(SelectedClassAtom, 'c');
     });
     await act(async () => {
-      expect(await store.get(SelectedPathAtom)).toBe('path3.java' as FilePath);
+      expect(await store.get(SelectedPathAtom)).toBe(
+        'src/main/assets/paths/pedropaths.json' as FilePath,
+      );
     });
     expect(await store.get(ValuesLookupAtom)).toBeDefined();
     expect(await store.get(NamedPosesAtom)).toBeDefined();

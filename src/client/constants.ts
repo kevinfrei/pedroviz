@@ -23,8 +23,7 @@ import {
 
 export const Strings = {
   select_a_bot: 'Select bot',
-  select_a_file: 'Select file',
-  select_a_class: 'Select class',
+  install_files: 'Install code',
   rescan_source: 'Rescan',
   Viz4Pedro: 'Viz 4 Pedro',
   Reset: 'Reset',

@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { MultiMap } from '@freik/containers';
 import { ErrorOr } from '@freik/typechk';
 
-import { ParsedClass } from './CodeTypes';
 import { TangentInterp, ValRef } from './DataTypes';
 import { Nominal } from './TypeHelpers';
 
@@ -13,18 +11,6 @@ export type ClassName = Nominal<string, 'ClassName'>;
 
 // A path key is a Path + * + seqnum
 export type FilePathKey = Nominal<string, 'TeamPathKey'>;
-export type TeamFilePaths = MultiMap<Team, FilePathKey>;
-
-// A class key is a Class + * + seqnum
-export type ClassKey = Nominal<string, 'ClassKey'>;
-/*export*/ type PathClasses = MultiMap<FilePathKey, ClassKey>;
-
-export type PathDatabase = {
-  HasFieldImage: boolean;
-  TeamPaths: TeamFilePaths;
-  PathClasses: PathClasses;
-  ParsedClasses: Map<ClassKey, ParsedClass>;
-};
 
 // Parsed Types for dealing with errors
 
@@ -75,6 +61,7 @@ export type ParsedNameValues = ErrorOr<FullyParsedNamedValues>;
 
 export type JsonPathDatabase = {
   HasFieldImage: boolean;
-  TeamFilePaths: TeamFilePaths;
-  ParsedFiles: Map<FilePathKey, ParsedNameValues>;
+  AllTeams: Set<Team>;
+  TeamsWithFiles: Set<Team>;
+  ParsedFiles: Map<Team, ParsedNameValues>;
 };

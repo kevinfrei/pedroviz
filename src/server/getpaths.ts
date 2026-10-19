@@ -4,10 +4,10 @@ import fs, { promises as fsp } from 'node:fs';
 import path from 'node:path';
 
 import { MakeMultiMap } from '@freik/containers';
-import { isNull, isString } from '@freik/typechk';
+import { isDefined, isNull, isString } from '@freik/typechk';
 
 import { GetPathKey } from '../IpcTypeCheck';
-import { FilePath, FilePathKey, Team, TeamFilePaths } from '../IpcTypes';
+import { FilePath, FilePathKey, Team, TeamFilePath } from '../IpcTypes';
 import { GetGlobalDirname } from './isProduction';
 import { isDirectory } from './utility';
 
@@ -67,7 +67,7 @@ async function isRepoRoot(currentPath: string) {
   );
 }
 
-export async function GetTeamPaths(): Promise<TeamFilePaths> {
+export async function GetTeamPaths(): Promise<TeamFilePath> {
   if (isNull(RepoRoot)) {
     await FindRelativeRepoRoot([...args, process.cwd(), GetGlobalDirname()]);
   }
@@ -77,70 +77,24 @@ export async function GetTeamPaths(): Promise<TeamFilePaths> {
   // Get the list of all team code roots
   const teamDirs = await GetTeamDirectories();
   // Next, look for paths in each team directory
-  const filePaths: TeamFilePaths = MakeMultiMap<Team, FilePathKey>();
+  const filePaths: TeamFilePath = new Map<Team, FilePathKey>();
   for (const teamName of teamDirs) {
-    const pathFiles = await GetPathFiles(RepoRoot, teamName);
-    const pathKey = pathFiles.map((val) => GetPathKey(teamName, val));
-    filePaths.add(teamName, pathKey);
+    const pathFile = await GetPathFile(RepoRoot, teamName);
+    if (isDefined(pathFile)) {
+      const pathKey = GetPathKey(teamName, pathFile);
+      filePaths.set(teamName, pathKey);
+    }
   }
   return filePaths;
 }
 
-const pathNameMatch = /[^\/\\]*(Path|Pose)[^\/\\]*\.java$/;
-
-// Find all the files in the team directory that look like good Path files
-export async function GetPathFiles(
+// Find a pedropaths.json file in the team's asset directory
+export async function GetPathFile(
   repoRoot: string,
   teamName: string,
-): Promise<FilePath[]> {
-  const teamDir = path.join(
-    repoRoot,
-    teamName,
-    FirstFtcSrc,
-    teamName.toLocaleLowerCase(),
-  );
-  const pathFiles: FilePath[] = [];
-  // A worklist of directories to check for PedroPath-containing java files
-  const pathsToCheck: string[] = [teamDir];
-  while (pathsToCheck.length > 0) {
-    const curDir = pathsToCheck.pop()!;
-    const entries = await fsp.readdir(curDir, { withFileTypes: true });
-    for (const entry of entries) {
-      const fullPath = path.join(curDir, entry.name);
-      if (entry.isDirectory()) {
-        pathsToCheck.push(fullPath);
-      } else if (await isPathFile(entry)) {
-        pathFiles.push(path.relative(teamDir, fullPath) as FilePath);
-      }
-    }
-  }
-  return pathFiles;
-}
-
-// The *only* imports we're looking for in a Path*.java file. This is probably too strict.
-const imports = [
-  /^\s*import\s+com\.pedropathing\.follower\.Follower\s*;/,
-  /^\s*import\s+com\.pedropathing\.geometry\.(Bezier[A-Za-z]+|Pose)\s*;/,
-  /^\s*import\s+com\.pedropathing\.paths\.(HeadingInterpolator|PathChain)\s*;/,
-  /^\s*import\s+com\.bylazar\.configurables\.annotations\.Configurable\s*;/,
-];
-
-async function isPathFile(entry: fs.Dirent): Promise<boolean> {
-  if (!entry.isFile() || !pathNameMatch.test(entry.name)) {
-    return false;
-  }
-  const fileContent = (
-    await fsp.readFile(path.join(entry.parentPath, entry.name), 'utf-8')
-  ).split('\n');
-  const matches = fileContent.filter((line) => {
-    for (const imp of imports) {
-      if (imp.test(line.trim())) {
-        return true;
-      }
-    }
-    return false;
-  });
-  return matches.length !== 0;
+): Promise<FilePath | undefined> {
+  const jsonFile = path.join(repoRoot, teamName, RelativePathsJsonFile);
+  return (await fsp.exists(jsonFile)) ? jsonFile : undefined;
 }
 
 export async function GetTeamDirectories(): Promise<Team[]> {
@@ -218,4 +172,12 @@ export const FirstFtcSrc = path.join(
   'org',
   'firstinspires',
   'ftc',
+);
+
+export const RelativePathsJsonFile = path.join(
+  'src',
+  'main',
+  'res',
+  'paths',
+  'pedropaths.json',
 );
