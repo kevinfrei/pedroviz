@@ -5,7 +5,7 @@ import * as path from 'node:path';
 
 import { isString } from '@freik/typechk';
 
-import { GetRelativeRepoRoot } from './getpaths';
+import { GetRelativeRepoRoot } from './repo-discovery';
 
 // Find field image(s) from the repo root
 // .png's before .jpg's
@@ -16,7 +16,7 @@ const images: Map<string, string> = new Map();
 
 export async function CheckForFieldImages(): Promise<boolean> {
   images.clear();
-  const root = GetRelativeRepoRoot();
+  const root = await GetRelativeRepoRoot();
   const entries = await fsp.readdir(root, { withFileTypes: true });
 
   for (const entry of entries) {

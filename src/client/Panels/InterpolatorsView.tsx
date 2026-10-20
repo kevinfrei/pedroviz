@@ -5,8 +5,8 @@ import { useAtom, useAtomValue } from 'jotai';
 
 import { isUndefined } from '@freik/typechk';
 
-import { NewMapAdd } from '../../DataTypeChecks';
-import { InterpRef } from '../../DataTypes';
+import { InterpRef } from '../../dataTypes';
+import { NewMapAdd } from '../../helpers';
 import { InterpRefEditor } from '../Editors/InterpRefEditor';
 import { InterpolatorsList } from '../Lists/InterpolatorsList';
 import {

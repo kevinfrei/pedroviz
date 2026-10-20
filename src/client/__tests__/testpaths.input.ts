@@ -32,7 +32,7 @@ import {
   ValueName,
   ValueRef,
 } from '../../CodeTypes';
-import { ClassKey, FilePathKey, PathDatabase, Team } from '../../IpcTypes';
+import { ClassKey, FilePathKey, PathDatabase, Team } from '../../ipcTypes';
 
 function mkValueRef(val: number | string): ValueRef {
   if (isString(val)) {

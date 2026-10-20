@@ -17,8 +17,6 @@ import {
   chkPoseRef,
   chkRef,
   chkTangentInterp,
-} from '../DataTypeChecks';
-import {
   CurveRef,
   HeadingRef,
   InterpPiece,
@@ -27,7 +25,7 @@ import {
   PoseRef,
   SymbolTable,
   ValRef,
-} from '../DataTypes';
+} from '../dataTypes';
 import {
   ResolvedCurve,
   ResolvedHeading,

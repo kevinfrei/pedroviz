@@ -7,14 +7,15 @@ import { serveStatic } from '@hono/node-server/serve-static';
 import { Hono } from 'hono';
 import { isDefined } from '@freik/typechk';
 
-import { GetGlobalDirname, IsProd, OverrideDirname } from './isProduction';
-import { SavePath } from './savepath';
+import { GetGlobalDirname, IsProd, OverrideDirname } from './is-prod';
 import {
   GetFieldImage,
   GetFieldSvg,
-  LoadDatabase,
-  LoadPath,
-  SaveDatabase,
+  GetTeams,
+  GetValidTeams,
+  HasFieldImage,
+  LoadPaths,
+  SavePaths,
 } from './web-interface';
 
 if (isDefined(__dirname)) {
@@ -29,18 +30,16 @@ if (isDefined(__dirname)) {
 
 const app = new Hono();
 
+// TODO: Add the capability to push a particular JSON file to the robot
 app.get('/img/field/:theme', async (c) => GetFieldImage(c.req.param('theme')));
 app.get('/img/svg/:theme', async (c) => GetFieldSvg(c.req.param('theme')));
-app.get('/api/loadpath/:team/:path', async (c) => {
-  const { team, path } = c.req.param();
-  return LoadPath(team, path);
-});
-app.get('/api/savepath/:team/:path/:data', async (c) => {
-  const { team, path, data } = c.req.param();
-  return SavePath(team, path, data);
-});
-app.get('/api/db', async () => LoadDatabase());
-app.put('/api/putdb', async (c) => SaveDatabase(JSON.stringify(c.req.json())));
+app.get('/api/extimage', async () => HasFieldImage());
+app.get('/api/teams', async () => GetTeams());
+app.get('/api/valid', async () => GetValidTeams());
+app.get('/api/get/:team', async (c) => LoadPaths(c.req.param('team')));
+app.put('/api/put/:team', async (c) =>
+  SavePaths(c.req.param('team'), JSON.stringify(c.req.json())),
+);
 app.get(
   '/',
   serveStatic({

@@ -4,9 +4,9 @@
 import path from 'node:path';
 import process from 'node:process';
 
-import { SetArgs } from './server/getpaths';
-import { GetGlobalDirname, OverrideDirname } from './server/isProduction';
+import { GetGlobalDirname } from './server/is-prod';
 import { main } from './server/main';
+import { SetArgs } from './server/repo-discovery';
 import { GetUrl } from './server/web-server';
 
 // Resolve any arguments before we change the working directory

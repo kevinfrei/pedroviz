@@ -9,7 +9,7 @@ import {
   Text,
 } from '@fluentui/react-components';
 
-import { Path } from '../../DataTypes';
+import { Path } from '../../dataTypes';
 import { SimpleInterpRef } from '../Editors/InterpRefEditor';
 import { DataType, symbolTablePathsAtom } from '../state/SymbolTable';
 import { SearchableTable } from './SearchableTable';

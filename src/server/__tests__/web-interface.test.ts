@@ -7,7 +7,7 @@ import { MakeMultiMap } from '@freik/containers';
 import { Pickle, Unpickle } from '@freik/typechk';
 
 import { chkPathDatabase } from '../../IpcTypeCheck';
-import { Team } from '../../IpcTypes';
+import { Team } from '../../ipcTypes';
 import { RescanSourceCode, ResetDatabase } from '../full-database';
 import { LoadDatabase, LoadPath, SaveDatabase } from '../web-interface';
 

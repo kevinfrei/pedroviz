@@ -15,8 +15,7 @@ import {
 import { AddRegular, DeleteRegular } from '@fluentui/react-icons';
 import { isError } from '@freik/typechk';
 
-import { chkRef } from '../../DataTypeChecks';
-import { CurveRef, InterpRef, SymbolTable } from '../../DataTypes';
+import { chkRef, CurveRef, InterpRef, SymbolTable } from '../../dataTypes';
 import { resolveCurveRef } from '../Resolvers';
 import { symbolTableAtom } from '../state/SymbolTable';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';

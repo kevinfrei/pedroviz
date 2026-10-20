@@ -13,8 +13,7 @@ import {
 import { AlertFilled } from '@fluentui/react-icons';
 import { isError, isUndefined } from '@freik/typechk';
 
-import { chkErr, chkRef, chkValue } from '../../DataTypeChecks';
-import { SymbolTable, ValRef } from '../../DataTypes';
+import { chkErr, chkRef, chkValue, SymbolTable, ValRef } from '../../dataTypes';
 import { ResolvedValue } from '../ResolvedTypes';
 import { resolveValRef } from '../Resolvers';
 import { symbolTableAtom } from '../state/SymbolTable';

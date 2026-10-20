@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { ErrorOr } from 'node_modules/@freik/typechk/lib/esm';
+import { ErrorOr } from '@freik/typechk';
 
 export type Point = { x: number; y: number; h?: number };
 export type CurveDetail = { length: number; points: Point[] };
@@ -33,7 +33,7 @@ export type ConcretePointHeading = {
   type: typeof ConcreteHeadingType.Point;
   heading: Point;
 };
-export type ConcretePiece = {
+type ConcretePiece = {
   start: number;
   end: number;
   heading: ConcreteSimpleHeading;

@@ -1,22 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import {
-  chkAnyOf,
-  ErrorOr,
-  isError,
-  isString,
-  MakeError,
-} from '@freik/typechk';
+import { isBoolean, isString, MakeError } from '@freik/typechk';
 
-import { chkParsedClass } from '../../CodeTypeCheck';
-import { AnonymousBezier, AnonymousPose, ParsedClass } from '../../CodeTypes';
-import { chkPathDatabase, EmptyPathDatabase } from '../../IpcTypeCheck';
-import { FilePath, PathDatabase, Team } from '../../IpcTypes';
-import { NameLookup, OneFileIndex } from '../types';
-import { GetNameLookup, MakeFileIndex, ValidateIndex } from './IndexedFile';
+import { Curve, Path, Pose } from '../../dataTypes';
+import { chkPathsFile, chkTeamList, PathsFile, Team } from '../../ipcTypes';
 import { fetchApi, putApi } from './Storage';
 
-export type ValidRes = ErrorOr<true>;
 // Some of the logic seems a little odd, because I want the validation to fully
 // run on everything so I'm avoiding any logical short-circuiting...
 
@@ -24,9 +13,7 @@ const colorLookup: Map<string, number> = new Map();
 let colorCount = 0;
 
 // This provides a consistent color for a given curve/pose
-export function getColorFor(
-  item: string | AnonymousBezier | AnonymousPose,
-): number {
+export function getColorFor(item: string | Curve | Path | Pose): number {
   if (isString(item)) {
     if (!colorLookup.has(item)) {
       colorLookup.set(item, colorCount++);
@@ -36,81 +23,27 @@ export function getColorFor(
   return getColorFor(JSON.stringify(item));
 }
 
+export async function HasFieldImage(): Promise<boolean> {
+  return await fetchApi('extimage', isBoolean, false);
+}
+
+export async function GetTeams(): Promise<Team[]> {
+  return await fetchApi('teams', chkTeamList, []);
+}
+
+export async function GetValidTeams(): Promise<Team[]> {
+  return await fetchApi('valid', chkTeamList, []);
+}
+
 // Get the entire Database from the server
-export async function GetFullDb(): Promise<PathDatabase> {
-  const db = await fetchApi('db', chkPathDatabase, EmptyPathDatabase);
-  const lkup = GetNameLookup();
-  lkup.setDb(db);
-  return db;
-}
-
-export async function PutFullDb(db: PathDatabase): Promise<void> {
-  return putApi('putdb', db);
-}
-
-// last loaded file, I guess?
-const lastLoadedIndexFile = {
-  team: '',
-  file: '',
-  data: null as null | OneFileIndex,
-};
-const indexedFiles: Map<[Team, FilePath], OneFileIndex> = new Map();
-
-export async function LoadAndIndexFile(
-  team: string,
-  file: string,
-): Promise<ErrorOr<OneFileIndex>> {
-  if (
-    lastLoadedIndexFile.team === team &&
-    lastLoadedIndexFile.file === file &&
-    lastLoadedIndexFile.data !== null
-  ) {
-    console.log('using cached file for', team, file);
-    return lastLoadedIndexFile.data;
-  }
-  lastLoadedIndexFile.team = team;
-  lastLoadedIndexFile.file = file;
-  lastLoadedIndexFile.data = null;
-  const pc = await fetchApi(
-    `loadpath/${encodeURIComponent(team)}/${encodeURIComponent(file)}`,
-    chkAnyOf(chkParsedClass, isString),
-    'Invalid ParsedClass loaded from server',
+export async function GetPaths(team: Team): Promise<PathsFile> {
+  return await fetchApi(
+    `get/${team}`,
+    chkPathsFile,
+    MakeError(`get/${team} server respons error`),
   );
-  if (isString(pc)) {
-    return MakeError(pc);
-  }
-  const indexFile = await MakeFileIndex(pc);
-  const lookup: NameLookup = GetNameLookup();
-  //lookup.registerIndex(indexFile);
-  const validate = ValidateIndex(indexFile, lookup);
-  if (isError(validate)) {
-    return MakeError(
-      validate,
-      `Loaded file ${team}/${file} has dangling references.`,
-    );
-  } else {
-    // TODO: This shouldn't be manual. If you have dangling references, you should evaluate the other files...
-    indexedFiles.set([team as Team, file as FilePath], indexFile);
-  }
-  lastLoadedIndexFile.data = indexFile;
-  return indexFile;
 }
 
-export function UpdateIndexFile(
-  team: string,
-  file: string,
-  data: OneFileIndex,
-) {
-  lastLoadedIndexFile.team = team;
-  lastLoadedIndexFile.file = file;
-  lastLoadedIndexFile.data = data;
-}
-
-export async function SavePath(
-  team: string,
-  path: string,
-  data: ParsedClass,
-): Promise<undefined | string> {
-  // NYI on the server, either :D
-  return 'NYI';
+export async function PutPaths(team: Team, db: PathsFile): Promise<void> {
+  return putApi(`put/${team}`, db);
 }

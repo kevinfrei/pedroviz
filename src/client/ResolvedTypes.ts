@@ -2,7 +2,7 @@
 
 import { ErrorOr } from '@freik/typechk';
 
-import { TangentInterp } from '../DataTypes';
+import { TangentInterp } from '../dataTypes';
 
 // Value Resolution types (only live in the web stuff)
 

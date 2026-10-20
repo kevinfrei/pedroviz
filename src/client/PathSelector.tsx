@@ -6,9 +6,9 @@ import { useAtom, useAtomValue } from 'jotai';
 import { Button, Label, Text } from '@fluentui/react-components';
 import { ArrowDownloadRegular } from '@fluentui/react-icons';
 
-import { Strings } from './constants';
+import { Strings } from './Constants';
 import {
-  PathForSelectedTeamAtom,
+  SelectedPathsAtom,
   SelectedTeamAtom,
   TeamsAtom,
 } from './state/UserCode';
@@ -27,8 +27,8 @@ export function TeamSelector(): ReactElement {
       <Label className="pathLabel">Robot:&nbsp;</Label>
       <AutoSelector
         prompt={Strings.select_a_bot}
-        items={teams}
-        selected={team}
+        items={[...teams]}
+        selected={team || ''}
         setSelected={setTeam}
       />
     </>
@@ -36,9 +36,9 @@ export function TeamSelector(): ReactElement {
 }
 
 export function FileSelector(): ReactElement {
-  const file = useAtomValue(PathForSelectedTeamAtom);
-  return file ? (
-    <Text>{file}</Text>
+  const paths = useAtomValue(SelectedPathsAtom);
+  return paths ? (
+    <Text>{Strings.pedropaths_json_file_name}</Text>
   ) : (
     <Button
       icon={<ArrowDownloadRegular />}

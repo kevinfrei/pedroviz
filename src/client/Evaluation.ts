@@ -19,8 +19,6 @@ import {
   chkPieceWiseInterp,
   chkRef,
   chkTangentInterp,
-} from '../DataTypeChecks';
-import {
   CurveRef,
   HeadingRef,
   InterpRef,
@@ -29,7 +27,7 @@ import {
   Ref,
   SymbolTable,
   ValRef,
-} from '../DataTypes';
+} from '../dataTypes';
 import {
   chkEvalCurve,
   chkEvalInterpolator,

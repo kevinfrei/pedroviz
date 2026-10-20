@@ -23,7 +23,7 @@ import {
   FilePathKey,
   PathDatabase,
   Team,
-} from '../../IpcTypes';
+} from '../../ipcTypes';
 import {
   // ClassKeysForSelectedPathAtom,
   // ClearCache,

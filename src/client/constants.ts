@@ -9,17 +9,8 @@ import {
   PoseRef,
   SymbolTable,
   ValRef,
-} from '../DataTypes';
-
-/*export*/ function RecordToMap<T>(
-  obj: Record<string, T> | undefined,
-): Map<string, T> {
-  return new Map<string, T>(
-    isDefined(obj)
-      ? Object.keys(obj).map((val: string): [string, T] => [val, obj[val]!])
-      : [],
-  );
-}
+} from '../dataTypes';
+import { RecordToMap } from '../helpers';
 
 export const Strings = {
   select_a_bot: 'Select bot',
@@ -27,6 +18,15 @@ export const Strings = {
   rescan_source: 'Rescan',
   Viz4Pedro: 'Viz 4 Pedro',
   Reset: 'Reset',
+  pedropaths_json_file_name: 'PedroPaths.json',
+};
+
+export const EMPTY_SYMBOL_TABLE: SymbolTable = {
+  values: new Map(),
+  poses: new Map(),
+  interpolations: new Map(),
+  curves: new Map(),
+  paths: new Map(),
 };
 
 export const SAMPLE_AUTONOMOUS_PRESET: SymbolTable = {

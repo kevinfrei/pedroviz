@@ -4,7 +4,6 @@ import { ReactElement } from 'react';
 import { Provider, useAtomValue, useSetAtom } from 'jotai';
 
 import {
-  Button,
   FluentProvider,
   makeStyles,
   Toaster,
@@ -17,7 +16,6 @@ import { Group, Panel, Separator } from 'react-resizable-panels';
 import { SpinSuspense } from '@freik/fluent9-tools';
 
 import { CodeIssues } from './CodeIssues';
-import { Strings } from './constants';
 import { FieldRenderer } from './FieldRenderer';
 import { PathsDataDisplay } from './PathsDataDisplay';
 import { FileSelector, TeamSelector } from './PathSelector';
@@ -25,7 +23,6 @@ import { Settings } from './Settings';
 import { ToastId } from './state/BasicState';
 import { ThemeAtom } from './state/SavedSettings';
 import { getStore } from './state/Storage';
-import { FullDatabaseAtom } from './state/UserCode';
 
 const useStyles = makeStyles({
   toolbar: {
@@ -34,7 +31,6 @@ const useStyles = makeStyles({
 });
 
 function MyApp(): ReactElement {
-  const rescanCode = useSetAtom(FullDatabaseAtom);
   const toolbarStyle = useStyles();
   return (
     <div className="app">
@@ -50,10 +46,6 @@ function MyApp(): ReactElement {
             <Toolbar size="medium" className={toolbarStyle.toolbar}>
               <ToolbarGroup>
                 <Settings />
-                <div style={{ width: '8px' }} />
-                <Button onClick={() => rescanCode()}>
-                  {Strings.rescan_source}
-                </Button>
               </ToolbarGroup>
               <ToolbarGroup>
                 <TeamSelector />

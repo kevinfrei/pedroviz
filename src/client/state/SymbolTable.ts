@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { atom } from 'jotai';
+import { atomFamily } from 'jotai-family';
 import { focusAtom } from 'jotai-optics';
-import { atomWithStorage } from 'jotai/utils';
-import { atomFamily } from 'node_modules/jotai-family/dist';
+import { atomWithStorage, unwrap } from 'jotai/utils';
 
-import { isDefined, isUndefined } from 'node_modules/@freik/typechk/lib/esm';
-import { NewMapAdd, NewMapDelete } from 'src/DataTypeChecks';
+import { isDefined, isUndefined } from '@freik/typechk';
 
-import { NamedValues, SymbolTable } from '../../DataTypes';
-import { SAMPLE_AUTONOMOUS_PRESET } from '../constants';
+import { NamedValues, SymbolTable } from '../../dataTypes';
+import { NewMapAdd, NewMapDelete } from '../../helpers';
+import { EMPTY_SYMBOL_TABLE, SAMPLE_AUTONOMOUS_PRESET } from '../Constants';
+import { CorrectPathsAtom, SelectedPathsAtom } from './UserCode';
 
 export const DataType = Object.freeze({
   Values: 0,
@@ -28,7 +29,23 @@ export const DataTypeNames = Object.freeze([
   'Path',
 ]);
 
-export const symbolTableAtom = atom<SymbolTable>(SAMPLE_AUTONOMOUS_PRESET);
+const maybeSymbolTableAtom = unwrap(CorrectPathsAtom);
+export const symbolTableAtom = atom(
+  (get) => {
+    const mst = get(maybeSymbolTableAtom);
+    return mst || EMPTY_SYMBOL_TABLE;
+  },
+  (_, set, val: SymbolTable) => {
+    const nv: NamedValues = {
+      values: MapToRecord(val.values),
+      poses: MapToRecord(val.poses),
+      interpolations: MapToRecord(val.interpolations),
+      curves: MapToRecord(val.curves),
+      paths: MapToRecord(val.paths),
+    };
+    set(SelectedPathsAtom, nv);
+  },
+);
 export const symbolTableValuesAtom = focusAtom(symbolTableAtom, (optic) =>
   optic.prop('values'),
 );

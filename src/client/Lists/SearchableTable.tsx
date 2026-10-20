@@ -18,7 +18,7 @@ import {
 import { AddRegular, SearchRegular } from '@fluentui/react-icons';
 import { isDefined, isUndefined } from '@freik/typechk';
 
-import { NewMapAdd, NewMapDelete } from '../../DataTypeChecks';
+import { NewMapAdd, NewMapDelete } from '../../helpers';
 import {
   DataType,
   DataTypeNames,

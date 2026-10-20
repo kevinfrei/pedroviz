@@ -2,9 +2,9 @@
 
 import { isDefined, isUndefined } from '@freik/typechk';
 
+import { BotDrawStyle, BotShapes } from './ClientTypes';
 import { ConcreteHeading, CurveDetail, Point } from './ConcreteEvalTypes';
 import { addHeadingToCurve, getCurveDetail, rotPt } from './DrawingHelpers';
-import { BotDrawStyle, BotShapes } from './types';
 
 export type BotAnimationState = {
   name: string | undefined;

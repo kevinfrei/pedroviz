@@ -13,8 +13,9 @@ import {
   PoseName,
   ValueName,
 } from '../../CodeTypes';
-import { FirstFtcSrc, GetProjectFilePath, SetRepoRoot } from '../getpaths';
+import { FirstFtcSrc, GetProjectFilePath } from '../path-interface';
 import { MakeParsedClass } from '../PathChainLoader';
+import { SetRepoRoot } from '../repo-discovery';
 import { LoadPath } from '../web-interface';
 
 function getTestRepoPath(): string {

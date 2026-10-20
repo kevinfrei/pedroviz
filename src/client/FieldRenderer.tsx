@@ -4,9 +4,16 @@ import { ReactElement, useCallback, useRef } from 'react';
 import { useAtomValue } from 'jotai';
 
 import { tokens } from '@fluentui/tokens';
-import { isDefined, isUndefined } from '@freik/typechk';
+import { isDefined, isString, isUndefined } from '@freik/typechk';
 
 import { animateBot, BotAnimationState } from './BotAnimation';
+import {
+  ControlPointStyle,
+  CtrlPtStyles,
+  CurveStyle,
+  HeadingStyle,
+  PathStyle,
+} from './ClientTypes';
 import {
   ConcreteHeading,
   CurveDetail,
@@ -18,7 +25,6 @@ import {
 } from './ConcreteEvalTypes';
 import { CloseTo, ptDistance, vector } from './DrawingHelpers';
 import { CalculateItems, EvaluateSymbols } from './Evaluation';
-import { calcBezierRef, calcInterp } from './ExpressionEval';
 import {
   BotDrawStyleAtom,
   CoordVizPercentAtom,
@@ -33,19 +39,7 @@ import {
   selectedPathOrCurveKeyAtom,
   symbolTableAtom,
 } from './state/SymbolTable';
-import {
-  ColorsAtom,
-  FocusedPathAtom,
-  NamedPathChainsAtom,
-  SelectedParsedClassAtom,
-} from './state/UserCode';
-import {
-  ControlPointStyle,
-  CtrlPtStyles,
-  CurveStyle,
-  HeadingStyle,
-  PathStyle,
-} from './types';
+import { ColorsAtom, FocusedPathAtom } from './state/UserCode';
 import { ResponsiveSquareCanvas } from './ui-tools/ResponsiveSquareCanvas';
 
 export function FieldRenderer(): ReactElement {
@@ -60,8 +54,6 @@ export function FieldRenderer(): ReactElement {
   const botStyle = useAtomValue(BotDrawStyleAtom);
 
   const colors = useAtomValue(ColorsAtom);
-  const allPCs = useAtomValue(NamedPathChainsAtom);
-  const file = useAtomValue(SelectedParsedClassAtom);
 
   const focusedPath = useAtomValue(FocusedPathAtom);
 
@@ -69,14 +61,15 @@ export function FieldRenderer(): ReactElement {
   const selected = useAtomValue(selectedKeyAtom);
   const selectedPathOrCurveKey = useAtomValue(selectedPathOrCurveKeyAtom);
 
-  const concretePaths = new Map(
+  const concretePaths = new Map<string, [Point[], ConcreteHeading][]>(
+    /*
     allPCs.map((npc) => [
       npc.name,
       npc.paths.map((br): [Point[], ConcreteHeading] => [
         calcBezierRef(br, file),
         calcInterp(npc.heading, file),
       ]),
-    ]),
+    ]),*/
   );
 
   const points = [...concretePaths.values()].flatMap((val) => val);
@@ -133,12 +126,10 @@ export function FieldRenderer(): ReactElement {
       );
     },
     [
-      allPCs,
       colors,
       coordViz,
       correct,
       curveOpts,
-      file,
       pathStyle,
       points,
       poseOpts,
@@ -160,7 +151,7 @@ export function FieldRenderer(): ReactElement {
     (ctx: CanvasRenderingContext2D, dpr: number) => {
       const size = ctx.canvas.width;
       const scale = size / 144;
-      const selectedConcretePath = concretePaths.get(focusedPath!.name);
+      const selectedConcretePath = concretePaths.get(focusedPath!);
       if (!selectedConcretePath) {
         return;
       }
@@ -182,7 +173,7 @@ export function FieldRenderer(): ReactElement {
     <ResponsiveSquareCanvas
       anchor={{ x: 'right', y: 'top' }}
       render={renderField}
-      animate={focusedPath && animate}
+      animate={isString(focusedPath) ? animate : () => {}}
     />
   );
 }

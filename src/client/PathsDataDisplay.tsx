@@ -10,6 +10,7 @@ import {
   TabList,
   Text,
 } from '@fluentui/react-components';
+import { isUndefined } from '@freik/typechk';
 
 import { CurvesView } from './Panels/CurvesView';
 import { InterpolatorsView } from './Panels/InterpolatorsView';
@@ -18,7 +19,7 @@ import { PathsView } from './Panels/PathsView';
 import { PosesView } from './Panels/PosesView';
 import { ValuesView } from './Panels/ValuesView';
 import { activeTabAtom } from './state/SymbolTable';
-import { SelectedClassAtom, SelectedPathAtom } from './state/UserCode';
+import { SelectedPathsAtom } from './state/UserCode';
 
 export function PathsDataDisplay({
   expand,
@@ -34,13 +35,13 @@ export function PathsDataDisplay({
     ['j', 'Raw JSON', <JsonView />],
   ];
 
-  const selFile = useAtomValue(SelectedPathAtom);
+  const selFile = useAtomValue(SelectedPathsAtom);
   const [activeTab, setActiveTab] = useAtom(activeTabAtom);
   const onTabSelect = (event: SelectTabEvent, data: SelectTabData) => {
     setActiveTab(data.value as string);
   };
 
-  if (selFile.length === 0) {
+  if (isUndefined(selFile)) {
     return <Text size={600}>Please select a file & class to view.</Text>;
   }
   return (

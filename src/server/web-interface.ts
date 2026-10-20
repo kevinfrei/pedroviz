@@ -1,15 +1,19 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { isDefined, isError, Pickle, SafelyUnpickle } from '@freik/typechk';
+import { isDefined, Pickle, SafelyUnpickle } from '@freik/typechk';
 
-import { chkPathDatabase } from '../IpcTypeCheck';
-import { FilePath, Team } from '../IpcTypes';
-import { GetFieldImagePath, GetThemedSVG } from './FieldImages';
+import { chkNamedValues, NamedValues } from '../dataTypes';
+import { PathsFile, Team, TeamList } from '../ipcTypes';
 import {
-  ReplaceDatabase,
-  RescanSourceCode,
-  WebGetParsedClassRoot,
-} from './full-database';
+  CheckForFieldImages,
+  GetFieldImagePath,
+  GetThemedSVG,
+} from './field-images';
+import {
+  GetTeamNames,
+  GetTeamsWithPaths,
+  LoadPathsForTeam,
+} from './path-interface';
 
 export async function GetFieldImage(theme: string): Promise<Response> {
   const theTheme = theme !== 'dark' && theme !== 'light' ? 'dark' : theme;
@@ -30,34 +34,37 @@ export async function GetFieldSvg(theme: string): Promise<Response> {
   });
 }
 
-// Send the list of TeamPaths to the client
-
-export async function LoadPath(team: string, path: string): Promise<Response> {
-  const pc = WebGetParsedClassRoot(team as Team, path as FilePath);
-  if (isError(pc)) {
-    return Response.json({ error: pc.errors().join('\n') });
-  }
-  return Response.json(JSON.parse(Pickle(pc)));
+export async function HasFieldImage(): Promise<Response> {
+  const res = await CheckForFieldImages();
+  return Response.json(res);
 }
 
-export async function LoadDatabase(): Promise<Response> {
-  const codeDb = await RescanSourceCode();
-  return Response.json(JSON.parse(Pickle(codeDb)));
+export async function GetTeams(): Promise<Response> {
+  const teams: TeamList = await GetTeamNames();
+  return Response.json(teams);
 }
 
-export async function SaveDatabase(flattenedDb: string): Promise<Response> {
-  console.error(
-    "Saving DB is not actually implemented yet, but let's pretend it is!",
+export async function GetValidTeams(): Promise<Response> {
+  const teams: TeamList = await GetTeamsWithPaths();
+  return Response.json(teams);
+}
+
+export async function LoadPaths(team: Team): Promise<Response> {
+  const pathsFile: PathsFile = await LoadPathsForTeam(team);
+  // This is kind of round-about, but Response.json pickles, and I want to
+  // use my own pickling (marshalling...) framework, cuz I likes it.
+  return Response.json(JSON.parse(Pickle(pathsFile)));
+}
+
+export async function SavePaths(
+  team: Team,
+  flattenedPaths: string,
+): Promise<Response> {
+  const paths: NamedValues | undefined = SafelyUnpickle(
+    flattenedPaths,
+    chkNamedValues,
   );
-  try {
-    const db = SafelyUnpickle(flattenedDb, chkPathDatabase);
-    if (isDefined(db)) {
-      ReplaceDatabase(db);
-    } else {
-      return Response.json({ error: 'Failed to unpickle database' });
-    }
-  } catch (err) {
-    return Response.json({ error: 'Crashed while unpickle database' });
-  }
-  return Response.json({ success: 1 });
+  // TODO: Actually save this
+  console.error("NYI: We don't save data yet!");
+  return Response.json({ error: 'NYI' });
 }

@@ -15,14 +15,12 @@ import {
   chkRef,
   chkTangentInterp,
   getInterpType,
-} from '../../DataTypeChecks';
-import {
   HeadingRef,
   HeadingVal,
   InterpNames,
   InterpRef,
   SymbolTable,
-} from '../../DataTypes';
+} from '../../dataTypes';
 import { resolveInterpRef } from '../Resolvers';
 import { symbolTableAtom } from '../state/SymbolTable';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';

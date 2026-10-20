@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { ReactElement, useId } from 'react';
-import { useAtom } from 'node_modules/jotai/dist';
+import { useAtom } from 'jotai';
 
 import {
   Button,
@@ -17,8 +17,8 @@ import {
   ToolbarGroup,
 } from '@fluentui/react-components';
 import { DeleteRegular, Dismiss24Regular } from '@fluentui/react-icons';
-import { NewMapDelete, NewMapRename } from 'src/DataTypeChecks';
 
+import { NewMapDelete, NewMapRename } from '../../helpers';
 import {
   DataType,
   DataTypeNames,

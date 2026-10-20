@@ -22,8 +22,8 @@ import { Pickle } from '@freik/typechk';
 
 import '@testing-library/jest-dom';
 
-import { FilePath, Team } from '../../IpcTypes';
-import { Strings } from '../constants';
+import { FilePath, Team } from '../../ipcTypes';
+import { Strings } from '../Constants';
 import { PathsDataDisplay } from '../PathsDataDisplay';
 import { ClassSelector, FileSelector, TeamSelector } from '../PathSelector';
 import { ThemeAtom } from '../state/SavedSettings';

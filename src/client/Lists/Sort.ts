@@ -1,14 +1,12 @@
-import { isUndefined } from 'node_modules/@freik/typechk/lib/esm';
+import { isUndefined } from '@freik/typechk';
 
 import {
   chkHeadingVal,
   chkRef,
   chkValue,
-  getInterpType,
-} from '../../DataTypeChecks';
-import {
   Curve,
   CurveRef,
+  getInterpType,
   HeadingRef,
   HeadingVal,
   InterpRef,
@@ -17,7 +15,7 @@ import {
   Ref,
   ValRef,
   Value,
-} from '../../DataTypes';
+} from '../../dataTypes';
 
 function CheckRefs(ar: unknown, br: unknown): number {
   const a = chkRef(ar);

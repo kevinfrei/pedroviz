@@ -7,13 +7,9 @@ import { isMultiMapOf } from '@freik/containers';
 import { isString } from '@freik/typechk';
 
 import { chkPathKey } from '../../IpcTypeCheck';
-import { FilePath, Team } from '../../IpcTypes';
-import {
-  FindRelativeRepoRoot,
-  GetPathFile,
-  GetTeamDirectories,
-  GetTeamPaths,
-} from '../getpaths';
+import { FilePath, Team } from '../../ipcTypes';
+import { GetPathFile, GetTeamNames, GetTeamPaths } from '../path-interface';
+import { FindRelativeRepoRoot } from '../repo-discovery';
 
 function getTestRepoPath(): string {
   return path.resolve(__dirname, 'test-repo-root');
@@ -58,7 +54,7 @@ describe('team path exploration', () => {
 
   test('getTeamDirectories finds team directories', async () => {
     const repoRoot = await getTestRepoPath();
-    const teamDirs = await GetTeamDirectories();
+    const teamDirs = await GetTeamNames();
     expect(teamDirs).toContain('TeamA' as Team);
     expect(teamDirs).toContain('TeamB' as Team);
   });

@@ -15,7 +15,7 @@ import {
   DisplayOptions,
   HeadingStyle,
   PathStyle,
-} from '../types';
+} from '../ClientTypes';
 
 const defaultPathStyle: PathStyle = {
   HeadingCount: 6,

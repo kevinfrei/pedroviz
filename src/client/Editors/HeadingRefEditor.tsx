@@ -22,8 +22,15 @@ import {
   typecheck,
 } from '@freik/typechk';
 
-import { chkErr, chkRef, chkValue } from '../../DataTypeChecks';
-import { HeadingRef, Ref, SymbolTable, Value } from '../../DataTypes';
+import {
+  chkErr,
+  chkRef,
+  chkValue,
+  HeadingRef,
+  Ref,
+  SymbolTable,
+  Value,
+} from '../../dataTypes';
 import { ResolvedHeading } from '../ResolvedTypes';
 import { resolveHeadingRef, resolvePoseRef } from '../Resolvers';
 import { symbolTableAtom } from '../state/SymbolTable';

@@ -13,10 +13,8 @@ import {
   Button,
   ColorSlider,
   ColorSliderProps,
-  Dialog,
   DialogBody,
   DialogContent,
-  DialogSurface,
   DialogTitle,
   DialogTrigger,
   Dropdown,
@@ -43,7 +41,8 @@ import {
   WeatherSunnyRegular,
 } from '@fluentui/react-icons';
 
-import { Strings } from './constants';
+import { BotShapes, CtrlPtStyles } from './ClientTypes';
+import { Strings } from './Constants';
 import {
   BotLengthAtom,
   BotShapeAtom,
@@ -62,8 +61,7 @@ import {
   ThemeAtom,
   UseExternalFieldAtom,
 } from './state/SavedSettings';
-import { HasExternalFieldAtom } from './state/UserCode';
-import { BotShapes, CtrlPtStyles } from './types';
+import { HasFieldImageAtom } from './state/UserCode';
 
 function getCtrlPtName(s: CtrlPtStyles): string {
   switch (s) {
@@ -137,7 +135,7 @@ export function Settings(): ReactElement {
   const [theTheme, setTheme] = useAtom(ThemeAtom);
   const [fieldViz, setFieldViz] = useAtom(FieldVisibilityAtom);
   const [showBotHeading, setShowBotHeading] = useAtom(ShowPathHeadingAtom);
-  const hasCustomFieldImage = useAtomValue(HasExternalFieldAtom);
+  const hasCustomFieldImage = useAtomValue(HasFieldImageAtom);
   const [useCustomFieldImage, setUseCustomFieldImage] =
     useAtom(UseExternalFieldAtom);
 

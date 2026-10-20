@@ -4,8 +4,8 @@ import { expect /* beforeAll, afterAll */, test } from 'bun:test';
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { FirstFtcSrc, GetProjectFilePath } from '../getpaths';
-import { isDirectory } from '../utility';
+import { FirstFtcSrc, GetProjectFilePath } from '../path-interface';
+import { isDirectory } from '../utility-funcs';
 
 function getTestRepoPath(): string {
   return path.resolve(__dirname, 'test-repo-root');

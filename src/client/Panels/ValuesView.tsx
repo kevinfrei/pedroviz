@@ -5,7 +5,7 @@ import { useAtom, useAtomValue } from 'jotai';
 
 import { isUndefined } from '@freik/typechk';
 
-import { NewMapAdd } from '../../DataTypeChecks';
+import { NewMapAdd } from '../../helpers';
 import { ValRefEditor } from '../Editors/ValRefEditor';
 import { ValuesList } from '../Lists/ValuesList';
 import {

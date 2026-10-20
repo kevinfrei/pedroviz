@@ -5,8 +5,8 @@ import { useAtom, useAtomValue } from 'jotai';
 
 import { isUndefined } from '@freik/typechk';
 
-import { NewMapAdd } from '../../DataTypeChecks';
-import { CurveRef } from '../../DataTypes';
+import { CurveRef } from '../../dataTypes';
+import { NewMapAdd } from '../../helpers';
 import { CurveRefEditor } from '../Editors/CurveRefEditor';
 import { CurvesList } from '../Lists/CurvesList';
 import {

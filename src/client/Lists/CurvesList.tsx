@@ -9,8 +9,7 @@ import {
   Text,
 } from '@fluentui/react-components';
 
-import { chkRef, getInterpType } from '../../DataTypeChecks';
-import { CurveRef } from '../../DataTypes';
+import { chkRef, CurveRef, getInterpType } from '../../dataTypes';
 import { DataType, symbolTableCurvesAtom } from '../state/SymbolTable';
 import { SearchableTable } from './SearchableTable';
 import { CurveSorter } from './Sort';

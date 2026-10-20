@@ -7,8 +7,13 @@ import { Radio, RadioGroup, Select, Text } from '@fluentui/react-components';
 import { AlertFilled } from '@fluentui/react-icons';
 import { hasField, isDefined, isError, isUndefined } from '@freik/typechk';
 
-import { chkErr, chkRef } from '../../DataTypeChecks';
-import { HeadingRef, PoseRef, SymbolTable } from '../../DataTypes';
+import {
+  chkErr,
+  chkRef,
+  HeadingRef,
+  PoseRef,
+  SymbolTable,
+} from '../../dataTypes';
 import { ResolvedPose } from '../ResolvedTypes';
 import { resolvePoseRef } from '../Resolvers';
 import { symbolTableAtom } from '../state/SymbolTable';

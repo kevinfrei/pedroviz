@@ -17,16 +17,16 @@ import {
 import { isNull, isUndefined } from '@freik/typechk';
 
 import {
+  Offset,
+  ResponsiveAnchor,
+  ResponsiveSquareCanvasProps,
+} from '../ClientTypes';
+import {
   FieldVizPercentAtom,
   ThemeAtom,
   UseExternalFieldAtom,
 } from '../state/SavedSettings';
-import { FieldConfigHashAtom, HasExternalFieldAtom } from '../state/UserCode';
-import {
-  Offset,
-  ResponsiveAnchor,
-  ResponsiveSquareCanvasProps,
-} from '../types';
+import { FieldConfigHashAtom, HasFieldImageAtom } from '../state/UserCode';
 
 const defaultAnchor: ResponsiveAnchor = { x: 'center', y: 'middle' };
 
@@ -111,7 +111,7 @@ export function ResponsiveSquareCanvas({
   const cacheRef = useRef<HTMLCanvasElement>(null); // Offscreen cache
   const requestRef = useRef<number>(null);
   const observerRef = useRef<ResizeObserver>(null);
-  const hasCustomField = useAtomValue(HasExternalFieldAtom);
+  const hasCustomField = useAtomValue(HasFieldImageAtom);
   const useCustomField = useAtomValue(UseExternalFieldAtom);
   const [canvasOffset, setCanvasOffset] = useState<Offset>({ top: 0, left: 0 });
 

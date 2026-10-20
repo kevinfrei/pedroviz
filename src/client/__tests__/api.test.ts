@@ -4,84 +4,32 @@ import { describe, expect, test } from 'bun:test';
 
 import { isError, isNumber, isString } from '@freik/typechk';
 
-import { MakeEmptyParsedClass } from '../../CodeTypeCheck';
 import {
-  AnonymousBezier,
-  AnonymousPose,
-  AnonymousValue,
-  BezierName,
-  BezierRef,
-  BezierType,
+  Curve,
   HeadingRef,
-  InterpolationType,
-  NamedBezier,
-  NamedPose,
-  NamedValue,
-  ParsedClass,
-  PathChainName,
-  PoseName,
+  Interpolator,
+  InterpRef,
+  Path,
+  Pose,
   PoseRef,
-  ValueName,
-  ValueRef,
-} from '../../CodeTypes';
-import {
-  calcBezierRef,
-  // calcHeadingRef,
-  calcPoseRef,
-  // calcPoseRefHeading,
-  // calcValue,
-  // calcValueRef,
-} from '../ExpressionEval';
-import { getColorFor, LoadAndIndexFile, SavePath } from '../state/API';
+  ValRef,
+  Value,
+} from '../../dataTypes';
 
-function mkValNm(name: string): ValueName {
-  return name as ValueName;
+import '../Evaluation';
+
+import { getColorFor } from '../state/API';
+
+function mkValNm(name: string): string {
+  return name;
 }
-function mkVal(type: 'int' | 'double', value: number): AnonymousValue;
-function mkVal(type: 'radians', value: number | string): HeadingRef;
-function mkVal(
-  type: 'radians' | 'int' | 'double',
-  value: number | string,
-): AnonymousValue | HeadingRef {
-  if (type === 'radians') {
-    if (isNumber(value)) {
-      return {
-        radians: Number.isInteger(value) ? { int: value } : { double: value },
-      };
-    } else {
-      return { radians: value as ValueName };
-    }
-  } else if (isNumber(value)) {
-    return Number.isInteger(value) ? { int: value } : { double: value };
-  }
-  return { double: 0 };
+function mkVal(val: number): Value {
+  return { val };
 }
-function mkNmVal(
-  name: string,
-  value: AnonymousValue | string | HeadingRef,
-): NamedValue {
-  return {
-    name: mkValNm(name),
-    value: isString(value) ? (value as ValueRef) : value,
-  };
+function mkPose(X: ValRef, Y: ValRef, heading?: HeadingRef): Pose {
+  return { X, Y, heading };
 }
-function mkPoseNm(name: string): PoseName {
-  return name as PoseName;
-}
-function mkPose(
-  x: AnonymousValue | string,
-  y: AnonymousValue | string,
-  heading?: HeadingRef,
-): AnonymousPose {
-  return { x: x as ValueRef, y: y as ValueRef, heading: heading as HeadingRef };
-}
-function mkNmPose(name: string, pose: AnonymousPose | string): NamedPose {
-  return { name: name as PoseName, pose: pose as PoseRef };
-}
-function mkBezNm(name: string): BezierName {
-  return name as BezierName;
-}
-function mkBez(type: BezierType, ...points: PoseRef[]): AnonymousBezier {
+function mkCurve(...points: PoseRef[]): AnonymousBezier {
   return { type, points };
 }
 function mkNmBez(name: string, bez: AnonymousBezier | string): NamedBezier {

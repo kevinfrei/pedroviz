@@ -1,42 +1,23 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { atom, WritableAtom } from 'jotai';
+import { atom } from 'jotai';
 import { atomFamily } from 'jotai-family';
-import {
-  atomWithRefresh,
-  atomWithStorage,
-  selectAtom,
-  unwrap,
-} from 'jotai/utils';
+import { atomWithRefresh, atomWithStorage } from 'jotai/utils';
 
-import { ErrorOr, isDefined, isError } from '@freik/typechk';
+import {
+  isDefined,
+  isError,
+  isUndefined,
+  Pickle,
+  Unpickle,
+} from '@freik/typechk';
 
-import { MakeEmptyParsedClass } from '../../CodeTypeCheck';
-import {
-  NamedPathChain,
-  NamedPose,
-  NamedValue,
-  ParsedClass,
-  ValueName,
-} from '../../CodeTypes';
-import {
-  ClassFromKey,
-  FilePathFromKey,
-  GetClassKey,
-  GetPathKey,
-} from '../../IpcTypeCheck';
-import {
-  ClassKey,
-  ClassName,
-  FilePath,
-  FilePathKey,
-  PathDatabase,
-  Team,
-} from '../../IpcTypes';
-import { OneFileIndex } from '../types';
+import { NamedValues, SymbolTable } from '../../dataTypes';
+import { RecordToMap } from '../../helpers';
+import { PathsFile, Team, TeamList } from '../../ipcTypes';
+import { EMPTY_SYMBOL_TABLE } from '../Constants';
 import { darkOnWhite, lightOnBlack } from '../ui-tools/Colors';
-import { GetFullDb, LoadAndIndexFile, PutFullDb, UpdateIndexFile } from './API';
-import { EmptyMappedFile } from './IndexedFile';
+import { GetPaths, GetTeams, HasFieldImage, PutPaths } from './API';
 import { DisplayOptionsAtom, ThemeAtom } from './SavedSettings';
 
 export const ColorsAtom = atom((get) => {
@@ -52,99 +33,40 @@ const ColorForNumber = atomFamily((index: number) =>
   }),
 );
 
-let dbCache: PathDatabase | null = null;
-export const FullDatabaseAtom = atomWithRefresh(
-  async () => {
-    dbCache = await GetFullDb();
-    return dbCache;
-  },
-  async (get, set, val: PathDatabase) => {
-    await PutFullDb(val);
-  },
-);
-
-const TeamPathsAtom = selectAtom(
-  FullDatabaseAtom,
-  async (db) => (await db).TeamPath,
-);
-const PathClassesAtom = selectAtom(
-  FullDatabaseAtom,
-  async (db) => (await db).PathClasses,
-);
-const ParsedClassesAtom = selectAtom(
-  FullDatabaseAtom,
-  async (db) => (await db).ParsedClasses,
-);
-export const HasExternalFieldAtom = selectAtom(
-  FullDatabaseAtom,
-  async (db) => (await db).HasFieldImage,
-);
-
-export const TeamsAtom = atom(async (get): Promise<Team[]> => {
-  const tp = await get(TeamPathsAtom);
-  return [...tp.keys()];
+// The cache helps debugging sometimes...
+let teamsCache: TeamList | null = null;
+export const TeamsAtom = atomWithRefresh(async () => {
+  teamsCache = await GetTeams();
+  return teamsCache;
 });
 
-const PathKeyForTeamFamily = atomFamily((team: Team) =>
-  atom(async (get): Promise<FilePathKey | undefined> => {
-    return (await get(TeamPathsAtom)).get(team) || undefined;
-  }),
-);
+let validCache: TeamList | null = null;
+export const TeamsWithFilesAtom = atomWithRefresh(async () => {
+  validCache = await GetTeams();
+  return validCache;
+});
 
-const PathForTeamFamily = atomFamily((team: Team) =>
-  atom(async (get): Promise<FilePath | undefined> => {
-    const pathKey = await get(PathKeyForTeamFamily(team));
-    return isDefined(pathKey) ? FilePathFromKey(pathKey) : undefined;
-  }),
-);
+export const TeamsWithoutFilesAtom = atom(async (get) => {
+  const teams = new Set(await get(TeamsAtom));
+  const withFiles = new Set(await get(TeamsWithFilesAtom));
+  return [...teams.difference(withFiles)];
+});
 
-const ClassKeysForPathKeyFamily = atomFamily((pk: FilePathKey) =>
-  atom(async (get): Promise<Set<ClassKey>> => {
-    return (await get(PathClassesAtom)).get(pk) || new Set();
-  }),
-);
+export const HasFieldImageAtom = atomWithRefresh(async (get) => {
+  return await HasFieldImage();
+});
 
-const ClassesForPathKeyFamily = atomFamily((pk: FilePathKey) =>
-  atom(async (get): Promise<ClassName[]> => {
-    return [...(await get(ClassKeysForPathKeyFamily(pk))).keys()].map(
-      ClassFromKey,
-    );
-  }),
-);
-
-const PathKeyForSelectedTeamAtom = atom(
-  async (get): Promise<FilePathKey | undefined> => {
-    const selTeam = await get(SelectedTeamAtom);
-    return await get(PathKeyForTeamFamily(selTeam));
-  },
-);
-
-export const PathForSelectedTeamAtom = atom(
-  async (get): Promise<FilePath | undefined> => {
-    const selTeam = await get(SelectedTeamAtom);
-    return await get(PathForTeamFamily(selTeam));
-  },
-);
-
-const ClassKeysForSelectedPathAtom = atom(
-  async (get): Promise<Set<ClassKey>> => {
-    const pathKey = await get(SelectedPathKeyAtom);
-    return get(ClassKeysForPathKeyFamily(pathKey));
-  },
-);
-
-const SelectedTeamBacking = atomWithStorage<Team>(
+const SelectedTeamBacking = atomWithStorage<Team | undefined>(
   'selectedTeam',
   '' as Team,
   undefined,
   { getOnInit: true },
 );
-
 export const SelectedTeamAtom = atom(
   async (get) => {
     const allTeams = await get(TeamsAtom);
     if (allTeams.length === 1) {
-      return allTeams[0] as Team;
+      return allTeams[0];
     }
     return get(SelectedTeamBacking);
   },
@@ -152,182 +74,75 @@ export const SelectedTeamAtom = atom(
     const cur = get(SelectedTeamBacking);
     // Clear the selected file when the team is changed
     if (cur !== val) {
-      set(SelectedPathAtom, '' as FilePath);
       set(SelectedTeamBacking, val as Team);
     }
   },
 );
 
-const SelectedPathKeyBacking = atomWithStorage<FilePathKey>(
-  'selectedPathKey',
-  '' as FilePathKey,
-  undefined,
-  { getOnInit: true },
+const pathMap = new Map<Team, PathsFile>();
+const pathsFileFamily = atomFamily((team: Team) =>
+  atomWithRefresh(
+    async (get) => {
+      const pathsFile = await GetPaths(team);
+      pathMap.set(team, pathsFile);
+      return pathsFile;
+    },
+    (get, set, val: NamedValues) => {
+      // TODO: Push the thing to the server
+      pathMap.set(team, val);
+    },
+  ),
 );
 
-const SelectedPathKeyAtom = atom(
-  async (get) => {
-    const selPath = await get(SelectedPathKeyBacking);
-    const selTeam = await get(SelectedTeamAtom);
-    if (selTeam === '') {
-      return '' as FilePathKey;
-    }
-    const pathForTeam = await get(PathKeyForSelectedTeamAtom);
-    if (isDefined(pathForTeam)) {
-      return pathForTeam;
-    }
-    return selPath as FilePathKey;
-  },
-  (get, set, val: FilePathKey) => {
-    const pathKey = get(SelectedPathKeyBacking);
-    // Clear the selected class when the file is changed
-    if (pathKey !== val) {
-      set(SelectedClassAtom, '' as ClassName);
-      set(SelectedPathKeyBacking, val as FilePathKey);
-    }
-  },
-);
-
-export const SelectedPathAtom = atom(
-  async (get) => FilePathFromKey(await get(SelectedPathKeyAtom)),
-  async (get, set, val: FilePath | string) => {
+export const SelectedPathsAtom = atom(
+  async (get): Promise<PathsFile | undefined> => {
     const team = await get(SelectedTeamAtom);
-    const curKey = await get(SelectedPathKeyAtom);
-    const key = GetPathKey(team, val as FilePath);
-    // Clear the selected class when the file is changed
-    if (key !== curKey) {
-      set(SelectedClassAtom, '' as ClassName);
-      set(SelectedPathKeyBacking, key);
+    if (isUndefined(team)) {
+      return undefined;
     }
+    return await get(pathsFileFamily(team));
   },
-);
-
-export const ClassesForSelectedPathAtom = atom(
-  async (get): Promise<ClassName[]> => {
-    const key = await get(SelectedPathKeyAtom);
-    return await get(ClassesForPathKeyFamily(key));
-  },
-);
-
-const SelectedClassKeyBacking = atomWithStorage(
-  'selectedClass',
-  '' as ClassKey,
-  undefined,
-  { getOnInit: true },
-);
-
-const SelectedClassKeyAtom = atom(
-  async (get) => {
-    const selClass = await get(SelectedClassKeyBacking);
-    const selPath = await get(SelectedPathAtom);
-    if (selPath === '') {
-      return '' as ClassKey;
-    }
-    const classesForPath = await get(ClassKeysForSelectedPathAtom);
-    if (classesForPath.size === 1) {
-      return [...classesForPath.keys()][0]! as ClassKey;
-    }
-    return selClass;
-  },
-  (get, set, val: ClassKey) => {
-    const classKey = get(SelectedClassKeyBacking);
-    // Clear the selected class when the file is changed
-    if (classKey !== val) {
-      set(SelectedClassKeyBacking, val as ClassKey);
-    }
-  },
-);
-
-export const SelectedClassAtom = atom(
-  async (get) => ClassFromKey(await get(SelectedClassKeyAtom)),
-  async (get, set, val: ClassName | string) => {
-    const pathKey = await get(SelectedPathKeyAtom);
-    const classKey = GetClassKey(pathKey, val);
-    const curSel = await get(SelectedClassKeyAtom);
-    if (classKey != curSel) {
-      set(SelectedClassKeyAtom, classKey);
-    }
-  },
-);
-
-export const SelectedParsedClassAtom = atom(
-  async (get): Promise<ParsedClass> => {
-    const key = await get(SelectedClassKeyAtom);
-    const classes = await get(ParsedClassesAtom);
-    return classes.size
-      ? classes.get(key) || MakeEmptyParsedClass()
-      : MakeEmptyParsedClass();
-  },
-);
-
-const UnwrappedParsedClass = unwrap(SelectedParsedClassAtom, () =>
-  MakeEmptyParsedClass(),
-);
-
-export const UnmatchedFieldsAtom = selectAtom(
-  UnwrappedParsedClass,
-  (pc) => pc.unmatchedFields,
-);
-export const ParsingErrorsAtom = selectAtom(
-  UnwrappedParsedClass,
-  (pc) => pc.parsingErrors,
-);
-
-const MappedFileBackingAtom = atom(0);
-const MappedFileAtom = atom(
-  async (get) => {
+  async (get, set, val: NamedValues) => {
     const team = await get(SelectedTeamAtom);
-    const file = await get(SelectedPathAtom);
-    // const count = get(MappedFileBackingAtom);
-    // const fullIndex = get(IndexedDatabaseAtom);
-    if (team.length > 0 && file.length > 0) {
-      const maybeIdx: ErrorOr<OneFileIndex> = await LoadAndIndexFile(
-        team,
-        file,
-      );
-      if (!isError(maybeIdx)) {
-        return maybeIdx;
-      }
-      console.error(maybeIdx.errors().join('\n'));
+    if (isDefined(team)) {
+      set(pathsFileFamily(team), val);
     }
-    return EmptyMappedFile;
-  },
-  async (get, set, data: OneFileIndex | Promise<OneFileIndex>) => {
-    const team = await get(SelectedTeamAtom);
-    const file = await get(SelectedPathAtom);
-    const val = get(MappedFileBackingAtom);
-    UpdateIndexFile(team, file, await data);
-    set(MappedFileBackingAtom, val + 1);
   },
 );
 
-/*export*/ const NamedValuesAtom = selectAtom(
-  UnwrappedParsedClass,
-  (pc) => pc.values,
+const ErrorsAndCorrectStuff = atom(
+  async (get): Promise<[string[], SymbolTable]> => {
+    const parsed = await get(SelectedPathsAtom);
+    if (isError(parsed) || isUndefined(parsed)) {
+      return [
+        parsed ? parsed.errors() : ['No symbol table found'],
+        Unpickle(Pickle(EMPTY_SYMBOL_TABLE)) as SymbolTable,
+      ];
+    }
+    const res = {
+      values: RecordToMap(parsed.values),
+      poses: RecordToMap(parsed.poses),
+      interpolations: RecordToMap(parsed.interpolations),
+      curves: RecordToMap(parsed.curves),
+      paths: RecordToMap(parsed.paths),
+    };
+    return [[], res];
+  },
 );
-export const ValuesLookupAtom = atom((get): Map<ValueName, NamedValue> => {
-  const nvs = get(NamedValuesAtom);
-  return new Map((nvs || []).map((nv) => [nv.name, nv]));
+
+export const CorrectPathsAtom = atom(async (get): Promise<SymbolTable> => {
+  const [, paths] = await get(ErrorsAndCorrectStuff);
+  return paths;
 });
 
-type MapAtom<Str, T> = WritableAtom<Promise<Map<Str, T>>, [Map<Str, T>], void>;
-
-export const NamedPosesAtom = atom(async (get): Promise<NamedPose[]> => {
-  const index = await get(SelectedParsedClassAtom);
-  return index ? index.poses : [];
+export const PathFileErrorsAtom = atom(async (get): Promise<string[]> => {
+  const [errors] = await get(ErrorsAndCorrectStuff);
+  return errors;
 });
 
-export const NamedPathChainsAtom = atom(
-  async (get): Promise<NamedPathChain[]> => {
-    const index = await get(SelectedParsedClassAtom);
-    return index?.pathChains || [];
-  },
-);
-
-export const FocusedPathAtom = atom<NamedPathChain | undefined>(undefined);
+export const FocusedPathAtom = atom<string | undefined>(undefined);
 
 export const FieldConfigHashAtom = atom((get) => {
   const d = get(DisplayOptionsAtom);
-  const c = get(UnwrappedParsedClass);
-  return JSON.stringify({ d, c });
+  return JSON.stringify(d);
 });

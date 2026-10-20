@@ -5,6 +5,7 @@ import { useAtom, useAtomValue } from 'jotai';
 
 import { act, renderHook } from '@testing-library/react';
 
+import { CtrlPtStyles, DisplayOptions } from '../ClientTypes';
 import {
   PathCurveOptionsAtom,
   PathHeadingCountAtom,
@@ -16,7 +17,6 @@ import {
   PathThicknessAtom,
   ShowPathHeadingAtom,
 } from '../state/SavedSettings';
-import { CtrlPtStyles, DisplayOptions } from '../types';
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 // or global.IS_REACT_ACT_ENVIRONMENT = true; depending on your environment

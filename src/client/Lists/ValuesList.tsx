@@ -9,7 +9,7 @@ import {
   Text,
 } from '@fluentui/react-components';
 
-import { ValRef } from '../../DataTypes';
+import { ValRef } from '../../dataTypes';
 import { SimpleValRef } from '../Editors/ValRefEditor';
 import { DataType, symbolTableValuesAtom } from '../state/SymbolTable';
 import { SearchableTable } from './SearchableTable';
