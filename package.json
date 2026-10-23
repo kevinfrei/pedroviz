@@ -104,7 +104,7 @@
   "knip": {
     "entry": [
       "src/entry.ts",
-      "src/client/frontend.tsx"
+      "src/client/FrontEnd.tsx"
     ]
   },
   " //-3": "Hook configuration stuff:",
