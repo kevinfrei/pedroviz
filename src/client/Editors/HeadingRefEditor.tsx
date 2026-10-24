@@ -18,6 +18,7 @@ import {
   isBoolean,
   isDefined,
   isError,
+  isNull,
   isUndefined,
   typecheck,
 } from '@freik/typechk';
@@ -34,6 +35,7 @@ import {
 import { ResolvedHeading } from '../ResolvedTypes';
 import { resolveHeadingRef, resolvePoseRef } from '../Resolvers';
 import { symbolTableAtom } from '../state/SymbolTable';
+import { useSpinButtonChange } from '../ui-tools/ControlledSpinButton';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
 import { SimplePoseRef } from './PoseRefEditor';
 import { SimpleValRef } from './ValRefEditor';
@@ -106,7 +108,12 @@ export function HeadingRefEditor(props: HeadingRefEditorProps): ReactElement {
   );
   const headingType = getHeadingType(item);
   const resolved = item === null ? null : resolveHeadingRef(item, symbolTable);
-  console.log('type', headingType);
+  const onSpinChange = useSpinButtonChange((val) =>
+    onChange({
+      angle: { val },
+      inRadians: hasField(item, 'inRadians') ? item.inRadians : false,
+    }),
+  );
   const setType = (type: HeadingType) => {
     switch (type) {
       case 'pose': {
@@ -194,9 +201,7 @@ export function HeadingRefEditor(props: HeadingRefEditorProps): ReactElement {
                 step={1}
                 stepPage={10}
                 value={item.angle.val}
-                onChange={(_, d) =>
-                  onChange({ angle: { val: d.value || 0 }, inRadians: false })
-                }
+                onChange={onSpinChange}
               />
             )}
             {hrIsRef(item) && (

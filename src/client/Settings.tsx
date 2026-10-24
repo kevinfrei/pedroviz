@@ -62,6 +62,7 @@ import {
   UseExternalFieldAtom,
 } from './state/SavedSettings';
 import { HasFieldImageAtom } from './state/UserCode';
+import { useSpinButtonChange } from './ui-tools/ControlledSpinButton';
 
 function getCtrlPtName(s: CtrlPtStyles): string {
   switch (s) {
@@ -116,18 +117,7 @@ function useSpinnerAtom(
   (_ev: SpinButtonChangeEvent, data: SpinButtonOnChangeData) => void,
 ] {
   const [val, setVal] = useAtom(atom);
-  const callback = useCallback(
-    (_ev: SpinButtonChangeEvent, data: SpinButtonOnChangeData) => {
-      if (
-        data.value !== undefined &&
-        data.value !== null &&
-        !Number.isNaN(data.value)
-      ) {
-        setVal(data.value);
-      }
-    },
-    [setVal],
-  );
+  const callback = useSpinButtonChange(setVal);
   return [val, callback];
 }
 

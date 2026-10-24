@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { ReactElement, useId } from 'react';
-import { useAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 
 import {
   Button,
@@ -51,7 +51,7 @@ export function ItemEditor<T>({
 }: ItemEditorProps<T>): ReactElement {
   const id = useId();
   const toolbarStyle = useStyles();
-  const [selected, setSelected] = useAtom(selectedItemKeyFamily(type));
+  const setSelected = useSetAtom(selectedItemKeyFamily(type));
   const setToast = useToast();
 
   const typeName = DataTypeNames[type];

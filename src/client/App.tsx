@@ -57,7 +57,7 @@ function MyApp(): ReactElement {
             <PathsDataDisplay />
             <CodeIssues />
           </SpinSuspense>
-          <Toaster toasterId={ToastId} position="top" />
+          <Toaster toasterId={ToastId} position="bottom" />
         </Panel>
       </Group>
     </div>

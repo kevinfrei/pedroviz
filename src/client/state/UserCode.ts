@@ -79,17 +79,26 @@ export const SelectedTeamAtom = atom(
   },
 );
 
-const pathMap = new Map<Team, PathsFile>();
+const pathsFileBackingFamily = atomFamily((team: Team) =>
+  atom<PathsFile | null>(null),
+);
+
 const pathsFileFamily = atomFamily((team: Team) =>
   atomWithRefresh(
     async (get) => {
+      const backer = get(pathsFileBackingFamily(team));
+      if (backer !== null) {
+        console.log('pathsFileFamily backer', team);
+        return backer;
+      }
       const pathsFile = await GetPaths(team);
-      pathMap.set(team, pathsFile);
+      console.log('pathsFileFamily getter IPC', team);
       return pathsFile;
     },
     (get, set, val: NamedValues) => {
       // TODO: Push the thing to the server
-      pathMap.set(team, val);
+      console.log('pathsFileFamily setter', team, val);
+      set(pathsFileBackingFamily(team), val);
     },
   ),
 );

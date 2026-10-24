@@ -17,6 +17,7 @@ import { chkErr, chkRef, chkValue, SymbolTable, ValRef } from '../../dataTypes';
 import { ResolvedValue } from '../ResolvedTypes';
 import { resolveValRef } from '../Resolvers';
 import { symbolTableAtom } from '../state/SymbolTable';
+import { useSpinButtonChange } from '../ui-tools/ControlledSpinButton';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
 
 // Filter out value names that would result in errors
@@ -62,6 +63,8 @@ export function ValRefEditor({
     }
   };
 
+  const onSpinChange = useSpinButtonChange((val: number) => onChange({ val }));
+
   return (
     <TitleWrapper title={label}>
       <>
@@ -79,8 +82,8 @@ export function ValRefEditor({
             precision={2}
             step={1}
             stepPage={10}
-            value={chkValue(item) ? item.val : 0}
-            onChange={(_, d) => onChange({ val: d.value || 0 })}
+            value={chkValue(item) ? item.val : null}
+            onChange={onSpinChange}
           />
         ) : (
           <>

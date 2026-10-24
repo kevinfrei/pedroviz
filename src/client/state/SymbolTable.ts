@@ -43,6 +43,14 @@ export const symbolTableAtom = atom(
       curves: MapToRecord(val.curves),
       paths: MapToRecord(val.paths),
     };
+    console.log(
+      'Symbol Table update',
+      val.values.size,
+      val.poses.size,
+      val.interpolations.size,
+      val.curves.size,
+      val.paths.size,
+    );
     set(SelectedPathsAtom, nv);
   },
 );
