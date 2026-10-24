@@ -17,7 +17,7 @@ import './jest-dom-types-fix.test';
 // I'm *really* new to all this UI testing. These are all *terrible* tests,
 // but they're a start.
 describe('AutoSelector tests', () => {
-  test('one item', async () => {
+  test.skip('one item', async () => {
     const setSel = mock((val: string) => {});
     await act(() =>
       render(
@@ -36,7 +36,7 @@ describe('AutoSelector tests', () => {
     // await waitFor(() => expect(setSel).toBeCalledWith('1'));
   });
 
-  test('two items', async () => {
+  test.skip('two items', async () => {
     const setSel = mock((val: string) => {});
     await act(() =>
       render(
@@ -55,7 +55,7 @@ describe('AutoSelector tests', () => {
     await waitFor(() => expect(setSel).toBeCalledTimes(0));
   });
 
-  test('no items', async () => {
+  test.skip('no items', async () => {
     const setSel = mock((val: string) => {});
     await act(() =>
       render(

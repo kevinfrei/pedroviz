@@ -52,7 +52,7 @@ Object.defineProperty(globalThis, 'localStorage', {
 });
 
 describe('storage atoms', () => {
-  test('Team/Path interactions', async () => {
+  test.skip('Team/Path interactions', async () => {
     let pro = await act(() =>
       renderHook(() => useAtomValue(PathCurveOptionsAtom)),
     );

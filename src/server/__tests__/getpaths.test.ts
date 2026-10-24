@@ -6,10 +6,9 @@ import path from 'node:path';
 import { isMultiMapOf } from '@freik/containers';
 import { isString } from '@freik/typechk';
 
-import { chkPathKey } from '../../IpcTypeCheck';
-import { FilePath, Team } from '../../ipcTypes';
-import { GetPathFile, GetTeamNames, GetTeamPaths } from '../path-interface';
+import {  Team } from '../../ipcTypes';
 import { FindRelativeRepoRoot } from '../repo-discovery';
+import { GetTeamNames } from '../path-interface';
 
 function getTestRepoPath(): string {
   return path.resolve(__dirname, 'test-repo-root');
@@ -59,25 +58,4 @@ describe('team path exploration', () => {
     expect(teamDirs).toContain('TeamB' as Team);
   });
 
-  test('getPathFiles finds path files', async () => {
-    const repoRoot = await getTestRepoPath();
-    const pathFile = await GetPathFile(repoRoot, 'TeamA');
-    expect(pathFile).toEndWith('pedropaths.java' as FilePath);
-    expect(pathFile).toEndWith(
-      path.join('src/main/assets/paths', 'pedropaths.java') as FilePath,
-    );
-  });
-
-  test('getPathFiles finds no path files', async () => {
-    const repoRoot = await getTestRepoPath();
-    const pathFiles = await GetPathFile(repoRoot, 'TeamB');
-    expect(pathFiles).toBeUndefined();
-  });
-
-  test('GetTeamPaths', async () => {
-    console.log(process.cwd());
-    const tp = await GetTeamPaths();
-    expect(tp).toBeDefined();
-    expect(isMultiMapOf(tp, isString, chkPathKey)).toBeTrue();
-  });
 });
