@@ -7,6 +7,7 @@ import {
   FluentProvider,
   makeStyles,
   Toaster,
+  tokens,
   Toolbar,
   ToolbarGroup,
   webDarkTheme,
@@ -25,8 +26,30 @@ import { ThemeAtom } from './state/SavedSettings';
 import { getStore } from './state/Storage';
 
 const useStyles = makeStyles({
-  toolbar: {
-    justifyContent: 'space-between',
+  // The panel container acts as a vertical flexbox
+  panelContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    backgroundColor: tokens.colorNeutralBackground1,
+    overflow: 'hidden', // Prevents outer panel scrollbars
+  },
+  // Content area starts at the top and handles scrolling when it overflows
+  scrollableContent: {
+    flex: 1,
+    overflowY: 'auto',
+    padding: '0px',
+    minHeight: 0, // This makes flex child scrolling work
+  },
+  // Toolbar stays pinned across the bottom of the panel
+  bottomToolbar: {
+    flex: '0 0 auto',
+    backgroundColor: tokens.colorNeutralBackground2,
+    borderTop: `1px solid ${tokens.colorNeutralStroke1}`,
+    padding: '0px 4px',
+    display: 'flex',
+    justifyContent: 'space-between', // Aligns buttons to the right (or 'space-between', etc.)
+    gap: '8px',
   },
 });
 
@@ -42,22 +65,26 @@ function MyApp(): ReactElement {
         </Panel>
         <Separator id="view-separator" />
         <Panel className="sidebar">
-          <SpinSuspense>
-            <Toolbar size="medium" className={toolbarStyle.toolbar}>
+          <div className={toolbarStyle.panelContainer}>
+            <div className={toolbarStyle.scrollableContent}>
+              <SpinSuspense>
+                <PathsDataDisplay />
+                <CodeIssues />
+              </SpinSuspense>
+            </div>
+            <Toolbar size="medium" className={toolbarStyle.bottomToolbar}>
               <ToolbarGroup>
                 <Settings />
               </ToolbarGroup>
               <ToolbarGroup>
-                <TeamSelector />
-                <FileSelector />
+                <SpinSuspense>
+                  <TeamSelector />
+                  <FileSelector />
+                </SpinSuspense>
               </ToolbarGroup>
             </Toolbar>
-          </SpinSuspense>
-          <SpinSuspense>
-            <PathsDataDisplay />
-            <CodeIssues />
-          </SpinSuspense>
-          <Toaster toasterId={ToastId} position="bottom" />
+            <Toaster toasterId={ToastId} position="bottom" />
+          </div>
         </Panel>
       </Group>
     </div>

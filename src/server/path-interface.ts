@@ -57,6 +57,7 @@ export async function GetPathFile(
 
 export async function GetTeamNames(): Promise<Team[]> {
   const repo = await GetRelativeRepoRoot();
+  console.log('Repo:', repo);
   const entries = await fsp.readdir(repo, { withFileTypes: true });
   const teamDirs = entries
     .filter((dir) => isTeamDirectory(repo!, dir))
@@ -65,45 +66,51 @@ export async function GetTeamNames(): Promise<Team[]> {
 }
 
 export async function LoadPathsForTeam(team: Team): Promise<PathsFile> {
-  const repo = await GetRelativeRepoRoot();
-  const jsonPath = GetJsonFilePath(repo, team);
-  const data = await fsp.readFile(jsonPath, 'utf8');
-  const res = SafelyUnpickle(data, chkNamedValues);
-  if (isUndefined(res)) {
-    // Dig much further into why the JSON file is malformed
-    const r = JSON.parse(data);
-    console.log(Object.keys(r));
-    for (const k of Object.keys(r)) {
-      if (k === 'interpolations') {
-        const i = r[k];
-        for (const ik of Object.keys(i)) {
-          console.log(ik, i[ik], chkInterpRef(i[ik]));
+  try {
+    const repo = await GetRelativeRepoRoot();
+    const jsonPath = GetJsonFilePath(repo, team);
+    const data = await fsp.readFile(jsonPath, 'utf8');
+    const res = SafelyUnpickle(data, chkNamedValues);
+    if (isUndefined(res)) {
+      // Dig much further into why the JSON file is malformed
+      const r = JSON.parse(data);
+      console.log(Object.keys(r));
+      for (const k of Object.keys(r)) {
+        if (k === 'interpolations') {
+          const i = r[k];
+          for (const ik of Object.keys(i)) {
+            console.log(ik, i[ik], chkInterpRef(i[ik]));
+          }
         }
       }
+      console.log(
+        'Values',
+        hasFieldOf(r, 'values', chkRecordOf(isString, chkValRef)),
+      );
+      console.log(
+        'Poses',
+        hasFieldOf(r, 'poses', chkRecordOf(isString, chkPoseRef)),
+      );
+      console.log(
+        'Interps',
+        hasFieldOf(r, 'interpolations', chkRecordOf(isString, chkInterpRef)),
+      );
+      console.log(
+        'Curves',
+        hasFieldOf(r, 'curves', chkRecordOf(isString, chkCurveRef)),
+      );
+      console.log(
+        'Paths',
+        hasFieldOf(r, 'paths', chkRecordOf(isString, chkPath)),
+      );
+      return MakeError(
+        "JSON path file doesn't appear to be the right structure",
+      );
     }
-    console.log(
-      'Values',
-      hasFieldOf(r, 'values', chkRecordOf(isString, chkValRef)),
-    );
-    console.log(
-      'Poses',
-      hasFieldOf(r, 'poses', chkRecordOf(isString, chkPoseRef)),
-    );
-    console.log(
-      'Interps',
-      hasFieldOf(r, 'interpolations', chkRecordOf(isString, chkInterpRef)),
-    );
-    console.log(
-      'Curves',
-      hasFieldOf(r, 'curves', chkRecordOf(isString, chkCurveRef)),
-    );
-    console.log(
-      'Paths',
-      hasFieldOf(r, 'paths', chkRecordOf(isString, chkPath)),
-    );
-    return MakeError("JSON path file doesn't appear to be the right structure");
+    return res;
+  } catch (e) {
+    return MakeError((e as unknown as Object).toString());
   }
-  return res;
 }
 
 // A directory is a team directory if:
@@ -130,12 +137,7 @@ function isTeamDirectory(repoRoot: string, dir: fs.Dirent): boolean {
     return false;
   }
   // Check for the presence of the 'src/main/java/org/firstinspires/ftc/<team-name>' subdirectory
-  const teamSrcPath = path.join(
-    repoRoot,
-    dir.name,
-    FirstFtcSrc,
-    dir.name.toLocaleLowerCase(),
-  );
+  const teamSrcPath = path.join(repoRoot, name, FirstFtcSrc, 'teamcode');
   if (!fs.existsSync(teamSrcPath) || !isDirectory(teamSrcPath)) {
     return false;
   }

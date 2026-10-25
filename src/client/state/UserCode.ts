@@ -109,7 +109,11 @@ export const SelectedPathsAtom = atom(
     if (isUndefined(team)) {
       return undefined;
     }
-    return await get(pathsFileFamily(team));
+    const withPaths = await get(TeamsWithFilesAtom);
+    if (withPaths.includes(team)) {
+      return await get(pathsFileFamily(team));
+    }
+    return undefined;
   },
   async (get, set, val: NamedValues) => {
     const team = await get(SelectedTeamAtom);
