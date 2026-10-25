@@ -104,42 +104,36 @@ of my frei time, because I love working with FTC students...)
 
 **Task TODO list, in some sort of order:**
 
-- [x] Read paths from code
+- [x] Read paths from JSON
   - [x] Specify robot dimensions (and other settings)
-- [x] Document basic usage
-- [x] Allow detection of `field-dark.jpg` and `field-light.jpg` from the users's
-      code for game-specific field backgrounds
-- [ ] Increase test coverage (ongoing)
-- [ ] Display Java source parsing issues so users can see if they should fix
-      their code, or send their code to me.
+- [ ] Save changes to the JSON file
+  - [ ] Upload the file to the robot!
+- [ ] Get the Java JSON loader up & going!
+- [ ] Allow editing points by dragging them on the canvas
+- [ ] Get test coverage up to something tolerable (ongoing)
+- [ ] Display JSON issues so users can see if they should fix their code, or
+      send their code to me.
+- [ ] Draw the interpolation arrows for the v3 work.
 - [ ] Fix interpolation to be a per-path thing.
 - [ ] Get this stuff working on Safari. I've enabled dev mode, and it looks like
       something with the ResizeObserver for the Canvas isn't working. Works fine
       on Firefox, Chrome, and Brave on Mac, Linux, and Windows (and Edge works,
       too).
-- [ ] Support more complex math expression parsing & evaluation
-- [ ] Edit existing:
-  - [ ] Named values
-  - [ ] Named poses
-  - [ ] Named curves
-  - [ ] Named PathChains
-- [ ] Allow editing points by dragging them on the canvas
-- [ ] Reflect those changes in the code
-  - [ ] Checksum the code to detect external edits
-  - [ ] When external edits have occurred, try to resolve the conflicts?
-        (ugh...)
-  - [ ] Maintain comments
-  - [ ] Maintain any code that I don't actually parse from the source code (keep
-        chunks of code that aren't represented in the UI)
-- [ ] Allow creation:
-  - [ ] Named values
-  - [ ] Named poses
-  - [ ] Named curves
-  - [ ] Named PathChains
+- [ ] Document basic usage
+- [x] Allow detection of `field-dark.jpg` and `field-light.jpg` from the users's
+      code for game-specific field backgrounds
+- [x] Edit existing:
+  - [x] Named values
+  - [x] Named poses
+  - [x] Named curves
+  - [x] Named PathChains
+- [x] Allow creation:
+  - [x] Named values
+  - [x] Named poses
+  - [x] Named curves
+  - [x] Named PathChains
 - [ ] Enable "warning" lines: warn if the robot crosses a line on a path
 - [ ] Make work with nodejs (`npx`) as well?
-- [x] Specify different alliance paths (doable through multiple classes...)
-  - [ ] Bonus: Reflect a path along a line or axis
 - [ ] Support additional parts of the path builder
   - [x] multiple paths
   - [x] path headings (global and last)
@@ -147,8 +141,9 @@ of my frei time, because I love working with FTC students...)
         animation)
   - [ ] braking strength
   - [ ] tValues (Not sure what this would really look like...)
-- [ ] Eventually, migrate to use a text file, instead of java source code for
-      static paths?
+- [x] Migrate to use a text file, instead of java source code for everything. V3
+      suggests calling a function to get the paths. Make the function get the
+      paths from the JSON file!
   - [ ] Maybe as part of the SystemCore migration? I've got this done, so adding
         stuff over there seems reasonable...
 

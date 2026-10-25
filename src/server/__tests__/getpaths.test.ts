@@ -6,9 +6,9 @@ import path from 'node:path';
 import { isMultiMapOf } from '@freik/containers';
 import { isString } from '@freik/typechk';
 
-import {  Team } from '../../ipcTypes';
-import { FindRelativeRepoRoot } from '../repo-discovery';
+import { Team } from '../../ipcTypes';
 import { GetTeamNames } from '../path-interface';
+import { FindRelativeRepoRoot } from '../repo-discovery';
 
 function getTestRepoPath(): string {
   return path.resolve(__dirname, 'test-repo-root');
@@ -57,5 +57,4 @@ describe('team path exploration', () => {
     expect(teamDirs).toContain('TeamA' as Team);
     expect(teamDirs).toContain('TeamB' as Team);
   });
-
 });

@@ -1,5 +1,6 @@
 // build.ts
 import { $ } from 'bun';
+
 import esbuild from 'esbuild';
 
 try {
@@ -19,7 +20,7 @@ await esbuild.build({
 await $`cp src/static/* dist/`;
 
 await esbuild.build({
-  entryPoints: ['./src/client/frontend.tsx'],
+  entryPoints: ['./src/client/FrontEnd.tsx'],
   outdir: './dist',
   bundle: true,
   sourcemap: true,

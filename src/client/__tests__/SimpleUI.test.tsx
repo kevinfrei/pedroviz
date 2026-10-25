@@ -22,7 +22,7 @@ import { Pickle } from '@freik/typechk';
 
 import '@testing-library/jest-dom';
 
-import {  Team } from '../../ipcTypes';
+import { Team } from '../../ipcTypes';
 import { Strings } from '../Constants';
 import { PathsDataDisplay } from '../PathsDataDisplay';
 import { ThemeAtom } from '../state/SavedSettings';
@@ -30,6 +30,7 @@ import { getStore } from '../state/Storage';
 import { lightOnBlack } from '../ui-tools/Colors';
 
 import './jest-dom-types-fix.test';
+
 /*
 import {
   databaseForUITest,
@@ -128,7 +129,8 @@ describe('Simplest UI validation', () => {
   test.skip('File/Path Selection Atoms', async () => {
     // globalThis.fetch = MyFetchFunc;
     const store = getStore();
-    await act(async () => {/*
+    await act(async () => {
+      /*
       render(
         <JotaiProvider>
           <>
@@ -138,7 +140,8 @@ describe('Simplest UI validation', () => {
           </>
         </JotaiProvider>,
       );
-    */});
+    */
+    });
     // Need to cover Paths & Teams atoms
     // let open = screen.getByText(Strings.select_a_bot);
     // expect(open).toBeEnabled();
@@ -152,7 +155,7 @@ describe('Simplest UI validation', () => {
     //   expect(await store.get(SelectedTeamAtom)).toBe('team2' as Team);
     // });
     await waitFor(async () => {
-    //   expect(await store.get(SelectedPathAtom)).toBe('' as FilePath);
+      //   expect(await store.get(SelectedPathAtom)).toBe('' as FilePath);
     });
     // The second menu should now be enabled
     // expect(path).toBeEnabled();
@@ -169,7 +172,7 @@ describe('Simplest UI validation', () => {
     //   await store.set(SelectedTeamAtom, 'team3');
     // });
     await act(async () => {
-    //   expect(await store.get(PathForSelectedTeamAtom)).toBeUndefined();
+      //   expect(await store.get(PathForSelectedTeamAtom)).toBeUndefined();
     });
   });
 });

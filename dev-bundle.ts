@@ -21,7 +21,7 @@ await $`cp src/static/* dev/`;
 
 await (
   await esbuild.context({
-    entryPoints: ['./src/client/frontend.tsx'],
+    entryPoints: ['./src/client/FrontEnd.tsx'],
     outdir: './dev',
     bundle: true,
     sourcemap: true,
