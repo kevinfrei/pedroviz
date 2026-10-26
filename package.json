@@ -23,6 +23,9 @@
     "dead": "knip"
   },
   "prepare": "simple-git-hooks",
+  "overrides": {
+    "@fluentui/react-motion": "9.16.4"
+  },
   "dependencies": {
     "@ctrl/tinycolor": "^4.2.1",
     "@fluentui-contrib/react-draggable-dialog": "^0.2.6",
