@@ -16,22 +16,21 @@ import { AutoSelector } from './ui-tools/AutoSelector';
 
 export function TeamSelector(): ReactElement {
   const teams = useAtomValue(TeamsAtom); //['TeamCode', 'LearnBot'];
-  const [team, setTeam] = useAtom(SelectedTeamAtom);
+  const [selectedTeam, selectTeam] = useAtom(SelectedTeamAtom);
   useEffect(() => {
     if (teams.length === 1) {
-      setTeam(teams[0]!);
+      selectTeam(teams[0]!);
     }
-  }, [teams, setTeam]);
-  return (
-    <>
-      <Label className="pathLabel">Robot:&nbsp;</Label>
-      <AutoSelector
-        prompt={Strings.select_a_bot}
-        items={[...teams]}
-        selected={team || ''}
-        setSelected={setTeam}
-      />
-    </>
+  }, [teams, selectTeam]);
+  return teams.length > 1 ? (
+    <AutoSelector
+      prompt={Strings.select_a_bot}
+      items={[...teams]}
+      selected={selectedTeam || ''}
+      setSelected={selectTeam}
+    />
+  ) : (
+    <></>
   );
 }
 
