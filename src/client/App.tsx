@@ -19,7 +19,7 @@ import { SpinSuspense } from '@freik/fluent9-tools';
 
 import { CodeIssues } from './CodeIssues';
 import { FieldRenderer } from './FieldRenderer';
-import { SaveButton, TeamSelector } from './FileChoosing';
+import { SaveButton, TeamSelector, UploadToRobot } from './FileChoosing';
 import { PathsDataDisplay } from './PathsDataDisplay';
 import { Settings } from './Settings';
 import { ToastId } from './state/BasicState';
@@ -78,6 +78,8 @@ function MyApp(): ReactElement {
                   <TeamSelector />
                   <span style={{ width: 4 }} />
                   <SaveButton />
+                  <span style={{ width: 4 }} />
+                  <UploadToRobot />
                 </SpinSuspense>
               </ToolbarGroup>
               <ToolbarGroup>

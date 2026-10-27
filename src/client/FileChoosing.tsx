@@ -3,17 +3,12 @@
 import { ReactElement, useEffect } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
-import { Button, Label, Text } from '@fluentui/react-components';
-import { ArrowDownloadRegular, SaveRegular } from '@fluentui/react-icons';
+import { Button } from '@fluentui/react-components';
+import { ArrowUploadRegular, SaveRegular } from '@fluentui/react-icons';
 
 import { Strings } from './Constants';
 import { PutPaths } from './state/API';
-import {
-  pathsFileFamily,
-  SelectedPathsAtom,
-  SelectedTeamAtom,
-  TeamsAtom,
-} from './state/UserCode';
+import { pathsFileFamily, SelectedTeamAtom, TeamsAtom } from './state/UserCode';
 import { AutoSelector } from './ui-tools/AutoSelector';
 
 export function TeamSelector(): ReactElement {
@@ -47,6 +42,20 @@ export function SaveButton(): ReactElement {
         PutPaths(team!, get).then(() => refresher());
       }}>
       {Strings.save_json}
+    </Button>
+  );
+}
+
+export function UploadToRobot(): ReactElement {
+  return (
+    <Button
+      icon={<ArrowUploadRegular />}
+      onClick={() =>
+        window.alert(
+          'Not yet implemented. For now, you have to save and then deploy.',
+        )
+      }>
+      {Strings.upload_to_bot}
     </Button>
   );
 }
