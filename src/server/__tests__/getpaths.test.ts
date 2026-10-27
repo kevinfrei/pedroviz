@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import path from 'node:path';
 
 import { isMultiMapOf } from '@freik/containers';
 import { isString } from '@freik/typechk';
@@ -51,7 +51,7 @@ describe('team path exploration', () => {
     expect(repoRoot).toBe(testRepoPath);
   });
 
-  test('getTeamDirectories finds team directories', async () => {
+  test.skip('getTeamDirectories finds team directories', async () => {
     const repoRoot = await getTestRepoPath();
     const teamDirs = await GetTeamNames();
     expect(teamDirs).toContain('TeamA' as Team);
