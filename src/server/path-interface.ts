@@ -186,7 +186,7 @@ export const FirstFtcSrc = path.join(
 export const RelativePathsJsonFile = path.join(
   'src',
   'main',
-  'res',
+  'assets',
   'paths',
   'pedropaths.json',
 );
