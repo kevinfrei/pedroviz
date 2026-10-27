@@ -19,6 +19,7 @@ import { EMPTY_SYMBOL_TABLE } from '../Constants';
 import { darkOnWhite, lightOnBlack } from '../ui-tools/Colors';
 import { GetPaths, GetTeams, HasFieldImage, PutPaths } from './API';
 import { DisplayOptionsAtom, ThemeAtom } from './SavedSettings';
+import { fetchApi, putApi } from './Storage';
 
 export const ColorsAtom = atom((get) => {
   const theme = get(ThemeAtom);
@@ -83,21 +84,18 @@ const pathsFileBackingFamily = atomFamily((team: Team) =>
   atom<PathsFile | null>(null),
 );
 
-const pathsFileFamily = atomFamily((team: Team) =>
+export const pathsFileFamily = atomFamily((team: Team) =>
   atomWithRefresh(
     async (get) => {
       const backer = get(pathsFileBackingFamily(team));
       if (backer !== null) {
-        console.log('pathsFileFamily backer', team);
         return backer;
       }
       const pathsFile = await GetPaths(team);
       console.log('pathsFileFamily getter IPC', team);
       return pathsFile;
     },
-    (get, set, val: NamedValues) => {
-      // TODO: Push the thing to the server
-      console.log('pathsFileFamily setter', team, val);
+    async (get, set, val: NamedValues) => {
       set(pathsFileBackingFamily(team), val);
     },
   ),

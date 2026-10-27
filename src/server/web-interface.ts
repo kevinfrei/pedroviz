@@ -1,6 +1,15 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { isDefined, Pickle, SafelyUnpickle } from '@freik/typechk';
+import { promises as fsp } from 'node:fs';
+import path from 'node:path';
+
+import { JSONObject } from 'node_modules/hono/dist/types/utils/types';
+import {
+  isDefined,
+  Pickle,
+  SafelyUnpickle,
+  SimpleObject,
+} from '@freik/typechk';
 
 import { chkNamedValues, NamedValues } from '../dataTypes';
 import { PathsFile, Team, TeamList } from '../ipcTypes';
@@ -10,10 +19,12 @@ import {
   GetThemedSVG,
 } from './field-images';
 import {
+  GetJsonPathForTeam,
   GetTeamNames,
   GetTeamsWithPaths,
   LoadPathsForTeam,
 } from './path-interface';
+import { isDirectory } from './utility-funcs';
 
 export async function GetFieldImage(theme: string): Promise<Response> {
   const theTheme = theme !== 'dark' && theme !== 'light' ? 'dark' : theme;
@@ -56,15 +67,19 @@ export async function LoadPaths(team: Team): Promise<Response> {
   return Response.json(JSON.parse(Pickle(pathsFile)));
 }
 
-export async function SavePaths(
-  team: Team,
-  flattenedPaths: string,
-): Promise<Response> {
-  const paths: NamedValues | undefined = SafelyUnpickle(
-    flattenedPaths,
-    chkNamedValues,
-  );
-  // TODO: Actually save this
-  console.error("NYI: We don't save data yet!");
+export async function SavePaths(team: Team, json: Object): Promise<Response> {
+  console.error('Save request for team', team);
+  if (!chkNamedValues(json)) {
+    console.error('Wrong type :/', json);
+  } else {
+    // TODO: Actually save this
+    const jsonPath = await GetJsonPathForTeam(team);
+    const dir = path.dirname(jsonPath);
+    if (!(await isDirectory(dir))) {
+      fsp.mkdir(dir, { recursive: true });
+    }
+    await fsp.writeFile(jsonPath, JSON.stringify(json, undefined, 2), 'utf8');
+    console.error('File written!');
+  }
   return Response.json({ error: 'NYI' });
 }

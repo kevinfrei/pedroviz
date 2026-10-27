@@ -14,7 +14,7 @@ import { RecordToMap } from '../helpers';
 
 export const Strings = {
   select_a_bot: 'Select bot',
-  install_files: 'Install code',
+  save_json: 'Save JSON',
   rescan_source: 'Rescan',
   Viz4Pedro: 'Viz 4 Pedro',
   Reset: 'Reset',

@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { ReactElement, useEffect } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import { Button, Label, Text } from '@fluentui/react-components';
-import { ArrowDownloadRegular } from '@fluentui/react-icons';
+import { ArrowDownloadRegular, SaveRegular } from '@fluentui/react-icons';
 
 import { Strings } from './Constants';
+import { PutPaths } from './state/API';
 import {
+  pathsFileFamily,
   SelectedPathsAtom,
   SelectedTeamAtom,
   TeamsAtom,
@@ -34,15 +36,17 @@ export function TeamSelector(): ReactElement {
   );
 }
 
-export function FileSelector(): ReactElement {
-  const paths = useAtomValue(SelectedPathsAtom);
-  return paths ? (
-    <Text>{Strings.pedropaths_json_file_name}</Text>
-  ) : (
+export function SaveButton(): ReactElement {
+  const team = useAtomValue(SelectedTeamAtom);
+  const [get, refresher] = useAtom(pathsFileFamily(team!));
+  console.log('pathsForTeam', team, 'contents', get);
+  return (
     <Button
-      icon={<ArrowDownloadRegular />}
-      onClick={() => alert('not yet implemented')}>
-      {Strings.install_files}
+      icon={<SaveRegular />}
+      onClick={() => {
+        PutPaths(team!, get).then(() => refresher());
+      }}>
+      {Strings.save_json}
     </Button>
   );
 }

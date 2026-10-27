@@ -18,8 +18,8 @@ import { SpinSuspense } from '@freik/fluent9-tools';
 
 import { CodeIssues } from './CodeIssues';
 import { FieldRenderer } from './FieldRenderer';
+import { SaveButton, TeamSelector } from './FileChoosing';
 import { PathsDataDisplay } from './PathsDataDisplay';
-import { FileSelector, TeamSelector } from './PathSelector';
 import { Settings } from './Settings';
 import { ToastId } from './state/BasicState';
 import { ThemeAtom } from './state/SavedSettings';
@@ -76,7 +76,7 @@ function MyApp(): ReactElement {
               <ToolbarGroup>
                 <SpinSuspense>
                   <TeamSelector />
-                  <FileSelector />
+                  <SaveButton />
                 </SpinSuspense>
               </ToolbarGroup>
               <ToolbarGroup>

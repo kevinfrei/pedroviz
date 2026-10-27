@@ -38,7 +38,7 @@ app.get('/api/teams', async () => GetTeams());
 app.get('/api/valid', async () => GetValidTeams());
 app.get('/api/get/:team', async (c) => LoadPaths(c.req.param('team')));
 app.put('/api/put/:team', async (c) =>
-  SavePaths(c.req.param('team'), JSON.stringify(c.req.json())),
+  SavePaths(c.req.param('team'), await c.req.json<Object>()),
 );
 app.get(
   '/',

@@ -67,8 +67,7 @@ export async function GetTeamNames(): Promise<Team[]> {
 
 export async function LoadPathsForTeam(team: Team): Promise<PathsFile> {
   try {
-    const repo = await GetRelativeRepoRoot();
-    const jsonPath = GetJsonFilePath(repo, team);
+    const jsonPath = await GetJsonPathForTeam(team);
     const data = await fsp.readFile(jsonPath, 'utf8');
     const res = SafelyUnpickle(data, chkNamedValues);
     if (isUndefined(res)) {
@@ -111,6 +110,12 @@ export async function LoadPathsForTeam(team: Team): Promise<PathsFile> {
   } catch (e) {
     return MakeError((e as unknown as Object).toString());
   }
+}
+
+export async function GetJsonPathForTeam(team: string) {
+  const repo = await GetRelativeRepoRoot();
+  const jsonPath = GetJsonFilePath(repo, team);
+  return jsonPath;
 }
 
 // A directory is a team directory if:
