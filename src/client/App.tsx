@@ -9,6 +9,7 @@ import {
   Toaster,
   tokens,
   Toolbar,
+  ToolbarDivider,
   ToolbarGroup,
   webDarkTheme,
   webLightTheme,
@@ -38,15 +39,14 @@ const useStyles = makeStyles({
   scrollableContent: {
     flex: 1,
     overflowY: 'auto',
-    padding: '16px',
+    padding: '0px',
     minHeight: 0, // This makes flex child scrolling work
   },
   // Toolbar stays pinned across the bottom of the panel
   bottomToolbar: {
     flex: '0 0 auto',
-    backgroundColor: tokens.colorNeutralBackground2,
-    borderTop: `1px solid ${tokens.colorNeutralStroke1}`,
-    padding: '8px 12px',
+    backgroundColor: tokens.colorNeutralBackground1,
+    padding: '4px 4px',
     display: 'flex',
     justifyContent: 'space-between', // Aligns buttons to the right (or 'space-between', etc.)
     gap: '8px',
@@ -68,14 +68,15 @@ function MyApp(): ReactElement {
           <div className={toolbarStyle.panelContainer}>
             <div className={toolbarStyle.scrollableContent}>
               <SpinSuspense>
-                <PathsDataDisplay />
                 <CodeIssues />
+                <PathsDataDisplay />
               </SpinSuspense>
             </div>
             <Toolbar size="medium" className={toolbarStyle.bottomToolbar}>
               <ToolbarGroup>
                 <SpinSuspense>
                   <TeamSelector />
+                  <span style={{ width: 4 }} />
                   <SaveButton />
                 </SpinSuspense>
               </ToolbarGroup>

@@ -17,7 +17,7 @@
     "check": "bun run types && bun test",
     "dev:launch": "sleep 1 && bun run dev/entry.js ../BioBuzz2026",
     "dev:bundle": "bun run dev-bundle.ts",
-    "dev": "bun run --parallel dev:*",
+    "dev": "bun run --parallel dev:bundle dev:launch",
     "prod": "bun run dist/entry.js",
     "prod:bundle": "bun run prod-bundle.ts",
     "prepublishOnly": "bun run prod:bundle",
@@ -38,14 +38,14 @@
     "@freik/sync": "^0.4.10",
     "@freik/typechk": "^0.10.0",
     "@hono/node-server": "^2.1.5",
-    "hono": "^4.13.13",
+    "hono": "^4.13.14",
     "jotai": "^3.0.1",
     "jotai-family": "^1.1.0",
     "jotai-optics": "^0.4.0",
     "optics-ts": "^2.4.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "react-resizable-panels": "^4.14.8"
+    "react-resizable-panels": "^4.15.0"
   },
   "devDependencies": {
     "@happy-dom/global-registrator": "21.0.4",
@@ -65,6 +65,7 @@
   },
   " //-1": "Configuration stuff for Prettier:",
   "prettier": {
+    "endOfLine": "lf",
     "printWidth": 80,
     "trailingComma": "all",
     "singleQuote": true,

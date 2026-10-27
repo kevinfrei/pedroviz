@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { Fragment, ReactElement, Suspense } from 'react';
+import React, { Fragment, ReactElement, Suspense } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 
 import {
@@ -8,6 +8,7 @@ import {
   SelectTabEvent,
   Tab,
   TabList,
+  TabListProps,
   Text,
 } from '@fluentui/react-components';
 import { isUndefined } from '@freik/typechk';
@@ -21,41 +22,41 @@ import { ValuesView } from './Panels/ValuesView';
 import { activeTabAtom } from './state/SymbolTable';
 import { SelectedPathsAtom } from './state/UserCode';
 
-export function PathsDataDisplay({
-  expand,
-}: {
-  expand?: boolean;
-}): ReactElement {
-  const tabInfo: [string, string | ReactElement, ReactElement][] = [
-    ['v', 'Values', <ValuesView />],
-    ['p', 'Poses', <PosesView />],
-    ['i', 'Interpolations', <InterpolatorsView />],
-    ['c', 'Lines & Curves', <CurvesView />],
-    ['P', 'Paths', <PathsView />],
-    ['j', 'Raw JSON', <JsonView />],
-  ];
+type TabInfo = { key: string; title: string; element: ReactElement };
+const mkTabInfo = (key: string, title: string, element: ReactElement) => ({
+  key,
+  title,
+  element,
+});
+const tabInfo: TabInfo[] = [
+  mkTabInfo('v', 'Values', <ValuesView />),
+  mkTabInfo('p', 'Poses', <PosesView />),
+  mkTabInfo('i', 'Interpolations', <InterpolatorsView />),
+  mkTabInfo('c', 'Lines & Curves', <CurvesView />),
+  mkTabInfo('P', 'Paths', <PathsView />),
+  mkTabInfo('j', 'Raw JSON', <JsonView />),
+];
 
+export function PathsDataDisplay(): ReactElement {
   const selFile = useAtomValue(SelectedPathsAtom);
   const [activeTab, setActiveTab] = useAtom(activeTabAtom);
-  const onTabSelect = (event: SelectTabEvent, data: SelectTabData) => {
+  const onTabSelect: TabListProps['onTabSelect'] = (_, data) =>
     setActiveTab(data.value as string);
-  };
-
   if (isUndefined(selFile)) {
     return <Text size={600}>Please select a file & class to view.</Text>;
   }
   return (
     <div>
       <TabList selectedValue={activeTab} onTabSelect={onTabSelect}>
-        {tabInfo.map(([val, nm]) => (
-          <Tab key={val} value={val}>
-            {nm}
+        {tabInfo.map(({ key, title }) => (
+          <Tab key={key} value={key}>
+            {title}
           </Tab>
         ))}
       </TabList>
       <Suspense>
-        {tabInfo.map(([val, , Elem], i) => (
-          <Fragment key={i}>{val === activeTab && Elem}</Fragment>
+        {tabInfo.map(({ key, element }) => (
+          <Fragment key={key}>{key === activeTab && element}</Fragment>
         ))}
       </Suspense>
     </div>

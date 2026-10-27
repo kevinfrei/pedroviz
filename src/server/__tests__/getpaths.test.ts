@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import path from 'node:path';
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 
 import { isMultiMapOf } from '@freik/containers';
 import { isString } from '@freik/typechk';

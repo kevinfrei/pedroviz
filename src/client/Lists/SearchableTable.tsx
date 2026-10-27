@@ -10,8 +10,10 @@ import {
   DataGridProps,
   DataGridRow,
   Input,
+  makeStyles,
   TableColumnDefinition,
   Text,
+  tokens,
   Toolbar,
   ToolbarButton,
 } from '@fluentui/react-components';
@@ -29,6 +31,33 @@ import { useToast } from '../ui-tools/NotificationToast';
 function getSelection(sel: string | undefined): Set<string> {
   return isUndefined(sel) ? new Set() : new Set([sel]);
 }
+
+const useStyles = makeStyles({
+  // The panel container acts as a vertical flexbox
+  panelContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    backgroundColor: tokens.colorNeutralBackground1,
+    overflow: 'hidden', // Prevents outer panel scrollbars
+  },
+  // Content area starts at the top and handles scrolling when it overflows
+  scrollableContent: {
+    flex: 1,
+    overflowY: 'auto',
+    padding: '0px',
+    minHeight: 0, // This makes flex child scrolling work
+  },
+  // Toolbar stays pinned across the bottom of the panel
+  bottomToolbar: {
+    flex: '0 0 auto',
+    backgroundColor: tokens.colorNeutralBackground1,
+    padding: '4px 4px',
+    display: 'flex',
+    justifyContent: 'space-between', // Aligns buttons to the right (or 'space-between', etc.)
+    gap: '8px',
+  },
+});
 
 type SearchableTableProps<T> = {
   dataType: DataType;
