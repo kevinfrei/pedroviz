@@ -65,75 +65,74 @@ public class Main {
         */
         Gson gson = new Gson();
         String vals = """
-         {
-           "values": {
-             "v1": { "val": 3.141592653589793 },
-             "v2": { "val": 2.718281828459045 },
-             "v3": { "val": 0.0 }
-           },
-           "poses": {
-             "otherPose": {
-               "X": { "ref": "v1" },
-               "Y": { "ref": "v2" },
-               "Heading": { "ref": "v3" },
-               "inRadians": true
-             },
-             "pose": {
-               "X": { "val": 3.141592653589793 },
-               "Y": { "val": 2.718281828459045 },
-               "Heading": { "val": 0.0 },
-               "inRadians": true
-             }
-           },
-           "curves": {
-             "curve": {
-               "points": [
-                 {
-                   "X": { "val": 3.141592653589793 },
-                   "Y": { "val": 2.718281828459045 },
-                   "Heading": { "val": 0.0 },
-                   "inRadians": true
-                 },
-                 { "ref": "pose" },
-                 {
-                   "X": { "ref": "v1" },
-                   "Y": { "ref": "v2" },
-                   "Heading": { "ref": "v3" },
-                   "inRadians": true
-                 }
-               ],
-               "interpolation": { "ref": "pose" }
-             }
-           },
-           "interpolations": {
-             "facing": { "point": { "ref": "facing" }, "type": "FacingPoint" }
-           },
-           "paths": {
-             "aPath": {
-               "curves": [
-                 {
-                   "points": [
-                     {
-                       "X": { "val": 3.141592653589793 },
-                       "Y": { "val": 2.718281828459045 },
-                       "Heading": { "val": 0.0 },
-                       "inRadians": true
-                     },
-                     { "ref": "pose" },
-                     {
-                       "X": { "ref": "v1" },
-                       "Y": { "ref": "v2" },
-                       "Heading": { "ref": "v3" },
-                       "inRadians": true
-                     }
-                   ],
-                   "interpolation": { "ref": "pose" }
-                 }
-               ],
-               "globalInterpolator": { "ref": "pose" }
-             }
-           }
-         }
+        {
+          "values": {
+            "v1": { "val": 3.141592653589793 },
+            "v2": { "val": 2.718281828459045 },
+            "v3": { "val": 0.0 },
+            "v4": { "ref": "v2" }
+          },
+          "poses": {
+            "p1": {
+              "X": { "ref": "v1" },
+              "Y": { "ref": "v2" },
+              "Heading": { "ref": "p2" }
+            },
+            "p2": {
+              "X": { "val": 3.141592653589793 },
+              "Y": { "val": 2.718281828459045 },
+              "Heading": { "angle":{"ref": "v3" }, "inRadians": true }
+            },
+            "p3" : { "ref": "p1" }
+          },
+          "curves": {
+            "c1": {
+              "points": [
+                {
+                  "X": { "val": 3.141592653589793 },
+                  "Y": { "val": 2.718281828459045 },
+                  "Heading": { "angle": {"val": 0.0 }, "inRadians": true }
+                },
+                { "ref": "p1" },
+                {
+                  "X": { "ref": "v1" },
+                  "Y": { "ref": "v2" },
+                  "Heading": {"angle": { "ref": "v1" }, "inRadians": true }
+                }
+              ],
+              "interpolation": { "ref": "p1" }
+            },
+            "refCurve": {"ref":"c1"}
+          },
+          "interpolations": {
+            "i1": { "point": { "ref": "p1" }, "type": "FacingPoint" },
+            "i2": {"ref": "i1"}
+          },
+          "paths": {
+            "path1": {
+              "curves": [
+                {
+                  "points": [
+                    {
+                      "X": { "val": 3.141592653589793 },
+                      "Y": { "val": 2.718281828459045 },
+                      "heading": {"angle":{ "val": 0.0 }, "inRadians": false}
+                    },
+                    { "ref": "p1" },
+                    {
+                      "X": { "ref": "v1" },
+                      "Y": { "ref": "v2" },
+                      "heading": {"angle":{ "ref": "v3" }, "inRadians": true }
+                    }
+                  ],
+                  "interpolation": { "ref": "i1" }
+                },
+                {"ref":"c2"}
+              ],
+              "globalInterpolator": { "ref": "i2" }
+            }
+          }
+        }
         """;
         // gson.toJson(items);
         NamedItems roundTrip = gson.fromJson(vals, NamedItems.class);
@@ -146,10 +145,10 @@ public class Main {
 
     public static class NamedItems {
 
-        public Map<String, DTOValue> values;
-        public Map<String, DTOPose> poses;
-        public Map<String, DTOCurve> curves;
-        public Map<String, Interpolator> interpolations;
+        public Map<String, RValue<DTOValue>> values;
+        public Map<String, RValue<DTOPose>> poses;
+        public Map<String, RValue<DTOCurve>> curves;
+        public Map<String, RValue<DTOInterpolator>> interpolations;
         public Map<String, DTOPath> paths;
     }
 
@@ -248,36 +247,41 @@ public class Main {
     public static class DTOCurve {
 
         public List<RValue<DTOPose>> points;
-        public RValue<Interpolator> interpolation; // nullable
+        public RValue<DTOInterpolator> interpolation; // nullable
     }
 
     public static class DTOPath {
 
         public List<RValue<DTOCurve>> curves;
-        public RValue<Interpolator> globalInterpolator; // nullable
+        public RValue<DTOInterpolator> globalInterpolator; // nullable
+    }
+
+    public static class DTOHeading {
+
+        public RValue<DTOValue> angle;
+        public boolean inRadians;
     }
 
     public static class DTOPose {
 
         public RValue<DTOValue> X;
         public RValue<DTOValue> Y;
-        public RValue<DTOValue> Heading; // Nullable
-        public boolean inRadians;
+        public RValue<DTOHeading> heading; // Nullable
     }
 
     // Heading Interpolators:
 
-    public static class Constant extends Interpolator {
+    public static class DTOConstant extends DTOInterpolator {
 
         @Override
         public String getType() {
             return "Constant";
         }
 
-        public RValue<DTOValue> heading;
+        public RValue<DTOHeading> heading;
     }
 
-    public static class FacingPoint extends Interpolator {
+    public static class DTOFacingPoint extends DTOInterpolator {
 
         @Override
         public String getType() {
@@ -287,35 +291,35 @@ public class Main {
         public RValue<DTOPose> point;
     }
 
-    public static class Linear extends Interpolator {
+    public static class DTOLinear extends DTOInterpolator {
 
         @Override
         public String getType() {
             return "Linear";
         }
 
-        public RValue<DTOValue> startHeading;
-        public RValue<DTOValue> endHeading;
+        public RValue<DTOHeading> startHeading;
+        public RValue<DTOHeading> endHeading;
         public boolean longWay = false;
     }
 
-    public static class PiecePortion {
+    public static class DTOPiecePortion {
 
         public RValue<DTOValue> until;
-        public RValue<Interpolator> interpolator;
+        public RValue<DTOInterpolator> interpolator;
     }
 
-    public static class PieceWise extends Interpolator {
+    public static class DTOPieceWise extends DTOInterpolator {
 
         @Override
         public String getType() {
             return "PieceWise";
         }
 
-        public List<PiecePortion> pieces;
+        public List<DTOPiecePortion> pieces;
     }
 
-    public static class Tangent extends Interpolator {
+    public static class DTOTangent extends DTOInterpolator {
 
         public String getType() {
             return "Tangent";
@@ -324,8 +328,8 @@ public class Main {
         public boolean reversed = false;
     }
 
-    @JsonAdapter(Interpolator.AdapterFactory.class)
-    public abstract static class Interpolator {
+    @JsonAdapter(DTOInterpolator.AdapterFactory.class)
+    public abstract static class DTOInterpolator {
 
         public abstract String getType();
 
@@ -333,7 +337,7 @@ public class Main {
 
             @Override
             public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-                if (!Interpolator.class.isAssignableFrom(type.getRawType())) {
+                if (!DTOInterpolator.class.isAssignableFrom(type.getRawType())) {
                     return null;
                 }
 
@@ -343,7 +347,7 @@ public class Main {
             }
         }
 
-        private static class Adapter extends TypeAdapter<Interpolator> {
+        private static class Adapter extends TypeAdapter<DTOInterpolator> {
 
             private final Gson gson;
 
@@ -353,7 +357,7 @@ public class Main {
             }
 
             @Override
-            public void write(JsonWriter out, Interpolator value) throws IOException {
+            public void write(JsonWriter out, DTOInterpolator value) throws IOException {
                 if (value == null) {
                     out.nullValue();
                     return;
@@ -364,15 +368,15 @@ public class Main {
                 JsonObject jsonObject = tree.getAsJsonObject();
 
                 // 2. Inject the correct "type" discriminator based on the subclass
-                if (value instanceof Tangent) {
+                if (value instanceof DTOTangent) {
                     jsonObject.addProperty("type", "Tangent");
-                } else if (value instanceof Linear) {
+                } else if (value instanceof DTOLinear) {
                     jsonObject.addProperty("type", "Linear");
-                } else if (value instanceof Constant) {
+                } else if (value instanceof DTOConstant) {
                     jsonObject.addProperty("type", "Constant");
-                } else if (value instanceof FacingPoint) {
+                } else if (value instanceof DTOFacingPoint) {
                     jsonObject.addProperty("type", "FacingPoint");
-                } else if (value instanceof PieceWise) {
+                } else if (value instanceof DTOPieceWise) {
                     jsonObject.addProperty("type", "PieceWise");
                 }
 
@@ -381,35 +385,35 @@ public class Main {
             }
 
             @Override
-            public Interpolator read(JsonReader in) throws IOException {
+            public DTOInterpolator read(JsonReader in) throws IOException {
                 // 1. Parse the incoming stream into a JsonObject tree
                 JsonObject jsonObject = JsonParser.parseReader(in).getAsJsonObject();
 
                 if (!jsonObject.has("type")) {
                     throw new JsonParseException(
-                        "Missing 'type' discriminator field for Interpolator"
+                        "Missing 'type' discriminator field for DTOInterpolator"
                     );
                 }
 
                 String type = jsonObject.get("type").getAsString();
-                Class<? extends Interpolator> targetClass;
+                Class<? extends DTOInterpolator> targetClass;
 
                 // 2. Map the string type to the correct concrete Java class
                 switch (type) {
                     case "Tangent":
-                        targetClass = Tangent.class;
+                        targetClass = DTOTangent.class;
                         break;
                     case "Linear":
-                        targetClass = Linear.class;
+                        targetClass = DTOLinear.class;
                         break;
                     case "Constant":
-                        targetClass = Constant.class;
+                        targetClass = DTOConstant.class;
                         break;
                     case "FacingPoint":
-                        targetClass = FacingPoint.class;
+                        targetClass = DTOFacingPoint.class;
                         break;
                     case "PieceWise":
-                        targetClass = PieceWise.class;
+                        targetClass = DTOPieceWise.class;
                         break;
                     default:
                         throw new JsonParseException("Unknown heading interpolation type: " + type);
