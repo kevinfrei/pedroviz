@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { ReactElement } from 'react';
+import { ReactElement, useState } from 'react';
 
 import {
+  Button,
   Field,
   makeStyles,
   shorthands,
   tokens,
 } from '@fluentui/react-components';
+import { ArrowDownRegular, ArrowRightRegular } from '@fluentui/react-icons';
 
 const useWrappedRegionStyle = makeStyles({
   field: {
@@ -33,18 +35,36 @@ const useWrappedRegionStyle = makeStyles({
 
 export function TitleWrapper({
   title,
+  expandable,
+  onExpandChange,
   children,
 }: {
   title: string;
+  expandable?: boolean;
+  onExpandChange?: (expanded: boolean) => void;
   children: ReactElement;
 }): ReactElement {
   const wrappedStyle = useWrappedRegionStyle();
+  const [isExpanded, setIsExpanded] = useState(true);
   return (
     <div className={wrappedStyle.wrapper}>
-      <Field
-        className={wrappedStyle.field}
-        label={<span className={wrappedStyle.label}>{title}</span>}
-      />
+      {expandable && (
+        <Button
+          onClick={() => {
+            setIsExpanded(!isExpanded);
+            if (onExpandChange) {
+              onExpandChange(!isExpanded);
+            }
+          }}
+          icon={isExpanded ? <ArrowDownRegular /> : <ArrowRightRegular />}
+        />
+      )}
+      {(!expandable || isExpanded) && (
+        <Field
+          className={wrappedStyle.field}
+          label={<span className={wrappedStyle.label}>{title}</span>}
+        />
+      )}
       {children}
     </div>
   );
