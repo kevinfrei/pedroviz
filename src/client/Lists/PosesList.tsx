@@ -14,12 +14,7 @@ import { SimpleHeadingRef } from '../Editors/HeadingRefEditor';
 import { SimpleValRef } from '../Editors/ValRefEditor';
 import { DataType, symbolTablePosesAtom } from '../state/SymbolTable';
 import { SearchableTable } from './SearchableTable';
-import {
-  HeadingSorter,
-  PoseHeadingSorter,
-  PoseXSorter,
-  PoseYSorter,
-} from './Sort';
+import { PoseHeadingSorter, PoseXSorter, PoseYSorter } from './Sort';
 
 type ListItem = [string, PoseRef];
 

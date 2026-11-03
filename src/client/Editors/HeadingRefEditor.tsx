@@ -18,7 +18,6 @@ import {
   isBoolean,
   isDefined,
   isError,
-  isNull,
   isUndefined,
   typecheck,
 } from '@freik/typechk';

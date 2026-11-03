@@ -1,9 +1,7 @@
 import { isUndefined } from '@freik/typechk';
 
 import {
-  chkHeadingVal,
   chkRef,
-  chkValue,
   Curve,
   CurveRef,
   getInterpType,
@@ -12,7 +10,6 @@ import {
   InterpRef,
   Pose,
   PoseRef,
-  Ref,
   ValRef,
   Value,
 } from '../../dataTypes';

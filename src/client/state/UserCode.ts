@@ -17,22 +17,13 @@ import { RecordToMap } from '../../helpers';
 import { PathsFile, Team, TeamList } from '../../ipcTypes';
 import { EMPTY_SYMBOL_TABLE } from '../Constants';
 import { darkOnWhite, lightOnBlack } from '../ui-tools/Colors';
-import { GetPaths, GetTeams, HasFieldImage, PutPaths } from './API';
+import { GetPaths, GetTeams, HasFieldImage } from './API';
 import { DisplayOptionsAtom, ThemeAtom } from './SavedSettings';
-import { fetchApi, putApi } from './Storage';
 
 export const ColorsAtom = atom((get) => {
   const theme = get(ThemeAtom);
   return theme === 'dark' ? lightOnBlack : darkOnWhite;
 });
-// TODO: Not used any more. I should go back and either do the color coding,
-// or remove it...
-const ColorForNumber = atomFamily((index: number) =>
-  atom((get) => {
-    const colors = get(ColorsAtom);
-    return colors[index % colors.length];
-  }),
-);
 
 // The cache helps debugging sometimes...
 let teamsCache: TeamList | null = null;
