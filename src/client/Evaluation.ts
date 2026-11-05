@@ -32,18 +32,61 @@ import {
   chkEvalCurve,
   chkEvalInterpolator,
   chkEvalInterpSimple,
-  chkEvalInterpTangent,
   chkEvalPose,
 } from './ConcreteEvalTypeCheck';
 import {
+  ConcreteHeadingType,
   CorrectSymbols,
   EvalCurve,
   EvalInterpolator,
   EvalPath,
   EvalPose,
   EvalSymbols,
+  ShallowCurveRef,
+  ShallowEvalSymbols,
+  ShallowHeadingRef,
+  ShallowInterpolatorRef,
+  ShallowPath,
+  ShallowPiece,
+  ShallowPose,
+  ShallowPoseRef,
+  ShallowValRef,
 } from './ConcreteEvalTypes';
-import { getCurveDetail, ptDistance } from './DrawingHelpers';
+import { getCurveDetail } from './DrawingHelpers';
+
+// type Evaluated<T> = ErrorOr<[string, T]>;
+function recurseRef<FROM, TO>(
+  name: string,
+  ref: Ref,
+  evalMap: Map<string, ErrorOr<TO>>,
+  symTable: Map<string, FROM>,
+  chkType: typecheck<TO>,
+  evalFn: (ref: FROM, seen: Set<string>) => ErrorOr<TO>,
+  seen: Set<string>,
+): ErrorOr<TO> {
+  // First, check for a circular reference:
+  if (seen.has(ref.ref)) {
+    return MakeError(`Circular ${name} reference detected: ${ref.ref}`);
+  }
+  // For a reference, check if it's already been evaluated:
+  const ev = evalMap.get(ref.ref);
+  if (isError(ev)) {
+    return MakeError(ev, `Error for ${name} reference ${ref.ref}`);
+  } else if (chkType(ev)) {
+    return ev;
+  } else if (!isUndefined(ev)) {
+    return MakeError(`Type mismatch error for ${name} reference ${ref.ref}`);
+  }
+  // Hasn't been evaluated: Evaluate it.
+  const vr = symTable.get(ref.ref);
+  if (isUndefined(vr)) {
+    return MakeError(`Undefined ${name} reference ${ref.ref}`);
+  }
+  // Add it to the 'seen' set and recurse.
+  const newSeen = new Set(seen);
+  newSeen.add(ref.ref);
+  return evalFn(vr, newSeen);
+}
 
 export function EvaluateSymbols(symbolTable: SymbolTable): EvalSymbols {
   const evalSyms: EvalSymbols = {
@@ -53,39 +96,6 @@ export function EvaluateSymbols(symbolTable: SymbolTable): EvalSymbols {
     curves: new Map(),
     paths: new Map(),
   };
-
-  function recurseRef<FROM, TO>(
-    name: string,
-    ref: Ref,
-    evalMap: Map<string, ErrorOr<TO>>,
-    symTable: Map<string, FROM>,
-    chkType: typecheck<TO>,
-    evalFn: (ref: FROM, seen: Set<string>) => ErrorOr<TO>,
-    seen: Set<string>,
-  ): ErrorOr<TO> {
-    // First, check for a circular reference:
-    if (seen.has(ref.ref)) {
-      return MakeError(`Circular ${name} reference detected: ${ref.ref}`);
-    }
-    // For a reference, check if it's already been evaluated:
-    const ev = evalMap.get(ref.ref);
-    if (isError(ev)) {
-      return MakeError(ev, `Error for ${name} reference ${ref.ref}`);
-    } else if (chkType(ev)) {
-      return ev;
-    } else if (!isUndefined(ev)) {
-      return MakeError(`Type mismatch error for ${name} reference ${ref.ref}`);
-    }
-    // Hasn't been evaluated: Evaluate it.
-    const vr = symTable.get(ref.ref);
-    if (isUndefined(vr)) {
-      return MakeError(`Undefined ${name} reference ${ref.ref}`);
-    }
-    // Add it to the 'seen' set and recurse.
-    const newSeen = new Set(seen);
-    newSeen.add(ref.ref);
-    return evalFn(vr, newSeen);
-  }
 
   function evaluateValue(
     val: ValRef,
@@ -279,12 +289,7 @@ export function EvaluateSymbols(symbolTable: SymbolTable): EvalSymbols {
       points.push(ep);
     }
     // Okay now let's turn all the bezier curve paths into actual beziers:
-    /*    if (points.length === 2) {
-      return {
-        interpolator,
-        points: { length: ptDistance(points[0]!, points[1]!), points: points.map(p => ({ x: p.x, y: p.y })) },
-      };
-    } else */ if (points.length < 2) {
+    if (points.length < 2) {
       return MakeError('Curve with fewer than 2 points!');
     } else {
       return {
@@ -340,9 +345,196 @@ export function EvaluateSymbols(symbolTable: SymbolTable): EvalSymbols {
   return evalSyms;
 }
 
+function shallowValue(valRef: ValRef): ErrorOr<ShallowValRef> {
+  if (chkRef(valRef)) {
+    return valRef;
+  }
+  return valRef.val;
+}
+
+function shallowHeading(headingRef: HeadingRef): ErrorOr<ShallowHeadingRef> {
+  if (chkRef(headingRef)) {
+    return headingRef;
+  }
+  const angle = shallowValue(headingRef.angle);
+  if (isError(angle)) {
+    return MakeError(angle, 'Error while evaluating the angle of a heading');
+  }
+  return { angle, inRadians: headingRef.inRadians };
+}
+
+function shallowPose(poseRef: PoseRef): ErrorOr<ShallowPoseRef> {
+  if (chkRef(poseRef)) {
+    return poseRef;
+  }
+  const x = shallowValue(poseRef.X);
+  if (isError(x)) {
+    return MakeError(x, 'Error while evaluating the X position of a Pose');
+  }
+  const y = shallowValue(poseRef.Y);
+  if (isError(y)) {
+    return MakeError(y, 'Error while evaluating the Y position of a Pose');
+  }
+  const shallowPose: ShallowPose = { x, y };
+  if (hasFieldOf(poseRef, 'heading', chkHeadingRef)) {
+    const heading = shallowHeading(poseRef.heading);
+    if (isError(heading)) {
+      return MakeError(heading, 'Error while evaluating the heading of a Pose');
+    }
+    shallowPose.heading = heading;
+  }
+  return shallowPose;
+}
+
+function shallowInterpolator(
+  interpRef: InterpRef,
+): ErrorOr<ShallowInterpolatorRef> {
+  if (chkRef(interpRef)) {
+    return interpRef;
+  }
+  if (chkTangentInterp(interpRef)) {
+    return {
+      type: ConcreteHeadingType.Tangent,
+      reversed: interpRef.reversed,
+    };
+  } else if (chkConstInterp(interpRef)) {
+    const heading = shallowHeading(interpRef.heading);
+    if (isError(heading)) {
+      return MakeError(
+        heading,
+        'Error while evaluating the heading of a constant interpolator',
+      );
+    }
+    return { type: ConcreteHeadingType.Constant, heading };
+  } else if (chkFacePtInterp(interpRef)) {
+    const point = shallowPose(interpRef.point);
+    if (isError(point)) {
+      return MakeError(
+        point,
+        'Error while evaluating the point of a FacingPoint interpolator',
+      );
+    }
+    return { type: ConcreteHeadingType.Point, heading: point };
+  } else if (chkLinearInterp(interpRef)) {
+    const start = shallowHeading(interpRef.start);
+    if (isError(start)) {
+      return MakeError(
+        start,
+        'Error while evaluating the start of a linear interpolator',
+      );
+    }
+    const end = shallowHeading(interpRef.end);
+    if (isError(end)) {
+      return MakeError(
+        end,
+        'Error while evaluating the end of a linear interpolator',
+      );
+    }
+    return {
+      type: ConcreteHeadingType.Linear,
+      long: interpRef.longWay,
+      headings: [start, end],
+    };
+  } else if (chkPieceWiseInterp(interpRef)) {
+    const pieces: ShallowPiece[] = [];
+    for (const piece of interpRef.pieces) {
+      const until = shallowValue(piece.until);
+      if (isError(until)) {
+        return MakeError(
+          until,
+          "Issue evaluating the 'until' of a PieceWise interpolator",
+        );
+      }
+      const heading = shallowInterpolator(piece.interpolator);
+      if (isError(heading)) {
+        return MakeError(
+          heading,
+          'Issue evaluating a piece of a PieceWise interpolator',
+        );
+      }
+      pieces.push({ until, heading });
+    }
+    return { type: ConcreteHeadingType.Piecewise, pieces };
+  }
+  return MakeError('Catastrophic error in shallowInterpolators');
+}
+
+function shallowCurve(curveRef: CurveRef): ErrorOr<ShallowCurveRef> {
+  if (chkRef(curveRef)) {
+    return curveRef;
+  }
+  const interpolator = shallowInterpolator(curveRef.interpolation);
+  if (isError(interpolator)) {
+    return MakeError(interpolator, "Issue with a curve's interpolator");
+  }
+  const points: ShallowPoseRef[] = [];
+  for (const p of curveRef.points) {
+    const sp = shallowPose(p);
+    if (isError(sp)) {
+      return MakeError(sp, "Issue with one of a curve's points");
+    }
+    points.push(sp);
+  }
+  return { points, interpolator };
+}
+
+function shallowPath(path: Path): ErrorOr<ShallowPath> {
+  const curves: ShallowCurveRef[] = [];
+  for (const c of path.curves) {
+    const sc = shallowCurve(c);
+    if (isError(sc)) {
+      return MakeError(sc, "Issue with one of a path's curves");
+    }
+    curves.push(sc);
+  }
+  if (path.globalInterpolator) {
+    const globalInterpolator = shallowInterpolator(path.globalInterpolator);
+    if (isError(globalInterpolator)) {
+      return MakeError(
+        globalInterpolator,
+        "Issue with a path's global interpolator",
+      );
+    }
+    return { curves, globalInterpolator };
+  }
+  return { curves };
+}
+
+export function ShallowEvaluateSymbols(
+  symbolTable: SymbolTable,
+): ShallowEvalSymbols {
+  const values = new Map(
+    symbolTable.values
+      .entries()
+      .map(([name, valRef]) => [name, shallowValue(valRef)]),
+  );
+  const poses = new Map(
+    symbolTable.poses
+      .entries()
+      .map(([name, poseRef]) => [name, shallowPose(poseRef)]),
+  );
+  const interpolators = new Map(
+    symbolTable.interpolations
+      .entries()
+      .map(([name, interpRef]) => [name, shallowInterpolator(interpRef)]),
+  );
+  const curves = new Map(
+    symbolTable.curves
+      .entries()
+      .map(([name, curveRef]) => [name, shallowCurve(curveRef)]),
+  );
+  const paths = new Map(
+    symbolTable.paths
+      .entries()
+      .map(([name, pathRef]) => [name, shallowPath(pathRef)]),
+  );
+  return { values, poses, interpolators, curves, paths };
+}
+
 function notError<T>(n_err: [string, ErrorOr<T>]): n_err is [string, T] {
   return !isError(n_err[1]);
 }
+
 function onlyError<T>(
   n_err: [string, ErrorOr<T>],
 ): n_err is [string, ErrorVal] {

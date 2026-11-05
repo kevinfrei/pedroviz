@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { ReactElement, useCallback, useRef } from 'react';
+import { PointerEvent, ReactElement, useCallback, useRef } from 'react';
 import { useAtomValue } from 'jotai';
 
 import { tokens } from '@fluentui/tokens';
@@ -42,6 +42,33 @@ import {
 import { ColorsAtom, FocusedPathAtom } from './state/UserCode';
 import { ResponsiveSquareCanvas } from './ui-tools/ResponsiveSquareCanvas';
 
+const FIELD_SIZE = 144; // Size of the field, in inches
+
+function unTransform(
+  e: PointerEvent<HTMLCanvasElement>,
+  p: { x: number; y: number },
+) {
+  const canvas = e.currentTarget;
+  const size = canvas.width;
+  const scale = size / FIELD_SIZE;
+  return {
+    x: p.x / scale,
+    y: (size - p.y) / scale,
+  };
+}
+
+function scaleCanvas(ctx: CanvasRenderingContext2D): number {
+  // Map logical 144×144 units into square
+  const size = ctx.canvas.width;
+  const scale = size / FIELD_SIZE;
+  // Move the origin to the lower left, corner, and scale it up
+  // ctx.translate(0, size);
+  // ctx.scale(scale, -scale);
+  // or just a single line of code:
+  ctx.setTransform(scale, 0, 0, -scale, 0, size);
+  return scale;
+}
+
 export function FieldRenderer(): ReactElement {
   const theme = useAtomValue(ThemeAtom);
   const coordViz = useAtomValue(CoordVizPercentAtom);
@@ -79,15 +106,8 @@ export function FieldRenderer(): ReactElement {
 
   const renderField = useCallback(
     (ctx: CanvasRenderingContext2D, dpr: number) => {
-      // Map logical 144×144 units into square
-      const size = ctx.canvas.width;
-      const scale = size / 144;
-
-      // Move the origin to the lower left, corner, and scale it up
-      // ctx.translate(0, size);
-      // ctx.scale(scale, -scale);
-      // or just a single line of code:
-      ctx.setTransform(scale, 0, 0, -scale, 0, size);
+      ctx.save();
+      const scale = scaleCanvas(ctx);
       ctx.globalAlpha = coordViz;
       drawLegend(ctx, 1, scale, theme);
       ctx.globalAlpha = 1.0;
@@ -124,6 +144,7 @@ export function FieldRenderer(): ReactElement {
         correct.poses.values(),
         colors[3]!,
       );
+      ctx.restore();
     },
     [
       colors,
@@ -149,14 +170,12 @@ export function FieldRenderer(): ReactElement {
   });
   const animate = useCallback(
     (ctx: CanvasRenderingContext2D, dpr: number) => {
-      const size = ctx.canvas.width;
-      const scale = size / 144;
       const selectedConcretePath = concretePaths.get(focusedPath!);
       if (!selectedConcretePath) {
         return;
       }
       ctx.save();
-      ctx.setTransform(scale, 0, 0, -scale, 0, size);
+      scaleCanvas(ctx);
       animateBot(
         ctx,
         selectedPathOrCurveKey,
@@ -174,6 +193,18 @@ export function FieldRenderer(): ReactElement {
       anchor={{ x: 'right', y: 'top' }}
       render={renderField}
       animate={isString(focusedPath) ? animate : () => {}}
+      onPointerDown={(e, p) => {
+        const rp = unTransform(e, p);
+        console.log('Pointer down', p, rp);
+      }}
+      onPointerMove={(e, p) => {
+        const rp = unTransform(e, p);
+        console.log('Pointer move', p, rp);
+      }}
+      onPointerUp={(e, p) => {
+        const rp = unTransform(e, p);
+        console.log('Pointer up', p, rp);
+      }}
     />
   );
 }
