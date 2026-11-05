@@ -3,15 +3,9 @@
 import { promises as fsp } from 'node:fs';
 import path from 'node:path';
 
-import { JSONObject } from 'node_modules/hono/dist/types/utils/types';
-import {
-  isDefined,
-  Pickle,
-  SafelyUnpickle,
-  SimpleObject,
-} from '@freik/typechk';
+import { isDefined, Pickle } from '@freik/typechk';
 
-import { chkNamedValues, NamedValues } from '../dataTypes';
+import { chkNamedValues } from '../dataTypes';
 import { PathsFile, Team, TeamList } from '../ipcTypes';
 import {
   CheckForFieldImages,

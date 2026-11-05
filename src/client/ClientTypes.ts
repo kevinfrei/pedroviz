@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { CSSProperties } from 'react';
+import { CSSProperties, PointerEvent } from 'react';
 
 export const CtrlPtStyles = Object.freeze({
   Circle: 'o',
@@ -79,10 +79,23 @@ export type Offset = { left: number; top: number };
   devicePixelRatio: number,
 ) => void;
 
+export type TranslatedPoint = { x: number; y: number };
 export type ResponsiveSquareCanvasProps = {
   anchor?: ResponsiveAnchor;
   style?: CSSProperties;
   className?: string;
   render: CanvasRenderFunc;
   animate?: CanvasRenderFunc;
+  onPointerDown?: (
+    e: PointerEvent<HTMLCanvasElement>,
+    point: TranslatedPoint,
+  ) => void;
+  onPointerUp?: (
+    e: PointerEvent<HTMLCanvasElement>,
+    point: TranslatedPoint,
+  ) => void;
+  onPointerMove?: (
+    e: PointerEvent<HTMLCanvasElement>,
+    point: TranslatedPoint,
+  ) => void;
 };

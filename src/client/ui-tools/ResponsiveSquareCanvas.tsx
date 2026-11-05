@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import React, {
+import {
+  PointerEvent,
   ReactElement,
+  RefObject,
   useCallback,
   useEffect,
   useRef,
@@ -20,6 +22,7 @@ import {
   Offset,
   ResponsiveAnchor,
   ResponsiveSquareCanvasProps,
+  TranslatedPoint,
 } from '../ClientTypes';
 import {
   FieldVizPercentAtom,
@@ -95,12 +98,33 @@ function getCanvasOffset(
   return { top, left };
 }
 
+function translatePoint(
+  canvasRef: RefObject<HTMLCanvasElement | null>,
+  e: PointerEvent<HTMLCanvasElement>,
+): TranslatedPoint {
+  const rect = canvasRef.current?.getBoundingClientRect();
+  if (!rect || !canvasRef.current) {
+    return { x: 0, y: 0 };
+  }
+  // Scale factor between internal resolution and CSS display size
+  const scaleX = canvasRef.current.width / rect.width;
+  const scaleY = canvasRef.current.height / rect.height;
+
+  return {
+    x: (e.clientX - rect.left) * scaleX,
+    y: (e.clientY - rect.top) * scaleY,
+  };
+}
+
 export function ResponsiveSquareCanvas({
   anchor,
   style,
   className,
   render,
   animate,
+  onPointerDown,
+  onPointerUp,
+  onPointerMove,
 }: ResponsiveSquareCanvasProps): ReactElement {
   const fieldAnchor: ResponsiveAnchor = anchor || defaultAnchor;
   const theme = useAtomValue(ThemeAtom);
@@ -114,6 +138,24 @@ export function ResponsiveSquareCanvas({
   const hasCustomField = useAtomValue(HasFieldImageAtom);
   const useCustomField = useAtomValue(UseExternalFieldAtom);
   const [canvasOffset, setCanvasOffset] = useState<Offset>({ top: 0, left: 0 });
+
+  const pointerDown = (e: PointerEvent<HTMLCanvasElement>) => {
+    if (onPointerDown) {
+      onPointerDown(e, translatePoint(mainRef, e));
+    }
+  };
+
+  const pointerUp = (e: PointerEvent<HTMLCanvasElement>) => {
+    if (onPointerUp) {
+      onPointerUp(e, translatePoint(mainRef, e));
+    }
+  };
+
+  const pointerMove = (e: PointerEvent<HTMLCanvasElement>) => {
+    if (onPointerMove) {
+      onPointerMove(e, translatePoint(mainRef, e));
+    }
+  };
 
   // Okay, so to enable animation without re-rendering the whole canvas,
   // we create a memory image to blit for every animation frame.
@@ -153,14 +195,15 @@ export function ResponsiveSquareCanvas({
         if (isNull(main) || (animate && isNull(cache))) {
           continue;
         }
-        // 1. Resize both canvases (this clears them)
+        // Resize both canvases (this clears them)
         main.width = newSize;
         main.height = newSize;
         if (animate) {
           cache!.width = newSize;
           cache!.height = newSize;
         }
-        // 2. Set the canvas location offsets according to the 'ResponsiveAnchor' parameter:
+        // Set the canvas location offsets according to the
+        // 'ResponsiveAnchor' parameter:
         const offset = getCanvasOffset(
           fieldAnchor,
           size.inlineSize,
@@ -172,8 +215,8 @@ export function ResponsiveSquareCanvas({
         ) {
           setCanvasOffset(offset);
         }
-        // 3. Immediately redraw the background to the new cache size
-        // This ensures the cache is never empty or stretched
+        // Immediately redraw the background to the new cache size to ensure
+        // that the cache is never empty or stretched.
         const ctx = animate ? cache!.getContext('2d') : main.getContext('2d');
         if (isNull(ctx)) {
           continue;
@@ -249,9 +292,13 @@ export function ResponsiveSquareCanvas({
           position: 'absolute',
           left: `${canvasOffset.left}px`,
           top: `${canvasOffset.top}px`,
+          touchAction: 'none',
         }}
         className={className}
         ref={mainRef}
+        onPointerDown={pointerDown}
+        onPointerUp={pointerUp}
+        onPointerMove={pointerMove}
       />
     </div>
   );
@@ -308,7 +355,7 @@ const useStyles = makeStyles({
   const draggingRef = useRef(false);
   const offsetRef = useRef({ x: 0, y: 0 });
 
-  const handlePointerDown = (e: React.PointerEvent) => {
+  const handlePointerDown = (e: PointerEvent<HTMLDivElement>) => {
     // Only drag if clicking the header itself, not the buttons inside it
     if (
       (e.target as HTMLElement).tagName === 'BUTTON' ||
@@ -324,7 +371,7 @@ const useStyles = makeStyles({
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
   };
 
-  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+  const handlePointerMove = useCallback((e: PointerEvent<HTMLDivElement>) => {
     if (!draggingRef.current) return;
 
     // We intentionally do NOT clamp x to window bounds here,
@@ -335,7 +382,7 @@ const useStyles = makeStyles({
     });
   }, []);
 
-  const handlePointerUp = (e: React.PointerEvent) => {
+  const handlePointerUp = (e: PointerEvent<HTMLDivElement>) => {
     draggingRef.current = false;
     try {
       (e.target as HTMLElement).releasePointerCapture(e.pointerId);
