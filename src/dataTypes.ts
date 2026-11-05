@@ -15,6 +15,7 @@ import {
 // Simple types (these live in the JSON file, too)
 
 export type Ref = { ref: string };
+export type RefOr<T> = Ref | T;
 export type Value = { val: number };
 export type ValRef = Value | Ref;
 

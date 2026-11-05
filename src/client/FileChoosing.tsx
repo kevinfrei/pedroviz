@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { ReactElement, useEffect } from 'react';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 
 import { Button } from '@fluentui/react-components';
 import { ArrowUploadRegular, SaveRegular } from '@fluentui/react-icons';

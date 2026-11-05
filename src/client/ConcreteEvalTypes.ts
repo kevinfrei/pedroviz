@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+import { RefOr } from 'src/dataTypes';
+import { Nominal } from 'src/typeHelpers';
 import { ErrorOr } from '@freik/typechk';
 
 export type Point = { x: number; y: number; h?: number };
@@ -10,7 +12,6 @@ export const ConcreteHeadingType = Object.freeze({
   Constant: 'C',
   Linear: 'I',
   Point: 'P',
-  Reverse: 'R',
   Piecewise: 'L',
 } as const);
 export type ConcreteHeadingType =
@@ -91,4 +92,58 @@ export type CorrectSymbols = {
   interpolators: Map<string, EvalInterpolator>;
   curves: Map<string, EvalCurve>;
   paths: Map<string, EvalPath>;
+};
+
+export type Name = Nominal<string, 'Name'>;
+export type Descriptor = Nominal<string, 'Descriptor'>;
+export type ValueLocator = [Number, Name, Descriptor];
+export type ShallowValRef = RefOr<ValueLocator>;
+export type ShallowPose = {
+  x: ShallowValRef;
+  y: ShallowValRef;
+  heading?: ShallowHeadingRef;
+};
+export type ShallowPoseRef = RefOr<ShallowPose>;
+export type ShallowHeading = { angle: ShallowValRef; inRadians: boolean };
+export type ShallowHeadingRef = RefOr<ShallowHeading>; // PoseRef or ShallowHeading...
+export type ShallowPiece = {
+  until: ShallowValRef;
+  heading: RefOr<ShallowInterpolator>;
+};
+export type ShallowInterpolator =
+  | { type: typeof ConcreteHeadingType.Tangent; reversed: boolean }
+  | {
+      type: typeof ConcreteHeadingType.Constant;
+      heading: ShallowHeadingRef;
+    }
+  | {
+      type: typeof ConcreteHeadingType.Linear;
+      long: boolean;
+      headings: [ShallowHeadingRef, ShallowHeadingRef];
+    }
+  | { type: typeof ConcreteHeadingType.Point; heading: ShallowPoseRef }
+  | { type: typeof ConcreteHeadingType.Piecewise; pieces: ShallowPiece[] };
+export type ShallowInterpolatorRef = RefOr<ShallowInterpolator>;
+export type ShallowCurve = {
+  points: ShallowPoseRef[];
+  interpolator: ShallowInterpolatorRef;
+};
+export type ShallowCurveRef = RefOr<ShallowCurve>;
+export type ShallowPath = {
+  curves: ShallowCurveRef[];
+  globalInterpolator?: ShallowInterpolatorRef;
+};
+
+export type ShallowEvalSymbols = {
+  values: Map<string, ErrorOr<ShallowValRef>>;
+  poses: Map<string, ErrorOr<ShallowPoseRef>>;
+  interpolators: Map<string, ErrorOr<ShallowInterpolatorRef>>;
+  curves: Map<string, ErrorOr<ShallowCurveRef>>;
+  paths: Map<string, ErrorOr<ShallowPath>>;
+};
+
+export type FullSymbolTable = {
+  shallow: ShallowEvalSymbols;
+  evaluated: EvalSymbols;
+  correct: CorrectSymbols;
 };
