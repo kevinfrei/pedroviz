@@ -12,7 +12,10 @@
     "dist"
   ],
   "scripts": {
-    "format": "prettier -w \"src/**/*.ts\" \"src/**/*.tsx\" \"*.md\" \"*.json\" \"src/**/*.md\" \"src/**/*.json\" \"src/**/*.html\" \"src/server/**/*.java\"",
+    "force-format": "prettier -w \"src/**/*.ts\" \"src/**/*.tsx\" \"*.md\" \"*.json\" \"src/**/*.md\" \"src/**/*.json\" \"src/**/*.html\" \"src/server/**/*.java\"",
+    "format": "tools format bun",
+    "foramt": "tools format bun",
+    "fmt": "tools format bun",
     "types": "tsc --noEmit",
     "check": "bun run types && bun test",
     "dev:launch": "sleep 1 && bun run dev/entry.js ../BioBuzz2026",
@@ -48,6 +51,7 @@
     "react-resizable-panels": "^4.19.1"
   },
   "devDependencies": {
+    "@freik/workspace": "^0.8.1",
     "@happy-dom/global-registrator": "21.0.4",
     "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
     "@testing-library/jest-dom": "^7.0.1",

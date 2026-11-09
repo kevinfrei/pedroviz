@@ -96,8 +96,9 @@ export type CorrectSymbols = {
 
 export type Name = Nominal<string, 'Name'>;
 export type Descriptor = Nominal<string, 'Descriptor'>;
-export type ValueLocator = [Number, Name, Descriptor];
+export type ValueLocator = [number, Name, Descriptor];
 export type ShallowValRef = RefOr<ValueLocator>;
+export type MovablePoint = { x: ValueLocator; y: ValueLocator };
 export type ShallowPose = {
   x: ShallowValRef;
   y: ShallowValRef;
@@ -136,6 +137,7 @@ export type ShallowPath = {
 
 export type ShallowEvalSymbols = {
   values: Map<string, ErrorOr<ShallowValRef>>;
+  getValue: (svalRef: ShallowValRef) => ErrorOr<ValueLocator>;
   poses: Map<string, ErrorOr<ShallowPoseRef>>;
   interpolators: Map<string, ErrorOr<ShallowInterpolatorRef>>;
   curves: Map<string, ErrorOr<ShallowCurveRef>>;

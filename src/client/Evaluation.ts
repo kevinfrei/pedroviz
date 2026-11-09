@@ -42,9 +42,11 @@ import {
   EvalPath,
   EvalPose,
   EvalSymbols,
+  ShallowCurve,
   ShallowCurveRef,
   ShallowEvalSymbols,
   ShallowHeadingRef,
+  ShallowInterpolator,
   ShallowInterpolatorRef,
   ShallowPath,
   ShallowPiece,
@@ -566,7 +568,37 @@ export function ShallowEvaluateSymbols(
       .entries()
       .map(([name, pathRef]) => [name, shallowPath(name, pathRef)]),
   );
-  return { values, poses, interpolators, curves, paths };
+  const getValue = (
+    valRef: ShallowValRef,
+    seen: Set<string> = new Set(),
+  ): ErrorOr<ValueLocator> => {
+    if (chkRef(valRef)) {
+      if (seen.has(valRef.ref)) {
+        return MakeError(
+          `Circular reference detected for value ${valRef.ref} [${[...seen].join(', ')}]`,
+        );
+      }
+      seen.add(valRef.ref);
+      const svr = values.get(valRef.ref);
+      if (isError(svr)) {
+        return MakeError(svr, `Error for value reference ${valRef.ref}`);
+      } else if (isUndefined(svr)) {
+        return MakeError(`Undefined value reference ${valRef.ref}`);
+      }
+      return getValue(svr, seen);
+    } else {
+      return valRef;
+    }
+  };
+
+  return {
+    values,
+    getValue,
+    poses,
+    interpolators,
+    curves,
+    paths,
+  };
 }
 
 function notError<T>(n_err: [string, ErrorOr<T>]): n_err is [string, T] {

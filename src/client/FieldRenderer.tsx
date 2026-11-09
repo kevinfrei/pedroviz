@@ -4,7 +4,14 @@ import { PointerEvent, ReactElement, useCallback, useRef } from 'react';
 import { useAtomValue } from 'jotai';
 
 import { tokens } from '@fluentui/tokens';
-import { isDefined, isString, isUndefined } from '@freik/typechk';
+import { chkRef } from 'src/dataTypes';
+import {
+  ErrorOr,
+  isDefined,
+  isError,
+  isString,
+  isUndefined,
+} from '@freik/typechk';
 
 import { animateBot, BotAnimationState } from './BotAnimation';
 import {
@@ -21,10 +28,20 @@ import {
   EvalCurveDetail,
   EvalInterpolator,
   EvalPose,
+  MovablePoint,
   Point,
+  ShallowCurve,
+  ShallowCurveRef,
+  ShallowPath,
+  ShallowPose,
+  ShallowPoseRef,
 } from './ConcreteEvalTypes';
 import { CloseTo, ptDistance, vector } from './DrawingHelpers';
-import { CalculateItems, EvaluateSymbols } from './Evaluation';
+import {
+  CalculateItems,
+  EvaluateSymbols,
+  ShallowEvaluateSymbols,
+} from './Evaluation';
 import {
   BotDrawStyleAtom,
   CoordVizPercentAtom,
@@ -102,6 +119,7 @@ export function FieldRenderer(): ReactElement {
   const points = [...concretePaths.values()].flatMap((val) => val);
 
   const evaluated = EvaluateSymbols(symbolTable);
+  const shallow = ShallowEvaluateSymbols(symbolTable);
   const correct = CalculateItems(evaluated);
 
   const renderField = useCallback(
@@ -111,7 +129,60 @@ export function FieldRenderer(): ReactElement {
       ctx.globalAlpha = coordViz;
       drawLegend(ctx, 1, scale, theme);
       ctx.globalAlpha = 1.0;
-
+      const movablePoints: MovablePoint[] = [];
+      shallow.paths.forEach((curveDescriptor: ErrorOr<ShallowPath>) => {
+        if (isError(curveDescriptor)) {
+          console.error('Error in shallow path', curveDescriptor);
+          return;
+        }
+        curveDescriptor.curves.forEach((curveRef: ShallowCurveRef) => {
+          if (chkRef(curveRef)) {
+            // Don't draw refs: The referenced curve will be drawn in the loop below
+            return;
+          }
+          const curve: ShallowCurve = curveRef;
+          // KBF: Continue here after a bike ride and stuff...
+          // First, register any in-place control points, so that we can draw (& move!) them later
+          let errors = 0;
+          const points: Point[] = [];
+          curve.points.forEach((ptRef: ShallowPoseRef) => {
+            if (chkRef(ptRef)) {
+              // Don't draw refs: The referenced point will be drawn in the loop below
+              return;
+            }
+            const pt: ShallowPose = ptRef;
+            // The x and y values are either ValueLocators (used directly in the movable points)
+            // or they are references to Values, which we also need to register here
+            const x = shallow.getValue(pt.x);
+            const y = shallow.getValue(pt.y);
+            if (isError(x)) {
+              console.error('Error in point value', x.errors().join(';'));
+              errors++;
+              return;
+            }
+            if (isError(y)) {
+              console.error('Error in point value', y.errors().join(';'));
+              errors++;
+              return;
+            }
+            movablePoints.push({ x, y });
+            points.push({ x: x[0], y: y[0] });
+          });
+          // Draw the curve if we didn't have any errors in the points
+          if (errors === 0) {
+            // Need to make an EvalCurveDetail from the list of control points...
+            drawCurve(
+              ctx,
+              points,
+              showPathHeadings
+                ? globalInterpolator || interpolator || false
+                : false,
+              pathStyle,
+              colors[2]!,
+            );
+          }
+        });
+      });
       correct.paths.forEach(({ curves, globalInterpolator } /*, name */) => {
         curves.forEach(({ points, interpolator }: EvalCurve) => {
           drawCurve(
