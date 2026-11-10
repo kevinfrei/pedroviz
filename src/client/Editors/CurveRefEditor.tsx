@@ -42,6 +42,7 @@ export type CurveRefEditorProps = {
   label: string;
   item: CurveRef;
   name?: string;
+  topLevel?: boolean;
   onChange: (ncr: CurveRef) => void;
 };
 // CurveRef Control: Inline Curve vs Ref ({ ref })
@@ -49,6 +50,7 @@ export function CurveRefEditor({
   label,
   item,
   name,
+  topLevel,
   onChange,
 }: CurveRefEditorProps): ReactElement {
   const symbolTable = useAtomValue(symbolTableAtom);
@@ -82,7 +84,7 @@ export function CurveRefEditor({
   };
 
   return (
-    <TitleWrapper title={label}>
+    <TitleWrapper title={label} expandable={!topLevel}>
       <>
         <RadioGroup
           value={isRef ? 'ref' : 'val'}

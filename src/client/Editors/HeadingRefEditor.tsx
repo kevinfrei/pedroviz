@@ -157,7 +157,7 @@ export function HeadingRefEditor(props: HeadingRefEditorProps): ReactElement {
     </RadioGroup>
   );
   return (
-    <TitleWrapper title={label}>
+    <TitleWrapper title={label} expandable>
       <>
         {chooser}
         {hrIsPose(item) && (

@@ -40,6 +40,7 @@ export type ValRefEditorProps = {
   label: string;
   item: ValRef;
   name?: string;
+  topLevel?: boolean;
   onChange: (valRef: ValRef) => void;
 };
 
@@ -49,6 +50,7 @@ export function ValRefEditor({
   item,
   name,
   onChange,
+  topLevel,
 }: ValRefEditorProps): ReactElement {
   const symbolTable = useAtomValue(symbolTableAtom);
   const valueKeys = [...symbolTable.values.keys()];
@@ -66,7 +68,7 @@ export function ValRefEditor({
   const onSpinChange = useSpinButtonChange((val: number) => onChange({ val }));
 
   return (
-    <TitleWrapper title={label} expandable>
+    <TitleWrapper title={label} expandable={!topLevel}>
       <>
         <RadioGroup
           value={isRef ? 'ref' : 'val'}

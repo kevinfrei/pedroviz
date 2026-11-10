@@ -32,6 +32,7 @@ export function ValuesView(): ReactElement {
         items={values}
         setItems={setValues}>
         <ValRefEditor
+          topLevel
           label="Value or Reference"
           item={activeValue!}
           name={activeKey}

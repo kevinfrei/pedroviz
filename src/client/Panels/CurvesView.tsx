@@ -34,6 +34,7 @@ export function CurvesView(): ReactElement {
         items={curves}
         setItems={setCurves}>
         <CurveRefEditor
+          topLevel
           label="Curve Definition"
           item={activeCurve as CurveRef}
           name={activeKey}

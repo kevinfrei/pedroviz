@@ -49,6 +49,7 @@ export type PoseRefEditorProps = {
   label: string;
   item: PoseRef;
   name?: string;
+  topLevel?: boolean;
   onChange: (npr: PoseRef) => void;
 };
 
@@ -58,6 +59,7 @@ export function PoseRefEditor({
   item,
   name,
   onChange,
+  topLevel,
 }: PoseRefEditorProps): ReactElement {
   const symbolTable = useAtomValue(symbolTableAtom);
   const validPoseKeys = validPosesForRef(
@@ -81,7 +83,7 @@ export function PoseRefEditor({
   };
 
   return (
-    <TitleWrapper title={label}>
+    <TitleWrapper title={label} expandable={!topLevel}>
       <>
         <RadioGroup
           value={isRef ? 'ref' : 'val'}

@@ -38,6 +38,7 @@ export function InterpolatorsView(): ReactElement {
         items={interpolations}
         setItems={setInterpolations}>
         <InterpRefEditor
+          topLevel
           label="Interpolator Definition"
           item={activeInterp as InterpRef}
           onChange={(updatedInterp: InterpRef) =>

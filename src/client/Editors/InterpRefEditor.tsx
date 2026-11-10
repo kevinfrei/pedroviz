@@ -69,18 +69,20 @@ export type InterpRefEditorPropsWithShow = {
   item?: InterpRef;
   showNone: true;
   name?: string;
+  topLevel?: boolean;
   onChange: (interp: InterpRef | null) => void;
 };
 export type InterpRefEditorPropsNoShow = {
   label: string;
   item: InterpRef;
   name?: string;
+  topLevel?: boolean;
   onChange: (interp: InterpRef) => void;
 };
 export function InterpRefEditor(
   props: InterpRefEditorPropsWithShow | InterpRefEditorPropsNoShow,
 ): ReactElement {
-  const { label, item, onChange } = props;
+  const { label, item, onChange, topLevel } = props;
   const showNone = hasField(props, 'showNone') ? props.showNone : false;
   const symbolTable = useAtomValue(symbolTableAtom);
   const interpolations = symbolTable.interpolations;
@@ -137,7 +139,7 @@ export function InterpRefEditor(
   };
 
   return (
-    <TitleWrapper title={label}>
+    <TitleWrapper title={label} expandable={!topLevel}>
       <>
         <Select
           value={currentType}

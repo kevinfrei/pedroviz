@@ -31,6 +31,7 @@ export function PosesView(): ReactElement {
         items={poses}
         setItems={setPoses}>
         <PoseRefEditor
+          topLevel
           label="Pose Coordinates & Heading"
           item={activePose!}
           name={activeKey}
