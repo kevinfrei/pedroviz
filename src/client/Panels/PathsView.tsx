@@ -65,26 +65,33 @@ export function PathsView(): ReactElement {
             </Button>
             {(activePath?.curves || []).map((cRef, cIdx) => (
               <div key={cIdx}>
-                <div>
-                  <span>Curve Segment #{cIdx + 1}</span>
-                  <Button
-                    icon={<DeleteRegular />}
-                    onClick={() => {
-                      const newCurves = (activePath?.curves || []).filter(
-                        (_, i) => i !== cIdx,
-                      );
-                      setPaths(
-                        NewMapUpdate(paths, activeKey!, {
-                          ...activePath,
-                          curves: newCurves,
-                        }),
-                      );
-                    }}
-                    title="Remove Curve Segment"
-                  />
-                </div>
                 <CurveRefEditor
-                  label={`Segment ${cIdx + 1}`}
+                  label={
+                    <>
+                      Segment {cIdx + 1}
+                      <Button
+                        title="Remove Curve Segment"
+                        appearance="transparent"
+                        style={{
+                          marginLeft: '3px',
+                          marginTop: '-3px',
+                          marginRight: '-5px',
+                        }}
+                        icon={<DeleteRegular />}
+                        onClick={() => {
+                          const newCurves = (activePath?.curves || []).filter(
+                            (_, i) => i !== cIdx,
+                          );
+                          setPaths(
+                            NewMapUpdate(paths, activeKey!, {
+                              ...activePath,
+                              curves: newCurves,
+                            }),
+                          );
+                        }}
+                      />
+                    </>
+                  }
                   item={cRef}
                   onChange={(newCRef) => {
                     const newCurves = [...(activePath?.curves || [])];

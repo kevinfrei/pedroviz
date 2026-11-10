@@ -25,7 +25,7 @@ export function NewMapRename<K, V>(
   oldKey: K,
   newKey: K,
 ): Map<K, V> | undefined {
-  if (oldKey === newKey) {
+  if (oldKey === newKey || map.has(newKey)) {
     return undefined;
   }
   const value = map.get(oldKey);

@@ -108,7 +108,10 @@ export function SearchableTable<T>({
           onChange={(_, d) => setSearch(d.value)}
         />
         &nbsp;
-        <ToolbarButton onClick={handleAdd} icon={<AddRegular />}>
+        <ToolbarButton
+          onClick={handleAdd}
+          icon={<AddRegular />}
+          appearance="primary">
           Create Named {name}
         </ToolbarButton>
       </Toolbar>

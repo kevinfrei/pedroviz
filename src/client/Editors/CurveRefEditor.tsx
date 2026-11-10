@@ -39,7 +39,7 @@ function validCurvesForRef(
 }
 
 export type CurveRefEditorProps = {
-  label: string;
+  label: string | ReactElement;
   item: CurveRef;
   name?: string;
   topLevel?: boolean;
@@ -113,7 +113,6 @@ export function CurveRefEditor({
           <div>
             <div>
               <Toolbar>
-                <Text>Curve Points (Poses)</Text>
                 <ToolbarButton
                   icon={<AddRegular />}
                   onClick={() => {
@@ -123,24 +122,32 @@ export function CurveRefEditor({
                       points: [
                         ...pts,
                         {
-                          X: { val: 0 },
-                          Y: { val: 0 },
+                          X: { val: 62 + Math.random() * 20 },
+                          Y: { val: 62 + Math.random() * 20 },
                           heading: { angle: { val: 0 }, inRadians: false },
                         },
                       ],
                     });
                   }}>
-                  Add Pose
+                  Add Control Point
                 </ToolbarButton>
               </Toolbar>
               {(item?.points || []).map((pt, pIdx) => (
                 <PoseRefEditor
                   key={pIdx}
+                  heading={false}
                   label={
                     <>
-                      <Text>Pose #{pIdx + 1}</Text>
+                      <Text weight="bold">Control Point #{pIdx + 1}</Text>
                       {(item?.points || []).length > 2 && (
                         <Button
+                          title="Remove Pose Point"
+                          appearance="transparent"
+                          style={{
+                            marginLeft: '3px',
+                            marginTop: '-3px',
+                            marginRight: '-5px',
+                          }}
                           icon={<DeleteRegular />}
                           onClick={() => {
                             const newPts = item.points.filter(
@@ -148,7 +155,6 @@ export function CurveRefEditor({
                             );
                             onChange({ ...item, points: newPts });
                           }}
-                          title="Remove Pose Point"
                         />
                       )}
                     </>

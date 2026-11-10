@@ -43,7 +43,7 @@ export function SimpleInterpRef({
   if (chkRef(interpref)) {
     return (
       <Text>
-        Named Interpolator <code>{interpref.ref}</code>
+        <code>{interpref.ref}</code> (reference)
       </Text>
     );
   }
@@ -189,6 +189,7 @@ export function InterpRefEditor(
                 inRadians: false,
               }
             }
+            heading={false}
             onChange={(point) => onChange({ point })}
           />
         )}
@@ -225,61 +226,71 @@ export function InterpRefEditor(
 
         {chkPieceWiseInterp(item) && (
           <div>
-            <div>
-              <span>Piecewise Interpolator Segments</span>
-              <Button
-                icon={<AddRegular />}
-                onClick={() => {
-                  const pieces = item?.pieces || [];
-                  onChange({
-                    pieces: [
-                      ...pieces,
-                      {
-                        until: { val: 1.0 },
-                        interpolator: { reversed: false },
-                      },
-                    ],
-                  });
-                }}>
-                Add Piece
-              </Button>
-            </div>
+            <Button
+              style={{ marginTop: '5px' }}
+              icon={<AddRegular />}
+              onClick={() => {
+                const pieces = item?.pieces || [];
+                onChange({
+                  pieces: [
+                    ...pieces,
+                    {
+                      until: { val: 1.0 },
+                      interpolator: { reversed: false },
+                    },
+                  ],
+                });
+              }}>
+              Add Piece
+            </Button>
 
             {(item?.pieces || []).map((piece, idx) => (
-              <div key={idx}>
-                <div>
-                  <span>Piece #{idx + 1}</span>
-                  <Button
-                    icon={<DeleteRegular />}
-                    onClick={() => {
-                      const newPieces = item.pieces.filter((_, i) => i !== idx);
+              <TitleWrapper
+                key={idx}
+                title={
+                  <>
+                    <span>Piece #{idx + 1}</span>
+                    <Button
+                      title="Remove Piece"
+                      appearance="transparent"
+                      style={{
+                        marginLeft: '3px',
+                        marginTop: '-3px',
+                        marginRight: '-5px',
+                      }}
+                      icon={<DeleteRegular />}
+                      onClick={() => {
+                        const newPieces = item.pieces.filter(
+                          (_, i) => i !== idx,
+                        );
+                        onChange({ pieces: newPieces });
+                      }}
+                    />
+                  </>
+                }>
+                <>
+                  <ValRefEditor
+                    label="Until (% of path complete)"
+                    item={piece.until}
+                    onChange={(until) => {
+                      const newPieces = [...item.pieces];
+                      newPieces[idx] = { ...piece, until };
                       onChange({ pieces: newPieces });
                     }}
-                    title="Remove Piece"
                   />
-                </div>
 
-                <ValRefEditor
-                  label="Until (% of path complete)"
-                  item={piece.until}
-                  onChange={(until) => {
-                    const newPieces = [...item.pieces];
-                    newPieces[idx] = { ...piece, until };
-                    onChange({ pieces: newPieces });
-                  }}
-                />
-
-                <InterpRefEditor
-                  label="Segment Interpolator"
-                  item={piece.interpolator}
-                  name={props.name}
-                  onChange={(interpolator: InterpRef) => {
-                    const newPieces = [...item.pieces];
-                    newPieces[idx] = { ...piece, interpolator };
-                    onChange({ pieces: newPieces });
-                  }}
-                />
-              </div>
+                  <InterpRefEditor
+                    label="Segment Interpolator"
+                    item={piece.interpolator}
+                    name={props.name}
+                    onChange={(interpolator: InterpRef) => {
+                      const newPieces = [...item.pieces];
+                      newPieces[idx] = { ...piece, interpolator };
+                      onChange({ pieces: newPieces });
+                    }}
+                  />
+                </>
+              </TitleWrapper>
             ))}
           </div>
         )}

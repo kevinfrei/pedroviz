@@ -9,7 +9,8 @@ import {
   Text,
 } from '@fluentui/react-components';
 
-import { chkRef, CurveRef, getInterpType } from '../../dataTypes';
+import { chkRef, CurveRef } from '../../dataTypes';
+import { SimpleInterpRef } from '../Editors/InterpRefEditor';
 import { DataType, symbolTableCurvesAtom } from '../state/SymbolTable';
 import { SearchableTable } from './SearchableTable';
 import { CurveSorter } from './Sort';
@@ -30,12 +31,13 @@ const columns: TableColumnDefinition<ListItem>[] = [
     renderCell: (li) =>
       chkRef(li[1]) ? (
         <Text>
-          Curve: <code>{li[1].ref}</code>
+          <code>{li[1].ref}</code> (reference)
         </Text>
       ) : (
-        <code>
-          {li[1].points.length} points, {getInterpType(li[1].interpolation)}
-        </code>
+        <Text>
+          {li[1].points.length} points,{' '}
+          <SimpleInterpRef interpref={li[1].interpolation} />
+        </Text>
       ),
   }),
 ];

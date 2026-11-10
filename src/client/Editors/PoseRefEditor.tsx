@@ -50,6 +50,7 @@ export type PoseRefEditorProps = {
   item: PoseRef;
   name?: string;
   topLevel?: boolean;
+  heading?: boolean;
   onChange: (npr: PoseRef) => void;
 };
 
@@ -60,6 +61,7 @@ export function PoseRefEditor({
   name,
   onChange,
   topLevel,
+  heading,
 }: PoseRefEditorProps): ReactElement {
   const symbolTable = useAtomValue(symbolTableAtom);
   const validPoseKeys = validPosesForRef(
@@ -69,6 +71,7 @@ export function PoseRefEditor({
   );
   const isRef = chkRef(item);
   const resolved = resolvePoseRef(item, symbolTable);
+  const displayHeading = isDefined(heading) ? heading : true;
 
   const setToRef = (toRef: boolean) => {
     if (toRef) {
@@ -134,18 +137,20 @@ export function PoseRefEditor({
               item={item?.Y || { val: 0 }}
               onChange={(Y) => onChange({ ...item, Y })}
             />
-            <HeadingRefEditor
-              label="Heading Angle"
-              optional={true}
-              item={item?.heading || null}
-              onChange={(heading: HeadingRef | null) => {
-                if (isDefined(heading) && heading !== null) {
-                  onChange({ ...item, heading });
-                } else {
-                  onChange({ X: item.X, Y: item.Y });
-                }
-              }}
-            />
+            {displayHeading && (
+              <HeadingRefEditor
+                label="Heading Angle"
+                optional={true}
+                item={item?.heading || null}
+                onChange={(heading: HeadingRef | null) => {
+                  if (isDefined(heading) && heading !== null) {
+                    onChange({ ...item, heading });
+                  } else {
+                    onChange({ X: item.X, Y: item.Y });
+                  }
+                }}
+              />
+            )}
           </div>
         )}
 
