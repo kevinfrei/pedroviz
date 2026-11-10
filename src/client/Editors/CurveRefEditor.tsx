@@ -133,38 +133,35 @@ export function CurveRefEditor({
                   Add Pose
                 </ToolbarButton>
               </Toolbar>
-
               {(item?.points || []).map((pt, pIdx) => (
-                <div key={pIdx}>
-                  <div>
-                    <span>Pose #{pIdx + 1}</span>
-                    {(item?.points || []).length > 1 && (
-                      <Button
-                        icon={<DeleteRegular />}
-
-                        onClick={() => {
-                          const newPts = item.points.filter(
-                            (_, i) => i !== pIdx,
-                          );
-                          onChange({ ...item, points: newPts });
-                        }}
-                        title="Remove Pose Point"
-                      />
-                    )}
-                  </div>
-                  <PoseRefEditor
-                    label={`Point ${pIdx + 1}`}
-                    item={pt}
-                    onChange={(newPt) => {
-                      const newPts = [...item.points];
-                      newPts[pIdx] = newPt;
-                      onChange({ ...item, points: newPts });
-                    }}
-                  />
-                </div>
+                <PoseRefEditor
+                  key={pIdx}
+                  label={
+                    <>
+                      <Text>Pose #{pIdx + 1}</Text>
+                      {(item?.points || []).length > 2 && (
+                        <Button
+                          icon={<DeleteRegular />}
+                          onClick={() => {
+                            const newPts = item.points.filter(
+                              (_, i) => i !== pIdx,
+                            );
+                            onChange({ ...item, points: newPts });
+                          }}
+                          title="Remove Pose Point"
+                        />
+                      )}
+                    </>
+                  }
+                  item={pt}
+                  onChange={(newPt) => {
+                    const newPts = [...item.points];
+                    newPts[pIdx] = newPt;
+                    onChange({ ...item, points: newPts });
+                  }}
+                />
               ))}
             </div>
-
             <InterpRefEditor
               label="Curve Interpolator"
               item={item?.interpolation || { reversed: false }}

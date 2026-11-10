@@ -39,7 +39,7 @@ export function TitleWrapper({
   onExpandChange,
   children,
 }: {
-  title: string;
+  title: string | ReactElement;
   expandable?: boolean;
   onExpandChange?: (expanded: boolean) => void;
   children: ReactElement;
@@ -52,15 +52,21 @@ export function TitleWrapper({
       onExpandChange(expanded);
     }
   };
+  const chevronStyle = {
+    paddingRight: 5,
+    paddingTop: -1,
+    marginLeft: -5,
+    cursor: 'pointer',
+  };
   const header = expandable ? (
     isExpanded ? (
       <ChevronDownRegular
-        style={{ paddingRight: 5, paddingTop: -1, marginLeft: -5 }}
+        style={chevronStyle}
         onClick={() => setIsExpanded(false)}
       />
     ) : (
       <ChevronRightRegular
-        style={{ paddingRight: 5, paddingTop: -1, marginLeft: -5 }}
+        style={chevronStyle}
         onClick={() => setIsExpanded(true)}
       />
     )

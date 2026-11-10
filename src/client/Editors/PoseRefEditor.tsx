@@ -46,7 +46,7 @@ function validPosesForRef(
 }
 
 export type PoseRefEditorProps = {
-  label: string;
+  label: string | ReactElement;
   item: PoseRef;
   name?: string;
   topLevel?: boolean;
