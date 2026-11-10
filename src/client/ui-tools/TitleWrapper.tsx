@@ -9,7 +9,7 @@ import {
   shorthands,
   tokens,
 } from '@fluentui/react-components';
-import { ArrowDownRegular, ArrowRightRegular } from '@fluentui/react-icons';
+import { ChevronDownRegular, ChevronRightRegular } from '@fluentui/react-icons';
 
 const useWrappedRegionStyle = makeStyles({
   field: {
@@ -45,27 +45,40 @@ export function TitleWrapper({
   children: ReactElement;
 }): ReactElement {
   const wrappedStyle = useWrappedRegionStyle();
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setStateExpanded] = useState(true);
+  const setIsExpanded = (expanded: boolean) => {
+    setStateExpanded(expanded);
+    if (onExpandChange) {
+      onExpandChange(expanded);
+    }
+  };
+  const header = expandable ? (
+    isExpanded ? (
+      <ChevronDownRegular
+        style={{ paddingRight: 5, paddingTop: -1, marginLeft: -5 }}
+        onClick={() => setIsExpanded(false)}
+      />
+    ) : (
+      <ChevronRightRegular
+        style={{ paddingRight: 5, paddingTop: -1, marginLeft: -5 }}
+        onClick={() => setIsExpanded(true)}
+      />
+    )
+  ) : (
+    <></>
+  );
   return (
     <div className={wrappedStyle.wrapper}>
-      {expandable && (
-        <Button
-          onClick={() => {
-            setIsExpanded(!isExpanded);
-            if (onExpandChange) {
-              onExpandChange(!isExpanded);
-            }
-          }}
-          icon={isExpanded ? <ArrowDownRegular /> : <ArrowRightRegular />}
-        />
-      )}
-      {(!expandable || isExpanded) && (
-        <Field
-          className={wrappedStyle.field}
-          label={<span className={wrappedStyle.label}>{title}</span>}
-        />
-      )}
-      {children}
+      <Field
+        className={wrappedStyle.field}
+        label={
+          <span className={wrappedStyle.label}>
+            {header}
+            {title}
+          </span>
+        }
+      />
+      {!expandable || isExpanded ? children : null}
     </div>
   );
 }

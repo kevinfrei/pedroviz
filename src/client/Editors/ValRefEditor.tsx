@@ -66,7 +66,7 @@ export function ValRefEditor({
   const onSpinChange = useSpinButtonChange((val: number) => onChange({ val }));
 
   return (
-    <TitleWrapper title={label}>
+    <TitleWrapper title={label} expandable>
       <>
         <RadioGroup
           value={isRef ? 'ref' : 'val'}
