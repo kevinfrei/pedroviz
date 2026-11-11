@@ -130,60 +130,81 @@ export function FieldRenderer(): ReactElement {
       drawLegend(ctx, 1, scale, theme);
       ctx.globalAlpha = 1.0;
       const movablePoints: MovablePoint[] = [];
-      shallow.paths.forEach((curveDescriptor: ErrorOr<ShallowPath>) => {
-        if (isError(curveDescriptor)) {
-          console.error('Error in shallow path', curveDescriptor);
+      let errors = 0;
+      const registerMovablePoints = (ptRef: ShallowPoseRef) => {
+        if (chkRef(ptRef)) {
+          // Don't draw refs: The referenced point will be drawn in the loop below
           return;
         }
-        curveDescriptor.curves.forEach((curveRef: ShallowCurveRef) => {
-          if (chkRef(curveRef)) {
-            // Don't draw refs: The referenced curve will be drawn in the loop below
+        const pt: ShallowPose = ptRef;
+        // The x and y values are either ValueLocators (used directly in the movable points)
+        // or they are references to Values, which we also need to register here
+        const x = shallow.getValue(pt.x);
+        const y = shallow.getValue(pt.y);
+        if (isError(x)) {
+          console.error('Error in point value', x.errors().join(';'));
+          errors++;
+          return;
+        }
+        if (isError(y)) {
+          console.error('Error in point value', y.errors().join(';'));
+          errors++;
+          return;
+        }
+        movablePoints.push({ x, y });
+      };
+      shallow.paths.forEach(
+        (curveDescriptor: ErrorOr<ShallowPath>, pathKey: string) => {
+          if (isError(curveDescriptor)) {
+            console.error('Error in shallow path', curveDescriptor);
             return;
           }
-          const curve: ShallowCurve = curveRef;
-          // KBF: Continue here after a bike ride and stuff...
-          // First, register any in-place control points, so that we can draw (& move!) them later
-          let errors = 0;
-          const points: Point[] = [];
-          curve.points.forEach((ptRef: ShallowPoseRef) => {
-            if (chkRef(ptRef)) {
-              // Don't draw refs: The referenced point will be drawn in the loop below
-              return;
-            }
-            const pt: ShallowPose = ptRef;
-            // The x and y values are either ValueLocators (used directly in the movable points)
-            // or they are references to Values, which we also need to register here
-            const x = shallow.getValue(pt.x);
-            const y = shallow.getValue(pt.y);
-            if (isError(x)) {
-              console.error('Error in point value', x.errors().join(';'));
-              errors++;
-              return;
-            }
-            if (isError(y)) {
-              console.error('Error in point value', y.errors().join(';'));
-              errors++;
-              return;
-            }
-            movablePoints.push({ x, y });
-            points.push({ x: x[0], y: y[0] });
-          });
-          // Draw the curve if we didn't have any errors in the points
-          if (errors === 0) {
-            // Need to make an EvalCurveDetail from the list of control points...
-            drawCurve(
-              ctx,
-              points,
-              showPathHeadings
-                ? globalInterpolator || interpolator || false
-                : false,
-              pathStyle,
-              colors[2]!,
-            );
-          }
-        });
-      });
-      correct.paths.forEach(({ curves, globalInterpolator } /*, name */) => {
+          curveDescriptor.curves.forEach(
+            (curveRef: ShallowCurveRef, curveIndex: number) => {
+              if (chkRef(curveRef)) {
+                // Don't draw refs: The referenced curve will be drawn in the loop below
+                return;
+              }
+              const curve: ShallowCurve = curveRef;
+              // Register all "in-place" control points, so that we can draw (& move!) them later
+              errors = 0;
+              curve.points.forEach(registerMovablePoints);
+              // Draw the curve if we didn't have any errors in the points
+              if (errors === 0) {
+                const evalPath = evaluated.paths.get(pathKey);
+                if (isUndefined(evalPath) || isError(evalPath)) {
+                  console.error('Error in evaluated path for', pathKey);
+                  return;
+                }
+                const evalCurve = evalPath.curves[curveIndex];
+                if (isUndefined(evalCurve) || isError(evalCurve)) {
+                  console.error(
+                    'Error in evaluated curve',
+                    curveIndex,
+                    ', for path',
+                    pathKey,
+                  );
+                  return;
+                }
+                // Need to make an EvalCurveDetail from the list of control points...
+                drawCurve(
+                  ctx,
+                  evalCurve.points,
+                  showPathHeadings
+                    ? evalPath.globalInterpolator ||
+                        evalCurve.interpolator ||
+                        false
+                    : false,
+                  pathStyle,
+                  colors[3]!,
+                );
+              }
+            },
+          );
+        },
+      );
+      /*    
+      correct.paths.forEach(({ curves, globalInterpolator } / *, name * /) => {
         curves.forEach(({ points, interpolator }: EvalCurve) => {
           drawCurve(
             ctx,
@@ -196,9 +217,41 @@ export function FieldRenderer(): ReactElement {
           );
         });
       });
-
+      */
+      shallow.curves.forEach(
+        (curveDescriptor: ErrorOr<ShallowCurveRef>, curveKey: string) => {
+          if (isError(curveDescriptor)) {
+            console.error('Error in shallow curve', curveDescriptor);
+            return;
+          }
+          if (chkRef(curveDescriptor)) {
+            // Don't draw refs: The referenced curve will be drawn when it's defin
+            return;
+          }
+          const curve: ShallowCurve = curveDescriptor;
+          errors = 0;
+          // Register all "in-place" control points, so that we can draw (& move!) them later
+          curve.points.forEach(registerMovablePoints);
+          // Draw the curve if we didn't have any errors in the points
+          if (errors === 0) {
+            const evalCurve = evaluated.curves.get(curveKey);
+            if (isUndefined(evalCurve) || isError(evalCurve)) {
+              console.error('Error in evaluated curve for', curveKey);
+              return;
+            }
+            // Need to make an EvalCurveDetail from the list of control points...
+            drawCurve(
+              ctx,
+              evalCurve.points,
+              showPathHeadings ? evalCurve.interpolator || false : false,
+              pathStyle,
+              colors[4]!,
+            );
+          }
+        },
+      );
       // TODO: Draw the selected curve differently
-      correct.curves.forEach(({ points, interpolator } /*, name*/) => {
+      /* correct.curves.forEach(({ points, interpolator } / *, name* /) => {
         drawCurve(
           ctx,
           points,
@@ -207,6 +260,7 @@ export function FieldRenderer(): ReactElement {
           colors[1]!,
         );
       });
+      */
 
       // Draw all the named points, as well
       drawControlPoints(
