@@ -1,6 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { PointerEvent, ReactElement, useCallback, useRef } from 'react';
+import {
+  PointerEvent,
+  ReactElement,
+  useCallback,
+  useRef,
+  useState,
+} from 'react';
 import { useAtomValue } from 'jotai';
 
 import { tokens } from '@fluentui/tokens';
@@ -122,6 +128,8 @@ export function FieldRenderer(): ReactElement {
   const shallow = ShallowEvaluateSymbols(symbolTable);
   const correct = CalculateItems(evaluated);
   const movablePoints: MovablePoint[] = [];
+  const [hovering, setHovering] = useState<MovablePoint | null>(null);
+  const [moving, setMoving] = useState<MovablePoint | null>(null);
 
   const renderField = useCallback(
     (ctx: CanvasRenderingContext2D, dpr: number) => {
@@ -262,6 +270,15 @@ export function FieldRenderer(): ReactElement {
         movablePoints.map((mp) => ({ x: mp.x[0], y: mp.y[0] })),
         colors[5]!,
       );
+      if (hovering !== null || moving !== null) {
+        const pt: MovablePoint = (moving !== null ? moving : hovering)!;
+        drawControlPoints(
+          ctx,
+          pathStyle.Curves.ControlPoint,
+          [{ x: pt.x[0], y: pt.y[0] }],
+          colors[moving !== null ? 1 : 3]!,
+        );
+      }
       ctx.restore();
     },
     [
@@ -312,8 +329,10 @@ export function FieldRenderer(): ReactElement {
       render={renderField}
       animate={isString(focusedPath) ? animate : () => {}}
       onPointerDown={(e, p) => {
-        const rp = unTransform(e, p);
-        console.log('Pointer down', p, rp);
+        if (hovering !== null) {
+          const rp = unTransform(e, p);
+          setMoving(hovering);
+        }
       }}
       onPointerMove={(e, p) => {
         const rp = unTransform(e, p);
@@ -324,23 +343,31 @@ export function FieldRenderer(): ReactElement {
             return cdist < pdist ? cur : prev;
           },
         );
-        if (isDefined(mp)) {
-          const pt = { x: mp.x[0], y: mp.y[0] };
-          if (last.x != pt.x && last.y != pt.y) {
-            console.log('closest change', rp, mp.x[0], mp.y[0]);
-            last = pt;
-          }
+        if (
+          isDefined(mp) &&
+          calcDist(rp, mp) < 1.5 &&
+          // Don't flicker...
+          (hovering?.x[0] !== mp.x[0] || hovering?.y[0] !== mp.y[0])
+        ) {
+          setHovering(mp);
+        } else if (
+          isDefined(mp) &&
+          calcDist(rp, mp) >= 1.5 &&
+          hovering !== null
+        ) {
+          setHovering(null);
         }
       }}
       onPointerUp={(e, p) => {
-        const rp = unTransform(e, p);
-        console.log('Pointer up', p, rp);
+        if (moving !== null) {
+          const rp = unTransform(e, p);
+          setMoving(null);
+        }
       }}
     />
   );
 }
 
-let last: Point = { x: 0, y: 0 };
 function calcDist(pt: Point, mp: MovablePoint): number {
   const mx = mp.x[0];
   const my = mp.y[0];
