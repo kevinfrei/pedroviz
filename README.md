@@ -106,10 +106,15 @@ of my frei time, because I love working with FTC students...)
 
 - [x] Read paths from JSON
   - [x] Specify robot dimensions (and other settings)
-- [ ] Save changes to the JSON file
-  - [ ] Upload the file to the robot!
+- [x] Save changes to the JSON file
+  - [ ] Upload the file to the robot using ADB
 - [ ] Get the Java JSON loader up & going!
+  - Done, but untested! (Lives in my BioBuzz fork, currently)
 - [ ] Allow editing points by dragging them on the canvas
+  - IN PROGRESS!
+- [ ] Just hide the table views, so changes stick when switching tabs
+- [ ] Rename all ref's along with the object itself
+- [ ] Highlight errors more obviously
 - [ ] Get test coverage up to something tolerable (ongoing)
 - [ ] Display JSON issues so users can see if they should fix their code, or
       send their code to me.
@@ -186,7 +191,7 @@ bun prod:bundle
 npm publish --access=public
 ```
 
-### Buy, why????
+### But, WHY????
 
 Why did I build it this way, instead of using Java? Because I didn't want to
 learn a new UI toolkit. I've been using React for a very, very long time. It's

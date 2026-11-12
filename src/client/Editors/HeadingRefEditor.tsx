@@ -147,7 +147,6 @@ export function HeadingRefEditor(props: HeadingRefEditorProps): ReactElement {
   ) : (
     <RadioGroup
       value={headingType}
-      layout="horizontal"
       onChange={(_, data) => {
         setType(data.value as HeadingType);
       }}>

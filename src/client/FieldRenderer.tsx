@@ -121,6 +121,7 @@ export function FieldRenderer(): ReactElement {
   const evaluated = EvaluateSymbols(symbolTable);
   const shallow = ShallowEvaluateSymbols(symbolTable);
   const correct = CalculateItems(evaluated);
+  const movablePoints: MovablePoint[] = [];
 
   const renderField = useCallback(
     (ctx: CanvasRenderingContext2D, dpr: number) => {
@@ -129,18 +130,16 @@ export function FieldRenderer(): ReactElement {
       ctx.globalAlpha = coordViz;
       drawLegend(ctx, 1, scale, theme);
       ctx.globalAlpha = 1.0;
-      const movablePoints: MovablePoint[] = [];
       let errors = 0;
       const registerMovablePoints = (ptRef: ShallowPoseRef) => {
         if (chkRef(ptRef)) {
           // Don't draw refs: The referenced point will be drawn in the loop below
           return;
         }
-        const pt: ShallowPose = ptRef;
         // The x and y values are either ValueLocators (used directly in the movable points)
         // or they are references to Values, which we also need to register here
-        const x = shallow.getValue(pt.x);
-        const y = shallow.getValue(pt.y);
+        const x = shallow.getValue(ptRef.x);
+        const y = shallow.getValue(ptRef.y);
         if (isError(x)) {
           console.error('Error in point value', x.errors().join(';'));
           errors++;
@@ -203,21 +202,6 @@ export function FieldRenderer(): ReactElement {
           );
         },
       );
-      /*    
-      correct.paths.forEach(({ curves, globalInterpolator } / *, name * /) => {
-        curves.forEach(({ points, interpolator }: EvalCurve) => {
-          drawCurve(
-            ctx,
-            points,
-            showPathHeadings
-              ? globalInterpolator || interpolator || false
-              : false,
-            pathStyle,
-            colors[0]!,
-          );
-        });
-      });
-      */
       shallow.curves.forEach(
         (curveDescriptor: ErrorOr<ShallowCurveRef>, curveKey: string) => {
           if (isError(curveDescriptor)) {
@@ -250,24 +234,33 @@ export function FieldRenderer(): ReactElement {
           }
         },
       );
-      // TODO: Draw the selected curve differently
-      /* correct.curves.forEach(({ points, interpolator } / *, name* /) => {
-        drawCurve(
-          ctx,
-          points,
-          showPathHeadings ? interpolator : false,
-          pathStyle,
-          colors[1]!,
-        );
+      shallow.poses.forEach((espr) => {
+        if (isError(espr) || chkRef(espr)) {
+          console.log('Skipping pose error/ref', espr);
+          return;
+        }
+        const x = shallow.getValue(espr.x);
+        const y = shallow.getValue(espr.y);
+        if (isError(x)) {
+          console.error('Error in point value', x.errors().join(';'));
+          errors++;
+          return;
+        }
+        if (isError(y)) {
+          console.error('Error in point value', y.errors().join(';'));
+          errors++;
+          return;
+        }
+        movablePoints.push({ x, y });
       });
-      */
+      // TODO: Draw the selected curve differently
 
       // Draw all the named points, as well
       drawControlPoints(
         ctx,
         pathStyle.Curves.ControlPoint,
-        correct.poses.values(),
-        colors[3]!,
+        movablePoints.map((mp) => ({ x: mp.x[0], y: mp.y[0] })),
+        colors[5]!,
       );
       ctx.restore();
     },
@@ -315,7 +308,7 @@ export function FieldRenderer(): ReactElement {
 
   return (
     <ResponsiveSquareCanvas
-      anchor={{ x: 'right', y: 'top' }}
+      anchor={{ x: 'left', y: 'top' }}
       render={renderField}
       animate={isString(focusedPath) ? animate : () => {}}
       onPointerDown={(e, p) => {
@@ -324,7 +317,20 @@ export function FieldRenderer(): ReactElement {
       }}
       onPointerMove={(e, p) => {
         const rp = unTransform(e, p);
-        console.log('Pointer move', p, rp);
+        const mp = movablePoints.reduce(
+          (prev: MovablePoint, cur: MovablePoint) => {
+            const pdist = calcDist(rp, prev);
+            const cdist = calcDist(rp, cur);
+            return cdist < pdist ? cur : prev;
+          },
+        );
+        if (isDefined(mp)) {
+          const pt = { x: mp.x[0], y: mp.y[0] };
+          if (last.x != pt.x && last.y != pt.y) {
+            console.log('closest change', rp, mp.x[0], mp.y[0]);
+            last = pt;
+          }
+        }
       }}
       onPointerUp={(e, p) => {
         const rp = unTransform(e, p);
@@ -332,6 +338,15 @@ export function FieldRenderer(): ReactElement {
       }}
     />
   );
+}
+
+let last: Point = { x: 0, y: 0 };
+function calcDist(pt: Point, mp: MovablePoint): number {
+  const mx = mp.x[0];
+  const my = mp.y[0];
+  const dx = mx - pt.x;
+  const dy = my - pt.y;
+  return dx * dx + dy * dy;
 }
 
 function drawFocusedPose(
@@ -387,12 +402,12 @@ function drawCurve(
   color: string,
 ) {
   drawCurveLine(ctx, curve, color, pathStyle.Curves);
-  drawControlPoints(
+  /*drawControlPoints(
     ctx,
     pathStyle.Curves.ControlPoint,
     curve.controlPoints,
     color,
-  );
+  );*/
   // TODO: draw the heading interpolators
 }
 
