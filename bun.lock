@@ -8,7 +8,7 @@
         "@ctrl/tinycolor": "^4.3.0",
         "@fluentui-contrib/react-draggable-dialog": "^0.2.6",
         "@fluentui/react-components": "^9.75.2",
-        "@fluentui/react-icons": "^2.0.345",
+        "@fluentui/react-icons": "^2.0.346",
         "@fluentui/tokens": "^1.0.0-alpha.24",
         "@freik/containers": "^0.4.10",
         "@freik/fluent9-tools": "^0.2.4",
@@ -22,7 +22,7 @@
         "optics-ts": "^2.4.1",
         "react": "^19.3.1",
         "react-dom": "^19.3.1",
-        "react-resizable-panels": "^4.21.0",
+        "react-resizable-panels": "^4.22.1",
       },
       "devDependencies": {
         "@freik/workspace": "^0.8.1",
@@ -195,7 +195,7 @@
 
     "@fluentui/react-hooks": ["@fluentui/react-hooks@8.10.2", "", { "dependencies": { "@fluentui/react-window-provider": "^2.3.2", "@fluentui/set-version": "^8.2.24", "@fluentui/utilities": "^8.17.2", "tslib": "^2.1.0" }, "peerDependencies": { "@types/react": ">=16.8.0 <20.0.0", "react": ">=16.8.0 <20.0.0" } }, "sha512-HAd5cX50yKW/LljWlwt+FpSpdS/pNJutk9kMb7FyzxfoGBulL7sj6vX2HvxhSKyJMRKuTstXTdfJmsh22+3W3w=="],
 
-    "@fluentui/react-icons": ["@fluentui/react-icons@2.0.345", "", { "dependencies": { "@griffel/react": "^1.6.1", "tslib": "^2.1.0" }, "peerDependencies": { "react": ">=16.8.0 <20.0.0" } }, "sha512-lU3TXTAknzs0n4luCR1dlir10ZJQkqSUPsfwCErEenZufZQp8P3Nj+agYVx7Dk2v76JSAPweA9CpQD/0AzeVFQ=="],
+    "@fluentui/react-icons": ["@fluentui/react-icons@2.0.346", "", { "dependencies": { "@griffel/react": "^1.6.1", "tslib": "^2.1.0" }, "peerDependencies": { "react": ">=16.8.0 <20.0.0" } }, "sha512-HrtEQcmJgA73sXt/jJHq5la3svt8nQoA+tycER5PXH+tPKzSrmPY72wSz8m+4iMzjG9w5WMQJbjbhsSzQNS53g=="],
 
     "@fluentui/react-image": ["@fluentui/react-image@9.4.6", "", { "dependencies": { "@fluentui/react-jsx-runtime": "^9.4.7", "@fluentui/react-shared-contexts": "^9.26.4", "@fluentui/react-theme": "^9.2.2", "@fluentui/react-utilities": "^9.27.0", "@griffel/react": "^1.5.32", "@swc/helpers": "^0.5.1" }, "peerDependencies": { "@types/react": ">=16.14.0 <20.0.0", "react": ">=16.14.0 <20.0.0" }, "optionalPeers": ["@types/react"] }, "sha512-b3eocfTnswkpUnuebEfmzAy6BAtZub7Ov+ZXawB7fr7UvhCIuD6neGnKLsp2nBi6REOiQYEkF0lDv1Nf0l2aTA=="],
 
@@ -571,7 +571,7 @@
 
     "react-is": ["react-is@17.0.2", "", {}, "sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w=="],
 
-    "react-resizable-panels": ["react-resizable-panels@4.21.0", "", { "peerDependencies": { "@types/react": "^18.2.6 || ^19.0.0", "react": "^18.0.0 || ^19.0.0", "react-dom": "^18.0.0 || ^19.0.0" }, "optionalPeers": ["@types/react"] }, "sha512-SzNEQNH/xIn3aKKLSdv48h0eu1gF1bkvozIVStow2hRmh/d9jkyoZR7dF8GUx39Wc2TAJTmfSUr4y/wwtvMoRQ=="],
+    "react-resizable-panels": ["react-resizable-panels@4.22.1", "", { "peerDependencies": { "@types/react": "^18.2.6 || ^19.0.0", "react": "^18.0.0 || ^19.0.0", "react-dom": "^18.0.0 || ^19.0.0" }, "optionalPeers": ["@types/react"] }, "sha512-qIMatwlXKgcW/W96gjssjEpVekfaZN+S5hjfOvatczyKWk24yGGEtJJZ/gAqRtc2DmTgVFFcoqwwsqST0j39Yg=="],
 
     "redent": ["redent@3.0.0", "", { "dependencies": { "indent-string": "^4.0.0", "strip-indent": "^3.0.0" } }, "sha512-6tDA8g98We0zd0GvVeMT9arEOnTw9qM03L9cJXaCjrip1OO764RDBLBfrB4cwzNGDj5OA5ioymC9GkizgWJDUg=="],
 

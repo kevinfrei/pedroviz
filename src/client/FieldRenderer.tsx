@@ -7,12 +7,13 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useAtomValue } from 'jotai';
+import { Setter, useAtom, useAtomValue } from 'jotai';
 
 import { tokens } from '@fluentui/tokens';
-import { chkRef } from 'src/dataTypes';
+import { chkRef, SymbolTable } from 'src/dataTypes';
 import {
   ErrorOr,
+  hasField,
   isDefined,
   isError,
   isString,
@@ -41,6 +42,7 @@ import {
   ShallowPath,
   ShallowPose,
   ShallowPoseRef,
+  ValueLocator,
 } from './ConcreteEvalTypes';
 import { CloseTo, ptDistance, vector } from './DrawingHelpers';
 import {
@@ -66,6 +68,7 @@ import { ColorsAtom, FocusedPathAtom } from './state/UserCode';
 import { ResponsiveSquareCanvas } from './ui-tools/ResponsiveSquareCanvas';
 
 const FIELD_SIZE = 144; // Size of the field, in inches
+const SELECTION_DISTANCE = 2; // The distance^2 for a selection to be triggered
 
 function unTransform(
   e: PointerEvent<HTMLCanvasElement>,
@@ -75,8 +78,8 @@ function unTransform(
   const size = canvas.width;
   const scale = size / FIELD_SIZE;
   return {
-    x: p.x / scale,
-    y: (size - p.y) / scale,
+    x: Math.round((p.x * 1000) / scale) / 1000,
+    y: Math.round(((size - p.y) * 1000) / scale) / 1000,
   };
 }
 
@@ -107,7 +110,7 @@ export function FieldRenderer(): ReactElement {
 
   const focusedPath = useAtomValue(FocusedPathAtom);
 
-  const symbolTable = useAtomValue(symbolTableAtom);
+  const [symbolTable, setSymbolTable] = useAtom(symbolTableAtom);
   const selected = useAtomValue(selectedKeyAtom);
   const selectedPathOrCurveKey = useAtomValue(selectedPathOrCurveKeyAtom);
 
@@ -336,26 +339,34 @@ export function FieldRenderer(): ReactElement {
       }}
       onPointerMove={(e, p) => {
         const rp = unTransform(e, p);
-        const mp = movablePoints.reduce(
-          (prev: MovablePoint, cur: MovablePoint) => {
-            const pdist = calcDist(rp, prev);
-            const cdist = calcDist(rp, cur);
-            return cdist < pdist ? cur : prev;
-          },
-        );
-        if (
-          isDefined(mp) &&
-          calcDist(rp, mp) < 1.5 &&
-          // Don't flicker...
-          (hovering?.x[0] !== mp.x[0] || hovering?.y[0] !== mp.y[0])
-        ) {
-          setHovering(mp);
-        } else if (
-          isDefined(mp) &&
-          calcDist(rp, mp) >= 1.5 &&
-          hovering !== null
-        ) {
-          setHovering(null);
+        if (moving !== null) {
+          setMovablePoint(symbolTable, setSymbolTable, moving, rp);
+        } else if (movablePoints !== null && movablePoints.length >= 0) {
+          const mp = movablePoints.reduce(
+            (prev: MovablePoint | undefined, cur: MovablePoint) => {
+              if (isUndefined(prev)) {
+                return cur;
+              }
+              const pdist = calcDist(rp, prev);
+              const cdist = calcDist(rp, cur);
+              return cdist < pdist ? cur : prev;
+            },
+            undefined,
+          );
+          if (isDefined(mp)) {
+            if (
+              calcDist(rp, mp) < SELECTION_DISTANCE &&
+              // Don't flicker...
+              (hovering?.x[0] !== mp.x[0] || hovering?.y[0] !== mp.y[0])
+            ) {
+              setHovering(mp);
+            } else if (
+              calcDist(rp, mp) >= SELECTION_DISTANCE &&
+              hovering !== null
+            ) {
+              setHovering(null);
+            }
+          }
         }
       }}
       onPointerUp={(e, p) => {
@@ -363,9 +374,95 @@ export function FieldRenderer(): ReactElement {
           const rp = unTransform(e, p);
           setMoving(null);
         }
+        setHovering(null);
       }}
     />
   );
+}
+
+function setMovablePoint(
+  st: SymbolTable,
+  sst: (s: SymbolTable) => void,
+  m: MovablePoint,
+  dest: Point,
+): void {
+  if (calcDist(dest, m) < 0.01) {
+    return;
+  }
+  // This is delightful. Interpret the descriptor to assign the value. For Both.
+  sst(Assign(Assign(st, m.x, dest.x), m.y, dest.y));
+}
+
+function updatePoseX(st: SymbolTable, name: string, num: number): SymbolTable {
+  const pose = st.poses.get(name);
+  if (isUndefined(pose) || chkRef(pose)) {
+    console.error('Unable to find selected pose value', name);
+    return st;
+  }
+  const poses = new Map(st.poses);
+  poses.set(name, { ...pose, X: { val: num } });
+  return {
+    values: st.values,
+    poses,
+    interpolations: st.interpolations,
+    curves: st.curves,
+    paths: st.paths,
+  };
+}
+
+function updatePoseY(st: SymbolTable, name: string, num: number): SymbolTable {
+  const pose = st.poses.get(name);
+  if (isUndefined(pose) || chkRef(pose)) {
+    console.error('Unable to find selected pose value', name);
+    return st;
+  }
+  const poses = new Map(st.poses);
+  poses.set(name, { ...pose, Y: { val: num } });
+  return {
+    values: st.values,
+    poses,
+    interpolations: st.interpolations,
+    curves: st.curves,
+    paths: st.paths,
+  };
+}
+
+function updateValue(st: SymbolTable, name: string, num: number): SymbolTable {
+  const val = st.values.get(name);
+  if (isUndefined(val) || chkRef(val)) {
+    console.error('Unable to find selected *defined* value', name);
+    return st;
+  }
+  const values = new Map(st.values);
+  values.set(name, { val: num });
+  return {
+    values,
+    poses: st.poses,
+    interpolations: st.interpolations,
+    curves: st.curves,
+    paths: st.paths,
+  };
+}
+
+function Assign(
+  st: SymbolTable,
+  [curVal, name, descr]: ValueLocator,
+  num: number,
+): SymbolTable {
+  console.log('Name', name, 'Descriptor', descr, 'Cur', curVal, 'New', num);
+  // Parse the descr and then set the right value in a copy of the symbol table :/
+  switch (descr) {
+    case 'x':
+      // It's a point; Get the point, update the coordinate
+      return updatePoseX(st, name, num);
+    case 'y':
+      // It's a point; Get the point, update the coordinate
+      return updatePoseY(st, name, num);
+    case 'v':
+      // It's a value: Just update the value itself
+      return updateValue(st, name, num);
+  }
+  return st;
 }
 
 function calcDist(pt: Point, mp: MovablePoint): number {
