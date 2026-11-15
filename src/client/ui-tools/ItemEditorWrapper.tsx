@@ -12,6 +12,7 @@ import {
   Label,
   makeStyles,
   OverlayDrawer,
+  tokens,
   Toolbar,
   ToolbarButton,
   ToolbarGroup,
@@ -84,7 +85,11 @@ export function ItemEditor<T>({
 
   return (
     <OverlayDrawer
-      style={{ zIndex: 100, width: '350px' }}
+      style={{
+        zIndex: 100,
+        width: '375px',
+        backgroundColor: tokens.colorNeutralBackground3,
+      }}
       open={open}
       modalType="non-modal"
       backdropMotion={null}

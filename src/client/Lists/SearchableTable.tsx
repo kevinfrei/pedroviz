@@ -126,7 +126,8 @@ export function SearchableTable<T>({
           getRowId={(itm: ListItem) => itm[0]}
           selectionMode="single"
           selectedItems={selectedRows}
-          onSelectionChange={onSelChanged}>
+          onSelectionChange={onSelChanged}
+          style={{ overflowY: 'auto' }}>
           <DataGridHeader>
             <DataGridRow>
               {({ renderHeaderCell }) => (

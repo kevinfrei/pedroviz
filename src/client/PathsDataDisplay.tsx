@@ -1,16 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import React, { Fragment, ReactElement, Suspense } from 'react';
+import { ReactElement, Suspense } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 
-import {
-  SelectTabData,
-  SelectTabEvent,
-  Tab,
-  TabList,
-  TabListProps,
-  Text,
-} from '@fluentui/react-components';
+import { Tab, TabList, TabListProps, Text } from '@fluentui/react-components';
 import { isUndefined } from '@freik/typechk';
 
 import { CurvesView } from './Panels/CurvesView';
@@ -46,7 +39,7 @@ export function PathsDataDisplay(): ReactElement {
     return <Text size={600}>Please select a file & class to view.</Text>;
   }
   return (
-    <div>
+    <>
       <TabList selectedValue={activeTab} onTabSelect={onTabSelect}>
         {tabInfo.map(({ key, title }) => (
           <Tab key={key} value={key}>
@@ -56,9 +49,11 @@ export function PathsDataDisplay(): ReactElement {
       </TabList>
       <Suspense>
         {tabInfo.map(({ key, element }) => (
-          <Fragment key={key}>{key === activeTab && element}</Fragment>
+          <div key={key} hidden={key === activeTab ? false : true}>
+            {element}
+          </div>
         ))}
       </Suspense>
-    </div>
+    </>
   );
 }
