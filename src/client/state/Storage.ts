@@ -31,10 +31,8 @@ export async function fetchApi<T>(
   if (fetched.ok) {
     try {
       res = await fetched.text();
-      console.log('Got data for', key, ':', res);
       const try2 = SafelyUnpickle(res, chk);
       if (isDefined(try2)) {
-        console.log('Success1');
         return try2;
       }
     } catch {
@@ -65,6 +63,6 @@ export async function putApi(key: string, value: unknown): Promise<void> {
   if (put.ok) {
     console.log(await put.text());
   } else {
-    console.log("PUT didn't return okay", put);
+    console.error("PUT didn't return okay", put);
   }
 }

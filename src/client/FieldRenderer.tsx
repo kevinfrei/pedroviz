@@ -247,7 +247,7 @@ export function FieldRenderer(): ReactElement {
       );
       shallow.poses.forEach((espr) => {
         if (isError(espr) || chkRef(espr)) {
-          console.log('Skipping pose error/ref', espr);
+          console.error('Skipping pose error/ref', espr);
           return;
         }
         const x = shallow.getValue(espr.x);
@@ -449,7 +449,7 @@ function Assign(
   [curVal, name, descr]: ValueLocator,
   num: number,
 ): SymbolTable {
-  console.log('Name', name, 'Descriptor', descr, 'Cur', curVal, 'New', num);
+  // console.log('Name', name, 'Descriptor', descr, 'Cur', curVal, 'New', num);
   // Parse the descr and then set the right value in a copy of the symbol table :/
   switch (descr) {
     case 'x':

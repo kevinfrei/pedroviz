@@ -83,7 +83,7 @@ export const pathsFileFamily = atomFamily((team: Team) =>
         return backer;
       }
       const pathsFile = await GetPaths(team);
-      console.log('pathsFileFamily getter IPC', team);
+      // console.log('pathsFileFamily getter IPC', team);
       return pathsFile;
     },
     async (get, set, val: NamedValues) => {

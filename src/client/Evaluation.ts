@@ -622,24 +622,32 @@ export function CalculateItems(evalSyms: EvalSymbols): CorrectSymbols {
   evalSyms.values
     .entries()
     .filter(onlyError)
-    .forEach(([str, err]) => console.log('Value', str, err.errors().join(';')));
+    .forEach(([str, err]) =>
+      console.error('Value', str, err.errors().join(';')),
+    );
   evalSyms.poses
     .entries()
     .filter(onlyError)
-    .forEach(([str, err]) => console.log('Pose', str, err.errors().join(';')));
+    .forEach(([str, err]) =>
+      console.error('Pose', str, err.errors().join(';')),
+    );
   evalSyms.interpolators
     .entries()
     .filter(onlyError)
     .forEach(([str, err]) =>
-      console.log('Interp', str, err.errors().join(';')),
+      console.error('Interp', str, err.errors().join(';')),
     );
   evalSyms.curves
     .entries()
     .filter(onlyError)
-    .forEach(([str, err]) => console.log('Curve', str, err.errors().join(';')));
+    .forEach(([str, err]) =>
+      console.error('Curve', str, err.errors().join(';')),
+    );
   evalSyms.paths
     .entries()
     .filter(onlyError)
-    .forEach(([str, err]) => console.log('Path', str, err.errors().join(';')));
+    .forEach(([str, err]) =>
+      console.error('Path', str, err.errors().join(';')),
+    );
   return correctSymbols;
 }

@@ -34,7 +34,6 @@ export function TeamSelector(): ReactElement {
 export function SaveButton(): ReactElement {
   const team = useAtomValue(SelectedTeamAtom);
   const [get, refresher] = useAtom(pathsFileFamily(team!));
-  console.log('pathsForTeam', team, 'contents', get);
   return (
     <Button
       icon={<SaveRegular />}

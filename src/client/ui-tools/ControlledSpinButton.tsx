@@ -12,16 +12,13 @@ export function useSpinButtonChange(
 ): NonNullable<SpinButtonProps['onChange']> {
   return useCallback(
     (_: SpinButtonChangeEvent, data: SpinButtonOnChangeData) => {
-      console.log('onSpinButtonChange', data.value, data.displayValue);
       if (isNumber(data.value)) {
         onChange(data.value);
       } else if (data.displayValue !== undefined) {
         const newValue = parseFloat(data.displayValue);
         if (!Number.isNaN(newValue)) {
           onChange(newValue);
-        } // else {
-        //   console.error(`Cannot parse "${data.displayValue}" as a number.`);
-        // }
+        }
       }
     },
     [onChange],

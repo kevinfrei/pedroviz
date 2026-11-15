@@ -95,7 +95,6 @@ export function getInterpType(interp: InterpRef): InterpNames {
   if (chkPieceWiseInterp(interp)) {
     return 'PieceWise';
   }
-  console.log(interp);
   throw new Error(`Invalid Interpolator: ${interp}`);
 }
 
