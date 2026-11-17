@@ -348,6 +348,7 @@ export function EvaluateSymbols(symbolTable: SymbolTable): EvalSymbols {
   return evalSyms;
 }
 
+// The locator's desc format is documented in 'CanvasDescriptors.md'
 function MakeLocator(val: number, name: string, desc: string): ValueLocator {
   return [val, name, desc];
 }

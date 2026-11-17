@@ -18,7 +18,7 @@ import {
   isUndefined,
 } from '@freik/typechk';
 
-import { chkRef, SymbolTable } from '../dataTypes';
+import { chkRef } from '../dataTypes';
 import { animateBot, BotAnimationState } from './BotAnimation';
 import {
   ControlPointStyle,
@@ -40,7 +40,6 @@ import {
   ShallowEvalSymbols,
   ShallowPath,
   ShallowPoseRef,
-  ValueLocator,
 } from './ConcreteEvalTypes';
 import { CloseTo, ptDistance, vector } from './DrawingHelpers';
 import {
@@ -48,6 +47,7 @@ import {
   EvaluateSymbols,
   ShallowEvaluateSymbols,
 } from './Evaluation';
+import { SetMovablePoint } from './PointUpdating';
 import {
   BotDrawStyleAtom,
   CoordVizPercentAtom,
@@ -228,7 +228,7 @@ export function FieldRenderer(): ReactElement {
             return;
           }
           if (chkRef(curveDescriptor)) {
-            // Don't draw refs: The referenced curve will be drawn when it's defin
+            // Don't draw refs: The referenced curve will be drawn by it's referenced definition
             return;
           }
           const curve: ShallowCurve = curveDescriptor;
@@ -350,7 +350,7 @@ export function FieldRenderer(): ReactElement {
         const rp = unTransform(e, p);
         if (moving !== null) {
           // We're moving a point: Just move the point around...
-          setMovablePoint(symbolTable, setSymbolTable, moving, rp);
+          SetMovablePoint(symbolTable, setSymbolTable, moving, rp);
         } else if (movablePoints !== null && movablePoints.length >= 0) {
           // We're not moving a point, and we have some points we could
           // potentially try and move.
@@ -397,92 +397,7 @@ export function FieldRenderer(): ReactElement {
   );
 }
 
-function setMovablePoint(
-  st: SymbolTable,
-  sst: (s: SymbolTable) => void,
-  m: MovablePoint,
-  dest: Point,
-): void {
-  if (calcDist(dest, m) < 0.01) {
-    return;
-  }
-  // This is delightful. Interpret the descriptor to assign the value. For Both.
-  sst(Assign(Assign(st, m.x, dest.x), m.y, dest.y));
-}
-
-function updatePoseX(st: SymbolTable, name: string, num: number): SymbolTable {
-  const pose = st.poses.get(name);
-  if (isUndefined(pose) || chkRef(pose)) {
-    console.error('Unable to find selected pose value', name);
-    return st;
-  }
-  const poses = new Map(st.poses);
-  poses.set(name, { ...pose, X: { val: num } });
-  return {
-    values: st.values,
-    poses,
-    interpolations: st.interpolations,
-    curves: st.curves,
-    paths: st.paths,
-  };
-}
-
-function updatePoseY(st: SymbolTable, name: string, num: number): SymbolTable {
-  const pose = st.poses.get(name);
-  if (isUndefined(pose) || chkRef(pose)) {
-    console.error('Unable to find selected pose value', name);
-    return st;
-  }
-  const poses = new Map(st.poses);
-  poses.set(name, { ...pose, Y: { val: num } });
-  return {
-    values: st.values,
-    poses,
-    interpolations: st.interpolations,
-    curves: st.curves,
-    paths: st.paths,
-  };
-}
-
-function updateValue(st: SymbolTable, name: string, num: number): SymbolTable {
-  const val = st.values.get(name);
-  if (isUndefined(val) || chkRef(val)) {
-    console.error('Unable to find selected *defined* value', name);
-    return st;
-  }
-  const values = new Map(st.values);
-  values.set(name, { val: num });
-  return {
-    values,
-    poses: st.poses,
-    interpolations: st.interpolations,
-    curves: st.curves,
-    paths: st.paths,
-  };
-}
-
-function Assign(
-  st: SymbolTable,
-  [curVal, name, descr]: ValueLocator,
-  num: number,
-): SymbolTable {
-  // console.log('Name', name, 'Descriptor', descr, 'Cur', curVal, 'New', num);
-  // Parse the descr and then set the right value in a copy of the symbol table :/
-  switch (descr) {
-    case 'x':
-      // It's a point; Get the point, update the coordinate
-      return updatePoseX(st, name, num);
-    case 'y':
-      // It's a point; Get the point, update the coordinate
-      return updatePoseY(st, name, num);
-    case 'v':
-      // It's a value: Just update the value itself
-      return updateValue(st, name, num);
-  }
-  return st;
-}
-
-function calcDist(pt: Point, mp: MovablePoint): number {
+export function calcDist(pt: Point, mp: MovablePoint): number {
   const mx = mp.x[0];
   const my = mp.y[0];
   const dx = mx - pt.x;

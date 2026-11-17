@@ -88,11 +88,11 @@ code, anyway.
 
 # Current status
 
-Reading, rendering, and editing values, poses, curves, and paths, and animating
-paths including _most_ headings works (`offset`s, some `reverse` usages, and
-`GlobalHeadingInterpolator`s don't currently work). It's currently at almost
-visualization parity with [PP Visualizer](https://visualizer.pedropathing.com)
-(The animation is currently broken; I'll be fixing it 'real soon')
+- Reading and editing values, poses, curves, and paths appears to work (though a
+  little clunky in places).
+- It's currently at almost visualization parity with
+  [PP Visualizer](https://visualizer.pedropathing.com)
+- (The animation is currently broken; I'll be fixing it 'real soon')
 
 # Hey, Kevin, this doesn't work!
 
@@ -107,18 +107,21 @@ FTC students...)
 
 - [x] Save changes to the JSON file
   - [ ] Upload the file to the robot using ADB
+  - [ ] Add a JSON version number, so that an ADB uploaded one will only
+        override an older build asset
+  - [ ] Allow a "Force new path version" thing? Dunno...
 - [ ] Get the Java JSON loader up & going!
   - Done, but untested! (Lives in my BioBuzz fork, currently)
-- [ ] Allow editing points by dragging them on the canvas
-  - IN PROGRESS!
-- [ ] Allow moving entire paths by grabbing them?
-- [ ] Rename all ref's along with the object itself
-- [ ] Highlight & display errors more obviously
-- [ ] Get test coverage up to something tolerable (ongoing)
-- [ ] Display JSON issues so users can see if they should fix their JSON, or
-      send their JSON to me.
+- [ ] Animate the currently selected path or curve
 - [ ] Draw the interpolation arrows.
 - [ ] Fix interpolation to be a per-path thing.
+- [ ] Allow moving entire paths by grabbing them?
+- [ ] Rename all ref's to a something when you rename the something.
+- [ ] Highlight & display errors more obviously
+- [ ] Get test coverage up to something tolerable (I've just been disabling PPv2
+      failing tests, because I'm a bad engineer)
+- [ ] Display JSON issues so users can see if they should fix their JSON, or
+      send their JSON to me.
 - [ ] Get this stuff working on Safari. I've enabled dev mode, and it looks like
       something with the ResizeObserver for the Canvas isn't working. Works fine
       on Firefox, Chrome, and Brave on Mac, Linux, and Windows (and Edge works,
@@ -134,8 +137,6 @@ FTC students...)
         animation)
   - [ ] braking strength
   - [ ] tValues (Not sure what this would really look like...)
-- [ ] Add a JSON version number, so that an ADB uploaded one will only override
-      an older build asset
 - [ ] Add a JSON _schema_ version number, for compatibility issues
 - [ ] Change the Jotai atom structure to be dramatically more granular. The
       single "symbol table" is a major source of re-rendering/flickering.
@@ -159,6 +160,7 @@ FTC students...)
 - [x] Migrate to use a text file, instead of java source code for everything. V3
       suggests calling a function to get the paths. Make the function get the
       paths from the JSON file!
+- [x] Allow editing points by dragging them on the canvas
 
 # Development
 
