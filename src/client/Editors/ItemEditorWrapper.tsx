@@ -14,7 +14,9 @@ import {
   ToolbarGroup,
 } from '@fluentui/react-components';
 import { DeleteRegular, DismissRegular } from '@fluentui/react-icons';
+import { isDefined, isUndefined } from '@freik/typechk';
 
+import { chkRef, CurveRef, Path, SymbolTable } from '../../dataTypes';
 import { NewMapDelete, NewMapRename } from '../../helpers';
 import {
   DataType,
@@ -22,6 +24,59 @@ import {
   selectedItemKeyFamily,
 } from '../state/SymbolTable';
 import { useToast } from '../ui-tools/NotificationToast';
+
+// Walk the whole tree updating refs to the renamed item
+function _FullRenameItem(
+  type: DataType,
+  oldName: string,
+  newName: string,
+  symbolTable: SymbolTable,
+): SymbolTable | undefined {
+  // Handle renames of all data types, because why not...
+  if (type === DataType.Paths) {
+    // Paths are trivial...
+    const paths = NewMapRename(symbolTable.paths, oldName, newName);
+    if (isDefined(paths)) {
+      return { ...symbolTable, paths };
+    }
+  }
+  if (type === DataType.Curves) {
+    // Curves require attention to other curves, and all paths for possible references
+    const curves = NewMapRename(symbolTable.curves, oldName, newName);
+    if (isUndefined(curves)) {
+      return undefined;
+    }
+    for (const cr of curves) {
+      if (chkRef(cr) && cr.ref === oldName) {
+        cr.ref = newName;
+      }
+    }
+    let paths: Map<string, Path> | undefined = undefined;
+    for (const [name, path] of symbolTable.paths) {
+      const toSet: number[] = [];
+      for (let i = 0; i < path.curves.length; i++) {
+        const cr = path.curves[i];
+        if (chkRef(cr) && cr.ref === oldName) {
+          toSet.push(i);
+        }
+      }
+      if (toSet.length > 0) {
+        const curves: CurveRef[] = [...path.curves];
+        toSet.forEach((i) => {
+          curves[i] = { ref: newName };
+        });
+        if (isUndefined(paths)) {
+          paths = new Map(symbolTable.paths);
+        }
+        paths.set(name, { ...path, curves });
+      }
+    }
+    return isUndefined(paths)
+      ? { ...symbolTable, curves }
+      : { ...symbolTable, curves, paths };
+  }
+  return undefined;
+}
 
 const useStyles = makeStyles({
   stack: {
