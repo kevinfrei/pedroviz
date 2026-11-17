@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { RefOr } from 'src/dataTypes';
-import { Nominal } from 'src/typeHelpers';
 import { ErrorOr } from '@freik/typechk';
+
+import { RefOr } from '../dataTypes';
+import { Nominal } from '../typeHelpers';
 
 export type Point = { x: number; y: number; h?: number };
 export type CurveDetail = { length: number; points: Point[] };

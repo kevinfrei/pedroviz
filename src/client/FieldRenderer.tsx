@@ -7,19 +7,18 @@ import {
   useRef,
   useState,
 } from 'react';
-import { Setter, useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 
 import { tokens } from '@fluentui/tokens';
-import { chkRef, SymbolTable } from 'src/dataTypes';
 import {
   ErrorOr,
-  hasField,
   isDefined,
   isError,
   isString,
   isUndefined,
 } from '@freik/typechk';
 
+import { chkRef, SymbolTable } from '../dataTypes';
 import { animateBot, BotAnimationState } from './BotAnimation';
 import {
   ControlPointStyle,
@@ -31,7 +30,6 @@ import {
 import {
   ConcreteHeading,
   CurveDetail,
-  EvalCurve,
   EvalCurveDetail,
   EvalInterpolator,
   EvalPose,
@@ -39,8 +37,8 @@ import {
   Point,
   ShallowCurve,
   ShallowCurveRef,
+  ShallowEvalSymbols,
   ShallowPath,
-  ShallowPose,
   ShallowPoseRef,
   ValueLocator,
 } from './ConcreteEvalTypes';
@@ -95,6 +93,33 @@ function scaleCanvas(ctx: CanvasRenderingContext2D): number {
   return scale;
 }
 
+// A helper function to add all in-place points to the
+// movablePoints array for pointer hit detection
+function registerMovablePoint(
+  ptRef: ShallowPoseRef,
+  shallow: ShallowEvalSymbols,
+  movablePoints: MovablePoint[],
+): number {
+  // Don't register refs: The referenced point will be registered
+  // when poses are processed
+  if (!chkRef(ptRef)) {
+    // The x and y values are either ValueLocators (used directly in the movable points)
+    // or they are references to Values, which we also need to register here
+    const x = shallow.getValue(ptRef.x);
+    const y = shallow.getValue(ptRef.y);
+    if (isError(x)) {
+      console.error('Error in point value', x.errors().join(';'));
+      return 1;
+    }
+    if (isError(y)) {
+      console.error('Error in point value', y.errors().join(';'));
+      return 1;
+    }
+    movablePoints.push({ x, y });
+  }
+  return 0;
+}
+
 export function FieldRenderer(): ReactElement {
   const theme = useAtomValue(ThemeAtom);
   const coordViz = useAtomValue(CoordVizPercentAtom);
@@ -142,27 +167,8 @@ export function FieldRenderer(): ReactElement {
       drawLegend(ctx, 1, scale, theme);
       ctx.globalAlpha = 1.0;
       let errors = 0;
-      const registerMovablePoints = (ptRef: ShallowPoseRef) => {
-        if (chkRef(ptRef)) {
-          // Don't draw refs: The referenced point will be drawn in the loop below
-          return;
-        }
-        // The x and y values are either ValueLocators (used directly in the movable points)
-        // or they are references to Values, which we also need to register here
-        const x = shallow.getValue(ptRef.x);
-        const y = shallow.getValue(ptRef.y);
-        if (isError(x)) {
-          console.error('Error in point value', x.errors().join(';'));
-          errors++;
-          return;
-        }
-        if (isError(y)) {
-          console.error('Error in point value', y.errors().join(';'));
-          errors++;
-          return;
-        }
-        movablePoints.push({ x, y });
-      };
+
+      // First, render any in-place curves for paths:
       shallow.paths.forEach(
         (curveDescriptor: ErrorOr<ShallowPath>, pathKey: string) => {
           if (isError(curveDescriptor)) {
@@ -176,9 +182,11 @@ export function FieldRenderer(): ReactElement {
                 return;
               }
               const curve: ShallowCurve = curveRef;
-              // Register all "in-place" control points, so that we can draw (& move!) them later
+              // Register all in-place control points, so that we can draw (& move!) them later
               errors = 0;
-              curve.points.forEach(registerMovablePoints);
+              for (const pt of curve.points) {
+                errors += registerMovablePoint(pt, shallow, movablePoints);
+              }
               // Draw the curve if we didn't have any errors in the points
               if (errors === 0) {
                 const evalPath = evaluated.paths.get(pathKey);
@@ -226,7 +234,9 @@ export function FieldRenderer(): ReactElement {
           const curve: ShallowCurve = curveDescriptor;
           errors = 0;
           // Register all "in-place" control points, so that we can draw (& move!) them later
-          curve.points.forEach(registerMovablePoints);
+          for (const pt of curve.points) {
+            errors += registerMovablePoint(pt, shallow, movablePoints);
+          }
           // Draw the curve if we didn't have any errors in the points
           if (errors === 0) {
             const evalCurve = evaluated.curves.get(curveKey);
@@ -333,15 +343,18 @@ export function FieldRenderer(): ReactElement {
       animate={isString(focusedPath) ? animate : () => {}}
       onPointerDown={(e, p) => {
         if (hovering !== null) {
-          const rp = unTransform(e, p);
           setMoving(hovering);
         }
       }}
       onPointerMove={(e, p) => {
         const rp = unTransform(e, p);
         if (moving !== null) {
+          // We're moving a point: Just move the point around...
           setMovablePoint(symbolTable, setSymbolTable, moving, rp);
         } else if (movablePoints !== null && movablePoints.length >= 0) {
+          // We're not moving a point, and we have some points we could
+          // potentially try and move.
+          // First, find the closest point:
           const mp = movablePoints.reduce(
             (prev: MovablePoint | undefined, cur: MovablePoint) => {
               if (isUndefined(prev)) {
@@ -354,16 +367,19 @@ export function FieldRenderer(): ReactElement {
             undefined,
           );
           if (isDefined(mp)) {
+            // We found a 'close' point. Is it close enough?
             if (
               calcDist(rp, mp) < SELECTION_DISTANCE &&
-              // Don't flicker...
+              // Only move it if it's actually movied (don't flicker...as much)
               (hovering?.x[0] !== mp.x[0] || hovering?.y[0] !== mp.y[0])
             ) {
+              // Close enough: Set it to the be the 'hovering' point
               setHovering(mp);
             } else if (
-              calcDist(rp, mp) >= SELECTION_DISTANCE &&
-              hovering !== null
+              hovering !== null &&
+              calcDist(rp, mp) >= SELECTION_DISTANCE
             ) {
+              // Not close enough: No 'hovering' point!
               setHovering(null);
             }
           }
@@ -371,10 +387,11 @@ export function FieldRenderer(): ReactElement {
       }}
       onPointerUp={(e, p) => {
         if (moving !== null) {
-          const rp = unTransform(e, p);
           setMoving(null);
         }
-        setHovering(null);
+        if (hovering !== null) {
+          setHovering(null);
+        }
       }}
     />
   );
