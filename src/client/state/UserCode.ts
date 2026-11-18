@@ -33,12 +33,12 @@ export const TeamsAtom = atomWithRefresh(async () => {
 });
 
 let validCache: TeamList | null = null;
-export const TeamsWithFilesAtom = atomWithRefresh(async () => {
+const TeamsWithFilesAtom = atomWithRefresh(async () => {
   validCache = await GetTeams();
   return validCache;
 });
 
-export const TeamsWithoutFilesAtom = atom(async (get) => {
+const TeamsWithoutFilesAtom = atom(async (get) => {
   const teams = new Set(await get(TeamsAtom));
   const withFiles = new Set(await get(TeamsWithFilesAtom));
   return [...teams.difference(withFiles)];

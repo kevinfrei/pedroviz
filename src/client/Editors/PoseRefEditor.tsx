@@ -159,44 +159,30 @@ export function PoseRefEditor({
   );
 }
 
+type ResolvedPoseProps = { pose: ResolvedPose; displayHeading: boolean };
 function ResolvedPose({
   pose,
   displayHeading,
-}: {
-  pose: ResolvedPose;
-  displayHeading: boolean;
-}): ReactElement {
+}: ResolvedPoseProps): ReactElement {
   if (chkErr(pose)) {
     return <>Not Found</>;
   }
-  const coord = (
+  return (
     <>
       X:
       <ResolvedValueInline value={pose.X} />, Y:
       <ResolvedValueInline value={pose.Y} />
-    </>
-  );
-  const heading =
-    displayHeading && isDefined(pose.heading) ? (
-      <>
-        , θ: <ResolvedHeadingInline heading={pose.heading} />
-      </>
-    ) : (
-      <></>
-    );
-  return (
-    <>
-      {coord}
-      {heading}
+      {displayHeading && pose.heading && (
+        <>
+          , θ: <ResolvedHeadingInline heading={pose.heading} />
+        </>
+      )}
     </>
   );
 }
 
-export function SimplePoseRef({
-  poseref,
-}: {
-  poseref: PoseRef | undefined;
-}): ReactElement {
+type SimplePoseRefProps = { poseref?: PoseRef };
+export function SimplePoseRef({ poseref }: SimplePoseRefProps): ReactElement {
   if (isUndefined(poseref)) {
     return <Text color="red">Undefined!</Text>;
   } else if (chkRef(poseref)) {

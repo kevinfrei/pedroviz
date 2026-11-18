@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { ReactElement } from 'react';
+import React, { ReactElement } from 'react';
 import { useAtomValue } from 'jotai';
 
 import { Button, Checkbox, Select, Text } from '@fluentui/react-components';
@@ -14,14 +14,19 @@ import {
   chkPieceWiseInterp,
   chkRef,
   chkTangentInterp,
+  ConstInterp,
+  FacePtInterp,
   getInterpType,
   HeadingRef,
   HeadingVal,
   InterpNames,
   InterpRef,
+  LinearInterp,
   makeNewHeading,
   makeNewPose,
+  PieceWiseInterp,
   SymbolTable,
+  TangentInterp,
 } from '../../dataTypes';
 import { resolveInterpRef } from '../Resolvers';
 import { symbolTableAtom } from '../state/SymbolTable';
@@ -41,13 +46,8 @@ export function SimpleInterpRef({
 }): ReactElement {
   if (isUndefined(interpref)) {
     return <></>;
-  }
-  if (chkRef(interpref)) {
-    return (
-      <Text>
-        <code>{interpref.ref}</code> (reference)
-      </Text>
-    );
+  } else if (chkRef(interpref)) {
+    return <code>"{interpref.ref}"</code>;
   }
   return <Text>{getInterpType(interpref)}</Text>;
 }
@@ -123,7 +123,7 @@ export function InterpRefEditor(
         onChange({
           pieces: [
             {
-              until: { val: 0.5 },
+              until: { val: 1.0 },
               interpolator: { reversed: false },
             },
           ],
@@ -152,140 +152,191 @@ export function InterpRefEditor(
         </Select>
 
         {chkRef(item) && (
-          <span>
-            <Select
-              value={item?.ref || ''}
-              onChange={(e) => onChange({ ref: e.target.value })}>
-              <option key="$" value="" disabled>
-                Select Interpolator Reference...
+          <Select
+            value={item?.ref || ''}
+            onChange={(e) => onChange({ ref: e.target.value })}>
+            <option key="$" value="" disabled>
+              Select Interpolator Reference...
+            </option>
+            {interpKeys.map((k) => (
+              <option key={k} value={k}>
+                {k} ({getInterpType(symbolTable.interpolations.get(k)!)})
               </option>
-              {interpKeys.map((k) => (
-                <option key={k} value={k}>
-                  {k} ({getInterpType(symbolTable.interpolations.get(k)!)})
-                </option>
-              ))}
-            </Select>
-          </span>
-        )}
-
-        {chkConstInterp(item) && (
-          <HeadingRefEditor
-            label="Heading Value"
-            item={item.heading || makeNewHeading()}
-            onChange={(hr: HeadingRef) => onChange({ heading: hr })}
-          />
-        )}
-
-        {chkFacePtInterp(item) && (
-          <PoseRefEditor
-            label="Target Point Pose"
-            item={item?.point || makeNewPose(false)}
-            heading={false}
-            onChange={(point) => onChange({ point })}
-          />
-        )}
-
-        {chkLinearInterp(item) && (
-          <div>
-            <HeadingRefEditor
-              label="Start Heading"
-              item={item.start || makeNewHeading()}
-              onChange={(start: HeadingRef) => onChange({ ...item, start })}
-            />
-            <HeadingRefEditor
-              label="End Heading"
-              item={item?.end || makeNewHeading()}
-              onChange={(end: HeadingRef) => onChange({ ...item, end })}
-            />
-            <Checkbox
-              label="Turn the 'long way'"
-              checked={item?.longWay}
-              onChange={(_, d) =>
-                onChange({ ...item, longWay: d.checked === true })
-              }
-            />
-          </div>
+            ))}
+          </Select>
         )}
 
         {chkTangentInterp(item) && (
-          <Checkbox
-            label="Face the opposite direction of the path"
-            checked={Boolean(item?.reversed)}
-            onChange={(_, d) => onChange({ reversed: d.checked === true })}
-          />
+          <TangentInterpEditor item={item} onChange={onChange} />
+        )}
+
+        {chkConstInterp(item) && (
+          <ConstantInterpEditor item={item} onChange={onChange} />
+        )}
+
+        {chkFacePtInterp(item) && (
+          <FacingPointInterpEditor item={item} onChange={onChange} />
+        )}
+
+        {chkLinearInterp(item) && (
+          <LinearInterpEditor item={item} onChange={onChange} />
         )}
 
         {chkPieceWiseInterp(item) && (
-          <div>
-            <Button
-              style={{ marginTop: '5px' }}
-              icon={<AddRegular />}
-              onClick={() => {
-                const pieces = item?.pieces || [];
-                onChange({
-                  pieces: [
-                    ...pieces,
-                    {
-                      until: { val: 1.0 },
-                      interpolator: { reversed: false },
-                    },
-                  ],
-                });
-              }}>
-              Add Piece
-            </Button>
-
-            {(item?.pieces || []).map((piece, idx) => (
-              <TitleWrapper
-                key={idx}
-                title={
-                  <>
-                    <span>Piece #{idx + 1}</span>
-                    <Button
-                      title="Remove Piece"
-                      appearance="transparent"
-                      style={{
-                        marginLeft: '3px',
-                        marginTop: '-3px',
-                        marginRight: '-5px',
-                      }}
-                      icon={<DeleteRegular />}
-                      onClick={() => {
-                        const newPieces = item.pieces.filter(
-                          (_, i) => i !== idx,
-                        );
-                        onChange({ pieces: newPieces });
-                      }}
-                    />
-                  </>
-                }>
-                <>
-                  <ValRefEditor
-                    label="Until (fraction of path complete)"
-                    item={piece.until}
-                    onChange={(until) => {
-                      const newPieces = [...item.pieces];
-                      newPieces[idx] = { ...piece, until };
-                      onChange({ pieces: newPieces });
-                    }}
-                  />
-
-                  <InterpRefEditor
-                    label="Segment Interpolator"
-                    item={piece.interpolator}
-                    name={props.name}
-                    onChange={(interpolator: InterpRef) => {
-                      const newPieces = [...item.pieces];
-                      newPieces[idx] = { ...piece, interpolator };
-                      onChange({ pieces: newPieces });
-                    }}
-                  />
-                </>
-              </TitleWrapper>
-            ))}
-          </div>
+          <PieceWiseInterpEditor
+            item={item}
+            onChange={onChange}
+            name={props.name}
+          />
         )}
       </>
     </TitleWrapper>
+  );
+}
+
+type InterpEditorProps<T> = {
+  item: T;
+  onChange:
+    ((interp: InterpRef) => void) | ((interp: InterpRef | null) => void);
+};
+
+function PieceWiseInterpEditor({
+  item,
+  onChange,
+  name,
+}: InterpEditorProps<PieceWiseInterp> & { name?: string }): ReactElement {
+  return (
+    <div>
+      <Button
+        appearance="primary"
+        style={{ marginTop: '5px' }}
+        icon={<AddRegular />}
+        onClick={() => {
+          const pieces = item?.pieces || [];
+          onChange({
+            pieces: [
+              ...pieces,
+              {
+                until: { val: 1.0 },
+                interpolator: { reversed: false },
+              },
+            ],
+          });
+        }}>
+        Add Piece
+      </Button>
+      {(item?.pieces || []).map((piece, idx) => (
+        <TitleWrapper
+          key={idx}
+          title={
+            <>
+              <span>Piece #{idx + 1}</span>
+              <Button
+                title="Remove Piece"
+                appearance="transparent"
+                style={{
+                  marginLeft: '3px',
+                  marginTop: '-3px',
+                  marginRight: '-5px',
+                }}
+                icon={<DeleteRegular />}
+                disabled={item.pieces.length === 1}
+                onClick={() => {
+                  const newPieces = item.pieces.filter((_, i) => i !== idx);
+                  onChange({ pieces: newPieces });
+                }}
+              />
+            </>
+          }>
+          <>
+            <ValRefEditor
+              label="Until (fraction of path complete)"
+              item={piece.until}
+              onChange={(until) => {
+                const newPieces = [...item.pieces];
+                newPieces[idx] = { ...piece, until };
+                onChange({ pieces: newPieces });
+              }}
+            />
+
+            <InterpRefEditor
+              label="Segment Interpolator"
+              item={piece.interpolator}
+              name={name}
+              onChange={(interpolator: InterpRef) => {
+                const newPieces = [...item.pieces];
+                newPieces[idx] = { ...piece, interpolator };
+                onChange({ pieces: newPieces });
+              }}
+            />
+          </>
+        </TitleWrapper>
+      ))}
+    </div>
+  );
+}
+
+function LinearInterpEditor({
+  item,
+  onChange,
+}: InterpEditorProps<LinearInterp>): ReactElement {
+  return (
+    <div>
+      <HeadingRefEditor
+        label="Start Heading"
+        item={item.start || makeNewHeading()}
+        onChange={(start: HeadingRef) => onChange({ ...item, start })}
+      />
+      <HeadingRefEditor
+        label="End Heading"
+        item={item?.end || makeNewHeading()}
+        onChange={(end: HeadingRef) => onChange({ ...item, end })}
+      />
+      <Checkbox
+        label="Turn the 'long way'"
+        checked={item?.longWay}
+        onChange={(_, d) => onChange({ ...item, longWay: d.checked === true })}
+      />
+    </div>
+  );
+}
+
+function FacingPointInterpEditor({
+  item,
+  onChange,
+}: InterpEditorProps<FacePtInterp>): ReactElement {
+  return (
+    <PoseRefEditor
+      label="Target Point Pose"
+      item={item?.point || makeNewPose(false)}
+      heading={false}
+      onChange={(point) => onChange({ point })}
+    />
+  );
+}
+
+function TangentInterpEditor({
+  item,
+  onChange,
+}: InterpEditorProps<TangentInterp>): ReactElement {
+  return (
+    <Checkbox
+      label="Face the opposite direction of the path"
+      checked={Boolean(item?.reversed)}
+      onChange={(_, d) => onChange({ reversed: d.checked === true })}
+    />
+  );
+}
+
+function ConstantInterpEditor({
+  item,
+  onChange,
+}: InterpEditorProps<ConstInterp>): ReactElement {
+  return (
+    <HeadingRefEditor
+      label="Heading Value"
+      item={item.heading || makeNewHeading()}
+      onChange={(hr: HeadingRef) => onChange({ heading: hr })}
+    />
   );
 }

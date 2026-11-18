@@ -9,13 +9,13 @@ import { GetGlobalDirname } from './is-prod';
 import { isDirectory } from './utility-funcs';
 
 let RepoRoot: string | null = null;
-export let args: string[] = [];
+let args: string[] = [];
 
 export function SetArgs(strs: string[]): void {
   args = strs;
 }
 
-export async function SetRepoRoot(repoRoot: string): Promise<boolean> {
+async function SetRepoRoot(repoRoot: string): Promise<boolean> {
   if (await isRepoRoot(repoRoot)) {
     RepoRoot = repoRoot;
     return true;

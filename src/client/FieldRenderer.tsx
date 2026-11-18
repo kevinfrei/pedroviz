@@ -66,7 +66,7 @@ import { ColorsAtom, FocusedPathAtom } from './state/UserCode';
 import { ResponsiveSquareCanvas } from './ui-tools/ResponsiveSquareCanvas';
 
 const FIELD_SIZE = 144; // Size of the field, in inches
-const SELECTION_DISTANCE = 2; // The distance^2 for a selection to be triggered
+const SELECTION_DISTANCE = 3; // The distance^2 for a selection to be triggered
 
 function unTransform(
   e: PointerEvent<HTMLCanvasElement>,
@@ -140,17 +140,14 @@ export function FieldRenderer(): ReactElement {
   const selectedPathOrCurveKey = useAtomValue(selectedPathOrCurveKeyAtom);
 
   const concretePaths = new Map<string, [Point[], ConcreteHeading][]>(
-    /*
-    allPCs.map((npc) => [
-      npc.name,
-      npc.paths.map((br): [Point[], ConcreteHeading] => [
-        calcBezierRef(br, file),
-        calcInterp(npc.heading, file),
-      ]),
-    ]),*/
+    // allPCs.map((npc) => [
+    //   npc.name,
+    //   npc.paths.map((br): [Point[], ConcreteHeading] => [
+    //     calcBezierRef(br, file),
+    //     calcInterp(npc.heading, file),
+    //   ]),
+    // ])
   );
-
-  const points = [...concretePaths.values()].flatMap((val) => val);
 
   const evaluated = EvaluateSymbols(symbolTable);
   const shallow = ShallowEvaluateSymbols(symbolTable);
@@ -274,7 +271,7 @@ export function FieldRenderer(): ReactElement {
         }
         movablePoints.push({ x, y });
       });
-      // TODO: Draw the selected curve differently
+      // TODO: Draw the selected curve differently?
 
       // Draw all the named points, as well
       drawControlPoints(
@@ -300,7 +297,6 @@ export function FieldRenderer(): ReactElement {
       correct,
       curveOpts,
       pathStyle,
-      points,
       poseOpts,
       selected,
       showPathHeadings,

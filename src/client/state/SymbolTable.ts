@@ -70,7 +70,9 @@ export const symbolTableCurvesAtom = focusAtom(symbolTableAtom, (optic) =>
 export const symbolTablePathsAtom = focusAtom(symbolTableAtom, (optic) =>
   optic.prop('paths'),
 );
+
 export const selectedKeyAtom = atom<SelectedKey>(new Map());
+
 export const selectedItemKeyFamily = atomFamily((type: DataType) =>
   atom(
     (get) => {
@@ -87,6 +89,7 @@ export const selectedItemKeyFamily = atomFamily((type: DataType) =>
     },
   ),
 );
+
 export const selectedPathOrCurveKeyAtom = atom((get) => {
   const selPath = get(selectedItemKeyFamily(DataType.Paths));
   if (selPath) {
@@ -103,7 +106,7 @@ export const activeTabAtom = atomWithStorage<string>(
   { getOnInit: true },
 );
 
-/*export*/ function MapToRecord<T>(map: Map<string, T>): Record<string, T> {
+function MapToRecord<T>(map: Map<string, T>): Record<string, T> {
   const res: Record<string, T> = {};
   map.forEach((val, key) => {
     res[key] = val;

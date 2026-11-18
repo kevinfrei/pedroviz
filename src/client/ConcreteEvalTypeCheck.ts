@@ -99,24 +99,23 @@ export const chkEvalPose = chkObjectOfExactType<EvalPose>(
   { x: isNumber, y: isNumber },
   { radians: isNumber },
 );
-/*export*/ const chkEvalCurveDetail = chkObjectOfExactType<EvalCurveDetail>({
+const chkEvalCurveDetail = chkObjectOfExactType<EvalCurveDetail>({
   length: isNumber,
   points: chkArrayOf(chkPoint),
   controlPoints: chkArrayOf(chkEvalPose),
 });
-export const chkEvalInterpTangent = chkObjectOfExactType<EvalInterpTangent>({
+const chkEvalInterpTangent = chkObjectOfExactType<EvalInterpTangent>({
   reversed: isBoolean,
 });
-/*export*/ const chkEvalInterpConstant =
-  chkObjectOfExactType<EvalInterpConstant>({
-    radians: isNumber,
-  });
-/*export*/ const chkEvalInterpLinear = chkObjectOfExactType<EvalInterpLinear>({
+const chkEvalInterpConstant = chkObjectOfExactType<EvalInterpConstant>({
+  radians: isNumber,
+});
+const chkEvalInterpLinear = chkObjectOfExactType<EvalInterpLinear>({
   startRadians: isNumber,
   endRadians: isNumber,
   longWay: isBoolean,
 });
-/*export*/ const chkEvalInterpFacing = chkObjectOfExactType<EvalInterpFacing>({
+const chkEvalInterpFacing = chkObjectOfExactType<EvalInterpFacing>({
   x: isNumber,
   y: isNumber,
 });
@@ -126,11 +125,11 @@ export const chkEvalInterpSimple: typecheck<EvalInterpSimple> = chkAnyOf(
   chkEvalInterpLinear,
   chkEvalInterpTangent,
 );
-/*export*/ const chkEvalInterpPiece = chkObjectOfExactType<EvalInterpPiece>({
+const chkEvalInterpPiece = chkObjectOfExactType<EvalInterpPiece>({
   until: isNumber,
   interp: chkEvalInterpSimple,
 });
-/*export*/ const chkEvalInterpPiecewise: typecheck<EvalInterpPiecewise> =
+const chkEvalInterpPiecewise: typecheck<EvalInterpPiecewise> =
   chkArrayOf(chkEvalInterpPiece);
 export const chkEvalInterpolator: typecheck<EvalInterpolator> = chkAnyOf(
   chkEvalInterpSimple,

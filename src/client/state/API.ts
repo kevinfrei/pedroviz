@@ -13,7 +13,7 @@ const colorLookup: Map<string, number> = new Map();
 let colorCount = 0;
 
 // This provides a consistent color for a given curve/pose
-export function getColorFor(item: string | Curve | Path | Pose): number {
+function getColorFor(item: string | Curve | Path | Pose): number {
   if (isString(item)) {
     if (!colorLookup.has(item)) {
       colorLookup.set(item, colorCount++);
@@ -29,10 +29,6 @@ export async function HasFieldImage(): Promise<boolean> {
 
 export async function GetTeams(): Promise<Team[]> {
   return await fetchApi('teams', chkTeamList, []);
-}
-
-export async function GetValidTeams(): Promise<Team[]> {
-  return await fetchApi('valid', chkTeamList, []);
 }
 
 // Get the entire Database from the server

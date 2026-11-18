@@ -95,8 +95,8 @@ export type CorrectSymbols = {
   paths: Map<string, EvalPath>;
 };
 
-export type Name = Nominal<string, 'Name'>;
-export type Descriptor = Nominal<string, 'Descriptor'>;
+type Name = Nominal<string, 'Name'>;
+type Descriptor = Nominal<string, 'Descriptor'>;
 export type ValueLocator = [number, Name, Descriptor];
 export type ShallowValRef = RefOr<ValueLocator>;
 export type MovablePoint = { x: ValueLocator; y: ValueLocator };
@@ -106,7 +106,7 @@ export type ShallowPose = {
   heading?: ShallowHeadingRef;
 };
 export type ShallowPoseRef = RefOr<ShallowPose>;
-export type ShallowHeading = { angle: ShallowValRef; inRadians: boolean };
+type ShallowHeading = { angle: ShallowValRef; inRadians: boolean };
 export type ShallowHeadingRef = RefOr<ShallowHeading>; // PoseRef or ShallowHeading...
 export type ShallowPiece = {
   until: ShallowValRef;
@@ -143,10 +143,4 @@ export type ShallowEvalSymbols = {
   interpolators: Map<string, ErrorOr<ShallowInterpolatorRef>>;
   curves: Map<string, ErrorOr<ShallowCurveRef>>;
   paths: Map<string, ErrorOr<ShallowPath>>;
-};
-
-export type FullSymbolTable = {
-  shallow: ShallowEvalSymbols;
-  evaluated: EvalSymbols;
-  correct: CorrectSymbols;
 };

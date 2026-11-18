@@ -41,6 +41,7 @@ export function PathsView(): ReactElement {
         <TitleWrapper title="Path Curves/Lines">
           <>
             <Button
+              appearance="primary"
               icon={<AddRegular />}
               onClick={() => {
                 const curvesList = activePath?.curves || [];

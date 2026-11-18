@@ -3,7 +3,6 @@
 import { ReactElement, useState } from 'react';
 
 import {
-  Button,
   Field,
   makeStyles,
   shorthands,
@@ -28,22 +27,23 @@ const useWrappedRegionStyle = makeStyles({
     ...shorthands.borderWidth('1px'),
     ...shorthands.borderStyle('solid'),
     ...shorthands.borderColor(tokens.colorNeutralForeground3),
-    borderRadius: '4px',
-    padding: '8px',
+    borderRadius: '5px',
+    padding: '3px',
   },
 });
 
+type TitleWrapperProps = {
+  title: string | ReactElement;
+  expandable?: boolean;
+  onExpandChange?: (expanded: boolean) => void;
+  children: ReactElement;
+};
 export function TitleWrapper({
   title,
   expandable,
   onExpandChange,
   children,
-}: {
-  title: string | ReactElement;
-  expandable?: boolean;
-  onExpandChange?: (expanded: boolean) => void;
-  children: ReactElement;
-}): ReactElement {
+}: TitleWrapperProps): ReactElement {
   const wrappedStyle = useWrappedRegionStyle();
   const [isExpanded, setStateExpanded] = useState(true);
   const setIsExpanded = (expanded: boolean) => {

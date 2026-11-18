@@ -4,13 +4,9 @@ import fs, { promises as fsp } from 'node:fs';
 import path from 'node:path';
 
 import {
-  chkArrayOf,
   chkRecordOf,
-  hasField,
   hasFieldOf,
-  isArray,
   isDefined,
-  isRecord,
   isString,
   isUndefined,
   MakeError,
@@ -24,7 +20,6 @@ import {
   chkPath,
   chkPoseRef,
   chkValRef,
-  chkValue,
 } from '../dataTypes';
 import { PathsFile, Team } from '../ipcTypes';
 import { GetRelativeRepoRoot } from './repo-discovery';
@@ -47,7 +42,7 @@ export async function GetTeamsWithPaths(): Promise<Team[]> {
 }
 
 // Find a pedropaths.json file in the team's asset directory
-export async function GetPathFile(
+async function GetPathFile(
   repoRoot: string,
   teamName: string,
 ): Promise<FilePath | undefined> {
@@ -112,7 +107,7 @@ export async function LoadPathsForTeam(team: Team): Promise<PathsFile> {
   }
 }
 
-export async function GetJsonPathForTeam(team: string) {
+export async function GetJsonPathForTeam(team: string): Promise<string> {
   const repo = await GetRelativeRepoRoot();
   const jsonPath = GetJsonFilePath(repo, team);
   return jsonPath;
@@ -170,11 +165,11 @@ export function GetProjectFilePath(repo: string, team: string, filename: string)
   );
 }
 */
-export function GetJsonFilePath(repo: string, team: string): string {
+function GetJsonFilePath(repo: string, team: string): string {
   return path.join(repo, team, RelativePathsJsonFile);
 }
 
-export const FirstFtcSrc = path.join(
+const FirstFtcSrc = path.join(
   'src',
   'main',
   'java',
@@ -183,7 +178,7 @@ export const FirstFtcSrc = path.join(
   'ftc',
 );
 
-export const RelativePathsJsonFile = path.join(
+const RelativePathsJsonFile = path.join(
   'src',
   'main',
   'assets',

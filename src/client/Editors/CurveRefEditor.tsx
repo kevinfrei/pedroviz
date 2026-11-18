@@ -108,6 +108,7 @@ export function CurveRefEditor({
             <div>
               <Toolbar>
                 <ToolbarButton
+                  appearance="primary"
                   icon={<AddRegular />}
                   onClick={() => {
                     // Handle no points, 1 point, or 2+ points

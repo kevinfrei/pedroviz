@@ -103,7 +103,7 @@ export const chkErr = isError;
 export const chkRef = chkObjectOfExactType<Ref>({ ref: isString });
 export const chkValue = chkObjectOfExactType<Value>({ val: isNumber });
 export const chkValRef = chkAnyOf(chkRef, chkValue);
-export const chkHeadingVal = chkObjectOfExactType<HeadingVal>({
+const chkHeadingVal = chkObjectOfExactType<HeadingVal>({
   angle: chkValRef,
   inRadians: isBoolean,
 });
@@ -217,13 +217,3 @@ export function makeNewCurve(): Curve {
     interpolation: { reversed: false },
   };
 }
-
-/*
-const chkSymbolTable = chkObjectOfExactType<SymbolTable>({
-  values: chkMapOf(isString, chkValRef),
-  poses: chkMapOf(isString, chkPoseRef),
-  curves: chkMapOf(isString, chkCurveRef),
-  interpolations: chkMapOf(isString, chkInterpRef),
-  paths: chkMapOf(isString, chkPath),
-});
-*/

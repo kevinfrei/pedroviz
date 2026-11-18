@@ -34,7 +34,7 @@ export function ValueSorter(av: ValRef, bv: ValRef): number {
   return (av as Value).val - (bv as Value).val;
 }
 
-export function HeadingSorter(
+function HeadingSorter(
   ah: HeadingRef | undefined,
   bh: HeadingRef | undefined,
 ): number {

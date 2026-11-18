@@ -344,7 +344,7 @@ const useStyles = makeStyles({
 });
 
 // WIP:
-/*export*/ function MovableCanvas(): ReactElement {
+function MovableCanvas(): ReactElement {
   const styles = useStyles();
   const [isPoppedOut, setIsPoppedOut] = useState(false);
 
