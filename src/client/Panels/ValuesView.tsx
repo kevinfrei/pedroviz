@@ -9,6 +9,7 @@ import { NewMapAdd } from '../../helpers';
 import { ValRefEditor } from '../Editors/ValRefEditor';
 import { ValuesList } from '../Lists/ValuesList';
 import {
+  activeTabAtom,
   DataType,
   selectedItemKeyFamily,
   symbolTableValuesAtom,
@@ -18,6 +19,7 @@ import { ItemEditor } from '../ui-tools/ItemEditorWrapper';
 export function ValuesView(): ReactElement {
   const [values, setValues] = useAtom(symbolTableValuesAtom);
   const activeKey = useAtomValue(selectedItemKeyFamily(DataType.Values));
+  const activeTab = useAtomValue(activeTabAtom);
   const activeValue = isUndefined(activeKey)
     ? undefined
     : values.get(activeKey);
@@ -26,7 +28,7 @@ export function ValuesView(): ReactElement {
     <>
       <ValuesList />
       <ItemEditor
-        open={!!activeValue}
+        open={!!activeValue && activeTab === 'v'}
         type={DataType.Values}
         name={activeKey || ''}
         items={values}

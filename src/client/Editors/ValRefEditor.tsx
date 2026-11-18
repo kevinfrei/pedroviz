@@ -144,13 +144,11 @@ export function SimpleValRef({
 }: {
   valref: ValRef | undefined;
 }): ReactElement {
-  return isUndefined(valref) ? (
-    <Text color="red">Undefined!</Text>
-  ) : chkRef(valref) ? (
-    <Text>
-      Named Value: <code>{valref.ref}</code>
-    </Text>
-  ) : (
-    <code>{FormatValue(valref.val)}</code>
-  );
+  if (isUndefined(valref)) {
+    return <Text color="red">Undefined!</Text>;
+  } else if (chkRef(valref)) {
+    return <code>"{valref.ref}"</code>;
+  } else {
+    return <code>{FormatValue(valref.val)}</code>;
+  }
 }

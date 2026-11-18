@@ -10,6 +10,7 @@ import { NewMapAdd } from '../../helpers';
 import { CurveRefEditor } from '../Editors/CurveRefEditor';
 import { CurvesList } from '../Lists/CurvesList';
 import {
+  activeTabAtom,
   DataType,
   selectedItemKeyFamily,
   symbolTableCurvesAtom,
@@ -23,12 +24,13 @@ export function CurvesView(): ReactElement {
   const activeCurve = isUndefined(activeKey)
     ? undefined
     : curves.get(activeKey);
+  const activeTab = useAtomValue(activeTabAtom);
 
   return (
     <>
       <CurvesList />
       <ItemEditor
-        open={!!activeCurve}
+        open={!!activeCurve && activeTab === 'c'}
         name={activeKey || ''}
         type={DataType.Curves}
         items={curves}

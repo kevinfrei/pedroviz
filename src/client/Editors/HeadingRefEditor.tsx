@@ -27,6 +27,7 @@ import {
   chkRef,
   chkValue,
   HeadingRef,
+  makeNewHeading,
   Ref,
   SymbolTable,
   Value,
@@ -126,7 +127,7 @@ export function HeadingRefEditor(props: HeadingRefEditorProps): ReactElement {
         break;
       }
       case 'val': {
-        onChange({ angle: { val: 0 }, inRadians: false });
+        onChange(makeNewHeading());
         break;
       }
       case 'none': {

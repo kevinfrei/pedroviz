@@ -11,6 +11,8 @@ import {
   chkErr,
   chkRef,
   HeadingRef,
+  makeNewPose,
+  makeNewVal,
   PoseRef,
   SymbolTable,
 } from '../../dataTypes';
@@ -77,11 +79,7 @@ export function PoseRefEditor({
     if (toRef) {
       onChange({ ref: validPoseKeys[0] || '' });
     } else {
-      onChange({
-        X: { val: 0 },
-        Y: { val: 0 },
-        heading: { angle: { val: 0 }, inRadians: false },
-      });
+      onChange(makeNewPose());
     }
   };
 
@@ -129,12 +127,12 @@ export function PoseRefEditor({
           <div>
             <ValRefEditor
               label="X Coordinate"
-              item={item?.X || { val: 0 }}
+              item={item?.X || makeNewVal()}
               onChange={(X) => onChange({ ...item, X })}
             />
             <ValRefEditor
               label="Y Coordinate"
-              item={item?.Y || { val: 0 }}
+              item={item?.Y || makeNewVal()}
               onChange={(Y) => onChange({ ...item, Y })}
             />
             {displayHeading && (

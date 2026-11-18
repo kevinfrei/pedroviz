@@ -174,6 +174,49 @@ export const chkNamedValues = chkObjectOfExactType<NamedValues>({
   paths: chkRecordOf(isString, chkPath),
 });
 
+function rr(center: number, range: number): number {
+  return center - range / 2 + Math.random() * range;
+}
+
+export function makeNewVal(center: number = 71, range: number = 70): Value {
+  return { val: rr(center, range) };
+}
+
+export function makeNewHeading(): HeadingVal {
+  return {
+    angle: { val: Math.round(rr(0, 72)) * 5 },
+    inRadians: false,
+  };
+}
+
+export function makeNewPose(
+  heading: boolean = true,
+  center: number = 72,
+  range: number = 20,
+): Pose {
+  return heading
+    ? {
+        X: makeNewVal(center, range),
+        Y: makeNewVal(center, range),
+        heading: makeNewHeading(),
+      }
+    : {
+        X: makeNewVal(center, range),
+        Y: makeNewVal(center, range),
+      };
+}
+
+export function makeNewCurve(): Curve {
+  return {
+    points: [
+      makeNewPose(false, 48, 24),
+      makeNewPose(false, 60, 12),
+      makeNewPose(false, 72, 24),
+    ],
+    interpolation: { reversed: false },
+  };
+}
+
 /*
 const chkSymbolTable = chkObjectOfExactType<SymbolTable>({
   values: chkMapOf(isString, chkValRef),

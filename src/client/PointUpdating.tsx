@@ -41,7 +41,7 @@ function updatePose(
 }
 
 function newCurve(descr: string, curve: Curve, val: number): Curve {
-  const pointNum = Number.parseInt(descr);
+  const pointNum = Number.parseInt(descr.substring(0, descr.length - 1));
   if (Number.isNaN(pointNum) || curve.points.length <= pointNum) {
     console.error(
       'Curve point',

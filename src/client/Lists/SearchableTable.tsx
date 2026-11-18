@@ -34,7 +34,7 @@ type SearchableTableProps<T> = {
   dataType: DataType;
   columns: TableColumnDefinition<[string, T]>[];
   itemsState: [Map<string, T>, (map: Map<string, T>) => void];
-  newItem: T;
+  newItem: () => T;
 };
 
 export function SearchableTable<T>({
@@ -85,7 +85,7 @@ export function SearchableTable<T>({
     while (items.has(`new${name}${count}`)) count++;
     const newKey = `new${name}${count}`;
 
-    setItems(NewMapAdd(items, newKey, newItem));
+    setItems(NewMapAdd(items, newKey, newItem()));
     setSelected(newKey);
     setToast(`Added ${name.toLocaleLowerCase()} "${newKey}"`);
   };

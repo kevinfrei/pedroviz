@@ -13,6 +13,7 @@ import { CurveRefEditor } from '../Editors/CurveRefEditor';
 import { InterpRefEditor } from '../Editors/InterpRefEditor';
 import { PathsList } from '../Lists/PathsList';
 import {
+  activeTabAtom,
   DataType,
   selectedItemKeyFamily,
   symbolTablePathsAtom,
@@ -25,13 +26,14 @@ export function PathsView(): ReactElement {
   const [paths, setPaths] = useAtom(symbolTablePathsAtom);
   const activeKey = useAtomValue(selectedItemKeyFamily(DataType.Paths));
   const activePath = isUndefined(activeKey) ? undefined : paths.get(activeKey);
+  const activeTab = useAtomValue(activeTabAtom);
 
   return (
     <>
       <PathsList />
 
       <ItemEditor
-        open={!!activePath}
+        open={!!activePath && activeTab === 'P'}
         name={activeKey || ''}
         type={DataType.Paths}
         items={paths}

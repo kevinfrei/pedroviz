@@ -10,6 +10,7 @@ import { NewMapAdd } from '../../helpers';
 import { InterpRefEditor } from '../Editors/InterpRefEditor';
 import { InterpolatorsList } from '../Lists/InterpolatorsList';
 import {
+  activeTabAtom,
   DataType,
   selectedItemKeyFamily,
   symbolTableInterpolationsAtom,
@@ -27,12 +28,13 @@ export function InterpolatorsView(): ReactElement {
   const activeInterp = isUndefined(activeKey)
     ? undefined
     : interpolations.get(activeKey);
+  const activeTab = useAtomValue(activeTabAtom);
 
   return (
     <>
       <InterpolatorsList />
       <ItemEditor
-        open={!!activeInterp}
+        open={!!activeInterp && activeTab === 'i'}
         name={activeKey || ''}
         type={DataType.Interpolations}
         items={interpolations}

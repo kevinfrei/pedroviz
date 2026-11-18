@@ -39,7 +39,7 @@ export function InterpolatorsList(): ReactElement {
       dataType={DataType.Interpolations}
       columns={columns}
       itemsState={interpolationsState}
-      newItem={{ reversed: false }}
+      newItem={() => ({ reversed: false })}
     />
   );
 }

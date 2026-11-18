@@ -15,7 +15,13 @@ import {
 import { AddRegular, DeleteRegular } from '@fluentui/react-icons';
 import { isError } from '@freik/typechk';
 
-import { chkRef, CurveRef, InterpRef, SymbolTable } from '../../dataTypes';
+import {
+  chkRef,
+  CurveRef,
+  InterpRef,
+  makeNewCurve,
+  SymbolTable,
+} from '../../dataTypes';
 import { resolveCurveRef } from '../Resolvers';
 import { symbolTableAtom } from '../state/SymbolTable';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
@@ -65,21 +71,7 @@ export function CurveRefEditor({
     if (toRef) {
       onChange({ ref: curveKeys[0] || '' });
     } else {
-      onChange({
-        points: [
-          {
-            X: { val: 10 },
-            Y: { val: 10 },
-            heading: { angle: { val: 0 }, inRadians: false },
-          },
-          {
-            X: { val: 20 },
-            Y: { val: 20 },
-            heading: { angle: { val: 0 }, inRadians: false },
-          },
-        ],
-        interpolation: { reversed: false },
-      });
+      onChange(makeNewCurve());
     }
   };
 
@@ -124,7 +116,6 @@ export function CurveRefEditor({
                         {
                           X: { val: 62 + Math.random() * 20 },
                           Y: { val: 62 + Math.random() * 20 },
-                          heading: { angle: { val: 0 }, inRadians: false },
                         },
                       ],
                     });

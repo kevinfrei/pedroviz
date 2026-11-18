@@ -9,6 +9,7 @@ import { NewMapAdd } from '../../helpers';
 import { PoseRefEditor } from '../Editors/PoseRefEditor';
 import { PosesList } from '../Lists/PosesList';
 import {
+  activeTabAtom,
   DataType,
   selectedItemKeyFamily,
   symbolTablePosesAtom,
@@ -20,12 +21,13 @@ export function PosesView(): ReactElement {
   const [poses, setPoses] = useAtom(symbolTablePosesAtom);
   const activeKey = useAtomValue(selectedItemKeyFamily(DataType.Poses));
   const activePose = isUndefined(activeKey) ? undefined : poses.get(activeKey);
+  const activeTab = useAtomValue(activeTabAtom);
 
   return (
     <>
       <PosesList />
       <ItemEditor
-        open={!!activePose}
+        open={!!activePose && activeTab === 'p'}
         type={DataType.Poses}
         name={activeKey || ''}
         items={poses}

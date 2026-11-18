@@ -19,6 +19,8 @@ import {
   HeadingVal,
   InterpNames,
   InterpRef,
+  makeNewHeading,
+  makeNewPose,
   SymbolTable,
 } from '../../dataTypes';
 import { resolveInterpRef } from '../Resolvers';
@@ -104,17 +106,13 @@ export function InterpRefEditor(
         break;
       case 'Facing':
         onChange({
-          point: {
-            X: { val: 0 },
-            Y: { val: 0 },
-            heading: zeroHeading,
-          },
+          point: makeNewPose(false),
         });
         break;
       case 'Linear':
         onChange({
-          start: zeroHeading,
-          end: one80Heading,
+          start: makeNewHeading(),
+          end: makeNewHeading(),
           longWay: false,
         });
         break;
@@ -173,7 +171,7 @@ export function InterpRefEditor(
         {chkConstInterp(item) && (
           <HeadingRefEditor
             label="Heading Value"
-            item={item.heading || { angle: { val: 0 }, inRadians: false }}
+            item={item.heading || makeNewHeading()}
             onChange={(hr: HeadingRef) => onChange({ heading: hr })}
           />
         )}
@@ -181,14 +179,7 @@ export function InterpRefEditor(
         {chkFacePtInterp(item) && (
           <PoseRefEditor
             label="Target Point Pose"
-            item={
-              item?.point || {
-                X: { val: 0 },
-                Y: { val: 0 },
-                heading: zeroHeading,
-                inRadians: false,
-              }
-            }
+            item={item?.point || makeNewPose(false)}
             heading={false}
             onChange={(point) => onChange({ point })}
           />
@@ -198,12 +189,12 @@ export function InterpRefEditor(
           <div>
             <HeadingRefEditor
               label="Start Heading"
-              item={item.start || zeroHeading}
+              item={item.start || makeNewHeading()}
               onChange={(start: HeadingRef) => onChange({ ...item, start })}
             />
             <HeadingRefEditor
               label="End Heading"
-              item={item?.end || one80Heading}
+              item={item?.end || makeNewHeading()}
               onChange={(end: HeadingRef) => onChange({ ...item, end })}
             />
             <Checkbox
@@ -270,7 +261,7 @@ export function InterpRefEditor(
                 }>
                 <>
                   <ValRefEditor
-                    label="Until (% of path complete)"
+                    label="Until (fraction of path complete)"
                     item={piece.until}
                     onChange={(until) => {
                       const newPieces = [...item.pieces];
