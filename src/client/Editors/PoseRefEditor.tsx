@@ -122,6 +122,9 @@ export function PoseRefEditor({
                 for {item?.ref}
               </Text>
             )}
+            <div style={{ paddingTop: 5 }}>
+              <ResolvedPose displayHeading={displayHeading} pose={resolved} />
+            </div>
           </span>
         ) : (
           <div>
@@ -151,19 +154,18 @@ export function PoseRefEditor({
             )}
           </div>
         )}
-
-        <div>
-          <span>Computed Position:</span>
-          <span>
-            <ResolvedPose pose={resolved} />
-          </span>
-        </div>
       </>
     </TitleWrapper>
   );
 }
 
-function ResolvedPose({ pose }: { pose: ResolvedPose }): ReactElement {
+function ResolvedPose({
+  pose,
+  displayHeading,
+}: {
+  pose: ResolvedPose;
+  displayHeading: boolean;
+}): ReactElement {
   if (chkErr(pose)) {
     return <>Not Found</>;
   }
@@ -174,13 +176,14 @@ function ResolvedPose({ pose }: { pose: ResolvedPose }): ReactElement {
       <ResolvedValueInline value={pose.Y} />
     </>
   );
-  const heading = isDefined(pose.heading) ? (
-    <>
-      , θ: <ResolvedHeadingInline heading={pose.heading} />
-    </>
-  ) : (
-    <></>
-  );
+  const heading =
+    displayHeading && isDefined(pose.heading) ? (
+      <>
+        , θ: <ResolvedHeadingInline heading={pose.heading} />
+      </>
+    ) : (
+      <></>
+    );
   return (
     <>
       {coord}
