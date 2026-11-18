@@ -13,13 +13,15 @@ import {
   ToolbarButton,
 } from '@fluentui/react-components';
 import { AddRegular, DeleteRegular } from '@fluentui/react-icons';
-import { isError } from '@freik/typechk';
+import { isError, isUndefined } from '@freik/typechk';
 
 import {
   chkRef,
   CurveRef,
   InterpRef,
   makeNewCurve,
+  makeNewPose,
+  PoseRef,
   SymbolTable,
 } from '../../dataTypes';
 import { resolveCurveRef } from '../Resolvers';
@@ -108,17 +110,36 @@ export function CurveRefEditor({
                 <ToolbarButton
                   icon={<AddRegular />}
                   onClick={() => {
-                    const pts = item?.points || [];
-                    onChange({
-                      ...item,
-                      points: [
-                        ...pts,
-                        {
-                          X: { val: 62 + Math.random() * 20 },
-                          Y: { val: 62 + Math.random() * 20 },
+                    // Handle no points, 1 point, or 2+ points
+                    if (isUndefined(item) || item.points.length === 0) {
+                      onChange({
+                        points: [
+                          makeNewPose(false, 72, 24),
+                          makeNewPose(false, 72, 24),
+                        ],
+                        interpolation: item?.interpolation || {
+                          reversed: false,
                         },
-                      ],
-                    });
+                      });
+                    } else if (item.points.length === 1) {
+                      onChange({
+                        ...item,
+                        points: [item.points[0]!, makeNewPose(false, 72, 24)],
+                      });
+                    } else {
+                      // For 2 (or more) points, add a control point *before*
+                      // the end point
+                      const firstBunch: PoseRef[] = item.points.slice(0, -1);
+                      const lastPoint = item.points[item.points.length - 1]!;
+                      onChange({
+                        ...item,
+                        points: [
+                          ...firstBunch,
+                          makeNewPose(false, 72, 24),
+                          lastPoint,
+                        ],
+                      });
+                    }
                   }}>
                   Add Control Point
                 </ToolbarButton>

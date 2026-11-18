@@ -174,8 +174,9 @@ export const chkNamedValues = chkObjectOfExactType<NamedValues>({
   paths: chkRecordOf(isString, chkPath),
 });
 
+// Returns a random number between center - range and center + range
 function rr(center: number, range: number): number {
-  return center - range / 2 + Math.random() * range;
+  return center - range + Math.random() * 2 * range;
 }
 
 export function makeNewVal(center: number = 71, range: number = 70): Value {

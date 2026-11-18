@@ -199,33 +199,20 @@ export function SimplePoseRef({
 }): ReactElement {
   if (isUndefined(poseref)) {
     return <Text color="red">Undefined!</Text>;
+  } else if (chkRef(poseref)) {
+    return <code>"{poseref.ref}"</code>;
   }
-  if (chkRef(poseref)) {
-    return (
-      <Text>
-        Named Pose <code>{poseref.ref}</code>
-      </Text>
-    );
-  }
-  const coord = (
-    <>
+  return (
+    <Text>
       X:
       <SimpleValRef valref={poseref.X} />, Y:
       <SimpleValRef valref={poseref.Y} />
-    </>
-  );
-  const heading = hasField(poseref, 'heading') ? (
-    <>
-      , θ:
-      <HeadingRefInline headingref={poseref.heading} />
-    </>
-  ) : (
-    <></>
-  );
-  return (
-    <Text>
-      {coord}
-      {heading}
+      {hasField(poseref, 'heading') && (
+        <>
+          , θ:
+          <HeadingRefInline headingref={poseref.heading} />
+        </>
+      )}
     </Text>
   );
 }
