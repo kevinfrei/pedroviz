@@ -181,14 +181,22 @@ function ResolvedPose({
   );
 }
 
-type SimplePoseRefProps = { poseref?: PoseRef };
-export function SimplePoseRef({ poseref }: SimplePoseRefProps): ReactElement {
+type SimplePoseRefProps = { poseref?: PoseRef; onlyHeading?: boolean };
+export function SimplePoseRef({
+  poseref,
+  onlyHeading,
+}: SimplePoseRefProps): ReactElement {
   if (isUndefined(poseref)) {
     return <Text color="red">Undefined!</Text>;
   } else if (chkRef(poseref)) {
     return <code>"{poseref.ref}"</code>;
   }
-  return (
+  return onlyHeading ? (
+    <Text>
+      θ:
+      <HeadingRefInline headingref={poseref.heading} />
+    </Text>
+  ) : (
     <Text>
       X:
       <SimpleValRef valref={poseref.X} />, Y:

@@ -172,7 +172,11 @@ export function HeadingRefEditor(props: HeadingRefEditorProps): ReactElement {
                 </option>
                 {validPoseKeys.map((k) => (
                   <option key={k} value={k}>
-                    {k} <SimplePoseRef poseref={symbolTable.poses.get(k)} />
+                    {k}{' '}
+                    <SimplePoseRef
+                      onlyHeading
+                      poseref={symbolTable.poses.get(k)}
+                    />
                   </option>
                 ))}
               </Select>
@@ -259,11 +263,11 @@ export function HeadingRefInline({
     return <Text>Not found</Text>;
   }
   const title = hrIsPose(headingref)
-    ? 'Pose Ref'
+    ? 'Named Pose'
     : hrIsRef(headingref)
-      ? 'Value Ref'
+      ? 'Named Value'
       : hrIsVal(headingref)
-        ? 'Value'
+        ? ''
         : 'Null';
   const data = hrIsPose(headingref)
     ? headingref.ref
@@ -276,13 +280,13 @@ export function HeadingRefInline({
     hrIsPose(headingref) || isUndefined(headingref)
       ? ''
       : headingref.inRadians
-        ? 'radians'
-        : 'degrees';
+        ? 'rads'
+        : '˚';
   return (
     <Text>
       {title}&nbsp;
       <code>
-        {data}&nbsp;
+        {data}
         {suffix}
       </code>
     </Text>

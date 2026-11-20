@@ -4,9 +4,7 @@ import { isDefined, isUndefined } from '@freik/typechk';
 
 import { BotDrawStyle, BotShapes } from './ClientTypes';
 import {
-  ConcreteHeading,
   CurveDetail,
-  EvalCurve,
   EvalCurveDetail,
   EvalInterpolator,
   Point,
@@ -30,13 +28,12 @@ const countDelay = 1;
 function initState(
   state: BotAnimationState,
   name: string | undefined,
-  path: [Point[], ConcreteHeading][],
+  path: AnimationPath, // [Point[], ConcreteHeading][],
 ) {
-  state.curves = path.map(([pts, ch]) => {
-    const cd = getCurveDetail(pts);
-    addHeadingToCurve(cd, ch);
-    return cd;
-  });
+  state.curves = path.curves.map((ec) => ({
+    length: ec.length,
+    points: ec.points,
+  }));
   state.count = 0;
   state.name = name;
   state.curvePoint = 0;
