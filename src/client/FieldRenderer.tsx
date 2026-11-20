@@ -10,13 +10,7 @@ import {
 import { useAtom, useAtomValue } from 'jotai';
 
 import { tokens } from '@fluentui/tokens';
-import {
-  ErrorOr,
-  isDefined,
-  isError,
-  isString,
-  isUndefined,
-} from '@freik/typechk';
+import { ErrorOr, isDefined, isError, isUndefined } from '@freik/typechk';
 
 import { chkRef } from '../dataTypes';
 import { animateBot, AnimationPath, BotAnimationState } from './BotAnimation';
@@ -28,15 +22,12 @@ import {
   PathStyle,
 } from './ClientTypes';
 import {
-  ConcreteHeading,
   CurveDetail,
-  EvalCurve,
   EvalCurveDetail,
   EvalInterpolator,
   EvalPose,
   EvalSymbols,
   MovablePoint,
-  Point,
   ShallowCurve,
   ShallowCurveRef,
   ShallowEvalSymbols,
@@ -44,11 +35,7 @@ import {
   ShallowPoseRef,
 } from './ConcreteEvalTypes';
 import { CloseTo, ptDistance, vector } from './DrawingHelpers';
-import {
-  // CalculateItems,
-  EvaluateSymbols,
-  ShallowEvaluateSymbols,
-} from './Evaluation';
+import { EvaluateSymbols, ShallowEvaluateSymbols } from './Evaluation';
 import { SetMovablePoint } from './PointUpdating';
 import {
   BotDrawStyleAtom,
@@ -66,6 +53,7 @@ import {
 } from './state/SymbolTable';
 import { ColorsAtom } from './state/UserCode';
 import { ResponsiveSquareCanvas } from './ui-tools/ResponsiveSquareCanvas';
+import { calcDist } from './ui-tools/ui-helpers';
 
 const FIELD_SIZE = 144; // Size of the field, in inches
 const SELECTION_DISTANCE = 3; // The distance^2 for a selection to be triggered
@@ -404,14 +392,6 @@ function getConcretePath(
       interpolatorOverride: selectedConcretePath.globalInterpolator,
     };
   }
-}
-
-export function calcDist(pt: Point, mp: MovablePoint): number {
-  const mx = mp.x[0];
-  const my = mp.y[0];
-  const dx = mx - pt.x;
-  const dy = my - pt.y;
-  return dx * dx + dy * dy;
 }
 
 function drawFocusedPose(

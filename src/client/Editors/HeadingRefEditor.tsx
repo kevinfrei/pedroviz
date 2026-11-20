@@ -12,33 +12,27 @@ import {
   Text,
 } from '@fluentui/react-components';
 import { AlertFilled } from '@fluentui/react-icons';
-import {
-  chkObjectOfExactType,
-  hasField,
-  isBoolean,
-  isDefined,
-  isError,
-  isUndefined,
-  typecheck,
-} from '@freik/typechk';
+import { hasField, isDefined, isError } from '@freik/typechk';
 
 import {
   chkErr,
-  chkRef,
-  chkValue,
   HeadingRef,
   makeNewHeading,
   Ref,
   SymbolTable,
-  Value,
 } from '../../dataTypes';
-import { ResolvedHeading } from '../ResolvedTypes';
 import { resolveHeadingRef, resolvePoseRef } from '../Resolvers';
 import { symbolTableAtom } from '../state/SymbolTable';
 import { useSpinButtonChange } from '../ui-tools/ControlledSpinButton';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
-import { SimplePoseRef } from './PoseRefEditor';
-import { SimpleValRef } from './ValRefEditor';
+import {
+  getHeadingType,
+  HeadingType,
+  hrIsPose,
+  hrIsRef,
+  hrIsVal,
+} from './EditorTypes';
+import { SimplePoseRef, SimpleValRef } from './Viewers';
 
 // Filter out pose names that would result in errors
 function validPosesForRef(
@@ -53,30 +47,6 @@ function validPosesForRef(
       !isError(resolved.heading)
     );
   });
-}
-
-type HeadingType = 'pose' | 'ref' | 'val' | 'none';
-
-const hrIsPose: typecheck<Ref> = chkRef;
-const hrIsVal = chkObjectOfExactType<{ angle: Value; inRadians: boolean }>({
-  angle: chkValue,
-  inRadians: isBoolean,
-});
-const hrIsRef = chkObjectOfExactType<{ angle: Ref; inRadians: boolean }>({
-  angle: chkRef,
-  inRadians: isBoolean,
-});
-
-function getHeadingType(item: HeadingRef | null): HeadingType {
-  if (hrIsPose(item)) {
-    return 'pose';
-  } else if (hrIsRef(item)) {
-    return 'ref';
-  } else if (hrIsVal(item)) {
-    return 'val';
-  } else {
-    return 'none';
-  }
 }
 
 type HeadingRefEditorNullableProps = {
@@ -235,80 +205,5 @@ export function HeadingRefEditor(props: HeadingRefEditorProps): ReactElement {
         )}
       </>
     </TitleWrapper>
-  );
-}
-
-export function ResolvedHeadingInline({
-  heading,
-}: {
-  heading: ResolvedHeading;
-}): ReactElement {
-  return (
-    <>
-      {chkErr(heading)
-        ? `Error: ${heading.errors().join('\n')}`
-        : chkErr(heading.angle)
-          ? `Error: ${heading.angle.errors().join('\n')} in value`
-          : `${heading.angle.toFixed(2)}${heading.inRadians ? ' rads' : '°'}`}
-    </>
-  );
-}
-
-export function HeadingRefInline({
-  headingref,
-}: {
-  headingref?: HeadingRef | undefined;
-}): ReactElement {
-  if (isUndefined(headingref)) {
-    return <Text>Not found</Text>;
-  }
-  const title = hrIsPose(headingref)
-    ? 'Named Pose'
-    : hrIsRef(headingref)
-      ? 'Named Value'
-      : hrIsVal(headingref)
-        ? ''
-        : 'Null';
-  const data = hrIsPose(headingref)
-    ? headingref.ref
-    : hrIsRef(headingref)
-      ? headingref.angle.ref
-      : hrIsVal(headingref)
-        ? headingref.angle.val.toFixed(3)
-        : 'null';
-  const suffix =
-    hrIsPose(headingref) || isUndefined(headingref)
-      ? ''
-      : headingref.inRadians
-        ? 'rads'
-        : '˚';
-  return (
-    <Text>
-      {title}&nbsp;
-      <code>
-        {data}
-        {suffix}
-      </code>
-    </Text>
-  );
-}
-
-export function SimpleHeadingRef({
-  headingref,
-}: {
-  headingref: HeadingRef;
-}): ReactElement {
-  if (chkRef(headingref)) {
-    return (
-      <Text>
-        Heading from <code>{headingref.ref}</code>
-      </Text>
-    );
-  }
-  return (
-    <>
-      <SimpleValRef valref={headingref.angle} />
-      {headingref.inRadians ? <code>&nbsp;rads</code> : <code>°</code>}
-    </>
   );
 }

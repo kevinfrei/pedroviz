@@ -5,7 +5,7 @@ import { useAtomValue } from 'jotai';
 
 import { Radio, RadioGroup, Select, Text } from '@fluentui/react-components';
 import { AlertFilled } from '@fluentui/react-icons';
-import { hasField, isDefined, isError, isUndefined } from '@freik/typechk';
+import { isDefined, isError, isUndefined } from '@freik/typechk';
 
 import {
   chkErr,
@@ -16,20 +16,12 @@ import {
   PoseRef,
   SymbolTable,
 } from '../../dataTypes';
-import { ResolvedPose } from '../ResolvedTypes';
 import { resolvePoseRef } from '../Resolvers';
 import { symbolTableAtom } from '../state/SymbolTable';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
-import {
-  HeadingRefEditor,
-  HeadingRefInline,
-  ResolvedHeadingInline,
-} from './HeadingRefEditor';
-import {
-  ResolvedValueInline,
-  SimpleValRef,
-  ValRefEditor,
-} from './ValRefEditor';
+import { HeadingRefEditor } from './HeadingRefEditor';
+import { ValRefEditor } from './ValRefEditor';
+import { ResolvedPose } from './Viewers';
 
 // Filter out pose names that would result in errors
 function validPosesForRef(
@@ -156,57 +148,5 @@ export function PoseRefEditor({
         )}
       </>
     </TitleWrapper>
-  );
-}
-
-type ResolvedPoseProps = { pose: ResolvedPose; displayHeading: boolean };
-function ResolvedPose({
-  pose,
-  displayHeading,
-}: ResolvedPoseProps): ReactElement {
-  if (chkErr(pose)) {
-    return <>Not Found</>;
-  }
-  return (
-    <>
-      X:
-      <ResolvedValueInline value={pose.X} />, Y:
-      <ResolvedValueInline value={pose.Y} />
-      {displayHeading && pose.heading && (
-        <>
-          , θ: <ResolvedHeadingInline heading={pose.heading} />
-        </>
-      )}
-    </>
-  );
-}
-
-type SimplePoseRefProps = { poseref?: PoseRef; onlyHeading?: boolean };
-export function SimplePoseRef({
-  poseref,
-  onlyHeading,
-}: SimplePoseRefProps): ReactElement {
-  if (isUndefined(poseref)) {
-    return <Text color="red">Undefined!</Text>;
-  } else if (chkRef(poseref)) {
-    return <code>"{poseref.ref}"</code>;
-  }
-  return onlyHeading ? (
-    <Text>
-      θ:
-      <HeadingRefInline headingref={poseref.heading} />
-    </Text>
-  ) : (
-    <Text>
-      X:
-      <SimpleValRef valref={poseref.X} />, Y:
-      <SimpleValRef valref={poseref.Y} />
-      {hasField(poseref, 'heading') && (
-        <>
-          , θ:
-          <HeadingRefInline headingref={poseref.heading} />
-        </>
-      )}
-    </Text>
   );
 }

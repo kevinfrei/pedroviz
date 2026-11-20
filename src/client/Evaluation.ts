@@ -36,17 +36,14 @@ import {
 } from './ConcreteEvalTypeCheck';
 import {
   ConcreteHeadingType,
-  CorrectSymbols,
   EvalCurve,
   EvalInterpolator,
   EvalPath,
   EvalPose,
   EvalSymbols,
-  ShallowCurve,
   ShallowCurveRef,
   ShallowEvalSymbols,
   ShallowHeadingRef,
-  ShallowInterpolator,
   ShallowInterpolatorRef,
   ShallowPath,
   ShallowPiece,
@@ -612,7 +609,8 @@ function onlyError<T>(
   return isError(n_err[1]);
 }
 
-export function CalculateItems(evalSyms: EvalSymbols): CorrectSymbols {
+/*
+function CalculateItems(evalSyms: EvalSymbols): CorrectSymbols {
   const correctSymbols: CorrectSymbols = {
     values: new Map(evalSyms.values.entries().filter(notError)),
     poses: new Map(evalSyms.poses.entries().filter(notError)),
@@ -652,3 +650,4 @@ export function CalculateItems(evalSyms: EvalSymbols): CorrectSymbols {
     );
   return correctSymbols;
 }
+*/

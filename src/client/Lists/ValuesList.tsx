@@ -10,7 +10,7 @@ import {
 } from '@fluentui/react-components';
 
 import { ValRef } from '../../dataTypes';
-import { SimpleValRef } from '../Editors/ValRefEditor';
+import { SimpleValRef } from '../Editors/Viewers';
 import { DataType, symbolTableValuesAtom } from '../state/SymbolTable';
 import { SearchableTable } from './SearchableTable';
 import { ValueSorter } from './Sort';

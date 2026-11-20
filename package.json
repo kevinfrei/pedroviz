@@ -17,13 +17,14 @@
     "foramt": "tools format bun",
     "fmt": "tools format bun",
     "types": "tsc --noEmit",
-    "check": "bun run types && bun test",
+    "check": "bun run types && bun cycles && bun dead && bun test",
     "dev:launch": "sleep 1 && bun run dev/entry.js ../BioBuzz2026",
     "dev:bundle": "bun run dev-bundle.ts",
     "dev": "bun run --parallel dev:bundle dev:launch",
     "prod": "bun run dist/entry.js",
     "prod:bundle": "bun run prod-bundle.ts",
     "prepublishOnly": "bun run prod:bundle",
+    "cycles": "knip --cycles --reporter cycles",
     "dead": "knip"
   },
   "prepare": "simple-git-hooks",
@@ -113,7 +114,10 @@
     "entry": [
       "src/entry.ts",
       "src/client/FrontEnd.tsx"
-    ]
+    ],
+    "cycles": {
+      "dynamicImports": true
+    }
   },
   " //-3": "Hook configuration stuff:",
   "simple-git-hooks": {

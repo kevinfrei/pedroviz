@@ -9,9 +9,8 @@ import {
   Text,
 } from '@fluentui/react-components';
 
-import { chkRef, makeNewPose, Pose, PoseRef, Ref } from '../../dataTypes';
-import { SimpleHeadingRef } from '../Editors/HeadingRefEditor';
-import { SimpleValRef } from '../Editors/ValRefEditor';
+import { chkRef, makeNewPose, PoseRef } from '../../dataTypes';
+import { SimpleHeadingRef, SimpleValRef } from '../Editors/Viewers';
 import { DataType, symbolTablePosesAtom } from '../state/SymbolTable';
 import { SearchableTable } from './SearchableTable';
 import { PoseHeadingSorter, PoseXSorter, PoseYSorter } from './Sort';

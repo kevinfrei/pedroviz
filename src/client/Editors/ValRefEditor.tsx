@@ -14,11 +14,11 @@ import { AlertFilled } from '@fluentui/react-icons';
 import { isError, isUndefined } from '@freik/typechk';
 
 import { chkErr, chkRef, chkValue, SymbolTable, ValRef } from '../../dataTypes';
-import { ResolvedValue } from '../ResolvedTypes';
 import { resolveValRef } from '../Resolvers';
 import { symbolTableAtom } from '../state/SymbolTable';
 import { useSpinButtonChange } from '../ui-tools/ControlledSpinButton';
 import { TitleWrapper } from '../ui-tools/TitleWrapper';
+import { SimpleValRef } from './Viewers';
 
 // Filter out value names that would result in errors
 function validValuesForRef(
@@ -120,35 +120,4 @@ export function ValRefEditor({
       </>
     </TitleWrapper>
   );
-}
-
-export function ResolvedValueInline({
-  value,
-}: {
-  value: ResolvedValue;
-}): ReactElement {
-  return (
-    <>
-      {chkErr(value) ? `Error: ${value.errors().join('\n')}` : value.toFixed(2)}
-    </>
-  );
-}
-
-// Maximally 4 digits of accuracy number to string conversion
-/*export*/ function FormatValue(val: number): string {
-  return val.toFixed(4).replace(/\.?0+$/, '');
-}
-
-export function SimpleValRef({
-  valref,
-}: {
-  valref: ValRef | undefined;
-}): ReactElement {
-  if (isUndefined(valref)) {
-    return <Text color="red">Undefined!</Text>;
-  } else if (chkRef(valref)) {
-    return <code>"{valref.ref}"</code>;
-  } else {
-    return <code>{FormatValue(valref.val)}</code>;
-  }
 }

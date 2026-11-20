@@ -87,6 +87,7 @@ export type EvalSymbols = {
   paths: Map<string, ErrorOr<EvalPath>>;
 };
 
+/*
 export type CorrectSymbols = {
   values: Map<string, number>;
   poses: Map<string, EvalPose>;
@@ -94,6 +95,7 @@ export type CorrectSymbols = {
   curves: Map<string, EvalCurve>;
   paths: Map<string, EvalPath>;
 };
+*/
 
 type Name = Nominal<string, 'Name'>;
 type Descriptor = Nominal<string, 'Descriptor'>;
@@ -112,7 +114,7 @@ export type ShallowPiece = {
   until: ShallowValRef;
   heading: RefOr<ShallowInterpolator>;
 };
-export type ShallowInterpolator =
+type ShallowInterpolator =
   | { type: typeof ConcreteHeadingType.Tangent; reversed: boolean }
   | {
       type: typeof ConcreteHeadingType.Constant;

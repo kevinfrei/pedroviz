@@ -1,8 +1,8 @@
-import { isUndefined } from 'node_modules/@freik/typechk/lib/esm';
-import { chkRef, Curve, Path, Pose, SymbolTable } from 'src/dataTypes';
+import { isUndefined } from '@freik/typechk';
 
+import { chkRef, Curve, Path, Pose, SymbolTable } from '../dataTypes';
 import { MovablePoint, Point, ValueLocator } from './ConcreteEvalTypes';
-import { calcDist } from './FieldRenderer';
+import { calcDist } from './ui-tools/ui-helpers';
 
 // This stuff is described in './CanvasDescriptors.md'
 
