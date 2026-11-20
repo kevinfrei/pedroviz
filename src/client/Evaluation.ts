@@ -28,12 +28,13 @@ import {
   SymbolTable,
   ValRef,
 } from '../dataTypes';
+import { getCurveDetail } from './DrawingHelpers';
 import {
   chkEvalCurve,
   chkEvalInterpolator,
   chkEvalInterpSimple,
   chkEvalPose,
-} from './ConcreteEvalTypeCheck';
+} from './EvalTypeCheck';
 import {
   EvalCurve,
   EvalInterpolator,
@@ -50,8 +51,7 @@ import {
   ShallowPoseRef,
   ShallowValRef,
   ValueLocator,
-} from './ConcreteEvalTypes';
-import { getCurveDetail } from './DrawingHelpers';
+} from './EvalTypes';
 
 // type Evaluated<T> = ErrorOr<[string, T]>;
 function recurseRef<FROM, TO>(
@@ -293,7 +293,10 @@ export function EvaluateSymbols(symbolTable: SymbolTable): EvalSymbols {
     } else {
       return {
         interpolator,
-        points: { ...getCurveDetail(points, interpolator), controlPoints: points },
+        points: {
+          ...getCurveDetail(points, interpolator),
+          controlPoints: points,
+        },
       };
     }
   }

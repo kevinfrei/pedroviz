@@ -1,13 +1,18 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { chkTangentInterp } from 'src/dataTypes';
-import { chkEvalInterpConstant, chkEvalInterpFacing, chkEvalInterpLinear, chkEvalInterpSimple, chkEvalInterpTangent } from './ConcreteEvalTypeCheck';
+import {
+  chkEvalInterpConstant,
+  chkEvalInterpFacing,
+  chkEvalInterpLinear,
+  chkEvalInterpSimple,
+  chkEvalInterpTangent,
+} from './EvalTypeCheck';
 import {
   CurveDetail,
   EvalInterpolator,
   EvalInterpSimple,
   Point,
-} from './ConcreteEvalTypes';
+} from './EvalTypes';
 import { bezierLength, deCasteljau } from './ui-tools/bezier';
 
 export function rotPt(offs: Point): Point {
@@ -22,9 +27,7 @@ function getBezierPoints(curveControlPoints: Point[]): Point[] {
   const len = bezierLength(curveControlPoints);
   const pts: Point[] = [];
   for (let t = 0; t <= 1.0; t += 1 / len) {
-    // TODO: This is wrong: It should be the interpolation heading
-    const h = t * Math.PI * 2;
-    pts.push({ ...deCasteljau(curveControlPoints, t), h });
+    pts.push({ ...deCasteljau(curveControlPoints, t) });
   }
   return pts;
 }
@@ -45,7 +48,10 @@ function calcCurve(controlPoints: Point[]): CurveDetail {
   return { length, points };
 }
 
-export function getCurveDetail(controlPoints: Point[], interp: EvalInterpolator): CurveDetail {
+export function getCurveDetail(
+  controlPoints: Point[],
+  interp: EvalInterpolator,
+): CurveDetail {
   const res = calcCurve(controlPoints);
   addHeadingToCurve(res, interp);
   return res;
@@ -53,7 +59,7 @@ export function getCurveDetail(controlPoints: Point[], interp: EvalInterpolator)
 
 // TODO: Figure out how Pedro decides what percentage of the curve applies to
 // heading pieces and linear interpolations
-export function addHeadingToCurve(
+function addHeadingToCurve(
   curve: CurveDetail,
   heading: EvalInterpolator,
 ): void {
@@ -88,7 +94,7 @@ function addHeadingToPoint(
 ) {
   if (chkEvalInterpSimple(heading)) {
     point.h = calcSimpleHeading(heading, prev, point, next, percent);
-  } else /* if (heading.type == ConcreteHeadingType.Piecewise)*/ {
+  } else {
     // Find the piece that this percentage is contained by
     // I think a linear search is fine, here..
     let last = 0;
@@ -145,12 +151,12 @@ function calcSimpleHeading(
     return linearRangeRadians(
       heading.startRadians,
       heading.endRadians,
-      heading.longWay ? -percent : percent
+      heading.longWay ? -percent : percent,
     );
   } else if (chkEvalInterpFacing(heading)) {
     return getAngle(ptDiff(heading, cur));
   }
-  throw new Error("Invalid Simple Heading type");
+  throw new Error('Invalid Simple Heading type');
 }
 
 export function CloseTo(a: number, b: number): boolean {

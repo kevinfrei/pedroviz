@@ -90,9 +90,10 @@ code, anyway.
 
 - Reading and editing values, poses, curves, and paths appears to work (though a
   little clunky in places).
-- It's currently at almost visualization parity with
+- It's currently at near visualization parity with
   [PP Visualizer](https://visualizer.pedropathing.com)
-- (The animation is currently broken; I'll be fixing it 'real soon')
+- There are bugs in a few places, and the bot-side translation stuff is
+  completely untested.
 
 # Hey, Kevin, this doesn't work!
 
@@ -105,16 +106,18 @@ FTC students...)
 
 **Task TODO list, in some sort of order:**
 
+- [ ] Get the Java JSON loader up & going!
+  - [ ] Done, but untested! (Lives in my BioBuzz fork, currently)
 - [x] Save changes to the JSON file
   - [ ] Upload the file to the robot using ADB
   - [ ] Add a JSON version number, so that an ADB uploaded one will only
         override an older build asset
   - [ ] Allow a "Force new path version" thing? Dunno...
-- [ ] Get the Java JSON loader up & going!
-  - Done, but untested! (Lives in my BioBuzz fork, currently)
-- [ ] Animate the currently selected path or curve
+- [x] Animate the currently selected path or curve
+  - [ ] Update the animation when the path changes
+  - [ ] Deal with the selected item not always following the user choice
 - [ ] Draw the interpolation arrows.
-- [ ] Fix interpolation to be a per-path thing.
+- [ ] Global interpolation overrides need to be added
 - [ ] Allow moving entire paths by grabbing them?
 - [ ] Rename all ref's to a something when you rename the something.
 - [ ] Highlight & display errors more obviously
@@ -138,8 +141,8 @@ FTC students...)
   - [ ] braking strength
   - [ ] tValues (Not sure what this would really look like...)
 - [ ] Add a JSON _schema_ version number, for compatibility issues
-- [ ] Change the Jotai atom structure to be dramatically more granular. The
-      single "symbol table" is a major source of re-rendering/flickering.
+- [ ] Change the Jotai atom structure to be much more granular. The single
+      "symbol table" is a major source of re-rendering/flickering.
 
 **Task List - done list:**
 

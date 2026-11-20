@@ -3,13 +3,13 @@
 import { isDefined, isUndefined } from '@freik/typechk';
 
 import { BotDrawStyle, BotShapes } from './ClientTypes';
+import { rotPt } from './DrawingHelpers';
 import {
   CurveDetail,
   EvalCurveDetail,
   EvalInterpolator,
   Point,
-} from './ConcreteEvalTypes';
-import { addHeadingToCurve, getCurveDetail, rotPt } from './DrawingHelpers';
+} from './EvalTypes';
 
 export type AnimationPath = {
   curves: EvalCurveDetail[];
@@ -28,7 +28,7 @@ const countDelay = 2;
 function initState(
   state: BotAnimationState,
   name: string | undefined,
-  path: AnimationPath, // [Point[], ConcreteHeading][],
+  path: AnimationPath,
 ) {
   state.curves = path.curves.map((ec) => ({
     length: ec.length,
@@ -56,7 +56,7 @@ function nextState(state: BotAnimationState) {
 export function animateBot(
   ctx: CanvasRenderingContext2D,
   name: string | undefined,
-  path: AnimationPath, // [Point[], ConcreteHeading][],
+  path: AnimationPath,
   state: BotAnimationState,
   botStyle: BotDrawStyle,
 ) {

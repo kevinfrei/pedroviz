@@ -1,7 +1,7 @@
 import { isUndefined } from '@freik/typechk';
 
 import { chkRef, Curve, Path, Pose, SymbolTable } from '../dataTypes';
-import { MovablePoint, Point, ValueLocator } from './ConcreteEvalTypes';
+import { MovablePoint, Point, ValueLocator } from './EvalTypes';
 import { calcDist } from './ui-tools/ui-helpers';
 
 // This stuff is described in './CanvasDescriptors.md'

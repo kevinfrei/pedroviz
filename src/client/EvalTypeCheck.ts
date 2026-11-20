@@ -4,7 +4,6 @@ import {
   chkAnyOf,
   chkArrayOf,
   chkObjectOfExactType,
-  chkTupleOf,
   isBoolean,
   isNumber,
   typecheck,
@@ -25,7 +24,7 @@ import {
   EvalPath,
   EvalPose,
   Point,
-} from './ConcreteEvalTypes';
+} from './EvalTypes';
 
 const chkPoint = chkObjectOfExactType<Point>(
   { x: isNumber, y: isNumber },

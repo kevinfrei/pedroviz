@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { Point } from '../ConcreteEvalTypes';
+import { Point } from '../EvalTypes';
 
 // Note to self: A lof of this stuff looks like a bit of memoization
 // could be *very* helpful, particularly given that I might be animating

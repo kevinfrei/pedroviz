@@ -21,6 +21,7 @@ import {
   HeadingStyle,
   PathStyle,
 } from './ClientTypes';
+import { CloseTo, ptDistance, vector } from './DrawingHelpers';
 import {
   CurveDetail,
   EvalCurveDetail,
@@ -33,8 +34,7 @@ import {
   ShallowEvalSymbols,
   ShallowPath,
   ShallowPoseRef,
-} from './ConcreteEvalTypes';
-import { CloseTo, ptDistance, vector } from './DrawingHelpers';
+} from './EvalTypes';
 import { EvaluateSymbols, ShallowEvaluateSymbols } from './Evaluation';
 import { SetMovablePoint } from './PointUpdating';
 import {
@@ -293,8 +293,8 @@ export function FieldRenderer(): ReactElement {
       if (isUndefined(selectedPathOrCurveKey)) {
         return;
       }
-      const concretePath = getConcretePath(evaluated, selectedPathOrCurveKey);
-      if (isUndefined(concretePath)) {
+      const animationPath = getAnimationpath(evaluated, selectedPathOrCurveKey);
+      if (isUndefined(animationPath)) {
         return;
       }
       ctx.save();
@@ -302,7 +302,7 @@ export function FieldRenderer(): ReactElement {
       animateBot(
         ctx,
         selectedPathOrCurveKey,
-        concretePath,
+        animationPath,
         animationStateRef.current,
         botStyle,
       );
@@ -372,22 +372,22 @@ export function FieldRenderer(): ReactElement {
   );
 }
 
-function getConcretePath(
+function getAnimationpath(
   evaluated: EvalSymbols,
   pathOrCurve: string,
 ): AnimationPath | undefined {
-  const selectedConcretePath = evaluated.paths.get(pathOrCurve);
-  if (!selectedConcretePath) {
+  const selectedPath = evaluated.paths.get(pathOrCurve);
+  if (!selectedPath) {
     const selCurve = evaluated.curves.get(pathOrCurve);
     if (!selCurve || isError(selCurve)) {
       return;
     } else {
       return { curves: [selCurve.points] };
     }
-  } else if (!isError(selectedConcretePath)) {
+  } else if (!isError(selectedPath)) {
     return {
-      curves: selectedConcretePath.curves.map((ec) => ec.points),
-      interpolatorOverride: selectedConcretePath.globalInterpolator,
+      curves: selectedPath.curves.map((ec) => ec.points),
+      interpolatorOverride: selectedPath.globalInterpolator,
     };
   }
 }
