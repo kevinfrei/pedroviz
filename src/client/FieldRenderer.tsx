@@ -19,7 +19,7 @@ import {
 } from '@freik/typechk';
 
 import { chkRef } from '../dataTypes';
-import { animateBot, BotAnimationState } from './BotAnimation';
+import { animateBot, AnimationPath, BotAnimationState } from './BotAnimation';
 import {
   ControlPointStyle,
   CtrlPtStyles,
@@ -30,9 +30,11 @@ import {
 import {
   ConcreteHeading,
   CurveDetail,
+  EvalCurve,
   EvalCurveDetail,
   EvalInterpolator,
   EvalPose,
+  EvalSymbols,
   MovablePoint,
   Point,
   ShallowCurve,
@@ -43,7 +45,7 @@ import {
 } from './ConcreteEvalTypes';
 import { CloseTo, ptDistance, vector } from './DrawingHelpers';
 import {
-  CalculateItems,
+  // CalculateItems,
   EvaluateSymbols,
   ShallowEvaluateSymbols,
 } from './Evaluation';
@@ -62,7 +64,7 @@ import {
   selectedPathOrCurveKeyAtom,
   symbolTableAtom,
 } from './state/SymbolTable';
-import { ColorsAtom, FocusedPathAtom } from './state/UserCode';
+import { ColorsAtom } from './state/UserCode';
 import { ResponsiveSquareCanvas } from './ui-tools/ResponsiveSquareCanvas';
 
 const FIELD_SIZE = 144; // Size of the field, in inches
@@ -133,25 +135,13 @@ export function FieldRenderer(): ReactElement {
 
   const colors = useAtomValue(ColorsAtom);
 
-  const focusedPath = useAtomValue(FocusedPathAtom);
-
   const [symbolTable, setSymbolTable] = useAtom(symbolTableAtom);
   const selected = useAtomValue(selectedKeyAtom);
   const selectedPathOrCurveKey = useAtomValue(selectedPathOrCurveKeyAtom);
 
-  const concretePaths = new Map<string, [Point[], ConcreteHeading][]>(
-    // allPCs.map((npc) => [
-    //   npc.name,
-    //   npc.paths.map((br): [Point[], ConcreteHeading] => [
-    //     calcBezierRef(br, file),
-    //     calcInterp(npc.heading, file),
-    //   ]),
-    // ])
-  );
-
   const evaluated = EvaluateSymbols(symbolTable);
   const shallow = ShallowEvaluateSymbols(symbolTable);
-  const correct = CalculateItems(evaluated);
+  // const correct = CalculateItems(evaluated);
   const movablePoints: MovablePoint[] = [];
   const [hovering, setHovering] = useState<MovablePoint | null>(null);
   const [moving, setMoving] = useState<MovablePoint | null>(null);
@@ -294,7 +284,7 @@ export function FieldRenderer(): ReactElement {
     [
       colors,
       coordViz,
-      correct,
+      // correct,
       curveOpts,
       pathStyle,
       poseOpts,
@@ -314,8 +304,11 @@ export function FieldRenderer(): ReactElement {
   });
   const animate = useCallback(
     (ctx: CanvasRenderingContext2D, dpr: number) => {
-      const selectedConcretePath = concretePaths.get(focusedPath!);
-      if (!selectedConcretePath) {
+      if (isUndefined(selectedPathOrCurveKey)) {
+        return;
+      }
+      const concretePath = getConcretePath(evaluated, selectedPathOrCurveKey);
+      if (isUndefined(concretePath)) {
         return;
       }
       ctx.save();
@@ -323,20 +316,20 @@ export function FieldRenderer(): ReactElement {
       animateBot(
         ctx,
         selectedPathOrCurveKey,
-        selectedConcretePath,
+        concretePath,
         animationStateRef.current,
         botStyle,
       );
       ctx.restore();
     },
-    [selectedPathOrCurveKey, concretePaths, botStyle],
+    [selectedPathOrCurveKey, botStyle],
   );
 
   return (
     <ResponsiveSquareCanvas
       anchor={{ x: 'left', y: 'top' }}
       render={renderField}
-      animate={isString(focusedPath) ? animate : () => {}}
+      animate={animate}
       onPointerDown={(e, p) => {
         if (hovering !== null) {
           setMoving(hovering);
@@ -391,6 +384,26 @@ export function FieldRenderer(): ReactElement {
       }}
     />
   );
+}
+
+function getConcretePath(
+  evaluated: EvalSymbols,
+  pathOrCurve: string,
+): AnimationPath | undefined {
+  const selectedConcretePath = evaluated.paths.get(pathOrCurve);
+  if (!selectedConcretePath) {
+    const selCurve = evaluated.curves.get(pathOrCurve);
+    if (!selCurve || isError(selCurve)) {
+      return;
+    } else {
+      return { curves: [selCurve.points] };
+    }
+  } else if (!isError(selectedConcretePath)) {
+    return {
+      curves: selectedConcretePath.curves.map((ec) => ec.points),
+      interpolatorOverride: selectedConcretePath.globalInterpolator,
+    };
+  }
 }
 
 export function calcDist(pt: Point, mp: MovablePoint): number {

@@ -142,8 +142,6 @@ export const PathFileErrorsAtom = atom(async (get): Promise<string[]> => {
   return errors;
 });
 
-export const FocusedPathAtom = atom<string | undefined>(undefined);
-
 export const FieldConfigHashAtom = atom((get) => {
   const d = get(DisplayOptionsAtom);
   return JSON.stringify(d);

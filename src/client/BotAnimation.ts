@@ -3,9 +3,20 @@
 import { isDefined, isUndefined } from '@freik/typechk';
 
 import { BotDrawStyle, BotShapes } from './ClientTypes';
-import { ConcreteHeading, CurveDetail, Point } from './ConcreteEvalTypes';
+import {
+  ConcreteHeading,
+  CurveDetail,
+  EvalCurve,
+  EvalCurveDetail,
+  EvalInterpolator,
+  Point,
+} from './ConcreteEvalTypes';
 import { addHeadingToCurve, getCurveDetail, rotPt } from './DrawingHelpers';
 
+export type AnimationPath = {
+  curves: EvalCurveDetail[];
+  interpolatorOverride?: EvalInterpolator;
+};
 export type BotAnimationState = {
   name: string | undefined;
   curveIndex: number;
@@ -48,7 +59,7 @@ function nextState(state: BotAnimationState) {
 export function animateBot(
   ctx: CanvasRenderingContext2D,
   name: string | undefined,
-  path: [Point[], ConcreteHeading][],
+  path: AnimationPath, // [Point[], ConcreteHeading][],
   state: BotAnimationState,
   botStyle: BotDrawStyle,
 ) {
