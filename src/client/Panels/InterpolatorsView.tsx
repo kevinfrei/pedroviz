@@ -34,7 +34,7 @@ export function InterpolatorsView(): ReactElement {
     <>
       <InterpolatorsList />
       <ItemEditor
-        open={!!activeInterp && activeTab === 'i'}
+        open={!!activeInterp && activeTab === DataType.Interpolations}
         name={activeKey || ''}
         type={DataType.Interpolations}
         items={interpolations}

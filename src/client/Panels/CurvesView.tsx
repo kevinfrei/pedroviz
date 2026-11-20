@@ -30,7 +30,7 @@ export function CurvesView(): ReactElement {
     <>
       <CurvesList />
       <ItemEditor
-        open={!!activeCurve && activeTab === 'c'}
+        open={!!activeCurve && activeTab === DataType.Curves}
         name={activeKey || ''}
         type={DataType.Curves}
         items={curves}

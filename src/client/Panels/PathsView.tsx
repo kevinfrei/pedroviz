@@ -33,7 +33,7 @@ export function PathsView(): ReactElement {
       <PathsList />
 
       <ItemEditor
-        open={!!activePath && activeTab === 'P'}
+        open={!!activePath && activeTab === DataType.Paths}
         name={activeKey || ''}
         type={DataType.Paths}
         items={paths}

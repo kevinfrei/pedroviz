@@ -27,7 +27,7 @@ export function PosesView(): ReactElement {
     <>
       <PosesList />
       <ItemEditor
-        open={!!activePose && activeTab === 'p'}
+        open={!!activePose && activeTab === DataType.Poses}
         type={DataType.Poses}
         name={activeKey || ''}
         items={poses}

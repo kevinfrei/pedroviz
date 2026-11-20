@@ -124,12 +124,11 @@ export function FieldRenderer(): ReactElement {
   const colors = useAtomValue(ColorsAtom);
 
   const [symbolTable, setSymbolTable] = useAtom(symbolTableAtom);
-  const selected = useAtomValue(selectedKeyAtom);
   const selectedPathOrCurveKey = useAtomValue(selectedPathOrCurveKeyAtom);
 
   const evaluated = EvaluateSymbols(symbolTable);
   const shallow = ShallowEvaluateSymbols(symbolTable);
-  // const correct = CalculateItems(evaluated);
+
   const movablePoints: MovablePoint[] = [];
   const [hovering, setHovering] = useState<MovablePoint | null>(null);
   const [moving, setMoving] = useState<MovablePoint | null>(null);
@@ -276,7 +275,6 @@ export function FieldRenderer(): ReactElement {
       curveOpts,
       pathStyle,
       poseOpts,
-      selected,
       showPathHeadings,
       symbolTable,
       theme,

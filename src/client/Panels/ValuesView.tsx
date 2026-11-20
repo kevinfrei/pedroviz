@@ -28,7 +28,7 @@ export function ValuesView(): ReactElement {
     <>
       <ValuesList />
       <ItemEditor
-        open={!!activeValue && activeTab === 'v'}
+        open={!!activeValue && activeTab === DataType.Values}
         type={DataType.Values}
         name={activeKey || ''}
         items={values}
