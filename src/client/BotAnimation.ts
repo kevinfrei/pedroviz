@@ -23,7 +23,7 @@ export type BotAnimationState = {
   curves: CurveDetail[];
 };
 
-const countDelay = 1;
+const countDelay = 2;
 
 function initState(
   state: BotAnimationState,
@@ -68,7 +68,7 @@ export function animateBot(
   if (
     isUndefined(name) ||
     state.curves.length <= state.curveIndex ||
-    state.curves[state.curveIndex]!.length <= state.curvePoint
+    state.curves[state.curveIndex]!.points.length <= state.curvePoint
   ) {
     return;
   }

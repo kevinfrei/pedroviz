@@ -271,12 +271,12 @@ export function FieldRenderer(): ReactElement {
     [
       colors,
       coordViz,
-      // correct,
       curveOpts,
       pathStyle,
       poseOpts,
       showPathHeadings,
       symbolTable,
+      movablePoints,
       theme,
     ],
   );
@@ -308,14 +308,14 @@ export function FieldRenderer(): ReactElement {
       );
       ctx.restore();
     },
-    [selectedPathOrCurveKey, botStyle],
+    [selectedPathOrCurveKey, evaluated, botStyle],
   );
 
   return (
     <ResponsiveSquareCanvas
       anchor={{ x: 'left', y: 'top' }}
       render={renderField}
-      animate={animate}
+      animate={isDefined(selectedPathOrCurveKey) ? animate : undefined}
       onPointerDown={(e, p) => {
         if (hovering !== null) {
           setMoving(hovering);

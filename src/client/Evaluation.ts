@@ -35,7 +35,6 @@ import {
   chkEvalPose,
 } from './ConcreteEvalTypeCheck';
 import {
-  ConcreteHeadingType,
   EvalCurve,
   EvalInterpolator,
   EvalPath,
@@ -294,7 +293,7 @@ export function EvaluateSymbols(symbolTable: SymbolTable): EvalSymbols {
     } else {
       return {
         interpolator,
-        points: { ...getCurveDetail(points), controlPoints: points },
+        points: { ...getCurveDetail(points, interpolator), controlPoints: points },
       };
     }
   }
@@ -413,7 +412,6 @@ function shallowInterpolator(
   }
   if (chkTangentInterp(interpRef)) {
     return {
-      type: ConcreteHeadingType.Tangent,
       reversed: interpRef.reversed,
     };
   } else if (chkConstInterp(interpRef)) {
@@ -424,7 +422,7 @@ function shallowInterpolator(
         'Error while evaluating the heading of a constant interpolator',
       );
     }
-    return { type: ConcreteHeadingType.Constant, heading };
+    return { heading };
   } else if (chkFacePtInterp(interpRef)) {
     const point = shallowPose(name, interpRef.point, prefix + 'f');
     if (isError(point)) {
@@ -433,7 +431,7 @@ function shallowInterpolator(
         'Error while evaluating the point of a FacingPoint interpolator',
       );
     }
-    return { type: ConcreteHeadingType.Point, heading: point };
+    return { facing: point };
   } else if (chkLinearInterp(interpRef)) {
     const start = shallowHeading(name, interpRef.start, prefix + 's');
     if (isError(start)) {
@@ -450,7 +448,6 @@ function shallowInterpolator(
       );
     }
     return {
-      type: ConcreteHeadingType.Linear,
       long: interpRef.longWay,
       headings: [start, end],
     };
@@ -478,7 +475,7 @@ function shallowInterpolator(
       }
       pieces.push({ until, heading });
     }
-    return { type: ConcreteHeadingType.Piecewise, pieces };
+    return { pieces };
   }
   return MakeError('Catastrophic error in shallowInterpolators');
 }

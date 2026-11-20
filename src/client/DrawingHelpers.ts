@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { chkConcreteSimpleHeading } from './ConcreteEvalTypeCheck';
+import { chkTangentInterp } from 'src/dataTypes';
+import { chkEvalInterpConstant, chkEvalInterpFacing, chkEvalInterpLinear, chkEvalInterpSimple, chkEvalInterpTangent } from './ConcreteEvalTypeCheck';
 import {
-  ConcreteHeading,
-  ConcreteHeadingType,
-  ConcreteSimpleHeading,
   CurveDetail,
+  EvalInterpolator,
+  EvalInterpSimple,
   Point,
 } from './ConcreteEvalTypes';
 import { bezierLength, deCasteljau } from './ui-tools/bezier';
@@ -22,13 +22,14 @@ function getBezierPoints(curveControlPoints: Point[]): Point[] {
   const len = bezierLength(curveControlPoints);
   const pts: Point[] = [];
   for (let t = 0; t <= 1.0; t += 1 / len) {
+    // TODO: This is wrong: It should be the interpolation heading
     const h = t * Math.PI * 2;
     pts.push({ ...deCasteljau(curveControlPoints, t), h });
   }
   return pts;
 }
 
-export function getCurveDetail(controlPoints: Point[]): CurveDetail {
+function calcCurve(controlPoints: Point[]): CurveDetail {
   if (controlPoints.length < 2) {
     return { length: 0, points: [] };
   }
@@ -44,11 +45,17 @@ export function getCurveDetail(controlPoints: Point[]): CurveDetail {
   return { length, points };
 }
 
+export function getCurveDetail(controlPoints: Point[], interp: EvalInterpolator): CurveDetail {
+  const res = calcCurve(controlPoints);
+  addHeadingToCurve(res, interp);
+  return res;
+}
+
 // TODO: Figure out how Pedro decides what percentage of the curve applies to
 // heading pieces and linear interpolations
 export function addHeadingToCurve(
   curve: CurveDetail,
-  heading: ConcreteHeading,
+  heading: EvalInterpolator,
 ): void {
   // for "n" points, I'm not drawing starting/ending headings, so I actually want to split
   // the length into count + 1 pieces, and find the point in between each piece
@@ -76,31 +83,34 @@ function addHeadingToPoint(
   prev: Point | null,
   point: Point,
   next: Point | null,
-  heading: ConcreteHeading,
+  heading: EvalInterpolator,
   percent: number,
 ) {
-  if (chkConcreteSimpleHeading(heading)) {
+  if (chkEvalInterpSimple(heading)) {
     point.h = calcSimpleHeading(heading, prev, point, next, percent);
   } else /* if (heading.type == ConcreteHeadingType.Piecewise)*/ {
     // Find the piece that this percentage is contained by
     // I think a linear search is fine, here..
-    for (const piece of heading.pieces) {
-      if (percent <= piece.end && percent >= piece.start) {
+    let last = 0;
+    for (const piece of heading) {
+      if (percent <= piece.until && percent >= last) {
         // Found the right piece, rescale percentage accordingly, and
         // get the heading for the piece
         point.h = calcSimpleHeading(
-          piece.heading,
+          piece.interp,
           prev,
           point,
           next,
-          (percent - piece.start) / (piece.end - piece.start),
+          (percent - last) / (piece.until - last),
         );
+      } else {
+        last = piece.until;
       }
     }
   }
 }
 
-/*export*/ function ptDiff(a: Point, b: Point): Point {
+function ptDiff(a: Point, b: Point): Point {
   return { x: a.x - b.x, y: a.y - b.y };
 }
 
@@ -118,7 +128,7 @@ function getAngle(pt: Point): number {
 }
 
 function calcSimpleHeading(
-  heading: ConcreteSimpleHeading,
+  heading: EvalInterpSimple,
   prev: Point | null,
   cur: Point,
   nxt: Point | null,
@@ -127,20 +137,20 @@ function calcSimpleHeading(
   if (prev === null && nxt === null) {
     throw new Error("Can't have both prev and next points be null");
   }
-  switch (heading.type) {
-    case ConcreteHeadingType.Tangent:
-      return getAngle(prev === null ? ptDiff(nxt!, cur) : ptDiff(cur, prev));
-    case ConcreteHeadingType.Constant:
-      return heading.heading;
-    case ConcreteHeadingType.Linear:
-      return linearRangeRadians(
-        heading.headings[0],
-        heading.headings[1],
-        percent,
-      );
-    case ConcreteHeadingType.Point:
-      return getAngle(ptDiff(cur, heading.heading));
+  if (chkEvalInterpTangent(heading)) {
+    return getAngle(prev === null ? ptDiff(nxt!, cur) : ptDiff(cur, prev));
+  } else if (chkEvalInterpConstant(heading)) {
+    return heading.radians;
+  } else if (chkEvalInterpLinear(heading)) {
+    return linearRangeRadians(
+      heading.startRadians,
+      heading.endRadians,
+      heading.longWay ? -percent : percent
+    );
+  } else if (chkEvalInterpFacing(heading)) {
+    return getAngle(ptDiff(heading, cur));
   }
+  throw new Error("Invalid Simple Heading type");
 }
 
 export function CloseTo(a: number, b: number): boolean {

@@ -11,13 +11,6 @@ import {
 } from '@freik/typechk';
 
 import {
-  ConcreteConstantHeading,
-  ConcreteHeadingType,
-  ConcreteLinearHeading,
-  ConcretePiecewiseHeading,
-  ConcretePointHeading,
-  ConcreteSimpleHeading,
-  ConcreteTangentHeading,
   CurveDetail,
   EvalCurve,
   EvalCurveDetail,
@@ -42,58 +35,6 @@ const chkCurveDetail = chkObjectOfExactType<CurveDetail>({
   length: isNumber,
   points: chkArrayOf(chkPoint),
 });
-const chkConcreteTangentHeading = chkObjectOfExactType<ConcreteTangentHeading>({
-  type: (t: unknown): t is typeof ConcreteHeadingType.Tangent =>
-    t === ConcreteHeadingType.Tangent,
-  reversed: isBoolean,
-});
-
-const chkConcreteConstantHeading =
-  chkObjectOfExactType<ConcreteConstantHeading>({
-    type: (t: unknown): t is typeof ConcreteHeadingType.Constant =>
-      t === ConcreteHeadingType.Constant,
-    heading: isNumber,
-  });
-
-/*export*/ const chkConcreteLinearHeading =
-  chkObjectOfExactType<ConcreteLinearHeading>({
-    type: (t: unknown): t is typeof ConcreteHeadingType.Linear =>
-      t === ConcreteHeadingType.Linear,
-    headings: chkTupleOf(isNumber, isNumber),
-    long: isBoolean,
-  });
-
-const chkConcretePointHeading = chkObjectOfExactType<ConcretePointHeading>({
-  type: (t: unknown): t is typeof ConcreteHeadingType.Point =>
-    t === ConcreteHeadingType.Point,
-  heading: chkPoint,
-});
-
-export const chkConcreteSimpleHeading: typecheck<ConcreteSimpleHeading> =
-  chkAnyOf(
-    chkConcreteTangentHeading,
-    chkConcreteConstantHeading,
-    chkConcreteLinearHeading,
-    chkConcretePointHeading,
-  );
-
-const chkConcretePiece = chkObjectOfExactType({
-  start: isNumber,
-  end: isNumber,
-  heading: chkConcreteSimpleHeading,
-});
-
-const chkConcretePieceWiseHeading =
-  chkObjectOfExactType<ConcretePiecewiseHeading>({
-    type: (t: unknown): t is typeof ConcreteHeadingType.Piecewise =>
-      t === ConcreteHeadingType.Piecewise,
-    pieces: chkArrayOf(chkConcretePiece),
-  });
-
-const chkConcreteHeading = chkAnyOf(
-  chkConcretePieceWiseHeading,
-  chkConcreteSimpleHeading,
-);
 
 export const chkEvalPose = chkObjectOfExactType<EvalPose>(
   { x: isNumber, y: isNumber },
@@ -104,18 +45,18 @@ const chkEvalCurveDetail = chkObjectOfExactType<EvalCurveDetail>({
   points: chkArrayOf(chkPoint),
   controlPoints: chkArrayOf(chkEvalPose),
 });
-const chkEvalInterpTangent = chkObjectOfExactType<EvalInterpTangent>({
+export const chkEvalInterpTangent = chkObjectOfExactType<EvalInterpTangent>({
   reversed: isBoolean,
 });
-const chkEvalInterpConstant = chkObjectOfExactType<EvalInterpConstant>({
+export const chkEvalInterpConstant = chkObjectOfExactType<EvalInterpConstant>({
   radians: isNumber,
 });
-const chkEvalInterpLinear = chkObjectOfExactType<EvalInterpLinear>({
+export const chkEvalInterpLinear = chkObjectOfExactType<EvalInterpLinear>({
   startRadians: isNumber,
   endRadians: isNumber,
   longWay: isBoolean,
 });
-const chkEvalInterpFacing = chkObjectOfExactType<EvalInterpFacing>({
+export const chkEvalInterpFacing = chkObjectOfExactType<EvalInterpFacing>({
   x: isNumber,
   y: isNumber,
 });

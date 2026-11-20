@@ -8,49 +8,6 @@ import { Nominal } from '../typeHelpers';
 export type Point = { x: number; y: number; h?: number };
 export type CurveDetail = { length: number; points: Point[] };
 
-export const ConcreteHeadingType = Object.freeze({
-  Tangent: 'T',
-  Constant: 'C',
-  Linear: 'I',
-  Point: 'P',
-  Piecewise: 'L',
-} as const);
-export type ConcreteHeadingType =
-  (typeof ConcreteHeadingType)[keyof typeof ConcreteHeadingType];
-
-export type ConcreteTangentHeading = {
-  type: typeof ConcreteHeadingType.Tangent;
-  reversed: boolean;
-};
-export type ConcreteConstantHeading = {
-  type: typeof ConcreteHeadingType.Constant;
-  heading: number;
-};
-export type ConcreteLinearHeading = {
-  type: typeof ConcreteHeadingType.Linear;
-  long: boolean;
-  headings: [number, number];
-};
-export type ConcretePointHeading = {
-  type: typeof ConcreteHeadingType.Point;
-  heading: Point;
-};
-type ConcretePiece = {
-  start: number;
-  end: number;
-  heading: ConcreteSimpleHeading;
-};
-export type ConcretePiecewiseHeading = {
-  type: typeof ConcreteHeadingType.Piecewise;
-  pieces: ConcretePiece[];
-};
-export type ConcreteSimpleHeading =
-  | ConcreteTangentHeading
-  | ConcreteConstantHeading
-  | ConcreteLinearHeading
-  | ConcretePointHeading;
-export type ConcreteHeading = ConcreteSimpleHeading | ConcretePiecewiseHeading;
-
 export type EvalPose = { x: number; y: number; radians?: number };
 export type EvalCurveDetail = {
   length: number;
@@ -115,18 +72,16 @@ export type ShallowPiece = {
   heading: RefOr<ShallowInterpolator>;
 };
 type ShallowInterpolator =
-  | { type: typeof ConcreteHeadingType.Tangent; reversed: boolean }
+  | { reversed: boolean }
   | {
-      type: typeof ConcreteHeadingType.Constant;
       heading: ShallowHeadingRef;
     }
   | {
-      type: typeof ConcreteHeadingType.Linear;
       long: boolean;
       headings: [ShallowHeadingRef, ShallowHeadingRef];
     }
-  | { type: typeof ConcreteHeadingType.Point; heading: ShallowPoseRef }
-  | { type: typeof ConcreteHeadingType.Piecewise; pieces: ShallowPiece[] };
+  | { facing: ShallowPoseRef }
+  | { pieces: ShallowPiece[] };
 export type ShallowInterpolatorRef = RefOr<ShallowInterpolator>;
 export type ShallowCurve = {
   points: ShallowPoseRef[];
