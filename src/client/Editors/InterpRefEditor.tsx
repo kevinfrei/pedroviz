@@ -22,8 +22,8 @@ import {
   InterpNames,
   InterpRef,
   LinearInterp,
-  makeNewHeading,
-  makeNewPose,
+  mkNewHeading,
+  mkNewPose,
   PieceWiseInterp,
   SymbolTable,
   TangentInterp,
@@ -106,13 +106,13 @@ export function InterpRefEditor(
         break;
       case 'Facing':
         onChange({
-          point: makeNewPose(false),
+          point: mkNewPose(false),
         });
         break;
       case 'Linear':
         onChange({
-          start: makeNewHeading(),
-          end: makeNewHeading(),
+          start: mkNewHeading(),
+          end: mkNewHeading(),
           longWay: false,
         });
         break;
@@ -284,12 +284,12 @@ function LinearInterpEditor({
     <div>
       <HeadingRefEditor
         label="Start Heading"
-        item={item.start || makeNewHeading()}
+        item={item.start || mkNewHeading()}
         onChange={(start: HeadingRef) => onChange({ ...item, start })}
       />
       <HeadingRefEditor
         label="End Heading"
-        item={item?.end || makeNewHeading()}
+        item={item?.end || mkNewHeading()}
         onChange={(end: HeadingRef) => onChange({ ...item, end })}
       />
       <Checkbox
@@ -308,7 +308,7 @@ function FacingPointInterpEditor({
   return (
     <PoseRefEditor
       label="Target Point Pose"
-      item={item?.point || makeNewPose(false)}
+      item={item?.point || mkNewPose(false)}
       heading={false}
       onChange={(point) => onChange({ point })}
     />
@@ -335,7 +335,7 @@ function ConstantInterpEditor({
   return (
     <HeadingRefEditor
       label="Heading Value"
-      item={item.heading || makeNewHeading()}
+      item={item.heading || mkNewHeading()}
       onChange={(hr: HeadingRef) => onChange({ heading: hr })}
     />
   );

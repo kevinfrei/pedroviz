@@ -17,7 +17,7 @@ import { hasField, isDefined, isError } from '@freik/typechk';
 import {
   chkErr,
   HeadingRef,
-  makeNewHeading,
+  mkNewHeading,
   Ref,
   SymbolTable,
 } from '../../dataTypes';
@@ -97,7 +97,7 @@ export function HeadingRefEditor(props: HeadingRefEditorProps): ReactElement {
         break;
       }
       case 'val': {
-        onChange(makeNewHeading());
+        onChange(mkNewHeading());
         break;
       }
       case 'none': {

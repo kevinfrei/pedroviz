@@ -19,8 +19,8 @@ import {
   chkRef,
   CurveRef,
   InterpRef,
-  makeNewCurve,
-  makeNewPose,
+  mkNewCurve,
+  mkNewPose,
   PoseRef,
   SymbolTable,
 } from '../../dataTypes';
@@ -73,7 +73,7 @@ export function CurveRefEditor({
     if (toRef) {
       onChange({ ref: curveKeys[0] || '' });
     } else {
-      onChange(makeNewCurve());
+      onChange(mkNewCurve());
     }
   };
 
@@ -115,8 +115,8 @@ export function CurveRefEditor({
                     if (isUndefined(item) || item.points.length === 0) {
                       onChange({
                         points: [
-                          makeNewPose(false, 72, 24),
-                          makeNewPose(false, 72, 24),
+                          mkNewPose(false, 72, 24),
+                          mkNewPose(false, 72, 24),
                         ],
                         interpolation: item?.interpolation || {
                           reversed: false,
@@ -125,7 +125,7 @@ export function CurveRefEditor({
                     } else if (item.points.length === 1) {
                       onChange({
                         ...item,
-                        points: [item.points[0]!, makeNewPose(false, 72, 24)],
+                        points: [item.points[0]!, mkNewPose(false, 72, 24)],
                       });
                     } else {
                       // For 2 (or more) points, add a control point *before*
@@ -136,7 +136,7 @@ export function CurveRefEditor({
                         ...item,
                         points: [
                           ...firstBunch,
-                          makeNewPose(false, 72, 24),
+                          mkNewPose(false, 72, 24),
                           lastPoint,
                         ],
                       });

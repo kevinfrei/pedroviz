@@ -9,7 +9,7 @@ import {
   Text,
 } from '@fluentui/react-components';
 
-import { makeNewCurve, Path } from '../../dataTypes';
+import { mkNewCurve, Path } from '../../dataTypes';
 import { SimpleInterpRef } from '../Editors/InterpRefEditor';
 import { DataType, symbolTablePathsAtom } from '../state/SymbolTable';
 import { SearchableTable } from './SearchableTable';
@@ -48,7 +48,7 @@ export function PathsList(): ReactElement {
       dataType={DataType.Paths}
       columns={columns}
       itemsState={pathsState}
-      newItem={() => ({ curves: [makeNewCurve()] })}
+      newItem={() => ({ curves: [mkNewCurve()] })}
     />
   );
 }
