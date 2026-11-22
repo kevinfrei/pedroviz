@@ -9,7 +9,7 @@ import {
   Text,
 } from '@fluentui/react-components';
 
-import { chkRef, CurveRef, makeNewCurve } from '../../dataTypes';
+import { chkRef, CurveRef } from '../../dataTypes';
 import { SimpleInterpRef } from '../Editors/InterpRefEditor';
 import { DataType, symbolTableCurvesAtom } from '../state/SymbolTable';
 import { SearchableTable } from './SearchableTable';
@@ -49,7 +49,6 @@ export function CurvesList(): ReactElement {
       dataType={DataType.Curves}
       columns={columns}
       itemsState={curvesState}
-      newItem={makeNewCurve}
     />
   );
 }

@@ -1,5 +1,5 @@
-import { ReactElement, useCallback, useState } from 'react';
-import { useAtom } from 'jotai';
+import { ReactElement, useCallback } from 'react';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import {
   DataGrid,
@@ -18,9 +18,19 @@ import {
 import { AddRegular, SearchRegular } from '@fluentui/react-icons';
 import { isUndefined } from '@freik/typechk';
 
-import { NewMapAdd } from '../../helpers';
 import {
+  makeNewCurve,
+  makeNewPath,
+  makeNewPose,
+  makeNewTangentInterp,
+  makeNewVal,
+} from '../../dataTypes';
+import { NewMapAdd } from '../../helpers';
+import { searchAtom } from '../state/BasicState';
+import {
+  activeTabAtom,
   DataType,
+  DataTypeItemsFamily,
   DataTypeNames,
   selectedItemKeyFamily,
 } from '../state/SymbolTable';
@@ -30,29 +40,93 @@ function getSelection(sel: string | undefined): Set<string> {
   return isUndefined(sel) ? new Set() : new Set([sel]);
 }
 
+type Maker<T> = () => T;
+
+function getItemCreator<T>(dataType: DataType): Maker<T> {
+  switch (dataType) {
+    case DataType.Values:
+      return makeNewVal as Maker<T>;
+    case DataType.Poses:
+      return makeNewPose as Maker<T>;
+    case DataType.Interpolations:
+      return makeNewTangentInterp as Maker<T>;
+    case DataType.Curves:
+      return makeNewCurve as Maker<T>;
+    case DataType.Paths:
+      return makeNewPath as Maker<T>;
+  }
+  return makeNewVal as Maker<T>;
+}
+
+export function SearchToolbar(): ReactElement {
+  const activeTab = useAtomValue(activeTabAtom);
+  const [search, setSearch] = useAtom(searchAtom);
+  const setSelected = useSetAtom(selectedItemKeyFamily(activeTab));
+  const setToast = useToast();
+
+  const name = DataTypeNames[activeTab];
+  const plural = name + 's';
+  type Setter<T> = (map: Map<string, T>) => void;
+  const [items, setItems] = useAtom(DataTypeItemsFamily(activeTab));
+
+  const newItem = getItemCreator(activeTab);
+  const handleAdd = () => {
+    let count = 1;
+    if (isUndefined(name)) {
+      return;
+    }
+    while (items.has(`new${name}${count}`)) count++;
+    const newKey = `new${name}${count}`;
+
+    setItems(
+      NewMapAdd(items, newKey, newItem()) as unknown as Parameters<
+        typeof setItems
+      >[0],
+    );
+    setSelected(newKey);
+    setToast(`Added ${name.toLocaleLowerCase()} "${newKey}"`);
+  };
+
+  return (
+    <Toolbar>
+      <Input
+        type="text"
+        contentBefore={<SearchRegular />}
+        value={search}
+        placeholder={`Search ${plural}`}
+        onChange={(_, d) => setSearch(d.value)}
+      />
+      &nbsp;
+      <ToolbarButton
+        onClick={handleAdd}
+        icon={<AddRegular />}
+        appearance="primary">
+        New {name}
+      </ToolbarButton>
+    </Toolbar>
+  );
+}
+
 type SearchableTableProps<T> = {
   dataType: DataType;
   columns: TableColumnDefinition<[string, T]>[];
   itemsState: [Map<string, T>, (map: Map<string, T>) => void];
-  newItem: () => T;
 };
 
 export function SearchableTable<T>({
   itemsState,
   dataType,
-  newItem,
   columns,
 }: SearchableTableProps<T>): ReactElement {
   type ListItem = [string, T];
-  const name = DataTypeNames[dataType];
-  const plural = name + 's';
-  const [search, setSearch] = useState('');
-  const [items, setItems] = itemsState;
-
+  const search = useAtomValue(searchAtom);
+  const [items] = itemsState;
   const [selected, setSelected] = useAtom(selectedItemKeyFamily(dataType));
 
+  const name = DataTypeNames[dataType];
+  const plural = name + 's';
   const selectedRows = getSelection(selected);
-  const setToast = useToast();
+
   const onSelChanged: DataGridProps['onSelectionChange'] = useCallback(
     (_, data) => {
       if (data.selectedItems.size === 0) {
@@ -77,19 +151,6 @@ export function SearchableTable<T>({
     setSelected(selected === id ? undefined : id);
   };
 
-  const handleAdd = () => {
-    let count = 1;
-    if (isUndefined(name)) {
-      return;
-    }
-    while (items.has(`new${name}${count}`)) count++;
-    const newKey = `new${name}${count}`;
-
-    setItems(NewMapAdd(items, newKey, newItem()));
-    setSelected(newKey);
-    setToast(`Added ${name.toLocaleLowerCase()} "${newKey}"`);
-  };
-
   const keys = new Set(
     items.keys().filter((k) => k.toLowerCase().includes(search.toLowerCase())),
   );
@@ -97,57 +158,37 @@ export function SearchableTable<T>({
     keys.has(str),
   );
 
-  return (
-    <>
-      <Toolbar>
-        <Input
-          type="text"
-          contentBefore={<SearchRegular />}
-          value={search}
-          placeholder={`Search ${plural}`}
-          onChange={(_, d) => setSearch(d.value)}
-        />
-        &nbsp;
-        <ToolbarButton
-          onClick={handleAdd}
-          icon={<AddRegular />}
-          appearance="primary">
-          Create Named {name}
-        </ToolbarButton>
-      </Toolbar>
-      {keys.size === 0 ? (
-        <Text>No {plural} found.</Text>
-      ) : (
-        <DataGrid
-          items={filteredItems}
-          columns={columns}
-          sortable
-          resizableColumns
-          getRowId={(itm: ListItem) => itm[0]}
-          selectionMode="single"
-          selectedItems={selectedRows}
-          onSelectionChange={onSelChanged}
-          style={{ overflowY: 'auto' }}>
-          <DataGridHeader>
-            <DataGridRow>
-              {({ renderHeaderCell }) => (
-                <DataGridHeaderCell>{renderHeaderCell()}</DataGridHeaderCell>
-              )}
-            </DataGridRow>
-          </DataGridHeader>
-          <DataGridBody<ListItem>>
-            {({ item, rowId }) => (
-              <DataGridRow<ListItem>
-                key={rowId}
-                onClick={() => toggleSelection(item[0])}>
-                {({ renderCell, columnId }) => (
-                  <DataGridCell>{renderCell(item)}</DataGridCell>
-                )}
-              </DataGridRow>
+  return keys.size === 0 ? (
+    <Text>No {plural} found.</Text>
+  ) : (
+    <DataGrid
+      items={filteredItems}
+      columns={columns}
+      sortable
+      resizableColumns
+      getRowId={(itm: ListItem) => itm[0]}
+      selectionMode="single"
+      selectedItems={selectedRows}
+      onSelectionChange={onSelChanged}
+      style={{ overflowY: 'auto' }}>
+      <DataGridHeader>
+        <DataGridRow>
+          {({ renderHeaderCell }) => (
+            <DataGridHeaderCell>{renderHeaderCell()}</DataGridHeaderCell>
+          )}
+        </DataGridRow>
+      </DataGridHeader>
+      <DataGridBody<ListItem>>
+        {({ item, rowId }) => (
+          <DataGridRow<ListItem>
+            key={rowId}
+            onClick={() => toggleSelection(item[0])}>
+            {({ renderCell, columnId }) => (
+              <DataGridCell>{renderCell(item)}</DataGridCell>
             )}
-          </DataGridBody>
-        </DataGrid>
-      )}
-    </>
+          </DataGridRow>
+        )}
+      </DataGridBody>
+    </DataGrid>
   );
 }

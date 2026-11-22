@@ -9,7 +9,7 @@ import {
   Text,
 } from '@fluentui/react-components';
 
-import { chkRef, makeNewPose, PoseRef } from '../../dataTypes';
+import { chkRef, PoseRef } from '../../dataTypes';
 import { SimpleHeadingRef, SimpleValRef } from '../Editors/Viewers';
 import { DataType, symbolTablePosesAtom } from '../state/SymbolTable';
 import { SearchableTable } from './SearchableTable';
@@ -65,7 +65,6 @@ export function PosesList(): ReactElement {
       dataType={DataType.Poses}
       columns={columns}
       itemsState={posesState}
-      newItem={makeNewPose}
     />
   );
 }

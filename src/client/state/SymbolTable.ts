@@ -28,7 +28,21 @@ export const DataTypeNames = Object.freeze([
   'Curve',
   'Interpolation',
   'Path',
+  'JSON',
 ]);
+const DataTypeFields = Object.freeze([
+  'values',
+  'poses',
+  'curves',
+  'interpolations',
+  'paths',
+] as const);
+
+function fieldFromDataType(
+  type: DataType,
+): 'values' | 'poses' | 'interpolations' | 'curves' | 'paths' {
+  return DataTypeFields[type % DataTypeFields.length]!;
+}
 
 const maybeSymbolTableAtom = unwrap(CorrectPathsAtom);
 export const symbolTableAtom = atom(
@@ -70,6 +84,12 @@ export const symbolTableCurvesAtom = focusAtom(symbolTableAtom, (optic) =>
 );
 export const symbolTablePathsAtom = focusAtom(symbolTableAtom, (optic) =>
   optic.prop('paths'),
+);
+
+export const DataTypeItemsFamily = atomFamily((dataType: DataType) =>
+  focusAtom(symbolTableAtom, (optic) =>
+    optic.prop(fieldFromDataType(dataType)),
+  ),
 );
 
 const selectedKeyAtom = atom<SelectedKey>(new Map());

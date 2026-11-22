@@ -434,7 +434,9 @@ export function Settings(): ReactElement {
   return (
     <DraggableDialog modalType="modal">
       <DialogTrigger disableButtonEnhancement>
-        <Button icon={<SettingsFilled />} appearance="transparent" />
+        <Button appearance="primary" icon={<SettingsFilled />}>
+          Settings
+        </Button>
       </DialogTrigger>
       <DraggableDialogSurface>
         <DialogBody>

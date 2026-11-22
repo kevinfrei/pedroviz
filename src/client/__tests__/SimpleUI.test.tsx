@@ -24,7 +24,7 @@ import '@testing-library/jest-dom';
 
 import { Team } from '../../ipcTypes';
 import { Strings } from '../Constants';
-import { PathsDataDisplay } from '../PathsDataDisplay';
+import { SelectedDataList } from '../PathsDataDisplay';
 import { ThemeAtom } from '../state/SavedSettings';
 import { getStore } from '../state/Storage';
 import { lightOnBlack } from '../ui-tools/Colors';

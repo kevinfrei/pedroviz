@@ -36,6 +36,7 @@ export function SaveButton(): ReactElement {
   const [get, refresher] = useAtom(pathsFileFamily(team!));
   return (
     <Button
+      appearance="primary"
       icon={<SaveFilled />}
       onClick={() => {
         PutPaths(team!, get).then(() => refresher());
@@ -48,6 +49,7 @@ export function SaveButton(): ReactElement {
 export function UploadToRobot(): ReactElement {
   return (
     <Button
+      appearance="primary"
       icon={<BotAddFilled />}
       onClick={() =>
         window.alert(
@@ -62,6 +64,7 @@ export function UploadToRobot(): ReactElement {
 export function RemoveUpload(): ReactElement {
   return (
     <Button
+      appearance="primary"
       icon={<DeleteFilled />}
       onClick={() => window.alert('Not yet implemented.')}>
       {Strings.delete_upload}

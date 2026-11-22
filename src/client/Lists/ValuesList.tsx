@@ -39,7 +39,6 @@ export function ValuesList(): ReactElement {
       dataType={DataType.Values}
       columns={columns}
       itemsState={valuesState}
-      newItem={() => ({ val: 0 })}
     />
   );
 }

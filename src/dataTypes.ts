@@ -207,6 +207,10 @@ export function makeNewPose(
       };
 }
 
+export function makeNewTangentInterp(): TangentInterp {
+  return { reversed: false };
+}
+
 export function makeNewCurve(): Curve {
   return {
     points: [
@@ -214,6 +218,10 @@ export function makeNewCurve(): Curve {
       makeNewPose(false, 60, 12),
       makeNewPose(false, 72, 24),
     ],
-    interpolation: { reversed: false },
+    interpolation: makeNewTangentInterp(),
   };
+}
+
+export function makeNewPath(): Path {
+  return { curves: [makeNewCurve()] };
 }

@@ -24,7 +24,8 @@ import {
   TeamSelector,
   UploadToRobot,
 } from './FileChoosing';
-import { PathsDataDisplay } from './PathsDataDisplay';
+import { SearchToolbar } from './Lists/SearchableTable';
+import { DataTabList, SelectedDataList } from './PathsDataDisplay';
 import { Settings } from './Settings';
 import { ToastId } from './state/BasicState';
 import { ThemeAtom } from './state/SavedSettings';
@@ -52,14 +53,11 @@ const useStyles = makeStyles({
     backgroundColor: tokens.colorNeutralBackground1,
     padding: '4px 4px',
     display: 'flex',
-    justifyContent: 'space-between', // Aligns buttons to the right (or 'space-between', etc.)
+    justifyContent: 'space-between',
     gap: '8px',
+    flexWrap: 'wrap',
   },
 });
-
-function Spacer(): ReactElement {
-  return <span style={{ width: 4 }} />;
-}
 
 function MyApp(): ReactElement {
   const toolbarStyle = useStyles();
@@ -76,27 +74,20 @@ function MyApp(): ReactElement {
           <div className={toolbarStyle.panelContainer}>
             <div className={toolbarStyle.scrollableContent}>
               <SpinSuspense>
+                <DataTabList />
+                <SearchToolbar />
+                <SelectedDataList />
                 <CodeIssues />
-                <PathsDataDisplay />
               </SpinSuspense>
             </div>
             <Toolbar size="medium" className={toolbarStyle.bottomToolbar}>
-              <ToolbarGroup>
-                <SpinSuspense>
-                  <TeamSelector />
-                  <Spacer />
-                  <SaveButton />
-                  <Spacer />
-                  <UploadToRobot />
-                  <Spacer />
-                  <RemoveUpload />
-                </SpinSuspense>
-              </ToolbarGroup>
-              <ToolbarGroup>
-                <SpinSuspense>
-                  <Settings />
-                </SpinSuspense>
-              </ToolbarGroup>
+              <SpinSuspense>
+                <TeamSelector />
+                <SaveButton />
+                <UploadToRobot />
+                <RemoveUpload />
+                <Settings />
+              </SpinSuspense>
             </Toolbar>
             <Toaster toasterId={ToastId} position="bottom" />
           </div>
