@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { useAtomValue } from 'jotai';
 
 import { Button, Checkbox, Select, Text } from '@fluentui/react-components';
@@ -22,8 +22,17 @@ import {
   InterpNames,
   InterpRef,
   LinearInterp,
-  makeNewHeading,
-  makeNewPose,
+  mkConstInterp,
+  mkFacingInterp,
+  mkHeading,
+  mkLinearInterp,
+  mkNewHeading,
+  mkNewPose,
+  mkPiece,
+  mkPiecewise,
+  mkRef,
+  mkTangentInterp,
+  mkValue,
   PieceWiseInterp,
   SymbolTable,
   TangentInterp,
@@ -35,8 +44,7 @@ import { HeadingRefEditor } from './HeadingRefEditor';
 import { PoseRefEditor } from './PoseRefEditor';
 import { ValRefEditor } from './ValRefEditor';
 
-const zeroHeading: HeadingVal = { angle: { val: 0 }, inRadians: false };
-const one80Heading: HeadingVal = { angle: { val: 180 }, inRadians: false };
+const zeroHeading: HeadingVal = mkHeading(mkValue(0));
 
 // TODO: Make this much better
 export function SimpleInterpRef({
@@ -62,7 +70,7 @@ function validInterpsForRef(
     return interpKeys;
   }
   return interpKeys.filter(
-    (k) => !isError(resolveInterpRef({ ref: k }, symbolTable, new Set([name]))),
+    (k) => !isError(resolveInterpRef(mkRef(k), symbolTable, new Set([name]))),
   );
 }
 
@@ -99,35 +107,22 @@ export function InterpRefEditor(
   const handleTypeChange = (newType: InterpNames | 'Reference' | 'None') => {
     switch (newType) {
       case 'Reference':
-        onChange({ ref: interpKeys[0] || '' });
+        onChange(mkRef(interpKeys[0] || ''));
         break;
       case 'Constant':
-        onChange({ heading: zeroHeading });
+        onChange(mkConstInterp(zeroHeading));
         break;
       case 'Facing':
-        onChange({
-          point: makeNewPose(false),
-        });
+        onChange(mkFacingInterp(mkNewPose(false)));
         break;
       case 'Linear':
-        onChange({
-          start: makeNewHeading(),
-          end: makeNewHeading(),
-          longWay: false,
-        });
+        onChange(mkLinearInterp(mkNewHeading(), mkNewHeading()));
         break;
       case 'Tangent':
-        onChange({ reversed: false });
+        onChange(mkTangentInterp());
         break;
       case 'PieceWise':
-        onChange({
-          pieces: [
-            {
-              until: { val: 1.0 },
-              interpolator: { reversed: false },
-            },
-          ],
-        });
+        onChange(mkPiecewise(mkPiece(mkValue(1.0), mkTangentInterp())));
         break;
       case 'None':
         // Type system annoyance...
@@ -154,7 +149,7 @@ export function InterpRefEditor(
         {chkRef(item) && (
           <Select
             value={item?.ref || ''}
-            onChange={(e) => onChange({ ref: e.target.value })}>
+            onChange={(e) => onChange(mkRef(e.target.value))}>
             <option key="$" value="" disabled>
               Select Interpolator Reference...
             </option>
@@ -213,15 +208,9 @@ function PieceWiseInterpEditor({
         icon={<AddRegular />}
         onClick={() => {
           const pieces = item?.pieces || [];
-          onChange({
-            pieces: [
-              ...pieces,
-              {
-                until: { val: 1.0 },
-                interpolator: { reversed: false },
-              },
-            ],
-          });
+          onChange(
+            mkPiecewise(...pieces, mkPiece(mkValue(1.0), mkTangentInterp())),
+          );
         }}>
         Add Piece
       </Button>
@@ -242,8 +231,9 @@ function PieceWiseInterpEditor({
                 icon={<DeleteRegular />}
                 disabled={item.pieces.length === 1}
                 onClick={() => {
-                  const newPieces = item.pieces.filter((_, i) => i !== idx);
-                  onChange({ pieces: newPieces });
+                  onChange(
+                    mkPiecewise(...item.pieces.filter((_, i) => i !== idx)),
+                  );
                 }}
               />
             </>
@@ -254,8 +244,8 @@ function PieceWiseInterpEditor({
               item={piece.until}
               onChange={(until) => {
                 const newPieces = [...item.pieces];
-                newPieces[idx] = { ...piece, until };
-                onChange({ pieces: newPieces });
+                newPieces[idx] = mkPiece(until, piece.interpolator);
+                onChange(mkPiecewise(...newPieces));
               }}
             />
 
@@ -265,8 +255,8 @@ function PieceWiseInterpEditor({
               name={name}
               onChange={(interpolator: InterpRef) => {
                 const newPieces = [...item.pieces];
-                newPieces[idx] = { ...piece, interpolator };
-                onChange({ pieces: newPieces });
+                newPieces[idx] = mkPiece(piece.until, interpolator);
+                onChange(mkPiecewise(...newPieces));
               }}
             />
           </>
@@ -284,18 +274,24 @@ function LinearInterpEditor({
     <div>
       <HeadingRefEditor
         label="Start Heading"
-        item={item.start || makeNewHeading()}
-        onChange={(start: HeadingRef) => onChange({ ...item, start })}
+        item={item.start || mkNewHeading()}
+        onChange={(start: HeadingRef) =>
+          onChange(mkLinearInterp(start, item.end, item.longWay))
+        }
       />
       <HeadingRefEditor
         label="End Heading"
-        item={item?.end || makeNewHeading()}
-        onChange={(end: HeadingRef) => onChange({ ...item, end })}
+        item={item?.end || mkNewHeading()}
+        onChange={(end: HeadingRef) =>
+          onChange(mkLinearInterp(item.start, end, item.longWay))
+        }
       />
       <Checkbox
         label="Turn the 'long way'"
         checked={item?.longWay}
-        onChange={(_, d) => onChange({ ...item, longWay: d.checked === true })}
+        onChange={(_, d) =>
+          onChange(mkLinearInterp(item.start, item.end, d.checked === true))
+        }
       />
     </div>
   );
@@ -308,9 +304,9 @@ function FacingPointInterpEditor({
   return (
     <PoseRefEditor
       label="Target Point Pose"
-      item={item?.point || makeNewPose(false)}
+      item={item?.point || mkNewPose(false)}
       heading={false}
-      onChange={(point) => onChange({ point })}
+      onChange={(point) => onChange(mkFacingInterp(point))}
     />
   );
 }
@@ -323,7 +319,7 @@ function TangentInterpEditor({
     <Checkbox
       label="Face the opposite direction of the path"
       checked={Boolean(item?.reversed)}
-      onChange={(_, d) => onChange({ reversed: d.checked === true })}
+      onChange={(_, d) => onChange(mkTangentInterp(d.checked === true))}
     />
   );
 }
@@ -335,8 +331,8 @@ function ConstantInterpEditor({
   return (
     <HeadingRefEditor
       label="Heading Value"
-      item={item.heading || makeNewHeading()}
-      onChange={(hr: HeadingRef) => onChange({ heading: hr })}
+      item={item.heading || mkNewHeading()}
+      onChange={(hr: HeadingRef) => onChange(mkConstInterp(hr))}
     />
   );
 }

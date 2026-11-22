@@ -7,7 +7,7 @@ import { Button } from '@fluentui/react-components';
 import { AddRegular, DeleteRegular } from '@fluentui/react-icons';
 import { isDefined, isUndefined } from '@freik/typechk';
 
-import { InterpRef, Path } from '../../dataTypes';
+import { InterpRef, mkHeading, mkPose, mkValue, Path } from '../../dataTypes';
 import { NewMapUpdate } from '../../helpers';
 import { CurveRefEditor } from '../Editors/CurveRefEditor';
 import { InterpRefEditor } from '../Editors/InterpRefEditor';
@@ -51,12 +51,7 @@ export function PathsView(): ReactElement {
                     ...curvesList,
                     {
                       points: [
-                        {
-                          X: { val: 0 },
-                          Y: { val: 0 },
-                          Heading: { val: 0 },
-                          inRadians: false,
-                        },
+                        mkPose(mkValue(0), mkValue(0), mkHeading(mkValue(0))),
                       ],
                       interpolation: { reversed: false },
                     },

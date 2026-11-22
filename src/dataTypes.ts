@@ -12,6 +12,8 @@ import {
   typecheck,
 } from '@freik/typechk';
 
+import { RandomRange } from './helpers';
+
 // Simple types (these live in the JSON file, too)
 
 export type Ref = { ref: string };
@@ -174,54 +176,93 @@ export const chkNamedValues = chkObjectOfExactType<NamedValues>({
   paths: chkRecordOf(isString, chkPath),
 });
 
-// Returns a random number between center - range and center + range
-function rr(center: number, range: number): number {
-  return center - range + Math.random() * 2 * range;
+export function mkRef(ref: string): Ref {
+  return { ref };
 }
 
-export function makeNewVal(center: number = 71, range: number = 70): Value {
-  return { val: rr(center, range) };
+export function mkValue(val: number): Value {
+  return { val };
 }
 
-export function makeNewHeading(): HeadingVal {
-  return {
-    angle: { val: Math.round(rr(0, 72)) * 5 },
-    inRadians: false,
-  };
+export function mkNewVal(center: number = 71, range: number = 70): Value {
+  return mkValue(RandomRange(center, range));
 }
 
-export function makeNewPose(
+export function mkHeading(
+  angle: ValRef,
+  inRadians: boolean = false,
+): HeadingVal {
+  return { angle, inRadians };
+}
+
+export function mkNewHeading(): HeadingVal {
+  return mkHeading(mkValue(Math.round(RandomRange(0, 72)) * 5));
+}
+
+export function mkPose(X: ValRef, Y: ValRef, heading?: HeadingRef): Pose {
+  return { X, Y, heading };
+}
+
+export function mkNewPose(
   heading: boolean = true,
   center: number = 72,
   range: number = 20,
 ): Pose {
   return heading
-    ? {
-        X: makeNewVal(center, range),
-        Y: makeNewVal(center, range),
-        heading: makeNewHeading(),
-      }
-    : {
-        X: makeNewVal(center, range),
-        Y: makeNewVal(center, range),
-      };
+    ? mkPose(mkNewVal(center, range), mkNewVal(center, range), mkNewHeading())
+    : mkPose(mkNewVal(center, range), mkNewVal(center, range));
 }
 
-export function makeNewTangentInterp(): TangentInterp {
-  return { reversed: false };
+export function mkTangentInterp(reversed: boolean = false): TangentInterp {
+  return { reversed };
 }
 
-export function makeNewCurve(): Curve {
-  return {
-    points: [
-      makeNewPose(false, 48, 24),
-      makeNewPose(false, 60, 12),
-      makeNewPose(false, 72, 24),
-    ],
-    interpolation: makeNewTangentInterp(),
-  };
+export function mkLinearInterp(
+  start: HeadingRef,
+  end: HeadingRef,
+  longWay: boolean = false,
+): LinearInterp {
+  return { start, end, longWay };
 }
 
-export function makeNewPath(): Path {
-  return { curves: [makeNewCurve()] };
+export function mkConstInterp(heading: HeadingRef): ConstInterp {
+  return { heading };
+}
+
+export function mkFacingInterp(point: PoseRef): FacePtInterp {
+  return { point };
+}
+export function mkPiece(until: ValRef, interpolator: InterpRef): InterpPiece {
+  return { until, interpolator };
+}
+export function mkPiecewise(...pieces: InterpPiece[]): PieceWiseInterp {
+  return { pieces };
+}
+
+export function mkCurve(interpolation: InterpRef, ...points: PoseRef[]): Curve {
+  return { points, interpolation };
+}
+
+export function mkNewCurve(): Curve {
+  return mkCurve(
+    mkTangentInterp(),
+    mkNewPose(false, 48, 24),
+    mkNewPose(false, 60, 12),
+    mkNewPose(false, 72, 24),
+  );
+}
+
+export function mkPath(...curves: CurveRef[]): Path {
+  return { curves };
+}
+
+export function mkPathInterp(
+  globalInterpolator: InterpRef,
+  ...curves: CurveRef[]
+): Path {
+  return { curves, globalInterpolator };
+}
+
+export function mkNewPath(): Path {
+  return { curves: [mkNewCurve()] };
 }

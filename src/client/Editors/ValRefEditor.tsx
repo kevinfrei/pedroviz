@@ -13,7 +13,15 @@ import {
 import { AlertFilled } from '@fluentui/react-icons';
 import { isError, isUndefined } from '@freik/typechk';
 
-import { chkErr, chkRef, chkValue, SymbolTable, ValRef } from '../../dataTypes';
+import {
+  chkErr,
+  chkRef,
+  chkValue,
+  mkRef,
+  mkValue,
+  SymbolTable,
+  ValRef,
+} from '../../dataTypes';
 import { resolveValRef } from '../Resolvers';
 import { symbolTableAtom } from '../state/SymbolTable';
 import { useSpinButtonChange } from '../ui-tools/ControlledSpinButton';
@@ -32,7 +40,7 @@ function validValuesForRef(
   return valueKeys.filter(
     (k) =>
       k !== name &&
-      !isError(resolveValRef({ ref: k }, symbolTable, new Set([name]))),
+      !isError(resolveValRef(mkRef(k), symbolTable, new Set([name]))),
   );
 }
 
@@ -44,7 +52,7 @@ export type ValRefEditorProps = {
   onChange: (valRef: ValRef) => void;
 };
 
-// ValRef Control: Switch between Inline ({ val }) and Ref ({ ref })
+// ValRef Control: Switch between Inline and Ref
 export function ValRefEditor({
   label,
   item,
@@ -59,13 +67,15 @@ export function ValRefEditor({
   const setType = (setToRef: boolean) => {
     if (setToRef) {
       const firstKey = validValuesForRef(valueKeys, symbolTable, name)[0] || '';
-      onChange({ ref: firstKey });
+      onChange(mkRef(firstKey));
     } else {
-      onChange({ val: isError(resolved) ? 0 : resolved });
+      onChange(mkValue(isError(resolved) ? 0 : resolved));
     }
   };
 
-  const onSpinChange = useSpinButtonChange((val: number) => onChange({ val }));
+  const onSpinChange = useSpinButtonChange((val: number) =>
+    onChange(mkValue(val)),
+  );
 
   return (
     <TitleWrapper title={label} expandable={!topLevel}>
@@ -92,7 +102,7 @@ export function ValRefEditor({
             <span>
               <Select
                 value={item?.ref || ''}
-                onChange={(e, d) => onChange({ ref: d.value })}>
+                onChange={(e, d) => onChange(mkRef(d.value))}>
                 <option key="$" value="" disabled>
                   Select Value Reference...
                 </option>

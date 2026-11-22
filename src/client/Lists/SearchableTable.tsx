@@ -19,11 +19,11 @@ import { AddRegular, SearchRegular } from '@fluentui/react-icons';
 import { isUndefined } from '@freik/typechk';
 
 import {
-  makeNewCurve,
-  makeNewPath,
-  makeNewPose,
-  makeNewTangentInterp,
-  makeNewVal,
+  mkNewCurve,
+  mkNewPath,
+  mkNewPose,
+  mkTangentInterp,
+  mkNewVal,
 } from '../../dataTypes';
 import { NewMapAdd } from '../../helpers';
 import { searchAtom } from '../state/BasicState';
@@ -45,17 +45,17 @@ type Maker<T> = () => T;
 function getItemCreator<T>(dataType: DataType): Maker<T> {
   switch (dataType) {
     case DataType.Values:
-      return makeNewVal as Maker<T>;
+      return mkNewVal as Maker<T>;
     case DataType.Poses:
-      return makeNewPose as Maker<T>;
+      return mkNewPose as Maker<T>;
     case DataType.Interpolations:
-      return makeNewTangentInterp as Maker<T>;
+      return mkTangentInterp as Maker<T>;
     case DataType.Curves:
-      return makeNewCurve as Maker<T>;
+      return mkNewCurve as Maker<T>;
     case DataType.Paths:
-      return makeNewPath as Maker<T>;
+      return mkNewPath as Maker<T>;
   }
-  return makeNewVal as Maker<T>;
+  return mkNewVal as Maker<T>;
 }
 
 export function SearchToolbar(): ReactElement {

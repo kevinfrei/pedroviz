@@ -11,8 +11,10 @@ import {
   chkErr,
   chkRef,
   HeadingRef,
-  makeNewPose,
-  makeNewVal,
+  mkNewPose,
+  mkNewVal,
+  mkPose,
+  mkRef,
   PoseRef,
   SymbolTable,
 } from '../../dataTypes';
@@ -35,7 +37,7 @@ function validPosesForRef(
   return poseKeys.filter(
     (k) =>
       k !== name &&
-      !isError(resolvePoseRef({ ref: k }, symbolTable, new Set([name]))),
+      !isError(resolvePoseRef(mkRef(k), symbolTable, new Set([name]))),
   );
 }
 
@@ -69,9 +71,9 @@ export function PoseRefEditor({
 
   const setToRef = (toRef: boolean) => {
     if (toRef) {
-      onChange({ ref: validPoseKeys[0] || '' });
+      onChange(mkRef(validPoseKeys[0] || ''));
     } else {
-      onChange(makeNewPose());
+      onChange(mkNewPose());
     }
   };
 
@@ -92,7 +94,7 @@ export function PoseRefEditor({
           <span>
             <Select
               value={item?.ref || ''}
-              onChange={(e, d) => onChange({ ref: d.value })}>
+              onChange={(e, d) => onChange(mkRef(d.value))}>
               <option key="$" value="" disabled>
                 Select Pose Reference...
               </option>
@@ -122,12 +124,12 @@ export function PoseRefEditor({
           <div>
             <ValRefEditor
               label="X Coordinate"
-              item={item?.X || makeNewVal()}
+              item={item?.X || mkNewVal()}
               onChange={(X) => onChange({ ...item, X })}
             />
             <ValRefEditor
               label="Y Coordinate"
-              item={item?.Y || makeNewVal()}
+              item={item?.Y || mkNewVal()}
               onChange={(Y) => onChange({ ...item, Y })}
             />
             {displayHeading && (
@@ -139,7 +141,7 @@ export function PoseRefEditor({
                   if (isDefined(heading) && heading !== null) {
                     onChange({ ...item, heading });
                   } else {
-                    onChange({ X: item.X, Y: item.Y });
+                    onChange(mkPose(item.X, item.Y));
                   }
                 }}
               />

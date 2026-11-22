@@ -19,8 +19,9 @@ import {
   chkRef,
   CurveRef,
   InterpRef,
-  makeNewCurve,
-  makeNewPose,
+  mkNewCurve,
+  mkNewPose,
+  mkRef,
   PoseRef,
   SymbolTable,
 } from '../../dataTypes';
@@ -42,7 +43,7 @@ function validCurvesForRef(
   return curveKeys.filter(
     (k) =>
       k !== name &&
-      !isError(resolveCurveRef({ ref: k }, symbolTable, new Set([name]))),
+      !isError(resolveCurveRef(mkRef(k), symbolTable, new Set([name]))),
   );
 }
 
@@ -71,9 +72,9 @@ export function CurveRefEditor({
 
   const setToRef = (toRef: boolean) => {
     if (toRef) {
-      onChange({ ref: curveKeys[0] || '' });
+      onChange(mkRef(curveKeys[0] || ''));
     } else {
-      onChange(makeNewCurve());
+      onChange(mkNewCurve());
     }
   };
 
@@ -93,7 +94,7 @@ export function CurveRefEditor({
         {isRef ? (
           <Select
             value={chkRef(item) ? item.ref : ''}
-            onChange={(e) => onChange({ ref: e.target.value })}>
+            onChange={(e) => onChange(mkRef(e.target.value))}>
             <option key="$" value="" disabled>
               Select Curve Reference...
             </option>
@@ -115,8 +116,8 @@ export function CurveRefEditor({
                     if (isUndefined(item) || item.points.length === 0) {
                       onChange({
                         points: [
-                          makeNewPose(false, 72, 24),
-                          makeNewPose(false, 72, 24),
+                          mkNewPose(false, 72, 24),
+                          mkNewPose(false, 72, 24),
                         ],
                         interpolation: item?.interpolation || {
                           reversed: false,
@@ -125,7 +126,7 @@ export function CurveRefEditor({
                     } else if (item.points.length === 1) {
                       onChange({
                         ...item,
-                        points: [item.points[0]!, makeNewPose(false, 72, 24)],
+                        points: [item.points[0]!, mkNewPose(false, 72, 24)],
                       });
                     } else {
                       // For 2 (or more) points, add a control point *before*
@@ -136,7 +137,7 @@ export function CurveRefEditor({
                         ...item,
                         points: [
                           ...firstBunch,
-                          makeNewPose(false, 72, 24),
+                          mkNewPose(false, 72, 24),
                           lastPoint,
                         ],
                       });

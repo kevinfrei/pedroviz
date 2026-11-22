@@ -53,3 +53,8 @@ export function RecordToMap<T>(
       : [],
   );
 }
+
+// Returns a random number between center - range and center + range
+export function RandomRange(center: number, range: number): number {
+  return center - range + Math.random() * 2 * range;
+}

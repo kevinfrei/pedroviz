@@ -17,7 +17,10 @@ import { hasField, isDefined, isError } from '@freik/typechk';
 import {
   chkErr,
   HeadingRef,
-  makeNewHeading,
+  mkHeading,
+  mkNewHeading,
+  mkRef,
+  mkValue,
   Ref,
   SymbolTable,
 } from '../../dataTypes';
@@ -40,7 +43,7 @@ function validPosesForRef(
   symbolTable: SymbolTable,
 ): string[] {
   return poseKeys.filter((k) => {
-    const resolved = resolvePoseRef({ ref: k }, symbolTable);
+    const resolved = resolvePoseRef(mkRef(k), symbolTable);
     return (
       !isError(resolved) &&
       isDefined(resolved.heading) &&
@@ -79,25 +82,27 @@ export function HeadingRefEditor(props: HeadingRefEditorProps): ReactElement {
   const headingType = getHeadingType(item);
   const resolved = item === null ? null : resolveHeadingRef(item, symbolTable);
   const onSpinChange = useSpinButtonChange((val) =>
-    onChange({
-      angle: { val },
-      inRadians: hasField(item, 'inRadians') ? item.inRadians : false,
-    }),
+    onChange(
+      mkHeading(
+        mkValue(val),
+        hasField(item, 'inRadians') ? item.inRadians : false,
+      ),
+    ),
   );
   const setType = (type: HeadingType) => {
     switch (type) {
       case 'pose': {
         const poseKey = validPoseKeys[0] || '';
-        onChange({ ref: poseKey });
+        onChange(mkRef(poseKey));
         break;
       }
       case 'ref': {
         const valKey = valueKeys[0] || '';
-        onChange({ angle: { ref: valKey }, inRadians: false });
+        onChange(mkHeading(mkRef(valKey)));
         break;
       }
       case 'val': {
-        onChange(makeNewHeading());
+        onChange(mkNewHeading());
         break;
       }
       case 'none': {
@@ -136,7 +141,7 @@ export function HeadingRefEditor(props: HeadingRefEditorProps): ReactElement {
             <span>
               <Select
                 value={item.ref}
-                onChange={(e, d) => onChange({ ref: d.value })}>
+                onChange={(e, d) => onChange(mkRef(d.value))}>
                 <option key="$" value="" disabled>
                   Select Pose Reference...
                 </option>
@@ -182,7 +187,7 @@ export function HeadingRefEditor(props: HeadingRefEditorProps): ReactElement {
               <Select
                 value={(item.angle as Ref).ref}
                 onChange={(_, d) =>
-                  onChange({ ...item, angle: { ref: d.value } })
+                  onChange(mkHeading(mkRef(d.value), item.inRadians))
                 }>
                 <option key="$" value="" disabled>
                   Select Value Reference...
@@ -197,7 +202,7 @@ export function HeadingRefEditor(props: HeadingRefEditorProps): ReactElement {
             <Checkbox
               checked={item.inRadians}
               onChange={(e) =>
-                onChange({ ...item, inRadians: e.target.checked })
+                onChange(mkHeading(item.angle, e.target.checked))
               }
               label="Heading Angle in Radians?"
             />

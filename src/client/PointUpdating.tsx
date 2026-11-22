@@ -1,6 +1,17 @@
 import { isUndefined } from '@freik/typechk';
 
-import { chkRef, Curve, Path, Pose, SymbolTable } from '../dataTypes';
+import {
+  chkRef,
+  Curve,
+  mkCurve,
+  mkPath,
+  mkPathInterp,
+  mkPose,
+  mkValue,
+  Path,
+  Pose,
+  SymbolTable,
+} from '../dataTypes';
 import { MovablePoint, Point, ValueLocator } from './EvalTypes';
 import { calcDist } from './ui-tools/ui-helpers';
 
@@ -8,16 +19,16 @@ import { calcDist } from './ui-tools/ui-helpers';
 
 function updateValue(st: SymbolTable, name: string, val: number): SymbolTable {
   const values = new Map(st.values);
-  values.set(name, { val });
+  values.set(name, mkValue(val));
   return { ...st, values };
 }
 
 function newPose(descr: string, pose: Pose, val: number): Pose {
   switch (descr) {
     case 'x':
-      return { ...pose, X: { val } };
+      return mkPose(mkValue(val), pose.Y, pose.heading);
     case 'y':
-      return { ...pose, Y: { val } };
+      return mkPose(pose.X, mkValue(val), pose.heading);
     default:
       console.error('Descriptor', descr, 'appears malformed');
   }
@@ -53,10 +64,7 @@ function newCurve(descr: string, curve: Curve, val: number): Curve {
     );
     return curve;
   }
-  const resCurve: Curve = {
-    points: [...curve.points],
-    interpolation: curve.interpolation,
-  };
+  const resCurve: Curve = mkCurve(curve.interpolation, ...curve.points);
   if (chkRef(curve.points[pointNum])) {
     console.error('Curve point', pointNum, 'is a Ref. This should not happen');
     return curve;
@@ -113,7 +121,9 @@ function updatePath(
     return st;
   }
   const paths = new Map(st.paths);
-  const newPath: Path = { ...path, curves: [...path.curves] };
+  const newPath: Path = path.globalInterpolator
+    ? mkPathInterp(path.globalInterpolator, ...path.curves)
+    : mkPath(...path.curves);
   newPath.curves[curveNum] = newCurve(
     descr.substring(descr.indexOf('c') + 1), // Trim off the # and the 'c'
     path.curves[curveNum]!,
