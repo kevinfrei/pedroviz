@@ -18,7 +18,12 @@ import { SpinSuspense } from '@freik/fluent9-tools';
 
 import { CodeIssues } from './CodeIssues';
 import { FieldRenderer } from './FieldRenderer';
-import { SaveButton, TeamSelector, UploadToRobot } from './FileChoosing';
+import {
+  RemoveUpload,
+  SaveButton,
+  TeamSelector,
+  UploadToRobot,
+} from './FileChoosing';
 import { PathsDataDisplay } from './PathsDataDisplay';
 import { Settings } from './Settings';
 import { ToastId } from './state/BasicState';
@@ -52,6 +57,10 @@ const useStyles = makeStyles({
   },
 });
 
+function Spacer(): ReactElement {
+  return <span style={{ width: 4 }} />;
+}
+
 function MyApp(): ReactElement {
   const toolbarStyle = useStyles();
   return (
@@ -75,10 +84,12 @@ function MyApp(): ReactElement {
               <ToolbarGroup>
                 <SpinSuspense>
                   <TeamSelector />
-                  <span style={{ width: 4 }} />
+                  <Spacer />
                   <SaveButton />
-                  <span style={{ width: 4 }} />
+                  <Spacer />
                   <UploadToRobot />
+                  <Spacer />
+                  <RemoveUpload />
                 </SpinSuspense>
               </ToolbarGroup>
               <ToolbarGroup>

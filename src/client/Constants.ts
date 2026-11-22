@@ -14,6 +14,7 @@ export const Strings = {
   select_a_bot: 'Select bot',
   save_json: 'Save JSON',
   upload_to_bot: 'Upload',
+  delete_upload: 'Remove upload',
   rescan_source: 'Rescan',
   Viz4Pedro: 'Viz 4 Pedro',
   Reset: 'Reset',

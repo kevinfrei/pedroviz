@@ -73,7 +73,7 @@ export function SearchableTable<T>({
   );
 
   // This enables deselection
-  const clearSelection = (id: string) => {
+  const toggleSelection = (id: string) => {
     setSelected(selected === id ? undefined : id);
   };
 
@@ -139,7 +139,7 @@ export function SearchableTable<T>({
             {({ item, rowId }) => (
               <DataGridRow<ListItem>
                 key={rowId}
-                onClick={() => clearSelection(item[0])}>
+                onClick={() => toggleSelection(item[0])}>
                 {({ renderCell, columnId }) => (
                   <DataGridCell>{renderCell(item)}</DataGridCell>
                 )}

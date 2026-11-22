@@ -47,8 +47,7 @@ import {
   ThemeAtom,
 } from './state/SavedSettings';
 import {
-  selectedKeyAtom,
-  selectedPathOrCurveKeyAtom,
+  lastSelectedCurveOrPathAtom,
   symbolTableAtom,
 } from './state/SymbolTable';
 import { ColorsAtom } from './state/UserCode';
@@ -124,7 +123,7 @@ export function FieldRenderer(): ReactElement {
   const colors = useAtomValue(ColorsAtom);
 
   const [symbolTable, setSymbolTable] = useAtom(symbolTableAtom);
-  const selectedPathOrCurveKey = useAtomValue(selectedPathOrCurveKeyAtom);
+  const selectedPathOrCurveKey = useAtomValue(lastSelectedCurveOrPathAtom);
 
   const evaluated = EvaluateSymbols(symbolTable);
   const shallow = ShallowEvaluateSymbols(symbolTable);
@@ -308,7 +307,7 @@ export function FieldRenderer(): ReactElement {
       );
       ctx.restore();
     },
-    [selectedPathOrCurveKey, evaluated, botStyle],
+    [selectedPathOrCurveKey, evaluated, symbolTable, botStyle],
   );
 
   return (

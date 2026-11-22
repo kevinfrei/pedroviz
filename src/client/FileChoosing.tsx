@@ -4,7 +4,7 @@ import { ReactElement, useEffect } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 
 import { Button } from '@fluentui/react-components';
-import { ArrowUploadRegular, SaveRegular } from '@fluentui/react-icons';
+import { BotAddFilled, DeleteFilled, SaveFilled } from '@fluentui/react-icons';
 
 import { Strings } from './Constants';
 import { PutPaths } from './state/API';
@@ -36,7 +36,7 @@ export function SaveButton(): ReactElement {
   const [get, refresher] = useAtom(pathsFileFamily(team!));
   return (
     <Button
-      icon={<SaveRegular />}
+      icon={<SaveFilled />}
       onClick={() => {
         PutPaths(team!, get).then(() => refresher());
       }}>
@@ -48,13 +48,23 @@ export function SaveButton(): ReactElement {
 export function UploadToRobot(): ReactElement {
   return (
     <Button
-      icon={<ArrowUploadRegular />}
+      icon={<BotAddFilled />}
       onClick={() =>
         window.alert(
           'Not yet implemented. For now, you have to save and then deploy.',
         )
       }>
       {Strings.upload_to_bot}
+    </Button>
+  );
+}
+
+export function RemoveUpload(): ReactElement {
+  return (
+    <Button
+      icon={<DeleteFilled />}
+      onClick={() => window.alert('Not yet implemented.')}>
+      {Strings.delete_upload}
     </Button>
   );
 }

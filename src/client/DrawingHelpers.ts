@@ -13,7 +13,7 @@ import {
   EvalInterpSimple,
   Point,
 } from './EvalTypes';
-import { bezierLength, deCasteljau } from './ui-tools/bezier';
+import { bezierDerivative, bezierLength, deCasteljau } from './ui-tools/bezier';
 
 export function rotPt(offs: Point): Point {
   const cos = Math.cos(offs.h!);
@@ -53,13 +53,14 @@ export function getCurveDetail(
   interp: EvalInterpolator,
 ): CurveDetail {
   const res = calcCurve(controlPoints);
-  addHeadingToCurve(res, interp);
+  addHeadingToCurve(controlPoints, res, interp);
   return res;
 }
 
 // TODO: Figure out how Pedro decides what percentage of the curve applies to
 // heading pieces and linear interpolations
 function addHeadingToCurve(
+  controlPoints: Point[],
   curve: CurveDetail,
   heading: EvalInterpolator,
 ): void {
@@ -74,6 +75,7 @@ function addHeadingToCurve(
     const cur = curve.points[ptIndex]!;
     curDist += prevPoint ? ptDistance(prevPoint, cur) : 0;
     addHeadingToPoint(
+      controlPoints,
       prevPoint,
       cur,
       ptIndex + 1 < curve.points.length ? curve.points[ptIndex + 1]! : null,
@@ -86,6 +88,7 @@ function addHeadingToCurve(
 }
 
 function addHeadingToPoint(
+  controlPoints: Point[],
   prev: Point | null,
   point: Point,
   next: Point | null,
@@ -93,7 +96,14 @@ function addHeadingToPoint(
   percent: number,
 ) {
   if (chkEvalInterpSimple(heading)) {
-    point.h = calcSimpleHeading(heading, prev, point, next, percent);
+    point.h = calcSimpleHeading(
+      controlPoints,
+      heading,
+      prev,
+      point,
+      next,
+      percent,
+    );
   } else {
     // Find the piece that this percentage is contained by
     // I think a linear search is fine, here..
@@ -103,6 +113,7 @@ function addHeadingToPoint(
         // Found the right piece, rescale percentage accordingly, and
         // get the heading for the piece
         point.h = calcSimpleHeading(
+          controlPoints,
           piece.interp,
           prev,
           point,
@@ -134,6 +145,7 @@ function getAngle(pt: Point): number {
 }
 
 function calcSimpleHeading(
+  controlPoints: Point[],
   heading: EvalInterpSimple,
   prev: Point | null,
   cur: Point,
@@ -144,7 +156,10 @@ function calcSimpleHeading(
     throw new Error("Can't have both prev and next points be null");
   }
   if (chkEvalInterpTangent(heading)) {
-    return getAngle(prev === null ? ptDiff(nxt!, cur) : ptDiff(cur, prev));
+    if (!prev || !nxt) {
+      return getAngle(bezierDerivative(controlPoints, percent));
+    }
+    return (getAngle(ptDiff(cur, prev)) + getAngle(ptDiff(nxt, cur))) / 2;
   } else if (chkEvalInterpConstant(heading)) {
     return heading.radians;
   } else if (chkEvalInterpLinear(heading)) {

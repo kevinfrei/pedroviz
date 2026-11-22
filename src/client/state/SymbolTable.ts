@@ -21,7 +21,7 @@ export const DataType = Object.freeze({
   JSON: 5,
 } as const);
 export type DataType = (typeof DataType)[keyof typeof DataType];
-export type SelectedKey = Map<DataType, string>;
+type SelectedKey = Map<DataType, string>;
 export const DataTypeNames = Object.freeze([
   'Value',
   'Pose',
@@ -72,7 +72,8 @@ export const symbolTablePathsAtom = focusAtom(symbolTableAtom, (optic) =>
   optic.prop('paths'),
 );
 
-export const selectedKeyAtom = atom<SelectedKey>(new Map());
+const selectedKeyAtom = atom<SelectedKey>(new Map());
+export const lastSelectedCurveOrPathAtom = atom<string | undefined>(undefined);
 
 export const selectedItemKeyFamily = atomFamily((type: DataType) =>
   atom(
@@ -80,6 +81,12 @@ export const selectedItemKeyFamily = atomFamily((type: DataType) =>
       return get(selectedKeyAtom).get(type);
     },
     (get, set, value: string | undefined) => {
+      if (
+        value !== undefined &&
+        (type === DataType.Curves || type === DataType.Paths)
+      ) {
+        set(lastSelectedCurveOrPathAtom, value);
+      }
       const sel = get(selectedKeyAtom);
       const newMap = isUndefined(value)
         ? NewMapDelete(sel, type)
@@ -97,13 +104,6 @@ export const activeTabAtom = atomWithStorage<DataType>(
   undefined,
   { getOnInit: true },
 );
-
-export const selectedPathOrCurveKeyAtom = atom((get) => {
-  const selPath = get(selectedItemKeyFamily(DataType.Paths));
-  return isDefined(selPath)
-    ? selPath
-    : get(selectedItemKeyFamily(DataType.Curves));
-});
 
 function MapToRecord<T>(map: Map<string, T>): Record<string, T> {
   const res: Record<string, T> = {};
