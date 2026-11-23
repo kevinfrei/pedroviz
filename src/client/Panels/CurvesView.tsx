@@ -8,17 +8,16 @@ import { isUndefined } from '@freik/typechk';
 import { CurveRef } from '../../dataTypes';
 import { NewMapAdd } from '../../helpers';
 import { CurveRefEditor } from '../Editors/CurveRefEditor';
-import { CurvesList } from '../Lists/CurvesList';
+import { ItemEditor } from '../Editors/ItemEditorWrapper';
 import {
   activeTabAtom,
   DataType,
   selectedItemKeyFamily,
   symbolTableCurvesAtom,
 } from '../state/SymbolTable';
-import { ItemEditor } from '../ui-tools/ItemEditorWrapper';
 
 // Curves Store Editor
-export function CurvesView(): ReactElement {
+export function CurveEditor(): ReactElement {
   const [curves, setCurves] = useAtom(symbolTableCurvesAtom);
   const activeKey = useAtomValue(selectedItemKeyFamily(DataType.Curves));
   const activeCurve = isUndefined(activeKey)
@@ -27,29 +26,23 @@ export function CurvesView(): ReactElement {
   const activeTab = useAtomValue(activeTabAtom);
 
   return (
-    <>
-      <CurvesList />
-      <ItemEditor
-        open={!!activeCurve && activeTab === DataType.Curves}
-        name={activeKey || ''}
-        type={DataType.Curves}
-        items={curves}
-        setItems={setCurves}>
-        <CurveRefEditor
-          topLevel
-          label="Curve Definition"
-          item={activeCurve as CurveRef}
-          name={activeKey}
-          onChange={(updatedCurve: CurveRef) => {
-            setCurves(
-              NewMapAdd(curves, activeKey, updatedCurve) as Map<
-                string,
-                CurveRef
-              >,
-            );
-          }}
-        />
-      </ItemEditor>
-    </>
+    <ItemEditor
+      open={!!activeCurve && activeTab === DataType.Curves}
+      name={activeKey || ''}
+      type={DataType.Curves}
+      items={curves}
+      setItems={setCurves}>
+      <CurveRefEditor
+        topLevel
+        label="Curve Definition"
+        item={activeCurve as CurveRef}
+        name={activeKey}
+        onChange={(updatedCurve: CurveRef) => {
+          setCurves(
+            NewMapAdd(curves, activeKey, updatedCurve) as Map<string, CurveRef>,
+          );
+        }}
+      />
+    </ItemEditor>
   );
 }

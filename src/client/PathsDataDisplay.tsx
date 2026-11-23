@@ -7,12 +7,17 @@ import { Tab, TabList, TabListProps, Text } from '@fluentui/react-components';
 import { SpinSuspense } from '@freik/fluent9-tools';
 import { isUndefined } from '@freik/typechk';
 
-import { CurvesView } from './Panels/CurvesView';
-import { InterpolatorsView } from './Panels/InterpolatorsView';
+import { CurvesList } from './Lists/CurvesList';
+import { InterpolatorsList } from './Lists/InterpolatorsList';
+import { PathsList } from './Lists/PathsList';
+import { PosesList } from './Lists/PosesList';
+import { ValuesList } from './Lists/ValuesList';
+import { CurveEditor } from './Panels/CurvesView';
+import { InterpolatorEditor } from './Panels/InterpolatorsView';
 import { JsonView } from './Panels/JsonView';
-import { PathsView } from './Panels/PathsView';
-import { PosesView } from './Panels/PosesView';
-import { ValuesView } from './Panels/ValuesView';
+import { PathEditor } from './Panels/PathsView';
+import { PoseEditor } from './Panels/PosesView';
+import { ValueEditor } from './Panels/ValuesView';
 import { activeTabAtom, DataType } from './state/SymbolTable';
 import { SelectedPathsAtom } from './state/UserCode';
 
@@ -34,19 +39,35 @@ export function DataTabList(): ReactElement {
   );
 }
 
-type TabInfo = { key: DataType; title: string; element: ReactElement };
-const mkTabInfo = (key: DataType, title: string, element: ReactElement) => ({
+type TabInfo = {
+  key: DataType;
+  title: string;
+  list: ReactElement;
+  editor: ReactElement;
+};
+const mkTabInfo = (
+  key: DataType,
+  title: string,
+  list: ReactElement,
+  editor: ReactElement,
+) => ({
   key,
   title,
-  element,
+  list,
+  editor,
 });
 const tabInfo: TabInfo[] = [
-  mkTabInfo(DataType.Values, 'Values', <ValuesView />),
-  mkTabInfo(DataType.Poses, 'Poses', <PosesView />),
-  mkTabInfo(DataType.Interpolations, 'Interpolations', <InterpolatorsView />),
-  mkTabInfo(DataType.Curves, 'Lines & Curves', <CurvesView />),
-  mkTabInfo(DataType.Paths, 'Paths', <PathsView />),
-  mkTabInfo(DataType.JSON, 'Raw JSON', <JsonView />),
+  mkTabInfo(DataType.Values, 'Values', <ValuesList />, <ValueEditor />),
+  mkTabInfo(DataType.Poses, 'Poses', <PosesList />, <PoseEditor />),
+  mkTabInfo(
+    DataType.Interpolations,
+    'Interpolations',
+    <InterpolatorsList />,
+    <InterpolatorEditor />,
+  ),
+  mkTabInfo(DataType.Curves, 'Lines & Curves', <CurvesList />, <CurveEditor />),
+  mkTabInfo(DataType.Paths, 'Paths', <PathsList />, <PathEditor />),
+  mkTabInfo(DataType.JSON, 'Raw JSON', <JsonView />, <></>),
 ];
 
 export function SelectedDataList(): ReactElement {
@@ -57,11 +78,16 @@ export function SelectedDataList(): ReactElement {
   }
   return (
     <>
-      {tabInfo.map(({ key, element }) => (
+      {tabInfo.map(({ key, list }) => (
         <SpinSuspense key={key}>
-          <div hidden={key === activeTab ? false : true}>{element}</div>
+          <div hidden={key === activeTab ? false : true}>{list}</div>
         </SpinSuspense>
       ))}
     </>
   );
+}
+
+export function SelectedEditor(): ReactElement {
+  const activeTab = useAtomValue(activeTabAtom);
+  return <></>;
 }

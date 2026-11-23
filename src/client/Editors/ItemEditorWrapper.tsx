@@ -12,12 +12,17 @@ import {
   Label,
   makeStyles,
   OverlayDrawer,
+  Text,
   tokens,
   Toolbar,
   ToolbarButton,
   ToolbarGroup,
 } from '@fluentui/react-components';
-import { DeleteRegular, Dismiss24Regular } from '@fluentui/react-icons';
+import {
+  DeleteRegular,
+  Dismiss24Regular,
+  DismissRegular,
+} from '@fluentui/react-icons';
 
 import { NewMapDelete, NewMapRename } from '../../helpers';
 import {
@@ -25,7 +30,7 @@ import {
   DataTypeNames,
   selectedItemKeyFamily,
 } from '../state/SymbolTable';
-import { useToast } from './NotificationToast';
+import { useToast } from '../ui-tools/NotificationToast';
 
 const useStyles = makeStyles({
   toolbar: {
@@ -83,7 +88,40 @@ export function ItemEditor<T>({
     }
   };
 
-  return (
+  const newThing = open && (
+    <div>
+      <Toolbar className={toolbarStyle.toolbar}>
+        <Text weight="bold">{typeName} Editor</Text>
+        <ToolbarButton
+          appearance="subtle"
+          aria-label="Close"
+          icon={<DismissRegular />}
+          onClick={() => setOpen(false)}
+        />
+      </Toolbar>
+      <div>
+        <Toolbar className={toolbarStyle.toolbar}>
+          <ToolbarGroup>
+            <Label htmlFor={id}>Name&nbsp;</Label>
+            <Input
+              id={id}
+              type="text"
+              defaultValue={name}
+              key={name}
+              onBlur={(e) => handleRename(name, e.target.value.trim())}
+            />
+          </ToolbarGroup>
+          <ToolbarButton
+            icon={<DeleteRegular />}
+            onClick={() => handleDelete(name)}
+            title={`Delete ${name}`}
+          />
+        </Toolbar>
+        {children}
+      </div>
+    </div>
+  );
+  const oldThing = (
     <OverlayDrawer
       style={{
         zIndex: 100,
@@ -131,4 +169,5 @@ export function ItemEditor<T>({
       </DrawerBody>
     </OverlayDrawer>
   );
+  return newThing || <></>;
 }

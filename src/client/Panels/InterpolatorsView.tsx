@@ -8,17 +8,16 @@ import { isUndefined } from '@freik/typechk';
 import { InterpRef } from '../../dataTypes';
 import { NewMapAdd } from '../../helpers';
 import { InterpRefEditor } from '../Editors/InterpRefEditor';
-import { InterpolatorsList } from '../Lists/InterpolatorsList';
+import { ItemEditor } from '../Editors/ItemEditorWrapper';
 import {
   activeTabAtom,
   DataType,
   selectedItemKeyFamily,
   symbolTableInterpolationsAtom,
 } from '../state/SymbolTable';
-import { ItemEditor } from '../ui-tools/ItemEditorWrapper';
 
 // Interpolators Store Editor
-export function InterpolatorsView(): ReactElement {
+export function InterpolatorEditor(): ReactElement {
   const [interpolations, setInterpolations] = useAtom(
     symbolTableInterpolationsAtom,
   );
@@ -31,25 +30,22 @@ export function InterpolatorsView(): ReactElement {
   const activeTab = useAtomValue(activeTabAtom);
 
   return (
-    <>
-      <InterpolatorsList />
-      <ItemEditor
-        open={!!activeInterp && activeTab === DataType.Interpolations}
-        name={activeKey || ''}
-        type={DataType.Interpolations}
-        items={interpolations}
-        setItems={setInterpolations}>
-        <InterpRefEditor
-          topLevel
-          label="Interpolator Definition"
-          item={activeInterp as InterpRef}
-          onChange={(updatedInterp: InterpRef) =>
-            setInterpolations(
-              NewMapAdd(interpolations, activeKey!, updatedInterp),
-            )
-          }
-        />
-      </ItemEditor>
-    </>
+    <ItemEditor
+      open={!!activeInterp && activeTab === DataType.Interpolations}
+      name={activeKey || ''}
+      type={DataType.Interpolations}
+      items={interpolations}
+      setItems={setInterpolations}>
+      <InterpRefEditor
+        topLevel
+        label="Interpolator Definition"
+        item={activeInterp as InterpRef}
+        onChange={(updatedInterp: InterpRef) =>
+          setInterpolations(
+            NewMapAdd(interpolations, activeKey!, updatedInterp),
+          )
+        }
+      />
+    </ItemEditor>
   );
 }

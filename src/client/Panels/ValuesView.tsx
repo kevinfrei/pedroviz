@@ -6,17 +6,16 @@ import { useAtom, useAtomValue } from 'jotai';
 import { isUndefined } from '@freik/typechk';
 
 import { NewMapAdd } from '../../helpers';
+import { ItemEditor } from '../Editors/ItemEditorWrapper';
 import { ValRefEditor } from '../Editors/ValRefEditor';
-import { ValuesList } from '../Lists/ValuesList';
 import {
   activeTabAtom,
   DataType,
   selectedItemKeyFamily,
   symbolTableValuesAtom,
 } from '../state/SymbolTable';
-import { ItemEditor } from '../ui-tools/ItemEditorWrapper';
 
-export function ValuesView(): ReactElement {
+export function ValueEditor(): ReactElement {
   const [values, setValues] = useAtom(symbolTableValuesAtom);
   const activeKey = useAtomValue(selectedItemKeyFamily(DataType.Values));
   const activeTab = useAtomValue(activeTabAtom);
@@ -25,24 +24,19 @@ export function ValuesView(): ReactElement {
     : values.get(activeKey);
 
   return (
-    <>
-      <ValuesList />
-      <ItemEditor
-        open={!!activeValue && activeTab === DataType.Values}
-        type={DataType.Values}
-        name={activeKey || ''}
-        items={values}
-        setItems={setValues}>
-        <ValRefEditor
-          topLevel
-          label="Value or Reference"
-          item={activeValue!}
-          name={activeKey}
-          onChange={(newVal) =>
-            setValues(NewMapAdd(values, activeKey!, newVal))
-          }
-        />
-      </ItemEditor>
-    </>
+    <ItemEditor
+      open={!!activeValue && activeTab === DataType.Values}
+      type={DataType.Values}
+      name={activeKey || ''}
+      items={values}
+      setItems={setValues}>
+      <ValRefEditor
+        topLevel
+        label="Value or Reference"
+        item={activeValue!}
+        name={activeKey}
+        onChange={(newVal) => setValues(NewMapAdd(values, activeKey!, newVal))}
+      />
+    </ItemEditor>
   );
 }

@@ -17,6 +17,7 @@ import { Group, Panel, Separator } from 'react-resizable-panels';
 import { SpinSuspense } from '@freik/fluent9-tools';
 
 import { CodeIssues } from './CodeIssues';
+import { EditorDialog } from './Editors/EditorDialog';
 import { FieldRenderer } from './FieldRenderer';
 import {
   RemoveUpload,
@@ -32,23 +33,39 @@ import { ThemeAtom } from './state/SavedSettings';
 import { getStore } from './state/Storage';
 
 const useStyles = makeStyles({
-  // The panel container acts as a vertical flexbox
-  panelContainer: {
-    display: 'flex',
-    flexDirection: 'column',
+  gridPanelContainer: {
+    display: 'grid',
+    gridTemplateRows: 'auto minmax(0, 1fr) auto',
+    gridTemplateColumns: 'minmax(0, 1fr) auto',
     height: '100%',
+    width: '100%',
+    overflow: 'hidden',
     backgroundColor: tokens.colorNeutralBackground1,
-    overflow: 'hidden', // Prevents outer panel scrollbars
   },
-  // Content area starts at the top and handles scrolling when it overflows
-  scrollableContent: {
-    flex: 1,
+  header: {
+    gridColumn: '1 / -1',
+    gridRow: 1,
+    backgroundColor: tokens.colorNeutralBackground1,
+  },
+  dataList: {
+    gridColumn: 1,
+    gridRow: 2,
+    overflow: 'auto',
+    minWidth: 0,
+    minHeight: 0,
+  },
+  dialogSection: {
+    gridColumn: 2,
+    gridRow: 2,
     overflowY: 'auto',
-    padding: '0px',
-    minHeight: 0, // This makes flex child scrolling work
+    overflowX: 'hidden',
+    minWidth: 0,
+    minHeight: 0,
   },
-  // Toolbar stays pinned across the bottom of the panel
-  bottomToolbar: {
+  footer: {
+    gridColumn: '1 / -1',
+    gridRow: 3,
+    borderTop: '1px solid #333',
     flex: '0 0 auto',
     backgroundColor: tokens.colorNeutralBackground1,
     padding: '4px 4px',
@@ -70,27 +87,32 @@ function MyApp(): ReactElement {
           </SpinSuspense>
         </Panel>
         <Separator id="view-separator" />
-        <Panel className="sidebar">
-          <div className={toolbarStyle.panelContainer}>
-            <div className={toolbarStyle.scrollableContent}>
-              <SpinSuspense>
-                <DataTabList />
-                <SearchToolbar />
-                <SelectedDataList />
-                <CodeIssues />
-              </SpinSuspense>
-            </div>
-            <Toolbar size="medium" className={toolbarStyle.bottomToolbar}>
-              <SpinSuspense>
-                <TeamSelector />
-                <SaveButton />
-                <UploadToRobot />
-                <RemoveUpload />
-                <Settings />
-              </SpinSuspense>
-            </Toolbar>
-            <Toaster toasterId={ToastId} position="bottom" />
+        <Panel className={toolbarStyle.gridPanelContainer}>
+          <div className={toolbarStyle.header}>
+            <SpinSuspense>
+              <DataTabList />
+              <SearchToolbar />
+            </SpinSuspense>
           </div>
+          <div className={toolbarStyle.dataList}>
+            <SpinSuspense>
+              <SelectedDataList />
+              <CodeIssues />
+            </SpinSuspense>
+          </div>
+          <div className={toolbarStyle.dialogSection}>
+            <EditorDialog />
+          </div>
+          <Toolbar size="medium" className={toolbarStyle.footer}>
+            <SpinSuspense>
+              <TeamSelector />
+              <SaveButton />
+              <UploadToRobot />
+              <RemoveUpload />
+              <Settings />
+            </SpinSuspense>
+          </Toolbar>
+          <Toaster toasterId={ToastId} position="bottom" />
         </Panel>
       </Group>
     </div>
