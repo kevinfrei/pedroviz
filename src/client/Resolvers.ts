@@ -180,7 +180,7 @@ export function resolveCurveRef(
   };
 }
 
-/*export*/ function resolvePath(path: Path, dict: SymbolTable) {
+function _resolvePath(path: Path, dict: SymbolTable) {
   const curves = path.curves.map((curveRef) => resolveCurveRef(curveRef, dict));
   if (hasField(path, 'globalInterpolator')) {
     return {

@@ -70,6 +70,3 @@ I need a generator (create a descriptor from a value 'location') and a setter
 (change the value for the specific location). It might also make sense to make a
 'getter': Read a value from the given location, though that's not obviously
 useful right now.
-
-Instead, perhaps, X, Y, and H values are [get,set] pairs? _Maybe_ less
-complicated, but most definitely uses more memory.

@@ -109,8 +109,8 @@ export function PoseRefEditor({
           {chkErr(resolved) && (
             <Text>
               <AlertFilled />
-              {resolved.errors().map((e, i) => (
-                <span key={i}>
+              {resolved.errors().map((e) => (
+                <span key={e}>
                   <Text>{e}</Text>
                   <br />
                 </span>

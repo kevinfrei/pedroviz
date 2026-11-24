@@ -215,7 +215,7 @@ function PieceWiseInterpEditor({
       </Button>
       {(item?.pieces || []).map((piece, idx) => (
         <TitleWrapper
-          key={idx}
+          key={idx} // eslint-disable-line @eslint-react/no-array-index-key
           title={
             <>
               <span>Piece #{idx + 1}</span>

@@ -60,7 +60,7 @@ export type SymbolTable = {
   paths: Map<string, Path>;
 };
 
-const InterpNamesArray = [
+const _InterpNamesArray = [
   'Constant',
   'Facing',
   'Linear',
@@ -68,7 +68,7 @@ const InterpNamesArray = [
   'PieceWise',
   'Reference',
 ] as const;
-export type InterpNames = (typeof InterpNamesArray)[number];
+export type InterpNames = (typeof _InterpNamesArray)[number];
 
 export type NamedValues = {
   values: Record<string, ValRef>;

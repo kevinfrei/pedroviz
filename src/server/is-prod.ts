@@ -15,7 +15,7 @@ export function GetGlobalDirname(): string {
   return real_dirname;
 }
 
-const isProduction = IsProd();
+const _isProduction = IsProd();
 // Dynamically select the right path/asset reference
 // const index = isProduction ? prodHtml as string : devHtml;
 export function IsProd(): boolean {

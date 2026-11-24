@@ -4,12 +4,12 @@ import {
   PointerEvent,
   ReactElement,
   useCallback,
+  useMemo,
   useRef,
   useState,
 } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 
-import { tokens } from '@fluentui/tokens';
 import { ErrorOr, isDefined, isError, isUndefined } from '@freik/typechk';
 
 import { chkRef } from '../dataTypes';
@@ -18,12 +18,10 @@ import {
   ControlPointStyle,
   CtrlPtStyles,
   CurveStyle,
-  HeadingStyle,
   PathStyle,
 } from './ClientTypes';
-import { CloseTo, ptDistance, vector } from './DrawingHelpers';
+import { CloseTo } from './DrawingHelpers';
 import {
-  CurveDetail,
   EvalCurveDetail,
   EvalInterpolator,
   EvalPose,
@@ -40,9 +38,7 @@ import { SetMovablePoint } from './PointUpdating';
 import {
   BotDrawStyleAtom,
   CoordVizPercentAtom,
-  CurveOptionsAtom,
   PathOptionsAtom,
-  PoseOptionsAtom,
   ShowPathHeadingAtom,
   ThemeAtom,
 } from './state/SavedSettings';
@@ -116,8 +112,6 @@ export function FieldRenderer(): ReactElement {
   const showPathHeadings = useAtomValue(ShowPathHeadingAtom);
   const pathStyle = useAtomValue(PathOptionsAtom);
 
-  const curveOpts = useAtomValue(CurveOptionsAtom);
-  const poseOpts = useAtomValue(PoseOptionsAtom);
   const botStyle = useAtomValue(BotDrawStyleAtom);
 
   const colors = useAtomValue(ColorsAtom);
@@ -128,18 +122,19 @@ export function FieldRenderer(): ReactElement {
   const evaluated = EvaluateSymbols(symbolTable);
   const shallow = ShallowEvaluateSymbols(symbolTable);
 
-  const movablePoints: MovablePoint[] = [];
+  let movablePoints: MovablePoint[] = useMemo(() => [], []);
   const [hovering, setHovering] = useState<MovablePoint | null>(null);
   const [moving, setMoving] = useState<MovablePoint | null>(null);
 
   const renderField = useCallback(
-    (ctx: CanvasRenderingContext2D, dpr: number) => {
+    (ctx: CanvasRenderingContext2D, _dpr: number) => {
       ctx.save();
       const scale = scaleCanvas(ctx);
       ctx.globalAlpha = coordViz;
       drawLegend(ctx, 1, scale, theme);
       ctx.globalAlpha = 1.0;
       let errors = 0;
+      movablePoints = [];
 
       // First, render any in-place curves for paths:
       shallow.paths.forEach(
@@ -268,13 +263,15 @@ export function FieldRenderer(): ReactElement {
       ctx.restore();
     },
     [
+      evaluated.curves,
+      evaluated.paths,
+      hovering,
+      moving,
+      shallow,
       colors,
       coordViz,
-      curveOpts,
       pathStyle,
-      poseOpts,
       showPathHeadings,
-      symbolTable,
       movablePoints,
       theme,
     ],
@@ -288,7 +285,7 @@ export function FieldRenderer(): ReactElement {
     curves: [],
   });
   const animate = useCallback(
-    (ctx: CanvasRenderingContext2D, dpr: number) => {
+    (ctx: CanvasRenderingContext2D, _dpr: number) => {
       if (isUndefined(selectedPathOrCurveKey)) {
         return;
       }
@@ -307,7 +304,7 @@ export function FieldRenderer(): ReactElement {
       );
       ctx.restore();
     },
-    [selectedPathOrCurveKey, evaluated, symbolTable, botStyle],
+    [selectedPathOrCurveKey, evaluated, botStyle],
   );
 
   return (
@@ -315,7 +312,7 @@ export function FieldRenderer(): ReactElement {
       anchor={{ x: 'left', y: 'top' }}
       render={renderField}
       animate={isDefined(selectedPathOrCurveKey) ? animate : undefined}
-      onPointerDown={(e, p) => {
+      onPointerDown={(_e, _p) => {
         if (hovering !== null) {
           setMoving(hovering);
         }
@@ -359,7 +356,7 @@ export function FieldRenderer(): ReactElement {
           }
         }
       }}
-      onPointerUp={(e, p) => {
+      onPointerUp={(_e, _p) => {
         if (moving !== null) {
           setMoving(null);
         }
@@ -390,7 +387,7 @@ function getAnimationpath(
     };
   }
 }
-
+/*
 function drawFocusedPose(
   poseStyle: { Points: ControlPointStyle; Headings: HeadingStyle },
   ctx: CanvasRenderingContext2D,
@@ -408,6 +405,7 @@ function drawFocusedPose(
     );
   }
 }
+*/
 
 function drawCurveLine(
   ctx: CanvasRenderingContext2D,
@@ -439,7 +437,7 @@ function drawCurveLine(
 function drawCurve(
   ctx: CanvasRenderingContext2D,
   curve: EvalCurveDetail,
-  interpolator: EvalInterpolator | false,
+  _interpolator: EvalInterpolator | false,
   pathStyle: PathStyle,
   color: string,
 ) {
@@ -504,6 +502,7 @@ function drawControlPoints(
   ctx.stroke();
 }
 
+/*
 function drawHeadingLines(
   ctx: CanvasRenderingContext2D,
   color: string,
@@ -583,6 +582,7 @@ function drawHeadingLine(
   );
   ctx.stroke();
 }
+*/
 
 function drawLegend(
   ctx: CanvasRenderingContext2D,

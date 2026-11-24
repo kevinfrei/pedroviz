@@ -38,7 +38,6 @@
     "@fluentui-contrib/react-draggable-dialog": "^0.2.6",
     "@fluentui/react-components": "^9.75.2",
     "@fluentui/react-icons": "^2.0.347",
-    "@fluentui/tokens": "^1.0.0-alpha.24",
     "@freik/fluent9-tools": "^0.2.4",
     "@freik/sync": "^0.4.10",
     "@freik/typechk": "^0.10.0",

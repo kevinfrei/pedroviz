@@ -131,12 +131,12 @@ function ptDiff(a: Point, b: Point): Point {
   return { x: a.x - b.x, y: a.y - b.y };
 }
 
-export function ptDistance(a: Point, b: Point): number {
+function ptDistance(a: Point, b: Point): number {
   const delta = ptDiff(a, b);
   return Math.sqrt(delta.x * delta.x + delta.y * delta.y);
 }
 
-export function vector(radians: number, mag: number): Point {
+function _vector(radians: number, mag: number): Point {
   return { x: Math.cos(radians) * mag, y: Math.sin(radians) * mag };
 }
 

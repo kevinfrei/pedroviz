@@ -24,7 +24,16 @@ export async function GetFieldImage(theme: string): Promise<Response> {
   const theTheme = theme !== 'dark' && theme !== 'light' ? 'dark' : theme;
   const imagePath = GetFieldImagePath(theTheme);
   if (isDefined(imagePath)) {
-    return new Response(Bun.file(imagePath));
+    const file = new File(
+      [await fsp.readFile(imagePath)],
+      path.basename(imagePath),
+      {
+        type: imagePath.toLocaleLowerCase().endsWith('png')
+          ? 'image/png'
+          : 'image/jpeg',
+      },
+    );
+    return new Response(file);
   }
 
   return new Response(GetThemedSVG(theTheme), {

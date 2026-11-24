@@ -39,18 +39,18 @@ body {
   opacity: 0.9;
 }
 .pathLabel {
-  margin-left: 10;
-  margin-right: 5;
+  margin-left: 10px;
+  margin-right: 5px;
 }
 .two-column {
   display: grid;
   grid-template-columns: auto auto;
   align-items: center;
   justify-items: start;
-  row-gap: 3;
+  row-gap: 3px;
 }
 .col3div {
   display: grid;
   grid-template-columns: auto 4fr 4fr;
-  row-gap: 3;
+  row-gap: 3px;
 }

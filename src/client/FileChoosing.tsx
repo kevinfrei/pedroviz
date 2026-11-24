@@ -39,7 +39,7 @@ export function SaveButton(): ReactElement {
       appearance="primary"
       icon={<SaveFilled />}
       onClick={() => {
-        PutPaths(team!, get).then(() => refresher());
+        if (get && team) PutPaths(team, get).then(() => refresher());
       }}>
       {Strings.save_json}
     </Button>

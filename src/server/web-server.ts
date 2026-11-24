@@ -44,7 +44,7 @@ app.get(
   '/',
   serveStatic({
     path: './index.html',
-    onNotFound: (path, ctx) => {
+    onNotFound: (path) => {
       console.error('Index.html file not found: ', path);
     },
   }),
@@ -54,7 +54,7 @@ app.get(
   serveStatic({
     root: GetGlobalDirname(), // Points to the /dist folder containing your bundled assets
     // Optional fallback for Single Page Apps (SPA routing)
-    onNotFound: (path, c) => {
+    onNotFound: (path) => {
       console.error(`Requested file not found: ${path}`);
     },
   }),
@@ -65,7 +65,7 @@ const DEFAULT_PORT = 58888;
 const port = Number(process.env.PORT) || DEFAULT_PORT;
 
 let resolvePromise: (value: string) => void;
-let rejectPromise: (reason?: any) => void;
+let rejectPromise: (reason?: unknown) => void;
 
 // 2. Create the promise and assign its controls to the outer scope
 export const GetUrl = new Promise<string>((resolve, reject) => {
@@ -83,7 +83,7 @@ const server = serveNode(
   },
 );
 
-server.on('error', (err: NodeJS.ErrnoException) => {
+server.on('error', (err /*: NodeJS.ErrnoException*/) => {
   if (err.code === 'EADDRINUSE') {
     rejectPromise(`Port ${port} already in use: Is the app running elsewhere?`);
   } else {

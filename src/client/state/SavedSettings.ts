@@ -181,7 +181,7 @@ export const ShowPathHeadingAtom = atom(
 const RawCurveOptionsAtom = focusAtom(DisplayOptionsAtom, (o) =>
   o.prop('Curves'),
 );
-export const CurveOptionsAtom = atom(
+const _CurveOptionsAtom = atom(
   (get) => {
     return get(GranularSettingsAtom)
       ? get(RawCurveOptionsAtom)
@@ -198,7 +198,7 @@ const RawPoseOptionsAtom = focusAtom(DisplayOptionsAtom, (o) =>
   o.prop('Poses'),
 );
 
-export const PoseOptionsAtom = atom(
+const _PoseOptionsAtom = atom(
   (get) => {
     return get(GranularSettingsAtom)
       ? get(RawPoseOptionsAtom)

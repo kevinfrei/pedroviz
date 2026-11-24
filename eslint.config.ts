@@ -9,7 +9,7 @@ import tseslint from 'typescript-eslint';
 import css from '@eslint/css';
 
 export default defineConfig([
-  { ignores: ['dist/', 'dev/', '.vscode/'] }, // ← global ignore, must be first
+  { ignores: ['dist/', 'dev/', 'src/**/*.test.{ts,tsx}', 'src/bun-env.d.ts'] }, // ← global ignore, must be first
   tseslint.configs.recommended,
   {
     rules: {
@@ -24,23 +24,18 @@ export default defineConfig([
     },
   },
   {
-    files: ['**/*.{ts,tsx}'],
-    ...eslintReact.configs['recommended-typescript'],
-  },
-  {
-    files: ['*.js', 'src/*.ts', 'src/server/**/*.ts'],
+    files: ['*.js'],
     plugins: { js },
     extends: ['js/recommended'],
     languageOptions: { globals: { ...globals.node } },
   },
   {
-    files: ['src/client/*.{ts,tsx}'],
-    plugins: { js },
-    extends: ['js/recommended'],
-    languageOptions: { globals: { ...globals.browser } },
+    files: ['src/**/*.{ts,tsx}'],
+    ...eslintReact.configs['recommended-typescript'],
+    languageOptions: { globals: { ...globals.browser, ...globals.node } },
   },
   {
-    files: ['**/*.json'],
+    files: ['*.json'],
     plugins: { json },
     language: 'json/json',
     extends: ['json/recommended'],

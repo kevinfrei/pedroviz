@@ -117,8 +117,8 @@ export function ValRefEditor({
           {chkErr(resolved) && (
             <Text>
               <AlertFilled />
-              {resolved.errors().map((e, i) => (
-                <Fragment key={i}>
+              {resolved.errors().map((e) => (
+                <Fragment key={e}>
                   <Text>{e}</Text>
                   <br />
                 </Fragment>

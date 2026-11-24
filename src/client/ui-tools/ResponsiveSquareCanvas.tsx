@@ -224,6 +224,8 @@ export function ResponsiveSquareCanvas({
 
     return () => observerRef.current?.disconnect();
   }, [
+    canvasOffset.left,
+    canvasOffset.top,
     animate,
     render,
     fieldAnchor,
@@ -231,7 +233,7 @@ export function ResponsiveSquareCanvas({
   ]); // Re-bind if background logic changes
 
   // Animation Loop (Unchanged, just uses current canvas.width/height)
-  const animateFrame = () => {
+  const animateFrame = useCallback(() => {
     if (!animate) return;
     const main = mainRef.current;
     const cache = cacheRef.current;
@@ -248,14 +250,14 @@ export function ResponsiveSquareCanvas({
 
     animate(ctx, window.devicePixelRatio || 1);
     requestRef.current = requestAnimationFrame(animateFrame);
-  };
+  }, [animate]);
 
   useEffect(() => {
     if (animate) {
       requestRef.current = requestAnimationFrame(animateFrame);
       return () => cancelAnimationFrame(requestRef.current!);
     }
-  }, [animate]);
+  }, [animate, animateFrame]);
 
   return (
     <div
@@ -442,4 +444,8 @@ function MovableCanvas(): ReactElement {
       )}
     </>
   );
+}
+
+if (Math.random() < 0) {
+  console.log(MovableCanvas);
 }

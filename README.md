@@ -61,7 +61,7 @@ seconds. Once the application is visible:
    your path descriptors.
 3. [NYI} Select a Path or Curve to see a robot follow the path.
 
-# Goals / What is this? / Why not just use the [PedroPath Visualizer](https://visualizer.pedropathing.com)?
+## Goals / What is this? / Why not just use the [PedroPath Visualizer](https://visualizer.pedropathing.com)?
 
 The **goal** is for this to be a _local_ application that let's you vizualize
 and edit PedroPath's. The _reasons_ for this as opposed to just using
@@ -86,7 +86,7 @@ the parser stopped working. So it occurred to me: Just use a format that's easy
 to parse in both directions. There's no real reason that this stuff should be
 code, anyway.
 
-# Current status
+## Current status
 
 - Reading and editing values, poses, curves, and paths appears to work (though a
   little clunky in places).
@@ -95,7 +95,7 @@ code, anyway.
 - There are bugs in a few places, and the bot-side translation stuff is
   completely untested.
 
-# Hey, Kevin, this doesn't work!
+## Hey, Kevin, this doesn't work!
 
 If your json doesn't show up properly, please send the file my way! I'm happy to
 help diagnose issues you might be having! You can also create an issue. I'll do
@@ -165,7 +165,7 @@ FTC students...)
       paths from the JSON file!
 - [x] Allow editing points by dragging them on the canvas
 
-# Development
+## Development
 
 This whole thing is built with [Typescript](https://www.typescriptlang.org/).
 I'm using [Hono](https://hono.dev/) as a local web server (so it can work with

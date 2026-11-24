@@ -65,10 +65,14 @@ export function SearchToolbar(): ReactElement {
   const [search, setSearch] = useAtom(searchAtom);
   const setSelected = useSetAtom(selectedItemKeyFamily(activeTab));
   const setToast = useToast();
+  const [items, setItems] = useAtom(DataTypeItemsFamily(activeTab));
+
+  if (activeTab === DataType.JSON) {
+    return <></>;
+  }
 
   const name = DataTypeNames[activeTab];
   const plural = name + 's';
-  const [items, setItems] = useAtom(DataTypeItemsFamily(activeTab));
 
   const newItem = () => {
     const foo = getItemCreator(activeTab)();
@@ -149,7 +153,7 @@ export function SearchableTable<T>({
         setSelected(item as string);
       }
     },
-    [setSelected, selected, items, dataType],
+    [setSelected, items],
   );
 
   // This enables deselection
@@ -189,7 +193,7 @@ export function SearchableTable<T>({
           <DataGridRow<ListItem>
             key={rowId}
             onClick={() => toggleSelection(item[0])}>
-            {({ renderCell, columnId }) => (
+            {({ renderCell /*, columnId */ }) => (
               <DataGridCell>{renderCell(item)}</DataGridCell>
             )}
           </DataGridRow>

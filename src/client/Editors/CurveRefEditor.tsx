@@ -147,7 +147,7 @@ export function CurveRefEditor({
             </Toolbar>
             {(item?.points || []).map((pt, pIdx) => (
               <PoseRefEditor
-                key={pIdx}
+                key={pIdx} // eslint-disable-line @eslint-react/no-array-index-key
                 heading={false}
                 label={
                   <>

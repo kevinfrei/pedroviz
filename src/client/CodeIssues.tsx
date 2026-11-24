@@ -35,8 +35,8 @@ export function CodeIssues(): ReactElement {
           indent={20}>
           <div>
             <div className="code-issues">
-              {errors.map((error, idx) => (
-                <div key={idx} style={{ fontFamily: 'monospace' }}>
+              {errors.map((error) => (
+                <div key={error} style={{ fontFamily: 'monospace' }}>
                   {error}
                 </div>
               ))}

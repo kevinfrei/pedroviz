@@ -19,7 +19,7 @@ export function OpenBrowser(url: string): void {
   }
   child_proc.exec(
     command + ' ' + url,
-    (err, stdout: BufStr, stderr: BufStr) => {
+    (err, _stdout: BufStr, _stderr: BufStr) => {
       if (err !== null && err !== undefined) {
         console.error(`Couldn't launch a browser: ${JSON.stringify(err)}`);
       }

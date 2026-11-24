@@ -13,14 +13,14 @@ const colorLookup: Map<string, number> = new Map();
 let colorCount = 0;
 
 // This provides a consistent color for a given curve/pose
-function getColorFor(item: string | Curve | Path | Pose): number {
+function _getColorFor(item: string | Curve | Path | Pose): number {
   if (isString(item)) {
     if (!colorLookup.has(item)) {
       colorLookup.set(item, colorCount++);
     }
     return colorLookup.get(item)!;
   }
-  return getColorFor(JSON.stringify(item));
+  return _getColorFor(JSON.stringify(item));
 }
 
 export async function HasFieldImage(): Promise<boolean> {

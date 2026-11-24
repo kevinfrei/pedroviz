@@ -45,7 +45,7 @@ export function TitleWrapper({
   children,
 }: TitleWrapperProps): ReactElement {
   const wrappedStyle = useWrappedRegionStyle();
-  const [isExpanded, setStateExpanded] = useState(true);
+  const [stateExpanded, setStateExpanded] = useState(true);
   const setIsExpanded = (expanded: boolean) => {
     setStateExpanded(expanded);
     if (onExpandChange) {
@@ -59,7 +59,7 @@ export function TitleWrapper({
     cursor: 'pointer',
   };
   const header = expandable ? (
-    isExpanded ? (
+    stateExpanded ? (
       <ChevronDownRegular
         style={chevronStyle}
         onClick={() => setIsExpanded(false)}
@@ -84,7 +84,7 @@ export function TitleWrapper({
           </span>
         }
       />
-      {!expandable || isExpanded ? children : null}
+      {!expandable || stateExpanded ? children : null}
     </div>
   );
 }

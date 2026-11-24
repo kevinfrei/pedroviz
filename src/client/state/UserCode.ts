@@ -2,7 +2,7 @@
 
 import { atom } from 'jotai';
 import { atomFamily } from 'jotai-family';
-import { atomWithRefresh, atomWithStorage } from 'jotai/utils';
+import { atomWithRefresh, atomWithStorage, unwrap } from 'jotai/utils';
 
 import {
   isDefined,
@@ -38,7 +38,7 @@ const TeamsWithFilesAtom = atomWithRefresh(async () => {
   return validCache;
 });
 
-export const HasFieldImageAtom = atomWithRefresh(async (get) => {
+export const HasFieldImageAtom = atomWithRefresh(async () => {
   return await HasFieldImage();
 });
 
@@ -48,7 +48,7 @@ const SelectedTeamBacking = atomWithStorage<Team | undefined>(
   undefined,
   { getOnInit: true },
 );
-export const SelectedTeamAtom = atom(
+const asyncSelectedTeamAtom = atom(
   async (get) => {
     const allTeams = await get(TeamsAtom);
     if (allTeams.length === 1) {
@@ -64,25 +64,29 @@ export const SelectedTeamAtom = atom(
     }
   },
 );
+export const SelectedTeamAtom = unwrap(asyncSelectedTeamAtom, (prev) => prev);
 
-const pathsFileBackingFamily = atomFamily((team: Team) =>
+const pathsFileBackingFamily = atomFamily((_team: Team) =>
   atom<PathsFile | null>(null),
 );
 
 export const pathsFileFamily = atomFamily((team: Team) =>
-  atomWithRefresh(
-    async (get) => {
-      const backer = get(pathsFileBackingFamily(team));
-      if (backer !== null) {
-        return backer;
-      }
-      const pathsFile = await GetPaths(team);
-      // console.log('pathsFileFamily getter IPC', team);
-      return pathsFile;
-    },
-    async (get, set, val: NamedValues) => {
-      set(pathsFileBackingFamily(team), val);
-    },
+  unwrap(
+    atomWithRefresh(
+      async (get) => {
+        const backer = get(pathsFileBackingFamily(team));
+        if (backer !== null) {
+          return backer;
+        }
+        const pathsFile = await GetPaths(team);
+        // console.log('pathsFileFamily getter IPC', team);
+        return pathsFile;
+      },
+      async (get, set, val: NamedValues) => {
+        set(pathsFileBackingFamily(team), val);
+      },
+    ),
+    (prev) => prev,
   ),
 );
 
