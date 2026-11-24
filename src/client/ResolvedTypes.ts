@@ -44,8 +44,3 @@ type CorrectCurve = {
   interpolation: ResolvedInterpolator;
 };
 export type ResolvedCurve = ErrorOr<CorrectCurve>;
-type CorrectPath = {
-  curves: ResolvedCurve[];
-  globalInterpolator?: ResolvedInterpolator;
-};
-type ResolvedPath = ErrorOr<CorrectPath>;

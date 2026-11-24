@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { chkObjectOfExactType, isBoolean, typecheck } from '@freik/typechk';
 
 import { chkRef, chkValue, HeadingRef, Ref, Value } from '../../dataTypes';

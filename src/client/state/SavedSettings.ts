@@ -194,24 +194,6 @@ export const CurveOptionsAtom = atom(
   },
 );
 
-/*
-const RawCurveThicknessAtom = focusAtom(RawCurveOptionsAtom, (o) =>
-  o.prop('Thickness'),
-);
-const RawCurveShowPointAtom = focusAtom(RawCurveOptionsAtom, (o) =>
-  o.prop('ShowPoints'),
-);
-const RawCurvePointSizeAtom = focusAtom(RawCurveOptionsAtom, (o) =>
-  o.prop('ControlPoint').prop('Size'),
-);
-const RawCurvePointStyleAtom = focusAtom(RawCurveOptionsAtom, (o) =>
-  o.prop('ControlPoint').prop('Style'),
-);
-const RawCurvePointThicknessAtom = focusAtom(RawCurveOptionsAtom, (o) =>
-  o.prop('ControlPoint').prop('Thickness'),
-);
-*/
-
 const RawPoseOptionsAtom = focusAtom(DisplayOptionsAtom, (o) =>
   o.prop('Poses'),
 );
@@ -232,31 +214,11 @@ export const PoseOptionsAtom = atom(
   },
 );
 
-/*
-const RawPosePointSizeAtom = focusAtom(RawPoseOptionsAtom, (o) =>
-  o.prop('Points').prop('Size'),
-);
-const RawPosePointStyleAtom = focusAtom(RawPoseOptionsAtom, (o) =>
-  o.prop('Points').prop('Style'),
-);
-const RawPosePointThicknessAtom = focusAtom(RawPoseOptionsAtom, (o) =>
-  o.prop('Points').prop('Thickness'),
-);
-const RawPoseHeadingLengthAtom = focusAtom(RawPoseOptionsAtom, (o) =>
-  o.prop('Headings').prop('Length'),
-);
-const RawPoseHeadingThicknessAtom = focusAtom(RawPoseOptionsAtom, (o) =>
-  o.prop('Headings').prop('Thickness'),
-);
-*/
-
 export const BotDrawStyleAtom = focusAtom(DisplayOptionsAtom, (o) =>
   o.prop('BotDrawing'),
 );
 
-/*export*/ const BotColorAtom = focusAtom(BotDrawStyleAtom, (o) =>
-  o.prop('Color'),
-);
+const BotColorAtom = focusAtom(BotDrawStyleAtom, (o) => o.prop('Color'));
 export const BotTinyColorAtom = atom(
   (get) => new TinyColor(get(BotColorAtom)),
   (get, set, val: TinyColor) => set(BotColorAtom, val.toHexString()),

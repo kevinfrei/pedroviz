@@ -62,17 +62,3 @@ export function bezierLength(
 
   return (h / 3) * sum;
 }
-
-/*
-// Cubic Bezier in 2D
-const controlPoints: Point[] = [
-  { x: 0, y: 0 },
-  { x: 50, y: 100 },
-  { x: 150, y: -50 },
-  { x: 200, y: 200 },
-];
-
-// console.log('Point at t=0.5:', deCasteljau(controlPoints, 0.5));
-// console.log('Derivative at t=0.5:', bezierDerivative(controlPoints, 0.5));
-// console.log('Arc length:', bezierLength(controlPoints, 200));
-*/

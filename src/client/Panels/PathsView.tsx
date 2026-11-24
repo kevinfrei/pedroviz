@@ -7,7 +7,7 @@ import { Button } from '@fluentui/react-components';
 import { AddRegular, DeleteRegular } from '@fluentui/react-icons';
 import { isDefined, isUndefined } from '@freik/typechk';
 
-import { InterpRef, mkHeading, mkPose, mkValue, Path } from '../../dataTypes';
+import { InterpRef, Path } from '../../dataTypes';
 import { NewMapUpdate } from '../../helpers';
 import { CurveRefEditor } from '../Editors/CurveRefEditor';
 import { InterpRefEditor } from '../Editors/InterpRefEditor';

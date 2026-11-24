@@ -74,7 +74,7 @@ export type ResponsiveAnchor = {
 
 export type Offset = { left: number; top: number };
 
-/*export*/ type CanvasRenderFunc = (
+type CanvasRenderFunc = (
   ctx: CanvasRenderingContext2D,
   devicePixelRatio: number,
 ) => void;

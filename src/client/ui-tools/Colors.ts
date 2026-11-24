@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 type RGB = [number, number, number];
-type HSL = [number, number, number];
 /*
     For reference: To invert the brightness, but not the hue, of an image:
     R = 1 - (G + B) / 2
@@ -67,10 +66,7 @@ function nextPrime(num: number): number {
 }
 
 // Generate N distinct colors visible against background
-/*export*/ function GenerateColors(
-  n: number,
-  bg: RGB = [255, 255, 255],
-): string[] {
+function GenerateColors(n: number, bg: RGB = [255, 255, 255]): string[] {
   const colors: RGB[] = [];
   const basel = 80 - 10 * luminance(bg);
   const bases = 90;

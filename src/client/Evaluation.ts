@@ -2,7 +2,6 @@
 
 import {
   ErrorOr,
-  ErrorVal,
   hasFieldOf,
   isError,
   isNumber,
@@ -598,56 +597,3 @@ export function ShallowEvaluateSymbols(
     paths,
   };
 }
-
-function notError<T>(n_err: [string, ErrorOr<T>]): n_err is [string, T] {
-  return !isError(n_err[1]);
-}
-
-function onlyError<T>(
-  n_err: [string, ErrorOr<T>],
-): n_err is [string, ErrorVal] {
-  return isError(n_err[1]);
-}
-
-/*
-function CalculateItems(evalSyms: EvalSymbols): CorrectSymbols {
-  const correctSymbols: CorrectSymbols = {
-    values: new Map(evalSyms.values.entries().filter(notError)),
-    poses: new Map(evalSyms.poses.entries().filter(notError)),
-    interpolators: new Map(evalSyms.interpolators.entries().filter(notError)),
-    curves: new Map(evalSyms.curves.entries().filter(notError)),
-    paths: new Map(evalSyms.paths.entries().filter(notError)),
-  };
-  evalSyms.values
-    .entries()
-    .filter(onlyError)
-    .forEach(([str, err]) =>
-      console.error('Value', str, err.errors().join(';')),
-    );
-  evalSyms.poses
-    .entries()
-    .filter(onlyError)
-    .forEach(([str, err]) =>
-      console.error('Pose', str, err.errors().join(';')),
-    );
-  evalSyms.interpolators
-    .entries()
-    .filter(onlyError)
-    .forEach(([str, err]) =>
-      console.error('Interp', str, err.errors().join(';')),
-    );
-  evalSyms.curves
-    .entries()
-    .filter(onlyError)
-    .forEach(([str, err]) =>
-      console.error('Curve', str, err.errors().join(';')),
-    );
-  evalSyms.paths
-    .entries()
-    .filter(onlyError)
-    .forEach(([str, err]) =>
-      console.error('Path', str, err.errors().join(';')),
-    );
-  return correctSymbols;
-}
-*/

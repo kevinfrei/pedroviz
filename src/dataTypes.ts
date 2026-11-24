@@ -114,7 +114,7 @@ export const chkHeadingRef: typecheck<HeadingRef> = (
 ): obj is HeadingRef => {
   return chkAnyOf(chkPoseRef, chkHeadingVal)(obj);
 };
-export const chkPose = chkObjectOfExactType<Pose>(
+const chkPose = chkObjectOfExactType<Pose>(
   {
     X: chkValRef,
     Y: chkValRef,

@@ -183,7 +183,7 @@ function normalizeRadian(a: number) {
   return result >= 0 ? result : result + 2 * Math.PI;
 }
 
-/*export*/ function linearRangeRadians(
+function linearRangeRadians(
   start: number,
   end: number,
   percent: number,

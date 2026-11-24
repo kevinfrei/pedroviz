@@ -2,10 +2,7 @@
 
 import { expect, test } from 'bun:test';
 
-import {
-  darkOnWhite /*GenerateColors,*/,
-  lightOnBlack,
-} from '../ui-tools/Colors';
+import { darkOnWhite, lightOnBlack } from '../ui-tools/Colors';
 
 test('Color generation', () => {
   expect(darkOnWhite.length).toEqual(lightOnBlack.length);

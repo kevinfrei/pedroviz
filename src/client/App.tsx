@@ -13,7 +13,6 @@ import {
   webLightTheme,
 } from '@fluentui/react-components';
 import { Group, Panel, Separator } from 'react-resizable-panels';
-import { SpinSuspense } from '@freik/fluent9-tools';
 
 import { CodeIssues } from './CodeIssues';
 import { FieldRenderer } from './FieldRenderer';

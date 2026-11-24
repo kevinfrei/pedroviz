@@ -9,7 +9,7 @@ import { isDefined, isUndefined } from '@freik/typechk';
 
 import { NamedValues, SymbolTable } from '../../dataTypes';
 import { NewMapAdd, NewMapDelete } from '../../helpers';
-import { EMPTY_SYMBOL_TABLE, SAMPLE_AUTONOMOUS_PRESET } from '../Constants';
+import { EMPTY_SYMBOL_TABLE } from '../Constants';
 import { CorrectPathsAtom, SelectedPathsAtom } from './UserCode';
 
 export const DataType = Object.freeze({

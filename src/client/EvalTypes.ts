@@ -43,17 +43,6 @@ export type EvalSymbols = {
   curves: Map<string, ErrorOr<EvalCurve>>;
   paths: Map<string, ErrorOr<EvalPath>>;
 };
-
-/*
-export type CorrectSymbols = {
-  values: Map<string, number>;
-  poses: Map<string, EvalPose>;
-  interpolators: Map<string, EvalInterpolator>;
-  curves: Map<string, EvalCurve>;
-  paths: Map<string, EvalPath>;
-};
-*/
-
 type Name = Nominal<string, 'Name'>;
 type Descriptor = Nominal<string, 'Descriptor'>;
 export type ValueLocator = [number, Name, Descriptor];

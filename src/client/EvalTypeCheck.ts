@@ -10,7 +10,6 @@ import {
 } from '@freik/typechk';
 
 import {
-  CurveDetail,
   EvalCurve,
   EvalCurveDetail,
   EvalInterpConstant,
@@ -21,7 +20,6 @@ import {
   EvalInterpPiecewise,
   EvalInterpSimple,
   EvalInterpTangent,
-  EvalPath,
   EvalPose,
   Point,
 } from './EvalTypes';
@@ -30,11 +28,6 @@ const chkPoint = chkObjectOfExactType<Point>(
   { x: isNumber, y: isNumber },
   { h: isNumber },
 );
-const chkCurveDetail = chkObjectOfExactType<CurveDetail>({
-  length: isNumber,
-  points: chkArrayOf(chkPoint),
-});
-
 export const chkEvalPose = chkObjectOfExactType<EvalPose>(
   { x: isNumber, y: isNumber },
   { radians: isNumber },
@@ -79,11 +72,3 @@ export const chkEvalCurve = chkObjectOfExactType<EvalCurve>({
   points: chkEvalCurveDetail,
   interpolator: chkEvalInterpolator,
 });
-/*export*/ const chkEvalPath = chkObjectOfExactType<EvalPath>(
-  {
-    curves: chkArrayOf(chkEvalCurve),
-  },
-  {
-    globalInterpolator: chkEvalInterpolator,
-  },
-);

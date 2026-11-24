@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { MovablePoint, Point } from '../EvalTypes';
 
 export function calcDist(pt: Point, mp: MovablePoint): number {

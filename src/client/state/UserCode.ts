@@ -38,12 +38,6 @@ const TeamsWithFilesAtom = atomWithRefresh(async () => {
   return validCache;
 });
 
-const TeamsWithoutFilesAtom = atom(async (get) => {
-  const teams = new Set(await get(TeamsAtom));
-  const withFiles = new Set(await get(TeamsWithFilesAtom));
-  return [...teams.difference(withFiles)];
-});
-
 export const HasFieldImageAtom = atomWithRefresh(async (get) => {
   return await HasFieldImage();
 });

@@ -61,12 +61,6 @@ function getObjectPos(anchor: ResponsiveAnchor): string {
   return `${x} ${y}`;
 }
 
-function getPreserveAspectRation(anchor: ResponsiveAnchor): string {
-  const x = anchor.x === 'center' ? 'Mid' : anchor.x == 'left' ? 'Min' : 'Max';
-  const y = anchor.y === 'middle' ? 'Mid' : anchor.y == 'top' ? 'Min' : 'Max';
-  return `x${x}Y${y} meet`;
-}
-
 // Absolute positioned canvas requires offsets to follow the anchor location
 function getCanvasOffset(
   anchor: ResponsiveAnchor,

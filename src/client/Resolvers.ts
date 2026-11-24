@@ -13,8 +13,6 @@ import {
   chkFacePtInterp,
   chkLinearInterp,
   chkPieceWiseInterp,
-  chkPose,
-  chkPoseRef,
   chkRef,
   chkTangentInterp,
   CurveRef,
