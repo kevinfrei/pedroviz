@@ -23,7 +23,7 @@ await esbuild.build({
   entryPoints: ['./src/client/FrontEnd.tsx'],
   outdir: './dist',
   bundle: true,
-  sourcemap: true,
+  sourcemap: false,
   minify: true,
   format: 'cjs',
   jsx: 'automatic',

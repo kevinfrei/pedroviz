@@ -26,14 +26,15 @@
     "prod:bundle": "bun run prod-bundle.ts",
     "prepublishOnly": "bun run prod:bundle",
     "cycles": "knip --cycles --reporter cycles",
-    "dead": "knip"
+    "dead": "knip",
+    "lint": "bun run eslint"
   },
   "prepare": "simple-git-hooks",
   "overrides": {
     "@fluentui/react-motion": "9.16.4"
   },
   "dependencies": {
-    "@ctrl/tinycolor": "^4.3.1",
+    "@ctrl/tinycolor": "^4.3.2",
     "@fluentui-contrib/react-draggable-dialog": "^0.2.6",
     "@fluentui/react-components": "^9.75.2",
     "@fluentui/react-icons": "^2.0.347",
@@ -43,7 +44,7 @@
     "@freik/sync": "^0.4.10",
     "@freik/typechk": "^0.10.0",
     "@hono/node-server": "^2.1.11",
-    "hono": "^4.13.19",
+    "hono": "^4.13.21",
     "jotai": "^3.0.2",
     "jotai-family": "^1.1.0",
     "jotai-optics": "^0.4.0",
@@ -53,6 +54,11 @@
     "react-resizable-panels": "^4.24.1"
   },
   "devDependencies": {
+    "@eslint-react/eslint-plugin": "^5.30.6",
+    "@eslint/css": "^2.0.1",
+    "@eslint/js": "^10.0.1",
+    "@eslint/json": "^2.1.1",
+    "@eslint/markdown": "^9.0.0",
     "@freik/workspace": "^0.8.1",
     "@happy-dom/global-registrator": "21.0.4",
     "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
@@ -62,12 +68,16 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "esbuild": "^0.28.2",
-    "knip": "^6.47.0",
-    "lint-staged": "^17.6.1",
+    "eslint": "^10.15.0",
+    "globals": "^17.14.0",
+    "knip": "^6.48.0",
+    "lint-staged": "^17.6.2",
     "prettier": "^3.10.1",
     "prettier-plugin-java": "^2.12.0",
     "simple-git-hooks": "^2.14.0",
-    "typescript": "^7.0.2"
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "typescript-eslint": "^8.74.0"
   },
   " //-1": "Configuration stuff for Prettier:",
   "prettier": {
