@@ -80,118 +80,116 @@ export function CurveRefEditor({
 
   return (
     <TitleWrapper title={label} expandable={!topLevel}>
-      <>
-        <RadioGroup
-          value={isRef ? 'ref' : 'val'}
-          layout="horizontal"
-          onChange={(_, data) => {
-            setToRef(data.value === 'ref');
-          }}>
-          <Radio value="val" label="Inline Curve" />
-          <Radio value="ref" label="Reference" />
-        </RadioGroup>
+      <RadioGroup
+        value={isRef ? 'ref' : 'val'}
+        layout="horizontal"
+        onChange={(_, data) => {
+          setToRef(data.value === 'ref');
+        }}>
+        <Radio value="val" label="Inline Curve" />
+        <Radio value="ref" label="Reference" />
+      </RadioGroup>
 
-        {isRef ? (
-          <Select
-            value={chkRef(item) ? item.ref : ''}
-            onChange={(e) => onChange(mkRef(e.target.value))}>
-            <option key="$" value="" disabled>
-              Select Curve Reference...
+      {isRef ? (
+        <Select
+          value={chkRef(item) ? item.ref : ''}
+          onChange={(e) => onChange(mkRef(e.target.value))}>
+          <option key="$" value="" disabled>
+            Select Curve Reference...
+          </option>
+          {curveKeys.map((k) => (
+            <option key={k} value={k}>
+              {k}
             </option>
-            {curveKeys.map((k) => (
-              <option key={k} value={k}>
-                {k}
-              </option>
-            ))}
-          </Select>
-        ) : (
+          ))}
+        </Select>
+      ) : (
+        <div>
           <div>
-            <div>
-              <Toolbar>
-                <ToolbarButton
-                  appearance="primary"
-                  icon={<AddRegular />}
-                  onClick={() => {
-                    // Handle no points, 1 point, or 2+ points
-                    if (isUndefined(item) || item.points.length === 0) {
-                      onChange({
-                        points: [
-                          mkNewPose(false, 72, 24),
-                          mkNewPose(false, 72, 24),
-                        ],
-                        interpolation: item?.interpolation || {
-                          reversed: false,
-                        },
-                      });
-                    } else if (item.points.length === 1) {
-                      onChange({
-                        ...item,
-                        points: [item.points[0]!, mkNewPose(false, 72, 24)],
-                      });
-                    } else {
-                      // For 2 (or more) points, add a control point *before*
-                      // the end point
-                      const firstBunch: PoseRef[] = item.points.slice(0, -1);
-                      const lastPoint = item.points[item.points.length - 1]!;
-                      onChange({
-                        ...item,
-                        points: [
-                          ...firstBunch,
-                          mkNewPose(false, 72, 24),
-                          lastPoint,
-                        ],
-                      });
-                    }
-                  }}>
-                  Add Control Point
-                </ToolbarButton>
-              </Toolbar>
-              {(item?.points || []).map((pt, pIdx) => (
-                <PoseRefEditor
-                  key={pIdx}
-                  heading={false}
-                  label={
-                    <>
-                      <Text weight="bold">Control Point #{pIdx + 1}</Text>
-                      {(item?.points || []).length > 2 && (
-                        <Button
-                          title="Remove Pose Point"
-                          appearance="transparent"
-                          style={{
-                            marginLeft: '3px',
-                            marginTop: '-3px',
-                            marginRight: '-5px',
-                          }}
-                          icon={<DeleteRegular />}
-                          onClick={() => {
-                            const newPts = item.points.filter(
-                              (_, i) => i !== pIdx,
-                            );
-                            onChange({ ...item, points: newPts });
-                          }}
-                        />
-                      )}
-                    </>
+            <Toolbar>
+              <ToolbarButton
+                appearance="primary"
+                icon={<AddRegular />}
+                onClick={() => {
+                  // Handle no points, 1 point, or 2+ points
+                  if (isUndefined(item) || item.points.length === 0) {
+                    onChange({
+                      points: [
+                        mkNewPose(false, 72, 24),
+                        mkNewPose(false, 72, 24),
+                      ],
+                      interpolation: item?.interpolation || {
+                        reversed: false,
+                      },
+                    });
+                  } else if (item.points.length === 1) {
+                    onChange({
+                      ...item,
+                      points: [item.points[0]!, mkNewPose(false, 72, 24)],
+                    });
+                  } else {
+                    // For 2 (or more) points, add a control point *before*
+                    // the end point
+                    const firstBunch: PoseRef[] = item.points.slice(0, -1);
+                    const lastPoint = item.points[item.points.length - 1]!;
+                    onChange({
+                      ...item,
+                      points: [
+                        ...firstBunch,
+                        mkNewPose(false, 72, 24),
+                        lastPoint,
+                      ],
+                    });
                   }
-                  item={pt}
-                  onChange={(newPt) => {
-                    const newPts = [...item.points];
-                    newPts[pIdx] = newPt;
-                    onChange({ ...item, points: newPts });
-                  }}
-                />
-              ))}
-            </div>
-            <InterpRefEditor
-              label="Curve Interpolator"
-              item={item?.interpolation || { reversed: false }}
-              onChange={(interpolation: InterpRef) =>
-                onChange({ ...item, interpolation })
-              }
-            />
+                }}>
+                Add Control Point
+              </ToolbarButton>
+            </Toolbar>
+            {(item?.points || []).map((pt, pIdx) => (
+              <PoseRefEditor
+                key={pIdx}
+                heading={false}
+                label={
+                  <>
+                    <Text weight="bold">Control Point #{pIdx + 1}</Text>
+                    {(item?.points || []).length > 2 && (
+                      <Button
+                        title="Remove Pose Point"
+                        appearance="transparent"
+                        style={{
+                          marginLeft: '3px',
+                          marginTop: '-3px',
+                          marginRight: '-5px',
+                        }}
+                        icon={<DeleteRegular />}
+                        onClick={() => {
+                          const newPts = item.points.filter(
+                            (_, i) => i !== pIdx,
+                          );
+                          onChange({ ...item, points: newPts });
+                        }}
+                      />
+                    )}
+                  </>
+                }
+                item={pt}
+                onChange={(newPt) => {
+                  const newPts = [...item.points];
+                  newPts[pIdx] = newPt;
+                  onChange({ ...item, points: newPts });
+                }}
+              />
+            ))}
           </div>
-        )}
-      </>
+          <InterpRefEditor
+            label="Curve Interpolator"
+            item={item?.interpolation || { reversed: false }}
+            onChange={(interpolation: InterpRef) =>
+              onChange({ ...item, interpolation })
+            }
+          />
+        </div>
+      )}
     </TitleWrapper>
   );
 }

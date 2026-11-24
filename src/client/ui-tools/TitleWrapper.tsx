@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { ReactElement, useState } from 'react';
+import { ReactElement, ReactNode, useState } from 'react';
 
 import {
   Field,
@@ -36,7 +36,7 @@ type TitleWrapperProps = {
   title: string | ReactElement;
   expandable?: boolean;
   onExpandChange?: (expanded: boolean) => void;
-  children: ReactElement;
+  children: ReactNode;
 };
 export function TitleWrapper({
   title,

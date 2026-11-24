@@ -1,28 +1,19 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { ReactElement, useId } from 'react';
+import { ReactElement, ReactNode, useId } from 'react';
 import { useSetAtom } from 'jotai';
 
 import {
-  Button,
-  DrawerBody,
-  DrawerHeader,
-  DrawerHeaderTitle,
   Input,
   Label,
   makeStyles,
-  OverlayDrawer,
   Text,
   tokens,
   Toolbar,
   ToolbarButton,
   ToolbarGroup,
 } from '@fluentui/react-components';
-import {
-  DeleteRegular,
-  Dismiss24Regular,
-  DismissRegular,
-} from '@fluentui/react-icons';
+import { DeleteRegular, DismissRegular } from '@fluentui/react-icons';
 
 import { NewMapDelete, NewMapRename } from '../../helpers';
 import {
@@ -33,8 +24,20 @@ import {
 import { useToast } from '../ui-tools/NotificationToast';
 
 const useStyles = makeStyles({
+  stack: {
+    display: 'grid',
+    gridTemplateRows: 'auto auto minmax(0, 1fr)',
+    gridTemplateColumns: 'auto',
+    height: '100%',
+    overflow: 'hidden',
+    backgroundColor: tokens.colorNeutralBackground2,
+  },
   toolbar: {
     justifyContent: 'space-between',
+    overflow: 'hidden',
+  },
+  editor: {
+    overflow: 'auto',
   },
 });
 
@@ -42,9 +45,8 @@ export type ItemEditorProps<T> = {
   name: string;
   items: Map<string, T>;
   setItems: (newItems: Map<string, T>) => void;
-  children: ReactElement | ReactElement[];
+  children: ReactNode;
   type: DataType;
-  open: boolean;
 };
 
 export function ItemEditor<T>({
@@ -53,19 +55,14 @@ export function ItemEditor<T>({
   setItems,
   children,
   type,
-  open,
 }: ItemEditorProps<T>): ReactElement {
   const id = useId();
-  const toolbarStyle = useStyles();
+  const editorStyle = useStyles();
   const setSelected = useSetAtom(selectedItemKeyFamily(type));
   const setToast = useToast();
 
   const typeName = DataTypeNames[type];
-  const setOpen = (open: boolean) => {
-    if (!open) {
-      setSelected(undefined);
-    }
-  };
+  const close = () => setSelected(undefined);
 
   const handleRename = (oldKey: string, newKey: string) => {
     const newMap = NewMapRename(items, oldKey, newKey);
@@ -88,86 +85,35 @@ export function ItemEditor<T>({
     }
   };
 
-  const newThing = open && (
-    <div>
-      <Toolbar className={toolbarStyle.toolbar}>
+  return (
+    <div className={editorStyle.stack}>
+      <Toolbar className={editorStyle.toolbar}>
         <Text weight="bold">{typeName} Editor</Text>
         <ToolbarButton
           appearance="subtle"
           aria-label="Close"
           icon={<DismissRegular />}
-          onClick={() => setOpen(false)}
+          onClick={close}
         />
       </Toolbar>
-      <div>
-        <Toolbar className={toolbarStyle.toolbar}>
-          <ToolbarGroup>
-            <Label htmlFor={id}>Name&nbsp;</Label>
-            <Input
-              id={id}
-              type="text"
-              defaultValue={name}
-              key={name}
-              onBlur={(e) => handleRename(name, e.target.value.trim())}
-            />
-          </ToolbarGroup>
-          <ToolbarButton
-            icon={<DeleteRegular />}
-            onClick={() => handleDelete(name)}
-            title={`Delete ${name}`}
+      <Toolbar className={editorStyle.toolbar}>
+        <ToolbarGroup>
+          <Label htmlFor={id}>Name&nbsp;</Label>
+          <Input
+            id={id}
+            type="text"
+            defaultValue={name}
+            key={name}
+            onBlur={(e) => handleRename(name, e.target.value.trim())}
           />
-        </Toolbar>
-        {children}
-      </div>
+        </ToolbarGroup>
+        <ToolbarButton
+          icon={<DeleteRegular />}
+          onClick={() => handleDelete(name)}
+          title={`Delete ${name}`}
+        />
+      </Toolbar>
+      <div className={editorStyle.editor}>{children}</div>
     </div>
   );
-  const oldThing = (
-    <OverlayDrawer
-      style={{
-        zIndex: 100,
-        width: '375px',
-        backgroundColor: tokens.colorNeutralBackground3,
-      }}
-      open={open}
-      modalType="non-modal"
-      backdropMotion={null}
-      surfaceMotion={null}
-      position="end"
-      onOpenChange={(_, { open }) => setOpen(open)}>
-      <DrawerHeader>
-        <DrawerHeaderTitle
-          action={
-            <Button
-              appearance="subtle"
-              aria-label="Close"
-              icon={<Dismiss24Regular />}
-              onClick={() => setOpen(false)}
-            />
-          }>
-          {typeName} Editor
-        </DrawerHeaderTitle>
-      </DrawerHeader>
-      <DrawerBody>
-        <Toolbar className={toolbarStyle.toolbar}>
-          <ToolbarGroup>
-            <Label htmlFor={id}>Name&nbsp;</Label>
-            <Input
-              id={id}
-              type="text"
-              defaultValue={name}
-              key={name}
-              onBlur={(e) => handleRename(name, e.target.value.trim())}
-            />
-          </ToolbarGroup>
-          <ToolbarButton
-            icon={<DeleteRegular />}
-            onClick={() => handleDelete(name)}
-            title={`Delete ${name}`}
-          />
-        </Toolbar>
-        {children}
-      </DrawerBody>
-    </OverlayDrawer>
-  );
-  return newThing || <></>;
 }

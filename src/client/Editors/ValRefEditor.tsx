@@ -46,7 +46,7 @@ function validValuesForRef(
 
 export type ValRefEditorProps = {
   label: string;
-  item: ValRef;
+  item: ValRef | undefined;
   name?: string;
   topLevel?: boolean;
   onChange: (valRef: ValRef) => void;
@@ -61,6 +61,12 @@ export function ValRefEditor({
   topLevel,
 }: ValRefEditorProps): ReactElement {
   const symbolTable = useAtomValue(symbolTableAtom);
+  const onSpinChange = useSpinButtonChange((val: number) =>
+    onChange(mkValue(val)),
+  );
+  if (isUndefined(item)) {
+    return <></>;
+  }
   const valueKeys = [...symbolTable.values.keys()];
   const isRef = chkRef(item);
   const resolved = resolveValRef(item, symbolTable);
@@ -73,61 +79,55 @@ export function ValRefEditor({
     }
   };
 
-  const onSpinChange = useSpinButtonChange((val: number) =>
-    onChange(mkValue(val)),
-  );
-
   return (
     <TitleWrapper title={label} expandable={!topLevel}>
-      <>
-        <RadioGroup
-          value={isRef ? 'ref' : 'val'}
-          layout="horizontal"
-          onChange={(_, data) => {
-            setType(data.value === 'ref');
-          }}>
-          <Radio value="val" label="Number" />
-          <Radio value="ref" label="Reference" />
-        </RadioGroup>
-        {!isRef ? (
-          <SpinButton
-            precision={2}
-            step={1}
-            stepPage={10}
-            value={chkValue(item) ? item.val : null}
-            onChange={onSpinChange}
-          />
-        ) : (
-          <>
-            <span>
-              <Select
-                value={item?.ref || ''}
-                onChange={(e, d) => onChange(mkRef(d.value))}>
-                <option key="$" value="" disabled>
-                  Select Value Reference...
+      <RadioGroup
+        value={isRef ? 'ref' : 'val'}
+        layout="horizontal"
+        onChange={(_, data) => {
+          setType(data.value === 'ref');
+        }}>
+        <Radio value="val" label="Number" />
+        <Radio value="ref" label="Reference" />
+      </RadioGroup>
+      {!isRef ? (
+        <SpinButton
+          precision={2}
+          step={1}
+          stepPage={10}
+          value={chkValue(item) ? item.val : null}
+          onChange={onSpinChange}
+        />
+      ) : (
+        <>
+          <span>
+            <Select
+              value={item?.ref || ''}
+              onChange={(e, d) => onChange(mkRef(d.value))}>
+              <option key="$" value="" disabled>
+                Select Value Reference...
+              </option>
+              {validValuesForRef(valueKeys, symbolTable, name).map((k) => (
+                <option key={k} value={k}>
+                  {k} <SimpleValRef valref={symbolTable.values.get(k)} />
                 </option>
-                {validValuesForRef(valueKeys, symbolTable, name).map((k) => (
-                  <option key={k} value={k}>
-                    {k} <SimpleValRef valref={symbolTable.values.get(k)} />
-                  </option>
-                ))}
-              </Select>
-            </span>
-            {chkErr(resolved) && (
-              <Text>
-                <AlertFilled />
-                {resolved.errors().map((e, i) => (
-                  <Fragment key={i}>
-                    <Text>{e}</Text>
-                    <br />
-                  </Fragment>
-                ))}
-                for {item.ref}
-              </Text>
-            )}
-          </>
-        )}
-      </>
+              ))}
+            </Select>
+          </span>
+          {chkErr(resolved) && (
+            <Text>
+              <AlertFilled />
+              {resolved.errors().map((e, i) => (
+                <Fragment key={i}>
+                  <Text>{e}</Text>
+                  <br />
+                </Fragment>
+              ))}
+              for {item.ref}
+            </Text>
+          )}
+        </>
+      )}
     </TitleWrapper>
   );
 }

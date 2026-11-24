@@ -22,8 +22,8 @@ import {
   mkNewCurve,
   mkNewPath,
   mkNewPose,
-  mkTangentInterp,
   mkNewVal,
+  mkTangentInterp,
 } from '../../dataTypes';
 import { NewMapAdd } from '../../helpers';
 import { searchAtom } from '../state/BasicState';
@@ -66,10 +66,13 @@ export function SearchToolbar(): ReactElement {
 
   const name = DataTypeNames[activeTab];
   const plural = name + 's';
-  type Setter<T> = (map: Map<string, T>) => void;
   const [items, setItems] = useAtom(DataTypeItemsFamily(activeTab));
 
-  const newItem = getItemCreator(activeTab);
+  const newItem = () => {
+    const foo = getItemCreator(activeTab)();
+    console.log(foo);
+    return foo;
+  };
   const handleAdd = () => {
     let count = 1;
     if (isUndefined(name)) {
@@ -84,6 +87,7 @@ export function SearchToolbar(): ReactElement {
       >[0],
     );
     setSelected(newKey);
+    console.log('added', newKey);
     setToast(`Added ${name.toLocaleLowerCase()} "${newKey}"`);
   };
 

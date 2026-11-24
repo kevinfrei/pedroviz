@@ -133,82 +133,79 @@ export function HeadingRefEditor(props: HeadingRefEditorProps): ReactElement {
   );
   return (
     <TitleWrapper title={label} expandable>
-      <>
-        {chooser}
-        {hrIsPose(item) && (
-          // Pose Reference
-          <>
-            <span>
-              <Select
-                value={item.ref}
-                onChange={(e, d) => onChange(mkRef(d.value))}>
-                <option key="$" value="" disabled>
-                  Select Pose Reference...
+      {chooser}
+      {hrIsPose(item) && (
+        // Pose Reference
+        <>
+          <span>
+            <Select
+              value={item.ref}
+              onChange={(e, d) => onChange(mkRef(d.value))}>
+              <option key="$" value="" disabled>
+                Select Pose Reference...
+              </option>
+              {validPoseKeys.map((k) => (
+                <option key={k} value={k}>
+                  {k}{' '}
+                  <SimplePoseRef
+                    onlyHeading
+                    poseref={symbolTable.poses.get(k)}
+                  />
                 </option>
-                {validPoseKeys.map((k) => (
-                  <option key={k} value={k}>
-                    {k}{' '}
-                    <SimplePoseRef
-                      onlyHeading
-                      poseref={symbolTable.poses.get(k)}
-                    />
-                  </option>
-                ))}
-              </Select>
-            </span>
-            {chkErr(resolved) && (
-              <Text>
-                <AlertFilled />
-                {resolved.errors().map((e, i) => (
-                  <Fragment key={i}>
-                    <Text>{e}</Text>
-                    <br />
-                  </Fragment>
-                ))}
-                for {item.ref}
-              </Text>
-            )}
-          </>
-        )}
-        {!hrIsPose(item) && !!item && (
-          <>
-            {hrIsVal(item) && (
-              // Numeric Angle value
-              <SpinButton
-                precision={3}
-                step={1}
-                stepPage={10}
-                value={item.angle.val}
-                onChange={onSpinChange}
-              />
-            )}
-            {hrIsRef(item) && (
-              // Angle Value *reference*
-              <Select
-                value={(item.angle as Ref).ref}
-                onChange={(_, d) =>
-                  onChange(mkHeading(mkRef(d.value), item.inRadians))
-                }>
-                <option key="$" value="" disabled>
-                  Select Value Reference...
-                </option>
-                {valueKeys.map((k) => (
-                  <option key={k} value={k}>
-                    {k} <SimpleValRef valref={symbolTable.values.get(k)} />
-                  </option>
-                ))}
-              </Select>
-            )}
-            <Checkbox
-              checked={item.inRadians}
-              onChange={(e) =>
-                onChange(mkHeading(item.angle, e.target.checked))
-              }
-              label="Heading Angle in Radians?"
+              ))}
+            </Select>
+          </span>
+          {chkErr(resolved) && (
+            <Text>
+              <AlertFilled />
+              {resolved.errors().map((e, i) => (
+                <Fragment key={i}>
+                  <Text>{e}</Text>
+                  <br />
+                </Fragment>
+              ))}
+              for {item.ref}
+            </Text>
+          )}
+        </>
+      )}
+      {!hrIsPose(item) && !!item && (
+        <>
+          {hrIsVal(item) && (
+            // Numeric Angle value
+            <SpinButton
+              precision={3}
+              step={1}
+              stepPage={10}
+              value={item.angle.val}
+              onChange={onSpinChange}
             />
-          </>
-        )}
-      </>
+          )}
+          {hrIsRef(item) && (
+            // Angle Value *reference*
+            <Select
+              value={(item.angle as Ref).ref}
+              onChange={(_, d) =>
+                onChange(mkHeading(mkRef(d.value), item.inRadians))
+              }>
+              <option key="$" value="" disabled>
+                Select Value Reference...
+              </option>
+              {valueKeys.map((k) => (
+                <option key={k} value={k}>
+                  {k} <SimpleValRef valref={symbolTable.values.get(k)} />
+                </option>
+              ))}
+            </Select>
+          )}
+          <br />
+          <Checkbox
+            checked={item.inRadians}
+            onChange={(e) => onChange(mkHeading(item.angle, e.target.checked))}
+            label="Heading Angle in Radians?"
+          />
+        </>
+      )}
     </TitleWrapper>
   );
 }

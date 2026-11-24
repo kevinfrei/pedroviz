@@ -9,7 +9,6 @@ import {
   Toaster,
   tokens,
   Toolbar,
-  ToolbarGroup,
   webDarkTheme,
   webLightTheme,
 } from '@fluentui/react-components';
@@ -17,7 +16,6 @@ import { Group, Panel, Separator } from 'react-resizable-panels';
 import { SpinSuspense } from '@freik/fluent9-tools';
 
 import { CodeIssues } from './CodeIssues';
-import { EditorDialog } from './Editors/EditorDialog';
 import { FieldRenderer } from './FieldRenderer';
 import {
   RemoveUpload,
@@ -26,7 +24,11 @@ import {
   UploadToRobot,
 } from './FileChoosing';
 import { SearchToolbar } from './Lists/SearchableTable';
-import { DataTabList, SelectedDataList } from './PathsDataDisplay';
+import {
+  DataTabList,
+  SelectedDataList,
+  SelectedEditor,
+} from './PathsDataDisplay';
 import { Settings } from './Settings';
 import { ToastId } from './state/BasicState';
 import { ThemeAtom } from './state/SavedSettings';
@@ -57,8 +59,7 @@ const useStyles = makeStyles({
   dialogSection: {
     gridColumn: 2,
     gridRow: 2,
-    overflowY: 'auto',
-    overflowX: 'hidden',
+    overflow: 'hidden',
     minWidth: 0,
     minHeight: 0,
   },
@@ -82,35 +83,27 @@ function MyApp(): ReactElement {
     <div className="app">
       <Group className="main">
         <Panel className="display">
-          <SpinSuspense>
-            <FieldRenderer />
-          </SpinSuspense>
+          <FieldRenderer />
         </Panel>
         <Separator id="view-separator" />
         <Panel className={toolbarStyle.gridPanelContainer}>
           <div className={toolbarStyle.header}>
-            <SpinSuspense>
-              <DataTabList />
-              <SearchToolbar />
-            </SpinSuspense>
+            <DataTabList />
+            <SearchToolbar />
           </div>
           <div className={toolbarStyle.dataList}>
-            <SpinSuspense>
-              <SelectedDataList />
-              <CodeIssues />
-            </SpinSuspense>
+            <SelectedDataList />
+            <CodeIssues />
           </div>
           <div className={toolbarStyle.dialogSection}>
-            <EditorDialog />
+            <SelectedEditor />
           </div>
           <Toolbar size="medium" className={toolbarStyle.footer}>
-            <SpinSuspense>
-              <TeamSelector />
-              <SaveButton />
-              <UploadToRobot />
-              <RemoveUpload />
-              <Settings />
-            </SpinSuspense>
+            <TeamSelector />
+            <SaveButton />
+            <UploadToRobot />
+            <RemoveUpload />
+            <Settings />
           </Toolbar>
           <Toaster toasterId={ToastId} position="bottom" />
         </Panel>
@@ -122,7 +115,13 @@ function MyApp(): ReactElement {
 function FluentApp(): ReactElement {
   const theTheme = useAtomValue(ThemeAtom);
   const theme = theTheme === 'dark' ? webDarkTheme : webLightTheme;
-
+  // TODO: Make a Pedro or FIRST color theme:
+  // Details:
+  // https://storybooks.fluentui.dev/react/?path=/docs/concepts-developer-theming--docs
+  // Colors:
+  // FIRST colors #0066B3, #ED1C24,
+  // plus FTC #F57E258, FRC #009cd7, and FLL #ed1c24, #662D91, #00a651
+  // Pedro colors are #FE55A2, #FFC516, and #E1461B
   return (
     <FluentProvider theme={theme}>
       <MyApp />

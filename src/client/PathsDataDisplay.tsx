@@ -18,7 +18,11 @@ import { JsonView } from './Panels/JsonView';
 import { PathEditor } from './Panels/PathsView';
 import { PoseEditor } from './Panels/PosesView';
 import { ValueEditor } from './Panels/ValuesView';
-import { activeTabAtom, DataType } from './state/SymbolTable';
+import {
+  activeTabAtom,
+  DataType,
+  selectedActiveItemAtom,
+} from './state/SymbolTable';
 import { SelectedPathsAtom } from './state/UserCode';
 
 export function DataTabList(): ReactElement {
@@ -89,5 +93,10 @@ export function SelectedDataList(): ReactElement {
 
 export function SelectedEditor(): ReactElement {
   const activeTab = useAtomValue(activeTabAtom);
-  return <></>;
+  const selectedActive = useAtomValue(selectedActiveItemAtom);
+  const item = tabInfo.filter(({ key }) => key === activeTab);
+  if (item.length === 0 || isUndefined(selectedActive)) {
+    return <></>;
+  }
+  return item[0]!.editor;
 }

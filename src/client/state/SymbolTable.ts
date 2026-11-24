@@ -58,14 +58,6 @@ export const symbolTableAtom = atom(
       curves: MapToRecord(val.curves),
       paths: MapToRecord(val.paths),
     };
-    // console.log(
-    //   'Symbol Table update',
-    //   val.values.size,
-    //   val.poses.size,
-    //   val.interpolations.size,
-    //   val.curves.size,
-    //   val.paths.size,
-    // );
     set(SelectedPathsAtom, nv);
   },
 );
@@ -123,6 +115,10 @@ export const activeTabAtom = atomWithStorage<DataType>(
   DataType.Values,
   undefined,
   { getOnInit: true },
+);
+
+export const selectedActiveItemAtom = atom((get) =>
+  get(selectedItemKeyFamily(get(activeTabAtom))),
 );
 
 function MapToRecord<T>(map: Map<string, T>): Record<string, T> {

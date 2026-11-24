@@ -133,58 +133,57 @@ export function InterpRefEditor(
 
   return (
     <TitleWrapper title={label} expandable={!topLevel}>
-      <>
+      <Select
+        style={{ maxWidth: 150 }}
+        value={currentType}
+        onChange={(e, d) => handleTypeChange(d.value as InterpNames)}>
+        {showNone && <option value="None">None</option>}
+        <option value="Reference">Reference (from Interpolations)</option>
+        <option value="Tangent">Tangent (Along the Path)</option>
+        <option value="Constant">Constant (Fixed Heading)</option>
+        <option value="Linear">Linear (Heading Range)</option>
+        <option value="Facing">Facing (Point at Pose)</option>
+        <option value="PieceWise">Piecewise (Multi-Segment)</option>
+      </Select>
+
+      {chkRef(item) && (
         <Select
-          value={currentType}
-          onChange={(e, d) => handleTypeChange(d.value as InterpNames)}>
-          {showNone && <option value="None">None</option>}
-          <option value="Reference">Reference (from Interpolations)</option>
-          <option value="Tangent">Tangent (Along the Path)</option>
-          <option value="Constant">Constant (Fixed Heading)</option>
-          <option value="Linear">Linear (Heading Range)</option>
-          <option value="Facing">Facing (Point at Pose)</option>
-          <option value="PieceWise">Piecewise (Multi-Segment)</option>
-        </Select>
-
-        {chkRef(item) && (
-          <Select
-            value={item?.ref || ''}
-            onChange={(e) => onChange(mkRef(e.target.value))}>
-            <option key="$" value="" disabled>
-              Select Interpolator Reference...
+          value={item?.ref || ''}
+          onChange={(e) => onChange(mkRef(e.target.value))}>
+          <option key="$" value="" disabled>
+            Select Interpolator Reference...
+          </option>
+          {interpKeys.map((k) => (
+            <option key={k} value={k}>
+              {k} ({getInterpType(symbolTable.interpolations.get(k)!)})
             </option>
-            {interpKeys.map((k) => (
-              <option key={k} value={k}>
-                {k} ({getInterpType(symbolTable.interpolations.get(k)!)})
-              </option>
-            ))}
-          </Select>
-        )}
+          ))}
+        </Select>
+      )}
 
-        {chkTangentInterp(item) && (
-          <TangentInterpEditor item={item} onChange={onChange} />
-        )}
+      {chkTangentInterp(item) && (
+        <TangentInterpEditor item={item} onChange={onChange} />
+      )}
 
-        {chkConstInterp(item) && (
-          <ConstantInterpEditor item={item} onChange={onChange} />
-        )}
+      {chkConstInterp(item) && (
+        <ConstantInterpEditor item={item} onChange={onChange} />
+      )}
 
-        {chkFacePtInterp(item) && (
-          <FacingPointInterpEditor item={item} onChange={onChange} />
-        )}
+      {chkFacePtInterp(item) && (
+        <FacingPointInterpEditor item={item} onChange={onChange} />
+      )}
 
-        {chkLinearInterp(item) && (
-          <LinearInterpEditor item={item} onChange={onChange} />
-        )}
+      {chkLinearInterp(item) && (
+        <LinearInterpEditor item={item} onChange={onChange} />
+      )}
 
-        {chkPieceWiseInterp(item) && (
-          <PieceWiseInterpEditor
-            item={item}
-            onChange={onChange}
-            name={props.name}
-          />
-        )}
-      </>
+      {chkPieceWiseInterp(item) && (
+        <PieceWiseInterpEditor
+          item={item}
+          onChange={onChange}
+          name={props.name}
+        />
+      )}
     </TitleWrapper>
   );
 }
@@ -317,7 +316,7 @@ function TangentInterpEditor({
 }: InterpEditorProps<TangentInterp>): ReactElement {
   return (
     <Checkbox
-      label="Face the opposite direction of the path"
+      label="Reverse tangent"
       checked={Boolean(item?.reversed)}
       onChange={(_, d) => onChange(mkTangentInterp(d.checked === true))}
     />

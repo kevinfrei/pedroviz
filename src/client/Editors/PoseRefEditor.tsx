@@ -43,7 +43,7 @@ function validPosesForRef(
 
 export type PoseRefEditorProps = {
   label: string | ReactElement;
-  item: PoseRef;
+  item: PoseRef | undefined;
   name?: string;
   topLevel?: boolean;
   heading?: boolean;
@@ -60,6 +60,9 @@ export function PoseRefEditor({
   heading,
 }: PoseRefEditorProps): ReactElement {
   const symbolTable = useAtomValue(symbolTableAtom);
+  if (isUndefined(item)) {
+    return <></>;
+  }
   const validPoseKeys = validPosesForRef(
     Array.from(symbolTable.poses.keys()),
     symbolTable,
@@ -79,76 +82,74 @@ export function PoseRefEditor({
 
   return (
     <TitleWrapper title={label} expandable={!topLevel}>
-      <>
-        <RadioGroup
-          value={isRef ? 'ref' : 'val'}
-          layout="horizontal"
-          onChange={(_, data) => {
-            setToRef(data.value === 'ref');
-          }}>
-          <Radio value="val" label="Pose" />
-          <Radio value="ref" label="Reference" />
-        </RadioGroup>
+      <RadioGroup
+        value={isRef ? 'ref' : 'val'}
+        layout="horizontal"
+        onChange={(_, data) => {
+          setToRef(data.value === 'ref');
+        }}>
+        <Radio value="val" label="Pose" />
+        <Radio value="ref" label="Reference" />
+      </RadioGroup>
 
-        {isRef ? (
-          <span>
-            <Select
-              value={item?.ref || ''}
-              onChange={(e, d) => onChange(mkRef(d.value))}>
-              <option key="$" value="" disabled>
-                Select Pose Reference...
+      {isRef ? (
+        <span>
+          <Select
+            value={item?.ref || ''}
+            onChange={(e, d) => onChange(mkRef(d.value))}>
+            <option key="$" value="" disabled>
+              Select Pose Reference...
+            </option>
+            {validPoseKeys.map((k) => (
+              <option key={k} value={k}>
+                {k}
               </option>
-              {validPoseKeys.map((k) => (
-                <option key={k} value={k}>
-                  {k}
-                </option>
+            ))}
+          </Select>
+          {chkErr(resolved) && (
+            <Text>
+              <AlertFilled />
+              {resolved.errors().map((e, i) => (
+                <span key={i}>
+                  <Text>{e}</Text>
+                  <br />
+                </span>
               ))}
-            </Select>
-            {chkErr(resolved) && (
-              <Text>
-                <AlertFilled />
-                {resolved.errors().map((e, i) => (
-                  <span key={i}>
-                    <Text>{e}</Text>
-                    <br />
-                  </span>
-                ))}
-                for {item?.ref}
-              </Text>
-            )}
-            <div style={{ paddingTop: 5 }}>
-              <ResolvedPose displayHeading={displayHeading} pose={resolved} />
-            </div>
-          </span>
-        ) : (
-          <div>
-            <ValRefEditor
-              label="X Coordinate"
-              item={item?.X || mkNewVal()}
-              onChange={(X) => onChange({ ...item, X })}
-            />
-            <ValRefEditor
-              label="Y Coordinate"
-              item={item?.Y || mkNewVal()}
-              onChange={(Y) => onChange({ ...item, Y })}
-            />
-            {displayHeading && (
-              <HeadingRefEditor
-                label="Heading Angle"
-                optional={true}
-                item={item?.heading || null}
-                onChange={(heading: HeadingRef | null) => {
-                  if (isDefined(heading) && heading !== null) {
-                    onChange({ ...item, heading });
-                  } else {
-                    onChange(mkPose(item.X, item.Y));
-                  }
-                }}
-              />
-            )}
+              for {item?.ref}
+            </Text>
+          )}
+          <div style={{ paddingTop: 5 }}>
+            <ResolvedPose displayHeading={displayHeading} pose={resolved} />
           </div>
-        )}
-      </>
+        </span>
+      ) : (
+        <div>
+          <ValRefEditor
+            label="X Coordinate"
+            item={item?.X || mkNewVal()}
+            onChange={(X) => onChange({ ...item, X })}
+          />
+          <ValRefEditor
+            label="Y Coordinate"
+            item={item?.Y || mkNewVal()}
+            onChange={(Y) => onChange({ ...item, Y })}
+          />
+          {displayHeading && (
+            <HeadingRefEditor
+              label="Heading Angle"
+              optional={true}
+              item={item?.heading || null}
+              onChange={(heading: HeadingRef | null) => {
+                if (isDefined(heading) && heading !== null) {
+                  onChange({ ...item, heading });
+                } else {
+                  onChange(mkPose(item.X, item.Y));
+                }
+              }}
+            />
+          )}
+        </div>
+      )}
     </TitleWrapper>
   );
 }
