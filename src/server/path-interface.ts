@@ -103,7 +103,7 @@ export async function LoadPathsForTeam(team: Team): Promise<PathsFile> {
     }
     return res;
   } catch (e) {
-    return MakeError((e as unknown as Object).toString());
+    return MakeError((e as unknown as object).toString());
   }
 }
 

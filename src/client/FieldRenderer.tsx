@@ -629,8 +629,8 @@ function drawLegend(
   ctx.lineWidth = 0.5;
   ctx.strokeStyle = theme === 'light' ? 'black' : 'white';
   ctx.beginPath();
-  let xc = 72;
-  let yc = 95;
+  const xc = 72;
+  const yc = 95;
   // Vertical double arrow:
   ctx.moveTo(xc - 2, yc - 5);
   ctx.lineTo(xc, yc - 7);

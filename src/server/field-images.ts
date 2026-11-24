@@ -3,8 +3,6 @@
 import { promises as fsp } from 'node:fs';
 import * as path from 'node:path';
 
-import { isString } from '@freik/typechk';
-
 import { GetRelativeRepoRoot } from './repo-discovery';
 
 // Find field image(s) from the repo root

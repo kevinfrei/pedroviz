@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import path from 'node:path';
-
 import { PathsFile, Team } from '../ipcTypes';
 import { CheckForFieldImages } from './field-images';
 import { GetTeamsWithPaths, LoadPathsForTeam } from './path-interface';
@@ -13,11 +11,11 @@ const database: PathsDatabase = {
   LoadedFiles: new Map<Team, PathsFile>(),
 };
 
-/*export*/ function GetDatabase(): PathsDatabase {
+function GetDatabase(): PathsDatabase {
   return database;
 }
 
-export function ResetDatabase() {
+function ResetDatabase() {
   database.AllTeams.clear();
   database.LoadedFiles.clear();
   database.HasFieldImage = false;

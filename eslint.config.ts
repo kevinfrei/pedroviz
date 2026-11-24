@@ -12,6 +12,18 @@ export default defineConfig([
   { ignores: ['dist/', 'dev/', '.vscode/'] }, // ← global ignore, must be first
   tseslint.configs.recommended,
   {
+    rules: {
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          enableAutofixRemoval: { imports: true },
+          varsIgnorePattern: '^_',
+          argsIgnorePattern: '^_',
+        },
+      ],
+    },
+  },
+  {
     files: ['**/*.{ts,tsx}'],
     ...eslintReact.configs['recommended-typescript'],
   },

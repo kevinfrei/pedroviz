@@ -27,7 +27,7 @@ export function AutoSelector({
   selected: string;
   setSelected: (item: string) => void;
 }): ReactElement {
-  let selectedItem = selected.length === 0 ? prompt : selected;
+  const selectedItem = selected.length === 0 ? prompt : selected;
 
   const trigger = (
     <ToolbarButton

@@ -8,7 +8,7 @@ import { Point } from '../EvalTypes';
 
 // De Casteljau algorithm for Bezier curves (2D)
 export function deCasteljau(controlPoints: Point[], t: number): Point {
-  let points = controlPoints.map((p) => ({ ...p }));
+  const points = controlPoints.map((p) => ({ ...p }));
 
   for (let r = 1; r < points.length; r++) {
     for (let i = 0; i < points.length - r; i++) {

@@ -25,9 +25,9 @@
     "prod": "bun run dist/entry.js",
     "prod:bundle": "bun run prod-bundle.ts",
     "prepublishOnly": "bun run prod:bundle",
-    "cycles": "knip --cycles --reporter cycles",
-    "dead": "knip",
-    "lint": "bun run eslint"
+    "cycles": "knip --cycles --reporter cycles --fix",
+    "dead": "knip --fix",
+    "lint": "bun run eslint --fix"
   },
   "prepare": "simple-git-hooks",
   "overrides": {
@@ -39,7 +39,6 @@
     "@fluentui/react-components": "^9.75.2",
     "@fluentui/react-icons": "^2.0.347",
     "@fluentui/tokens": "^1.0.0-alpha.24",
-    "@freik/containers": "^0.4.10",
     "@freik/fluent9-tools": "^0.2.4",
     "@freik/sync": "^0.4.10",
     "@freik/typechk": "^0.10.0",

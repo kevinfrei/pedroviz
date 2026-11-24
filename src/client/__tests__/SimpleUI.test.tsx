@@ -2,32 +2,13 @@
 
 /// <reference lib="dom" />
 
-import { beforeEach, describe, expect, test } from 'bun:test';
-import { ReactElement } from 'react';
-import { Provider, useAtom } from 'jotai';
+import { describe, test } from 'bun:test';
 
-import {
-  FluentProvider,
-  webDarkTheme,
-  webLightTheme,
-} from '@fluentui/react-components';
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react';
-import { Pickle } from '@freik/typechk';
+import { act, waitFor } from '@testing-library/react';
 
 import '@testing-library/jest-dom';
 
-import { Team } from '../../ipcTypes';
-import { Strings } from '../Constants';
-import { SelectedDataList } from '../PathsDataDisplay';
-import { ThemeAtom } from '../state/SavedSettings';
 import { getStore } from '../state/Storage';
-import { lightOnBlack } from '../ui-tools/Colors';
 
 import './jest-dom-types-fix.test';
 

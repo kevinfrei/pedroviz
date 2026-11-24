@@ -107,7 +107,7 @@ export function resolvePoseRef(
   const X = resolveValRef(poseRef.X, dict, seen);
   const Y = resolveValRef(poseRef.Y, dict, seen);
   if (hasField(poseRef, 'heading') && isDefined(poseRef.heading)) {
-    let heading = resolveHeadingRef(poseRef.heading, dict, seen);
+    const heading = resolveHeadingRef(poseRef.heading, dict, seen);
     return { X, Y, heading };
   } else {
     return { X, Y };

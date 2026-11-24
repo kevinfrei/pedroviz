@@ -74,7 +74,7 @@ function GenerateColors(n: number, bg: RGB = [255, 255, 255]): string[] {
   let ldelta = 0;
   let sdelta = 0;
   let h = 0;
-  let k = 1.04;
+  const k = 1.04;
   // I'm going to look for N colors. To sort them in a 'nothing close is similar'
   // way, let's find the next largest prime number, divide it by 6 (assuming ppl
   // clearly differentiate 6 colors around the color wheel) and then step by that
@@ -88,9 +88,9 @@ function GenerateColors(n: number, bg: RGB = [255, 255, 255]): string[] {
       h -= 360;
     }
     // oversample
-    let l = basel + ldelta;
-    let s = bases + sdelta; // vivid saturation
-    let rgb = hslToRgb(h, s, l).map(Math.round) as RGB;
+    const l = basel + ldelta;
+    const s = bases + sdelta; // vivid saturation
+    const rgb = hslToRgb(h, s, l).map(Math.round) as RGB;
     if (contrastRatio(rgb, bg) < bgContrast) {
       // Skip colors that don't show up well enough against the background
       continue;

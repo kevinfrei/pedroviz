@@ -10,7 +10,6 @@
         "@fluentui/react-components": "^9.75.2",
         "@fluentui/react-icons": "^2.0.347",
         "@fluentui/tokens": "^1.0.0-alpha.24",
-        "@freik/containers": "^0.4.10",
         "@freik/fluent9-tools": "^0.2.4",
         "@freik/sync": "^0.4.10",
         "@freik/typechk": "^0.10.0",
@@ -348,7 +347,7 @@
 
     "@fluentui/utilities": ["@fluentui/utilities@8.17.2", "", { "dependencies": { "@fluentui/dom-utilities": "^2.3.10", "@fluentui/merge-styles": "^8.6.14", "@fluentui/react-window-provider": "^2.3.2", "@fluentui/set-version": "^8.2.24", "tslib": "^2.1.0" }, "peerDependencies": { "@types/react": ">=16.8.0 <20.0.0", "react": ">=16.8.0 <20.0.0" } }, "sha512-TmeWVtGN+Lk0mch7tuRcbkeMdrBwltI68fvQbPwcNLo4igFtTInMmjEnVJGa7pBQN5lQAmHYqB9IJI6RZU/t6w=="],
 
-    "@freik/containers": ["@freik/containers@0.4.10", "", { "dependencies": { "@freik/helpers": "0.5.9", "@freik/typechk": "0.9.5" } }, "sha512-bjh8nHKrfUWXrH8Fey10ZHVAqMsJOVj5y6TCeSh3jxXHgxnbij+HKJr8cWSrAVKeqlJcLnnbzaF2t6CMMIkw4g=="],
+    "@freik/containers": ["@freik/containers@0.4.9", "", { "dependencies": { "@freik/helpers": "0.5.9", "@freik/typechk": "0.9.5" } }, "sha512-Lq96VT+8HveOlNUQ6bF9RwNhdkxcIKN8MRzs2B0ZQwKIG8AcShZ4+zsZ2/R4XWbUXFtVDzDWLAIcFi1aAk+4kQ=="],
 
     "@freik/fluent9-tools": ["@freik/fluent9-tools@0.2.4", "", { "dependencies": { "@freik/logger": "0.4.10", "@freik/react-tools": "0.4.4", "@freik/typechk": "0.10.0" }, "peerDependencies": { "@fluentui/react-components": "^9.74.4", "@fluentui/react-hooks": "^8.10.2", "react": "^19.2.8", "react-dom": "^19.2.8" } }, "sha512-LX23v/sGl11zL9GyZcvoojNVVKm6nuTfE5yPg5WXzisG4MOcjHBvsL8IJ8C2MJJQAL53Qf3qxhX8sYiTeQvX0g=="],
 
@@ -999,8 +998,6 @@
     "@freik/containers/@freik/typechk": ["@freik/typechk@0.9.5", "", {}, "sha512-6qnI/3UwYWJGews1How1xOrRr/M+9VisJVia5zq4JyswKsT/dCjb8+B0PaIIX5wtLNdKqubpm7yPeYe+VH84QQ=="],
 
     "@freik/helpers/@freik/typechk": ["@freik/typechk@0.9.5", "", {}, "sha512-6qnI/3UwYWJGews1How1xOrRr/M+9VisJVia5zq4JyswKsT/dCjb8+B0PaIIX5wtLNdKqubpm7yPeYe+VH84QQ=="],
-
-    "@freik/sync/@freik/containers": ["@freik/containers@0.4.9", "", { "dependencies": { "@freik/helpers": "0.5.9", "@freik/typechk": "0.9.5" } }, "sha512-Lq96VT+8HveOlNUQ6bF9RwNhdkxcIKN8MRzs2B0ZQwKIG8AcShZ4+zsZ2/R4XWbUXFtVDzDWLAIcFi1aAk+4kQ=="],
 
     "@freik/sync/@freik/typechk": ["@freik/typechk@0.9.5", "", {}, "sha512-6qnI/3UwYWJGews1How1xOrRr/M+9VisJVia5zq4JyswKsT/dCjb8+B0PaIIX5wtLNdKqubpm7yPeYe+VH84QQ=="],
 

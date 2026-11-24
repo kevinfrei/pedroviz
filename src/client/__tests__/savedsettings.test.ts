@@ -1,22 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { beforeEach, describe, expect, test } from 'bun:test';
-import { useAtom, useAtomValue } from 'jotai';
+import { describe, expect, test } from 'bun:test';
+import { useAtomValue } from 'jotai';
 
 import { act, renderHook } from '@testing-library/react';
 
-import { CtrlPtStyles, DisplayOptions } from '../ClientTypes';
-import {
-  PathCurveOptionsAtom,
-  PathHeadingCountAtom,
-  PathHeadingLengthAtom,
-  PathHeadingThicknessAtom,
-  PathPointSizeAtom,
-  PathPointStyleAtom,
-  PathPointThicknessAtom,
-  PathThicknessAtom,
-  ShowPathHeadingAtom,
-} from '../state/SavedSettings';
+import { PathCurveOptionsAtom } from '../state/SavedSettings';
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 // or global.IS_REACT_ACT_ENVIRONMENT = true; depending on your environment
@@ -53,7 +42,7 @@ Object.defineProperty(globalThis, 'localStorage', {
 
 describe('storage atoms', () => {
   test.skip('Team/Path interactions', async () => {
-    let pro = await act(() =>
+    const pro = await act(() =>
       renderHook(() => useAtomValue(PathCurveOptionsAtom)),
     );
     expect(pro.result).toBeDefined(); /*

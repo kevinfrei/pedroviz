@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { expect, test } from 'bun:test';
-
-import { chkPath } from '../../dataTypes';
+import { test } from 'bun:test';
 
 test('Parsed file types validation', () => {
   // const aRef = 'asdf';

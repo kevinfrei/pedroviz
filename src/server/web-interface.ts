@@ -61,7 +61,7 @@ export async function LoadPaths(team: Team): Promise<Response> {
   return Response.json(JSON.parse(Pickle(pathsFile)));
 }
 
-export async function SavePaths(team: Team, json: Object): Promise<Response> {
+export async function SavePaths(team: Team, json: object): Promise<Response> {
   console.error('Save request for team', team);
   if (!chkNamedValues(json)) {
     console.error('Wrong type :/', json);

@@ -1,13 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import * as path from 'node:path';
-
-import { MakeMultiMap } from '@freik/containers';
-import { Pickle, Unpickle } from '@freik/typechk';
-
-import { Team } from '../../ipcTypes';
-import { RescanSourceCode, ResetDatabase } from '../full-database';
+import { afterEach, beforeEach, describe, test } from 'bun:test';
 
 const originalCwd = process.cwd();
 
