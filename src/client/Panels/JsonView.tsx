@@ -17,7 +17,7 @@ export function JsonView(): ReactElement {
       </div>
       {json.map((str, idx) => (
         <code
-          key={idx}
+          key={idx} // eslint-disable-line @eslint-react/no-array-index-key
           style={{
             display: 'block',
             marginLeft: (str.length - str.trimStart().length) * 10,

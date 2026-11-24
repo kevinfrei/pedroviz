@@ -59,6 +59,7 @@ export function PathEditor(): ReactElement {
           Add Curve
         </Button>
         {(activePath?.curves || []).map((cRef, cIdx) => (
+          // eslint-disable-next-line @eslint-react/no-array-index-key
           <div key={cIdx}>
             <CurveRefEditor
               label={

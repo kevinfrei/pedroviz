@@ -156,10 +156,8 @@ function calcSimpleHeading(
     throw new Error("Can't have both prev and next points be null");
   }
   if (chkEvalInterpTangent(heading)) {
-    if (!prev || !nxt) {
-      return getAngle(bezierDerivative(controlPoints, percent));
-    }
-    return (getAngle(ptDiff(cur, prev)) + getAngle(ptDiff(nxt, cur))) / 2;
+    const angle = getAngle(bezierDerivative(controlPoints, percent));
+    return normalizeRadian(heading.reversed ? Math.PI + angle : angle);
   } else if (chkEvalInterpConstant(heading)) {
     return heading.radians;
   } else if (chkEvalInterpLinear(heading)) {

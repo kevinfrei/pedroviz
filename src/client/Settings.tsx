@@ -145,7 +145,7 @@ export function Settings(): ReactElement {
     PathHeadingThicknessAtom,
   );
   const [ctrlPtStyle, setCtrlPtStyle] = useAtom(PathPointStyleAtom);
-  const [ctrlPtName, setCtrlPtName] = useState(getCtrlPtName(ctrlPtStyle));
+  const [ctrlPtName, setCtrlPtName] = useState(getCtrlPtName(ctrlPtStyle)); // eslint-disable-line @eslint-react/use-state
   const onCtlPtStyleSelect: DropdownProps['onOptionSelect'] = useCallback(
     (ev, data) => {
       if (data.selectedOptions.length > 0) {
@@ -156,7 +156,7 @@ export function Settings(): ReactElement {
     [setCtrlPtStyle, setCtrlPtName],
   );
   const [botShape, setBotShape] = useAtom(BotShapeAtom);
-  const [botShapeName, setBotShapeName] = useState(getBotShapeName(botShape));
+  const [botShapeName, setBotShapeName] = useState(getBotShapeName(botShape)); // eslint-disable-line @eslint-react/use-state
   const onBotShapeSelect: DropdownProps['onOptionSelect'] = useCallback(
     (ev, data) => {
       if (data.selectedOptions.length > 0) {
@@ -169,31 +169,37 @@ export function Settings(): ReactElement {
   const [botWidth, changeBotWidth] = useSpinnerAtom(BotWidthAtom);
   const [botLength, changeBotLength] = useSpinnerAtom(BotLengthAtom);
   const [botTinyColor, setBotTinyColor] = useAtom(BotTinyColorAtom);
-  const onColorChange: ColorSliderProps['onChange'] = (_, data) => {
-    setBotTinyColor(new TinyColor(data.color));
-  };
+  const onColorChange: ColorSliderProps['onChange'] = useCallback(
+    (_, data) => {
+      setBotTinyColor(new TinyColor(data.color));
+    },
+    [setBotTinyColor],
+  );
   const [selectedTab, setSelectedTab] = useState<TabValue>('General');
   const onTabSelect = (event: SelectTabEvent, data: SelectTabData) => {
     setSelectedTab(data.value);
   };
 
-  const fieldDescription = (
-    <>
-      <Text>Put a jpg or png file named </Text>
-      <Text font="monospace">field.jpg/png</Text>
-      <Text>, </Text>
-      <Text font="monospace">field-dark.jpg/png</Text>
-      <Text>, and/or </Text>
-      <Text font="monospace">field-light.png/jpg</Text>
-      <Text>
-        {' '}
-        at the root of your FTC code repository (in the same folder as{' '}
-      </Text>
-      <Text font="monospace">TeamCode</Text>
-      <Text> and </Text>
-      <Text font="monospace">FtcRobotController</Text>
-      <Text>) and it can be displayed as the background of the field.</Text>
-    </>
+  const fieldDescription = useMemo(
+    () => (
+      <>
+        <Text>Put a jpg or png file named </Text>
+        <Text font="monospace">field.jpg/png</Text>
+        <Text>, </Text>
+        <Text font="monospace">field-dark.jpg/png</Text>
+        <Text>, and/or </Text>
+        <Text font="monospace">field-light.png/jpg</Text>
+        <Text>
+          {' '}
+          at the root of your FTC code repository (in the same folder as{' '}
+        </Text>
+        <Text font="monospace">TeamCode</Text>
+        <Text> and </Text>
+        <Text font="monospace">FtcRobotController</Text>
+        <Text>) and it can be displayed as the background of the field.</Text>
+      </>
+    ),
+    [],
   );
   const BotSettings = useMemo(
     () => (
@@ -266,12 +272,15 @@ export function Settings(): ReactElement {
       </div>
     ),
     [
-      botWidth,
       botLength,
       botShape,
-      botTinyColor.toHexString(),
-      onColorChange,
+      botShapeName,
+      botTinyColor,
+      botWidth,
+      changeBotLength,
+      changeBotWidth,
       onBotShapeSelect,
+      onColorChange,
     ],
   );
   const GeneralSettings = useMemo(
@@ -329,7 +338,18 @@ export function Settings(): ReactElement {
         </span>
       </div>
     ),
-    [fieldViz, useCustomFieldImage, hasCustomFieldImage, coordViz, theTheme],
+    [
+      coordViz,
+      fieldDescription,
+      fieldViz,
+      hasCustomFieldImage,
+      setCoordViz,
+      setFieldViz,
+      setTheme,
+      setUseCustomFieldImage,
+      theTheme,
+      useCustomFieldImage,
+    ],
   );
   const DrawingSettings = useMemo(
     () => (
@@ -419,16 +439,23 @@ export function Settings(): ReactElement {
       </div>
     ),
     [
-      pathThickness,
-      showBotHeading,
-      headingCount,
-      ctrlPtSize,
-      ctrlPtThickness,
-      showBotHeading,
-      headingThickness,
-      headingLength,
+      changeCtrlPtSize,
+      changeCtrlPtThickness,
+      changeHeadingCount,
+      changeHeadingLength,
+      changeHeadingThickness,
+      changePathThickness,
       ctrlPtName,
-      ctrlPtStyles,
+      ctrlPtSize,
+      ctrlPtStyle,
+      ctrlPtThickness,
+      headingCount,
+      headingLength,
+      headingThickness,
+      onCtlPtStyleSelect,
+      pathThickness,
+      setShowBotHeading,
+      showBotHeading,
     ],
   );
   return (
