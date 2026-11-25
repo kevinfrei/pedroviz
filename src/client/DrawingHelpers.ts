@@ -110,16 +110,19 @@ function addHeadingToPoint(
     let last = 0;
     for (const piece of heading) {
       if (percent <= piece.until && percent >= last) {
-        // Found the right piece, rescale percentage accordingly, and
-        // get the heading for the piece
+        // Found the right piece, rescale percentage if needed,
+        // and get the heading for the piece
         point.h = calcSimpleHeading(
           controlPoints,
           piece.interp,
           prev,
           point,
           next,
-          (percent - last) / (piece.until - last),
+          chkEvalInterpLinear(piece.interp)
+            ? (percent - last) / (piece.until - last)
+            : percent,
         );
+        break;
       } else {
         last = piece.until;
       }

@@ -108,6 +108,7 @@ FTC students...)
 
 - [ ] Get the Java JSON loader up & going!
   - [ ] Done, but untested! (Lives in my BioBuzz fork, currently)
+- [ ] Global interpolation overrides need to be added
 - [x] Save changes to the JSON file
   - [ ] Upload the file to the robot using ADB
   - [ ] Add a JSON version number, so that an ADB uploaded one will only
@@ -115,11 +116,11 @@ FTC students...)
   - [ ] Allow a "Force new path version" thing? Dunno...
 - [x] Animate the currently selected path or curve
   - [ ] Update the animation when the path changes
-  - [ ] Deal with the selected item not always following the user choice
 - [ ] Draw the interpolation arrows.
-- [ ] Global interpolation overrides need to be added
 - [ ] Allow moving entire paths by grabbing them?
 - [ ] Rename all ref's to a something when you rename the something.
+- [ ] Prevent deleting items in use?
+- [ ] Add an 'undo' buffer
 - [ ] Highlight & display errors more obviously
 - [ ] Get test coverage up to something tolerable (I've just been disabling PPv2
       failing tests, because I'm a bad engineer)
