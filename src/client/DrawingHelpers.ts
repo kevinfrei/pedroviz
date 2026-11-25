@@ -13,7 +13,7 @@ import {
   EvalInterpSimple,
   Point,
 } from './EvalTypes';
-import { bezierDerivative, bezierLength, deCasteljau } from './ui-tools/bezier';
+import { bezierLength, deCasteljau } from './ui-tools/bezier';
 
 export function rotPt(offs: Point): Point {
   const cos = Math.cos(offs.h!);
@@ -50,17 +50,18 @@ function calcCurve(controlPoints: Point[]): CurveDetail {
 
 export function getCurveDetail(
   controlPoints: Point[],
-  interp: EvalInterpolator,
+  interp?: EvalInterpolator,
 ): CurveDetail {
-  const res = calcCurve(controlPoints);
-  addHeadingToCurve(controlPoints, res, interp);
-  return res;
+  const curveDetail = calcCurve(controlPoints);
+  if (interp) {
+    addHeadingToCurve(curveDetail, interp);
+  }
+  return curveDetail;
 }
 
 // TODO: Figure out how Pedro decides what percentage of the curve applies to
 // heading pieces and linear interpolations
 function addHeadingToCurve(
-  controlPoints: Point[],
   curve: CurveDetail,
   heading: EvalInterpolator,
 ): void {
@@ -75,7 +76,6 @@ function addHeadingToCurve(
     const cur = curve.points[ptIndex]!;
     curDist += prevPoint ? ptDistance(prevPoint, cur) : 0;
     addHeadingToPoint(
-      controlPoints,
       prevPoint,
       cur,
       ptIndex + 1 < curve.points.length ? curve.points[ptIndex + 1]! : null,
@@ -87,8 +87,37 @@ function addHeadingToCurve(
   }
 }
 
+export function addHeadingToCurveForPath(
+  curve: CurveDetail,
+  heading: EvalInterpolator,
+  start: number,
+  end: number,
+): void {
+  // for "n" points, I'm not drawing starting/ending headings, so I actually want to split
+  // the length into count + 1 pieces, and find the point in between each piece
+  let curDist = 0;
+  if (curve.points.length < 3) {
+    return;
+  }
+  let prevPoint: Point | null = null;
+  for (let ptIndex = 0; ptIndex < curve.points.length; ptIndex++) {
+    const cur = curve.points[ptIndex]!;
+    curDist += prevPoint ? ptDistance(prevPoint, cur) : 0;
+    addHeadingToPointForPath(
+      prevPoint,
+      cur,
+      ptIndex + 1 < curve.points.length ? curve.points[ptIndex + 1]! : null,
+      heading,
+      curDist / curve.length,
+      start,
+      end,
+    );
+    // Keep going
+    prevPoint = cur;
+  }
+}
+
 function addHeadingToPoint(
-  controlPoints: Point[],
   prev: Point | null,
   point: Point,
   next: Point | null,
@@ -96,14 +125,7 @@ function addHeadingToPoint(
   percent: number,
 ) {
   if (chkEvalInterpSimple(heading)) {
-    point.h = calcSimpleHeading(
-      controlPoints,
-      heading,
-      prev,
-      point,
-      next,
-      percent,
-    );
+    point.h = calcSimpleHeading(heading, prev, point, next, percent);
   } else {
     // Find the piece that this percentage is contained by
     // I think a linear search is fine, here..
@@ -113,13 +135,55 @@ function addHeadingToPoint(
         // Found the right piece, rescale percentage if needed,
         // and get the heading for the piece
         point.h = calcSimpleHeading(
-          controlPoints,
           piece.interp,
           prev,
           point,
           next,
           chkEvalInterpLinear(piece.interp)
             ? (percent - last) / (piece.until - last)
+            : percent,
+        );
+        break;
+      } else {
+        last = piece.until;
+      }
+    }
+  }
+}
+
+function addHeadingToPointForPath(
+  prev: Point | null,
+  point: Point,
+  next: Point | null,
+  heading: EvalInterpolator,
+  percent: number,
+  start: number,
+  end: number,
+) {
+  if (chkEvalInterpSimple(heading)) {
+    point.h = calcSimpleHeading(
+      heading,
+      prev,
+      point,
+      next,
+      chkEvalInterpLinear(heading) ? percent * (end - start) + start : percent,
+    );
+  } else {
+    // Find the piece that this percentage is contained by
+    // I think a linear search is fine, here..
+    let last = 0;
+    const totalPct = percent * (end - start) + start;
+    for (const piece of heading) {
+      if (totalPct <= piece.until && totalPct >= last) {
+        // Found the right piece, rescale percentage if needed,
+        // and get the heading for the piece
+        point.h = calcSimpleHeading(
+          piece.interp,
+          prev,
+          point,
+          next,
+          chkEvalInterpLinear(piece.interp)
+            ? (totalPct - last) / (piece.until - last)
             : percent,
         );
         break;
@@ -148,7 +212,6 @@ function getAngle(pt: Point): number {
 }
 
 function calcSimpleHeading(
-  controlPoints: Point[],
   heading: EvalInterpSimple,
   prev: Point | null,
   cur: Point,
@@ -159,7 +222,9 @@ function calcSimpleHeading(
     throw new Error("Can't have both prev and next points be null");
   }
   if (chkEvalInterpTangent(heading)) {
-    const angle = getAngle(bezierDerivative(controlPoints, percent));
+    const angle = getAngle(
+      ptDiff(prev !== null ? cur : nxt!, prev !== null ? prev : cur),
+    );
     return normalizeRadian(heading.reversed ? Math.PI + angle : angle);
   } else if (chkEvalInterpConstant(heading)) {
     return heading.radians;

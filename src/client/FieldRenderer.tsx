@@ -23,7 +23,6 @@ import {
 import { CloseTo } from './DrawingHelpers';
 import {
   EvalCurveDetail,
-  EvalInterpolator,
   EvalPose,
   EvalSymbols,
   MovablePoint,
@@ -173,17 +172,7 @@ export function FieldRenderer(): ReactElement {
                   return;
                 }
                 // Need to make an EvalCurveDetail from the list of control points...
-                drawCurve(
-                  ctx,
-                  evalCurve.points,
-                  showPathHeadings
-                    ? evalPath.globalInterpolator ||
-                        evalCurve.interpolator ||
-                        false
-                    : false,
-                  pathStyle,
-                  colors[3]!,
-                );
+                drawCurve(ctx, evalCurve.points, pathStyle, colors[3]!);
               }
             },
           );
@@ -213,13 +202,7 @@ export function FieldRenderer(): ReactElement {
               return;
             }
             // Need to make an EvalCurveDetail from the list of control points...
-            drawCurve(
-              ctx,
-              evalCurve.points,
-              showPathHeadings ? evalCurve.interpolator || false : false,
-              pathStyle,
-              colors[4]!,
-            );
+            drawCurve(ctx, evalCurve.points, pathStyle, colors[4]!);
           }
         },
       );
@@ -289,7 +272,7 @@ export function FieldRenderer(): ReactElement {
       if (isUndefined(selectedPathOrCurveKey)) {
         return;
       }
-      const animationPath = getAnimationpath(evaluated, selectedPathOrCurveKey);
+      const animationPath = getAnimationPath(evaluated, selectedPathOrCurveKey);
       if (isUndefined(animationPath)) {
         return;
       }
@@ -368,7 +351,7 @@ export function FieldRenderer(): ReactElement {
   );
 }
 
-function getAnimationpath(
+function getAnimationPath(
   evaluated: EvalSymbols,
   pathOrCurve: string,
 ): AnimationPath | undefined {
@@ -383,7 +366,6 @@ function getAnimationpath(
   } else if (!isError(selectedPath)) {
     return {
       curves: selectedPath.curves.map((ec) => ec.points),
-      interpolatorOverride: selectedPath.globalInterpolator,
     };
   }
 }
@@ -437,7 +419,6 @@ function drawCurveLine(
 function drawCurve(
   ctx: CanvasRenderingContext2D,
   curve: EvalCurveDetail,
-  _interpolator: EvalInterpolator | false,
   pathStyle: PathStyle,
   color: string,
 ) {

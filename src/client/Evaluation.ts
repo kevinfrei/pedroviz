@@ -27,7 +27,7 @@ import {
   SymbolTable,
   ValRef,
 } from '../dataTypes';
-import { getCurveDetail } from './DrawingHelpers';
+import { addHeadingToCurveForPath, getCurveDetail } from './DrawingHelpers';
 import {
   chkEvalCurve,
   chkEvalInterpolator,
@@ -291,7 +291,6 @@ export function EvaluateSymbols(symbolTable: SymbolTable): EvalSymbols {
       return MakeError('Curve with fewer than 2 points!');
     } else {
       return {
-        interpolator,
         points: {
           ...getCurveDetail(points, interpolator),
           controlPoints: points,
@@ -302,12 +301,14 @@ export function EvaluateSymbols(symbolTable: SymbolTable): EvalSymbols {
 
   function evaluatePath(path: Path): ErrorOr<EvalPath> {
     const curves: EvalCurve[] = [];
+    let totalLength = 0;
     for (const c of path.curves) {
       const ec = evaluateCurve(c);
       if (isError(ec)) {
         return MakeError(ec, "Issue with one of a path's curves");
       }
       curves.push(ec);
+      totalLength += ec.points.length;
     }
     if (path.globalInterpolator) {
       const globalInterpolator = evaluateInterp(path.globalInterpolator);
@@ -317,7 +318,16 @@ export function EvaluateSymbols(symbolTable: SymbolTable): EvalSymbols {
           "Issue with a path's global interpolator",
         );
       }
-      return { curves, globalInterpolator };
+      let curLength = 0;
+      for (const c of curves) {
+        addHeadingToCurveForPath(
+          c.points,
+          globalInterpolator,
+          curLength / totalLength,
+          (curLength + c.points.length) / totalLength,
+        );
+        curLength += c.points.length;
+      }
     }
     return { curves };
   }

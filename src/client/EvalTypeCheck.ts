@@ -70,5 +70,4 @@ export const chkEvalInterpolator: typecheck<EvalInterpolator> = chkAnyOf(
 );
 export const chkEvalCurve = chkObjectOfExactType<EvalCurve>({
   points: chkEvalCurveDetail,
-  interpolator: chkEvalInterpolator,
 });

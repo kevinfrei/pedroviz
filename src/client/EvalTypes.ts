@@ -29,7 +29,6 @@ export type EvalInterpPiecewise = EvalInterpPiece[];
 export type EvalInterpolator = EvalInterpSimple | EvalInterpPiecewise;
 export type EvalCurve = {
   points: EvalCurveDetail;
-  interpolator: EvalInterpolator;
 };
 export type EvalPath = {
   curves: EvalCurve[];

@@ -57,9 +57,9 @@ seconds. Once the application is visible:
 
 1. Select your robot (if you have multiple TeamCode-like directories) at the
    bottom of the right side of the screen.
-2. Select the Values, Poses, Curves, Interpolations, and Paths section to see
+2. Select the Values, Poses, Interpolations, Curves, and Paths section to see
    your path descriptors.
-3. [NYI} Select a Path or Curve to see a robot follow the path.
+3. Select a Path or Curve to see a robot follow the path.
 
 ## Goals / What is this? / Why not just use the [PedroPath Visualizer](https://visualizer.pedropathing.com)?
 
@@ -108,19 +108,18 @@ FTC students...)
 
 - [ ] Get the Java JSON loader up & going!
   - [ ] Done, but untested! (Lives in my BioBuzz fork, currently)
-- [ ] Global interpolation overrides need to be added
-- [x] Save changes to the JSON file
-  - [ ] Upload the file to the robot using ADB
-  - [ ] Add a JSON version number, so that an ADB uploaded one will only
-        override an older build asset
-  - [ ] Allow a "Force new path version" thing? Dunno...
-- [x] Animate the currently selected path or curve
-  - [ ] Update the animation when the path changes
+- [ ] BUG: Update the animation when the path changes
+- [ ] Upload the file to the robot using ADB
+- [ ] Add a JSON Time Stamp, so that an ADB uploaded one will only override an
+      older build asset
+- [ ] Add 'delete uploaded file' capability
+- [ ] Prompt for code location, if it's not launched with one, or in a repo
 - [ ] Draw the interpolation arrows.
-- [ ] Allow moving entire paths by grabbing them?
 - [ ] Rename all ref's to a something when you rename the something.
+- [ ] Allow moving entire paths by grabbing them?
 - [ ] Prevent deleting items in use?
-- [ ] Add an 'undo' buffer
+- [ ] Add highlighting a selected pose
+- [ ] Add an Undo buffer
 - [ ] Highlight & display errors more obviously
 - [ ] Get test coverage up to something tolerable (I've just been disabling PPv2
       failing tests, because I'm a bad engineer)
@@ -130,20 +129,10 @@ FTC students...)
       something with the ResizeObserver for the Canvas isn't working. Works fine
       on Firefox, Chrome, and Brave on Mac, Linux, and Windows (and Edge works,
       too).
-- [ ] Document basic usage
 - [ ] Enable "warning" lines: warn if the robot crosses a line on a path
 - [ ] Make work with nodejs (`npx`) as well?
   - Kinda works, last time I checked...
-- [ ] Support additional parts of the path builder
-  - [x] multiple paths
-  - [x] path headings (global and last)
-  - [ ] max velocity (or, you know, any velocity/acceleration model for
-        animation)
-  - [ ] braking strength
-  - [ ] tValues (Not sure what this would really look like...)
-- [ ] Add a JSON _schema_ version number, for compatibility issues
-- [ ] Change the Jotai atom structure to be much more granular. The single
-      "symbol table" is a major source of re-rendering/flickering.
+- [ ] Add a JSON _schema_ version number, for future compatibility issues
 
 **Task List - done list:**
 
@@ -164,7 +153,10 @@ FTC students...)
 - [x] Migrate to use a text file, instead of java source code for everything. V3
       suggests calling a function to get the paths. Make the function get the
       paths from the JSON file!
+- [x] Save changes to the JSON file
 - [x] Allow editing points by dragging them on the canvas
+- [x] Animate the currently selected path or curve
+- [x] Global interpolation overrides need to be added
 
 ## Development
 

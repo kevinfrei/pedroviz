@@ -4,16 +4,10 @@ import { isDefined, isUndefined } from '@freik/typechk';
 
 import { BotDrawStyle, BotShapes } from './ClientTypes';
 import { rotPt } from './DrawingHelpers';
-import {
-  CurveDetail,
-  EvalCurveDetail,
-  EvalInterpolator,
-  Point,
-} from './EvalTypes';
+import { CurveDetail, EvalCurveDetail, Point } from './EvalTypes';
 
 export type AnimationPath = {
   curves: EvalCurveDetail[];
-  interpolatorOverride?: EvalInterpolator;
 };
 export type BotAnimationState = {
   name: string | undefined;
