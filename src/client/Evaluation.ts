@@ -4,6 +4,7 @@ import {
   ErrorOr,
   hasFieldOf,
   isError,
+  isNull,
   isNumber,
   isUndefined,
   MakeError,
@@ -24,6 +25,7 @@ import {
   Path,
   PoseRef,
   Ref,
+  RefOr,
   SymbolTable,
   ValRef,
 } from '../dataTypes';
@@ -606,4 +608,13 @@ export function ShallowEvaluateSymbols(
     curves,
     paths,
   };
+}
+export function notError<T>(foo: ErrorOr<T>): foo is T {
+  return !isError(foo);
+}
+export function notRef<T>(foo: RefOr<T>): foo is T {
+  return !chkRef(foo);
+}
+export function notNull<T>(val: null | T): val is T {
+  return !isNull(val);
 }

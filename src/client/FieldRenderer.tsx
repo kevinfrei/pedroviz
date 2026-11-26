@@ -4,7 +4,6 @@ import {
   PointerEvent,
   ReactElement,
   useCallback,
-  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -26,14 +25,15 @@ import {
   EvalPose,
   EvalSymbols,
   MovablePoint,
-  ShallowCurve,
   ShallowCurveRef,
-  ShallowEvalSymbols,
   ShallowPath,
-  ShallowPoseRef,
 } from './EvalTypes';
-import { EvaluateSymbols, ShallowEvaluateSymbols } from './Evaluation';
 import { SetMovablePoint } from './PointUpdating';
+import {
+  evaluatedSymbolsAtom,
+  movablePointsAtom,
+  shallowSymbolsAtom,
+} from './state/Rendering';
 import {
   BotDrawStyleAtom,
   CoordVizPercentAtom,
@@ -77,33 +77,6 @@ function scaleCanvas(ctx: CanvasRenderingContext2D): number {
   return scale;
 }
 
-// A helper function to add all in-place points to the
-// movablePoints array for pointer hit detection
-function registerMovablePoint(
-  ptRef: ShallowPoseRef,
-  shallow: ShallowEvalSymbols,
-  movablePoints: MovablePoint[],
-): number {
-  // Don't register refs: The referenced point will be registered
-  // when poses are processed
-  if (!chkRef(ptRef)) {
-    // The x and y values are either ValueLocators (used directly in the movable points)
-    // or they are references to Values, which we also need to register here
-    const x = shallow.getValue(ptRef.x);
-    const y = shallow.getValue(ptRef.y);
-    if (isError(x)) {
-      console.error('Error in point value', x.errors().join(';'));
-      return 1;
-    }
-    if (isError(y)) {
-      console.error('Error in point value', y.errors().join(';'));
-      return 1;
-    }
-    movablePoints.push({ x, y });
-  }
-  return 0;
-}
-
 export function FieldRenderer(): ReactElement {
   const theme = useAtomValue(ThemeAtom);
   const coordViz = useAtomValue(CoordVizPercentAtom);
@@ -118,10 +91,10 @@ export function FieldRenderer(): ReactElement {
   const [symbolTable, setSymbolTable] = useAtom(symbolTableAtom);
   const selectedPathOrCurveKey = useAtomValue(lastSelectedCurveOrPathAtom);
 
-  const evaluated = EvaluateSymbols(symbolTable);
-  const shallow = ShallowEvaluateSymbols(symbolTable);
+  const evaluated = useAtomValue(evaluatedSymbolsAtom);
+  const shallow = useAtomValue(shallowSymbolsAtom);
 
-  let movablePoints: MovablePoint[] = useMemo(() => [], []);
+  const movablePoints = useAtomValue(movablePointsAtom);
   const [hovering, setHovering] = useState<MovablePoint | null>(null);
   const [moving, setMoving] = useState<MovablePoint | null>(null);
 
@@ -132,8 +105,6 @@ export function FieldRenderer(): ReactElement {
       ctx.globalAlpha = coordViz;
       drawLegend(ctx, 1, scale, theme);
       ctx.globalAlpha = 1.0;
-      let errors = 0;
-      movablePoints = [];
 
       // First, render any in-place curves for paths:
       shallow.paths.forEach(
@@ -148,32 +119,25 @@ export function FieldRenderer(): ReactElement {
                 // Don't draw refs: The referenced curve will be drawn in the loop below
                 return;
               }
-              const curve: ShallowCurve = curveRef;
               // Register all in-place control points, so that we can draw (& move!) them later
-              errors = 0;
-              for (const pt of curve.points) {
-                errors += registerMovablePoint(pt, shallow, movablePoints);
-              }
               // Draw the curve if we didn't have any errors in the points
-              if (errors === 0) {
-                const evalPath = evaluated.paths.get(pathKey);
-                if (isUndefined(evalPath) || isError(evalPath)) {
-                  console.error('Error in evaluated path for', pathKey);
-                  return;
-                }
-                const evalCurve = evalPath.curves[curveIndex];
-                if (isUndefined(evalCurve) || isError(evalCurve)) {
-                  console.error(
-                    'Error in evaluated curve',
-                    curveIndex,
-                    ', for path',
-                    pathKey,
-                  );
-                  return;
-                }
-                // Need to make an EvalCurveDetail from the list of control points...
-                drawCurve(ctx, evalCurve.points, pathStyle, colors[3]!);
+              const evalPath = evaluated.paths.get(pathKey);
+              if (isUndefined(evalPath) || isError(evalPath)) {
+                console.error('Error in evaluated path for', pathKey);
+                return;
               }
+              const evalCurve = evalPath.curves[curveIndex];
+              if (isUndefined(evalCurve) || isError(evalCurve)) {
+                console.error(
+                  'Error in evaluated curve',
+                  curveIndex,
+                  ', for path',
+                  pathKey,
+                );
+                return;
+              }
+              // Need to make an EvalCurveDetail from the list of control points...
+              drawCurve(ctx, evalCurve.points, pathStyle, colors[3]!);
             },
           );
         },
@@ -188,43 +152,15 @@ export function FieldRenderer(): ReactElement {
             // Don't draw refs: The referenced curve will be drawn by it's referenced definition
             return;
           }
-          const curve: ShallowCurve = curveDescriptor;
-          errors = 0;
-          // Register all "in-place" control points, so that we can draw (& move!) them later
-          for (const pt of curve.points) {
-            errors += registerMovablePoint(pt, shallow, movablePoints);
+          const evalCurve = evaluated.curves.get(curveKey);
+          if (isUndefined(evalCurve) || isError(evalCurve)) {
+            console.error('Error in evaluated curve for', curveKey);
+            return;
           }
-          // Draw the curve if we didn't have any errors in the points
-          if (errors === 0) {
-            const evalCurve = evaluated.curves.get(curveKey);
-            if (isUndefined(evalCurve) || isError(evalCurve)) {
-              console.error('Error in evaluated curve for', curveKey);
-              return;
-            }
-            // Need to make an EvalCurveDetail from the list of control points...
-            drawCurve(ctx, evalCurve.points, pathStyle, colors[4]!);
-          }
+          // Need to make an EvalCurveDetail from the list of control points...
+          drawCurve(ctx, evalCurve.points, pathStyle, colors[4]!);
         },
       );
-      shallow.poses.forEach((espr) => {
-        if (isError(espr) || chkRef(espr)) {
-          console.error('Skipping pose error/ref', espr);
-          return;
-        }
-        const x = shallow.getValue(espr.x);
-        const y = shallow.getValue(espr.y);
-        if (isError(x)) {
-          console.error('Error in point value', x.errors().join(';'));
-          errors++;
-          return;
-        }
-        if (isError(y)) {
-          console.error('Error in point value', y.errors().join(';'));
-          errors++;
-          return;
-        }
-        movablePoints.push({ x, y });
-      });
       // TODO: Draw the selected curve differently?
 
       // Draw all the named points, as well
