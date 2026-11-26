@@ -110,12 +110,12 @@ FTC students...)
 - [ ] Create the PedroViz.java JSON loader in the robot source code (because
       this would be "cleaner" than deploying a maven library in Gradle, right?
       Right?)
-- [ ] Implement the 'upload the file to the robot using ADB' capability
-- [ ] Implement the 'delete uploaded file' capability
+- [ ] Add an Undo buffer
+- [ ] Add a "recover my pedropaths.json file from the robot directly"
+      bacon-saving feature?
 - [ ] Prompt for code location, if it's not launched with one, or in a repo
 - [ ] Draw the interpolation arrows.
 - [ ] Add highlighting for the selected pose, curve, and path
-- [ ] Add an Undo buffer
 - [ ] Rename all ref's to a something when you rename the something.
 - [ ] Allow moving entire paths by grabbing them?
 - [ ] Prevent deleting items in use?
@@ -160,6 +160,8 @@ FTC students...)
       older build asset
 - [x] BUG: Update the animation when the path changes
 - [x] Add a JSON _schema_ version number, for future compatibility issues
+- [x] Implement the 'upload the file to the robot using ADB' capability
+- [x] Implement the 'delete uploaded file' capability
 
 ## Development
 

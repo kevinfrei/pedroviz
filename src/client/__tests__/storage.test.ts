@@ -70,6 +70,6 @@ describe('Storage validation', () => {
     const val = { a: 'b' };
     put_value['body'] = JSON.stringify(val);
     const res5 = await putApi('put', val);
-    expect(res5).toBeUndefined();
+    expect(res5).toEqual('OK');
   });
 });

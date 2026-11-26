@@ -66,11 +66,11 @@ const asyncSelectedTeamAtom = atom(
 );
 export const SelectedTeamAtom = unwrap(asyncSelectedTeamAtom, (prev) => prev);
 
-const pathsFileBackingFamily = atomFamily((_team: Team) =>
+const pathsFileBackingFamily = atomFamily((_team: Team | undefined) =>
   atom<PathsFile | null>(null),
 );
 
-export const pathsFileFamily = atomFamily((team: Team) =>
+export const pathsFileFamily = atomFamily((team: Team | undefined) =>
   unwrap(
     atomWithRefresh(
       async (get) => {
@@ -78,7 +78,7 @@ export const pathsFileFamily = atomFamily((team: Team) =>
         if (backer !== null) {
           return backer;
         }
-        const pathsFile = await GetPaths(team);
+        const pathsFile = await GetPaths(team || '');
         // console.log('pathsFileFamily getter IPC', team);
         return pathsFile;
       },

@@ -22,7 +22,7 @@ public class PedroViz {
     public static final String ExternalFileName = "paths/pedropaths.json";
     public static final String AssetFileName = "paths/pedropaths.json";
     public static String status = "";
-    public static String selected = "";
+    private static String selected = "";
     private static PedroItems items;
 
     private final Context context;
@@ -41,7 +41,6 @@ public class PedroViz {
     private InputStream getAdbStream() {
         try {
             File adbFile = new File(context.getExternalFilesDir(null), ExternalFileName);
-            // other = adbFile.getAbsolutePath();
             //noinspection IOStreamConstructor
             return adbFile.exists() ? new FileInputStream(adbFile) : null;
         } catch (IOException ignored) {}
@@ -78,12 +77,16 @@ public class PedroViz {
             selected = "empty";
             return null;
         }
-        if (asset == null || adb.timeStamp > asset.timeStamp) {
+        if (asset == null) {
             selected = "adb";
             return adb;
         }
-        selected = "asset";
-        return asset;
+        if (adb == null || adb.timeStamp < asset.timeStamp) {
+            selected = "asset";
+            return asset;
+        }
+        selected = "adb";
+        return adb;
     }
 
     // TODO: add loading from the 'upload only the paths' path, too...
@@ -117,14 +120,20 @@ public class PedroViz {
         return true;
     }
 
-    private PedroViz(HardwareMap map) {
-        context = map.appContext;
+    private PedroViz(Context ctxt) {
+        context = ctxt;
         loaded = loadPathFromJson();
     }
 
-    public static boolean LoadJSON(HardwareMap map) {
-        PedroViz loader = new PedroViz(map);
-        return loader.loaded;
+    /**
+     * Load the asset or adb json file.
+     * @param map The HardwareMap for the robot
+     * @return null for error, 'asset' or 'adb' for success
+     */
+    @Nullable
+    public static String LoadJSON(HardwareMap map) {
+        PedroViz loader = new PedroViz(map.appContext);
+        return loader.loaded ? selected : null;
     }
 
     /**

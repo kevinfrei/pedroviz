@@ -4,7 +4,7 @@ import { isBoolean, isString, MakeError } from '@freik/typechk';
 
 import { Curve, Path, Pose } from '../../dataTypes';
 import { chkPathsFile, chkTeamList, PathsFile, Team } from '../../ipcTypes';
-import { fetchApi, putApi } from './Storage';
+import { fetchApi, postApi, putApi } from './Storage';
 
 // Some of the logic seems a little odd, because I want the validation to fully
 // run on everything so I'm avoiding any logical short-circuiting...
@@ -36,10 +36,18 @@ export async function GetPaths(team: Team): Promise<PathsFile> {
   return await fetchApi(
     `get/${team}`,
     chkPathsFile,
-    MakeError(`get/${team} server respons error`),
+    MakeError(`get/${team} server response error`),
   );
 }
 
-export async function PutPaths(team: Team, db: PathsFile): Promise<void> {
+export async function PutPaths(team: Team, db: PathsFile): Promise<string> {
   return putApi(`put/${team}`, db);
+}
+
+export async function AdbPaths(db: PathsFile): Promise<string> {
+  return putApi('adb', db);
+}
+
+export async function KillAdb(): Promise<string> {
+  return postApi('trash');
 }

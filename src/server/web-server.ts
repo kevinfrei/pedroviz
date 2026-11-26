@@ -14,6 +14,7 @@ import {
   GetTeams,
   GetValidTeams,
   HasFieldImage,
+  KillAssetPathFile,
   LoadPaths,
   SavePaths,
   UploadPaths,
@@ -38,12 +39,11 @@ app.get('/api/extimage', async () => HasFieldImage());
 app.get('/api/teams', async () => GetTeams());
 app.get('/api/valid', async () => GetValidTeams());
 app.get('/api/get/:team', async (c) => LoadPaths(c.req.param('team')));
-app.get('/api/adb/:team', async (c) =>
-  UploadPaths(c.req.param('team'), await c.req.json<object>()),
-);
 app.put('/api/put/:team', async (c) =>
   SavePaths(c.req.param('team'), await c.req.json<object>()),
 );
+app.put('/api/adb', async (c) => UploadPaths(await c.req.json<object>()));
+app.get('/api/trash', async () => KillAssetPathFile());
 app.get(
   '/',
   serveStatic({

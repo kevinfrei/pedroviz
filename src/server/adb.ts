@@ -9,9 +9,7 @@ const isWin = () => process.platform === 'win32';
 const isMac = () => process.platform === 'darwin';
 const adbName = () => (isWin() ? 'adb.exe' : 'adb');
 
-export async function resolveAdbExecutable(
-  configuredPath?: string,
-): Promise<string> {
+async function resolveAdbExecutable(configuredPath?: string): Promise<string> {
   const candidates: string[] =
     configuredPath && configuredPath.trim().length ? [configuredPath] : [];
   const home = os.homedir();
@@ -63,8 +61,8 @@ async function readStream(
   }
 }
 
-export async function runAdb(
-  args: string[],
+async function runAdb(
+  ...args: string[]
 ): Promise<{ code: number; stdout: string; stderr: string }> {
   const child = spawn(await adbPath(), args, {
     stdio: ['ignore', 'pipe', 'pipe'],
@@ -96,19 +94,51 @@ export async function runAdb(
   return { code, stdout, stderr };
 }
 
-/*
-// Examples for uploading and removing a file on the robot:
-const remotePath = "/sdcard/Android/data/com.qualcomm.ftcrobotcontroller/files/paths/my_path.json";
+async function withJsonTempFile<T>(
+  prefix: string,
+  fileName: string,
+  data: unknown,
+  fn: (tempFilePath: string) => Promise<T>,
+): Promise<T> {
+  // Create the temp directory
+  const tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), prefix));
+  // Make the temporary file
+  const tempFilePath = path.join(tempDir, fileName);
 
-// Upload
-const pushResult = await runAdb(["push", "./pedropaths.json", remotePath]);
-if (pushResult.code !== 0) {
-  throw new Error(`adb push failed (${pushResult.code}): ${pushResult.stderr}`);
+  try {
+    await fsp.writeFile(tempFilePath, JSON.stringify(data, null, 2), 'utf8');
+    return await fn(tempFilePath);
+  } finally {
+    // Always remove the temp file & directory, even if adb push fails
+    await fsp.rm(tempDir, { recursive: true, force: true });
+  }
 }
 
-// Remove
-const rmResult = await runAdb(["shell", "rm", "-f", remotePath]);
-if (rmResult.code !== 0) {
-  throw new Error(`adb shell rm failed (${rmResult.code}): ${rmResult.stderr}`);
+const remotePath =
+  '/sdcard/Android/data/com.qualcomm.ftcrobotcontroller/files/paths/pedropaths.json';
+
+export async function pushFile(json: object): Promise<string> {
+  // Write the file contents to disk, then upload them:
+  return withJsonTempFile(
+    'pedviz-temp-',
+    'pedropaths.json',
+    json,
+    async (localPath: string) => {
+      // Upload
+      const pushResult = await runAdb('push', localPath, remotePath);
+      // output: Could validate the stdout result using a regexp, but then ADB
+      // changes maek the code fragile :/
+      // "<file>: 1 file pushed, 0 skipped. 3.4 MB/s (1874 bytes in 0.000s)"
+      return pushResult.code !== 0
+        ? `adb push failed (${pushResult.code}): ${pushResult.stderr}`
+        : 'success';
+    },
+  );
 }
-*/
+
+export async function trashFile(): Promise<string> {
+  const rmResult = await runAdb('shell', 'rm', '-f', remotePath);
+  return rmResult.code !== 0
+    ? `adb shell rm failed (${rmResult.code}): ${rmResult.stderr}`
+    : 'success';
+}

@@ -7,6 +7,7 @@ import { isDefined, Pickle } from '@freik/typechk';
 
 import { chkNamedValues } from '../dataTypes';
 import { PathsFile, Team, TeamList } from '../ipcTypes';
+import { pushFile, trashFile } from './adb';
 import {
   CheckForFieldImages,
   GetFieldImagePath,
@@ -89,6 +90,25 @@ export async function SavePaths(team: Team, json: object): Promise<Response> {
   return Response.json({ okay: true });
 }
 
-export async function UploadPaths(team: Team, json: object): Promise<Response> {
-  return Response.json({ error: `NYI! ${team}: ${JSON.stringify(json)}` });
+export async function UploadPaths(json: object): Promise<Response> {
+  if (!chkNamedValues(json)) {
+    console.error('Invalid JSON file', json);
+    return Response.json({ error: 'Invalid JSON file' });
+  }
+  // Stick a timestamp on, so that the Java loader can pick the 'newest' file
+  json.timeStamp = Date.now();
+  json.schema = 0;
+  const res = await pushFile(json);
+  if (res === 'success') {
+    return Response.json({});
+  }
+  return Response.json({ error: res });
+}
+
+export async function KillAssetPathFile(): Promise<Response> {
+  const res = await trashFile();
+  if (res === 'success') {
+    return Response.json({});
+  }
+  return Response.json({ error: res });
 }

@@ -52,7 +52,16 @@ export async function fetchApi<T>(
   return def;
 }
 
-export async function putApi(key: string, value: unknown): Promise<void> {
+export async function postApi(key: string): Promise<string> {
+  const post = await fetch('/api/' + key);
+  if (post.ok) {
+    return await post.text();
+  } else {
+    return `post didn't return okay: ${post}`;
+  }
+}
+
+export async function putApi(key: string, value: unknown): Promise<string> {
   const body = Pickle(value);
   console.log('putting', key, 'value', body);
   const put = await fetch('/api/' + key, {
@@ -61,8 +70,8 @@ export async function putApi(key: string, value: unknown): Promise<void> {
     body,
   });
   if (put.ok) {
-    console.log(await put.text());
+    return await put.text();
   } else {
-    console.error("PUT didn't return okay", put);
+    return `PUT "${key}" didn't return okay: ${put.status}`;
   }
 }

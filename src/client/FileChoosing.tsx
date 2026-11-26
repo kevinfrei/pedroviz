@@ -7,7 +7,7 @@ import { Button } from '@fluentui/react-components';
 import { BotAddFilled, DeleteFilled, SaveFilled } from '@fluentui/react-icons';
 
 import { Strings } from './Constants';
-import { PutPaths } from './state/API';
+import { AdbPaths, KillAdb, PutPaths } from './state/API';
 import { pathsFileFamily, SelectedTeamAtom, TeamsAtom } from './state/UserCode';
 import { AutoSelector } from './ui-tools/AutoSelector';
 
@@ -38,8 +38,11 @@ export function SaveButton(): ReactElement {
     <Button
       appearance="primary"
       icon={<SaveFilled />}
+      disabled={!team}
       onClick={() => {
-        if (get && team) PutPaths(team, get).then(() => refresher());
+        if (get && team) {
+          PutPaths(team, get).then(() => refresher());
+        }
       }}>
       {Strings.save_json}
     </Button>
@@ -47,15 +50,17 @@ export function SaveButton(): ReactElement {
 }
 
 export function UploadToRobot(): ReactElement {
+  const team = useAtomValue(SelectedTeamAtom);
+  const pf = useAtomValue(pathsFileFamily(team!));
   return (
     <Button
       appearance="primary"
       icon={<BotAddFilled />}
-      onClick={() =>
-        window.alert(
-          'Not yet implemented. For now, you have to save and then deploy.',
-        )
-      }>
+      onClick={() => {
+        if (pf && team) {
+          AdbPaths(pf).then((resp) => window.alert(resp.toString()));
+        }
+      }}>
       {Strings.upload_to_bot}
     </Button>
   );
@@ -66,7 +71,7 @@ export function RemoveUpload(): ReactElement {
     <Button
       appearance="primary"
       icon={<DeleteFilled />}
-      onClick={() => window.alert('Not yet implemented.')}>
+      onClick={() => KillAdb().then((resp) => window.alert(resp.toString()))}>
       {Strings.delete_upload}
     </Button>
   );
