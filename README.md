@@ -131,7 +131,6 @@ FTC students...)
 - [ ] Enable "warning" lines: warn if the robot crosses a line on a path
 - [ ] Make work with nodejs (`npx`) as well?
   - Kinda works, last time I checked...
-- [ ] Add a JSON _schema_ version number, for future compatibility issues
 
 **Task List - done list:**
 
@@ -160,6 +159,7 @@ FTC students...)
 - [x] Add a JSON Time Stamp, so that an ADB uploaded one will only override an
       older build asset
 - [x] BUG: Update the animation when the path changes
+- [x] Add a JSON _schema_ version number, for future compatibility issues
 
 ## Development
 

@@ -72,6 +72,7 @@ export type InterpNames = (typeof _InterpNamesArray)[number];
 
 export type NamedValues = {
   timeStamp?: number;
+  schema?: number;
   values: Record<string, ValRef>;
   poses: Record<string, PoseRef>;
   interpolations: Record<string, InterpRef>;
@@ -177,7 +178,7 @@ export const chkNamedValues = chkObjectOfExactType<NamedValues>(
     interpolations: chkRecordOf(isString, chkInterpRef),
     paths: chkRecordOf(isString, chkPath),
   },
-  { timeStamp: isNumber },
+  { timeStamp: isNumber, schema: isNumber },
 );
 
 export function mkRef(ref: string): Ref {

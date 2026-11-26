@@ -83,6 +83,7 @@ export async function SavePaths(team: Team, json: object): Promise<Response> {
   }
   // Stick a timestamp on, so that the Java loader can pick the 'newest' file
   json.timeStamp = Date.now();
+  json.schema = 0;
   await fsp.writeFile(jsonPath, JSON.stringify(json, undefined, 2), 'utf8');
   // console.error('File written!');
   return Response.json({ okay: true });
