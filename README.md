@@ -106,12 +106,11 @@ FTC students...)
 
 **Task TODO list, in some sort of order:**
 
-- [ ] Get the Java JSON loader up & going!
-  - [ ] Done, but untested! (Lives in my BioBuzz fork, currently)
+- [ ] Test paths on a robot!
 - [ ] BUG: Update the animation when the path changes
+- [ ] Create the PedroViz.java JSON loader in the robot source code (because
+      this would be "cleaner" than a library in Gradle, right? Right?)
 - [ ] Upload the file to the robot using ADB
-- [ ] Add a JSON Time Stamp, so that an ADB uploaded one will only override an
-      older build asset
 - [ ] Add 'delete uploaded file' capability
 - [ ] Prompt for code location, if it's not launched with one, or in a repo
 - [ ] Draw the interpolation arrows.
@@ -157,6 +156,9 @@ FTC students...)
 - [x] Allow editing points by dragging them on the canvas
 - [x] Animate the currently selected path or curve
 - [x] Global interpolation overrides need to be added
+- [x] Get the Java JSON loader up & going!
+- [x] Add a JSON Time Stamp, so that an ADB uploaded one will only override an
+      older build asset
 
 ## Development
 

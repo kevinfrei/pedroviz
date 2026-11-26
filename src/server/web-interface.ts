@@ -71,18 +71,23 @@ export async function LoadPaths(team: Team): Promise<Response> {
 }
 
 export async function SavePaths(team: Team, json: object): Promise<Response> {
-  console.error('Save request for team', team);
+  // console.error('Save request for team', team);
   if (!chkNamedValues(json)) {
-    console.error('Wrong type :/', json);
-  } else {
-    // TODO: Actually save this
-    const jsonPath = await GetJsonPathForTeam(team);
-    const dir = path.dirname(jsonPath);
-    if (!(await isDirectory(dir))) {
-      fsp.mkdir(dir, { recursive: true });
-    }
-    await fsp.writeFile(jsonPath, JSON.stringify(json, undefined, 2), 'utf8');
-    console.error('File written!');
+    console.error('Invalid JSON file', json);
+    return Response.json({ error: 'Invalid JSON file' });
   }
-  return Response.json({ error: 'NYI' });
+  const jsonPath = await GetJsonPathForTeam(team);
+  const dir = path.dirname(jsonPath);
+  if (!(await isDirectory(dir))) {
+    fsp.mkdir(dir, { recursive: true });
+  }
+  // Stick a timestamp on, so that the Java loader can pick the 'newest' file
+  json.timeStamp = Date.now();
+  await fsp.writeFile(jsonPath, JSON.stringify(json, undefined, 2), 'utf8');
+  // console.error('File written!');
+  return Response.json({ okay: true });
+}
+
+export async function UploadPaths(team: Team, json: object): Promise<Response> {
+  return Response.json({ error: `NYI! ${team}: ${JSON.stringify(json)}` });
 }

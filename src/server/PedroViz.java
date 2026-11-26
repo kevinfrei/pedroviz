@@ -2,9 +2,7 @@ package org.firstinspires.ftc.teamcode.jsonloader;
 
 import android.content.Context;
 import android.content.res.AssetManager;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.bylazar.configurables.annotations.Configurable;
+import androidx.annotation.*;
 import com.google.gson.*;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.reflect.TypeToken;
@@ -12,47 +10,46 @@ import com.google.gson.stream.*;
 import com.pedropathing.api.Paths;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
-import com.pedropathing.paths.interpolator.Interpolator;
-import com.pedropathing.paths.interpolator.PiecewiseInterpolator;
+import com.pedropathing.paths.interpolator.*;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import java.io.*;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.*;
+import java.util.stream.*;
 
-@Configurable
-public class PedroJsonLoader {
+public class PedroViz {
+
+    public static final String ExternalFileName = "paths/pedropaths.json";
+    public static final String AssetFileName = "paths/pedropaths.json";
+    public static String status = "";
+    public static String selected = "";
+    private static PedroItems items;
+
+    private final Context context;
+    public final boolean loaded;
 
     static <T> int getSz(Map<String, T> m) {
         return m == null ? -1 : m.size();
     }
 
+    @NonNull
     static String sfmt(String format, Object... args) {
         return String.format(Locale.ENGLISH, format, args);
     }
 
-    public static String ExternalFileName = "paths/pedropaths.json";
-    public static String AssetFileName = "paths/pedropaths.json";
-    public static String status = "";
-    public static String other = "other";
-    static NamedItems dto;
-    public static PedroItems items;
-
-    public HardwareMap hardwareMap;
-    public boolean loaded;
-
     @Nullable
-    private InputStream getAdbDeployedFileStream(Context context) {
+    private InputStream getAdbStream() {
         try {
             File adbFile = new File(context.getExternalFilesDir(null), ExternalFileName);
-            other = adbFile.getAbsolutePath();
+            // other = adbFile.getAbsolutePath();
+            //noinspection IOStreamConstructor
             return adbFile.exists() ? new FileInputStream(adbFile) : null;
         } catch (IOException ignored) {}
         return null;
     }
 
     @Nullable
-    private InputStream getAssetFileStream(Context context) {
+    private InputStream getAssetStream() {
         AssetManager assetManager = context.getAssets();
         try {
             return assetManager.open(AssetFileName);
@@ -60,37 +57,51 @@ public class PedroJsonLoader {
         return null;
     }
 
-    @Nullable
-    private InputStream getJsonFileStream() {
-        Context context = hardwareMap.appContext;
-        InputStream adbStream = getAdbDeployedFileStream(context);
-        if (adbStream != null) {
-            return adbStream;
-        }
-        InputStream assetStream = getAssetFileStream(context);
-        if (assetStream != null) {
-            return assetStream;
-        }
-        status = "Never found any files";
-        return null;
-    }
-
-    // TODO: add loading from the 'upload only the paths' path, too...
-    public boolean loadPathFromJson() {
-        InputStream inputStream = getJsonFileStream();
+    private NamedItems loadJson(@Nullable InputStream inputStream) {
         if (inputStream == null) {
-            return false;
+            return null;
         }
         try (Reader reader = new InputStreamReader(inputStream)) {
             Gson gson = new Gson();
-            dto = gson.fromJson(reader, NamedItems.class);
-            if (dto == null) {
-                status = "DTO JSON loading failed";
-                return false;
-            }
-            items = new PedroItems(dto);
-            StringBuilder sb = new StringBuilder();
-            sb.append(
+            return gson.fromJson(reader, NamedItems.class);
+        } catch (Exception e) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            status += sw.toString();
+            return null;
+        }
+    }
+
+    private NamedItems selectedLatest(@Nullable NamedItems adb, @Nullable NamedItems asset) {
+        if (adb == null && asset == null) {
+            selected = "empty";
+            return null;
+        }
+        if (asset == null || adb.timeStamp > asset.timeStamp) {
+            selected = "adb";
+            return adb;
+        }
+        selected = "asset";
+        return asset;
+    }
+
+    // TODO: add loading from the 'upload only the paths' path, too...
+    private boolean loadPathFromJson() {
+        InputStream adb = getAdbStream();
+        InputStream asset = getAssetStream();
+        if (adb == null && asset == null) {
+            status = "No pedropath.json file found";
+            return false;
+        }
+        NamedItems latest = selectedLatest(loadJson(adb), loadJson(asset));
+        if (latest == null) {
+            status = "Invalid pedropath.json file(s)";
+            return false;
+        }
+        items = new PedroItems(latest);
+        status = Stream.concat(
+            Stream.of(
                 sfmt(
                     "vals:%d poses:%d interps:%d curves:%d paths:%d errs:%d",
                     getSz(items.values),
@@ -100,41 +111,61 @@ public class PedroJsonLoader {
                     getSz(items.paths),
                     items.errors.size()
                 )
-            );
-            for (String s : items.errors) {
-                sb.append(sfmt("%nErr: %s", s.trim()));
-            }
-            status = sb.toString();
-            return true;
-        } catch (Exception e) {
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            e.printStackTrace(pw);
-            status += sw.toString();
-            return false;
-        }
+            ),
+            items.errors.stream().map(s -> sfmt("Error: %s", s.trim()))
+        ).collect(Collectors.joining("\n"));
+        return true;
     }
 
-    public PedroJsonLoader(HardwareMap map) {
-        this.hardwareMap = map;
-        this.loaded = loadPathFromJson();
+    private PedroViz(HardwareMap map) {
+        context = map.appContext;
+        loaded = loadPathFromJson();
     }
 
+    public static boolean LoadJSON(HardwareMap map) {
+        PedroViz loader = new PedroViz(map);
+        return loader.loaded;
+    }
+
+    /**
+     * Get a path by case-sensitive name that was specified in the JSON file
+     *
+     * @param name The name of the path
+     * @return null if not found, otherwise, the PedroPath.
+     */
     @Nullable
     public static Path getPath(String name) {
         return items != null && items.paths != null ? items.paths.get(name) : null;
     }
 
+    /**
+     * Get a curve or line by case-sensitive name that was specified in the JSON file
+     *
+     * @param name The name of the curve or line
+     * @return null if not found, otherwise, the PedroPath curve or line.
+     */
     @Nullable
     public static Path getCurve(String name) {
         return items != null && items.curves != null ? items.curves.get(name) : null;
     }
 
+    /**
+     * Get a pose by case-sensitive name that was specified in the JSON file
+     *
+     * @param name The name of the pose
+     * @return null if not found, otherwise, the PedroPath Pose. All headings are in Radians.
+     */
     @Nullable
     public static Pose getPose(String name) {
         return items != null && items.poses != null ? items.poses.get(name) : null;
     }
 
+    /**
+     * Get a numeric value by case-sensitive name that was specified in the JSON file
+     *
+     * @param name The name of the value
+     * @return null if not found, otherwise, the value.
+     */
     @Nullable
     public static Double getValue(String name) {
         return items != null && items.values != null ? items.values.get(name) : null;
@@ -142,6 +173,7 @@ public class PedroJsonLoader {
 
     static class NamedItems {
 
+        public double timeStamp;
         public Map<String, RValue<DTOValue>> values;
         public Map<String, RValue<DTOPose>> poses;
         public Map<String, RValue<DTOInterpolator>> interpolations;
@@ -149,6 +181,7 @@ public class PedroJsonLoader {
         public Map<String, DTOPath> paths;
     }
 
+    // Because sometimes a full class hierarchy is overkill...
     static class InterpDescr {
 
         static class Piece {
@@ -201,7 +234,7 @@ public class PedroJsonLoader {
         }
     }
 
-    public static class PedroItems {
+    static class PedroItems {
 
         Map<String, Double> values;
         Map<String, Pose> poses;
@@ -233,20 +266,16 @@ public class PedroJsonLoader {
                 res.put(name, value);
                 List<String> toAssign = pending.get(name);
                 if (toAssign != null) {
-                    for (String n : toAssign) {
-                        resolve.push(n);
-                    }
+                    toAssign.forEach(resolve::push);
                     pending.remove(name);
                 }
             } while (!resolve.empty());
         }
 
         Double getValue(@NonNull RValue<DTOValue> valRef) {
-            if (valRef.isRef()) {
-                return values.get(valRef.getRef());
-            } else {
-                return valRef.getItem().val;
-            }
+            return valRef.isRef()
+                ? values.get(valRef.getRef())
+                : Double.valueOf(valRef.getItem().val);
         }
 
         void EvalValues(@NonNull NamedItems dto) {
@@ -277,7 +306,7 @@ public class PedroJsonLoader {
                 return null;
             }
             if (heading.isRef()) {
-                // It's a poseref;
+                // It's a PoseRef;
                 RValue<DTOPose> poseRef = new RValue<>();
                 poseRef.ref = heading.getRef();
                 Pose p = getPose(poseRef);
@@ -318,12 +347,8 @@ public class PedroJsonLoader {
                 RValue<DTOPose> poseRef = rval.getValue();
                 Pose evaluated = getPose(poseRef);
                 if (evaluated != null) {
-                    // We've got the full value.
-                    // Take care of it, and any transitive definitions.
                     TransitiveAssignment(poses, pending, name, evaluated);
                 } else {
-                    // We haven't seen this value yet:
-                    // Add the name to the pending list for the ref, and keep going
                     pending.computeIfAbsent(poseRef.getRef(), k -> new ArrayList<>()).add(name);
                 }
             }
@@ -342,8 +367,8 @@ public class PedroJsonLoader {
                     return new InterpDescr(((DTOTangent) value).reversed);
                 } else if (value instanceof DTOLinear) {
                     DTOLinear dto = (DTOLinear) value;
-                    Double startHeading = getHeading(dto.startHeading);
-                    Double endHeading = getHeading(dto.endHeading);
+                    Double startHeading = getHeading(dto.start);
+                    Double endHeading = getHeading(dto.end);
                     if (startHeading != null && endHeading != null) {
                         return new InterpDescr(startHeading, endHeading, dto.longWay);
                     } else {
@@ -383,28 +408,22 @@ public class PedroJsonLoader {
                 RValue<DTOInterpolator> interpRef = rval.getValue();
                 InterpDescr evaluated = getInterpolator(interpRef);
                 if (evaluated != null) {
-                    // We've got the full value.
-                    // Take care of it, and any transitive definitions.
                     TransitiveAssignment(interpolations, pending, name, evaluated);
                 } else {
-                    // We haven't seen this value yet:
-                    // Add the name to the pending list for the ref, and keep going
                     pending.computeIfAbsent(interpRef.ref, k -> new ArrayList<>()).add(name);
                 }
             }
             if (!pending.isEmpty()) {
                 errors.add(sfmt("Errors evaluating interpolators: %d", pending.size()));
-                for (Map.Entry<String, List<String>> item : pending.entrySet()) {
-                    StringBuilder sb = new StringBuilder();
-                    sb.append(item.getKey());
-                    sb.append(':');
-                    for (String dep : item.getValue()) {
-                        sb.append(dep);
-                        sb.append(',');
-                    }
-                    sb.append('\n');
-                    errors.add(sb.toString());
-                }
+                errors.add(
+                    pending
+                        .entrySet()
+                        .stream()
+                        .map(item ->
+                            sfmt("%s: %s", item.getKey(), String.join(", ", item.getValue()))
+                        )
+                        .collect(Collectors.joining("\n"))
+                );
             }
         }
 
@@ -416,12 +435,8 @@ public class PedroJsonLoader {
                 RValue<DTOCurve> curveRef = rval.getValue();
                 Path evaluated = getCurve(curveRef);
                 if (evaluated != null) {
-                    // We've got the full value.
-                    // Take care of it, and any transitive definitions.
                     TransitiveAssignment(curves, pending, name, evaluated);
                 } else {
-                    // We haven't seen this value yet:
-                    // Add the name to the pending list for the ref, and keep going
                     pending.computeIfAbsent(curveRef.ref, k -> new ArrayList<>()).add(name);
                 }
             }
@@ -469,15 +484,11 @@ public class PedroJsonLoader {
                 return curves.get(curveRef.getRef());
             } else {
                 DTOCurve dtoCurve = curveRef.getItem();
-                Pose[] poses = new Pose[dtoCurve.points.size()];
-                int i = 0;
-                for (RValue<DTOPose> pose : dtoCurve.points) {
-                    Pose p = getPose(pose);
-                    if (p == null) {
-                        return null;
-                    }
-                    poses[i++] = p;
-                }
+                Pose[] poses = dtoCurve.points
+                    .stream()
+                    .map(this::getPose)
+                    .filter(Objects::nonNull)
+                    .toArray(Pose[]::new);
                 Path p;
                 if (poses.length == 2) {
                     p = Paths.line(poses[0], poses[1]);
@@ -490,7 +501,7 @@ public class PedroJsonLoader {
                 return applyInterpolator(
                     p,
                     dtoCurve.interpolation,
-                    "Failed to evaluation interpolator for curve"
+                    "Failed to evaluate interpolator for curve"
                 );
             }
         }
@@ -505,16 +516,19 @@ public class PedroJsonLoader {
         }
 
         Path getPath(@NonNull DTOPath p) {
-            Path paths[] = new Path[p.curves.size()];
-            int i = 0;
-            for (RValue<DTOCurve> curveRef : p.curves) {
-                Path c = getCurve(curveRef);
-                if (c == null) {
-                    errors.add("Unable to evaluate curve for path");
-                    return null;
-                }
-                paths[i++] = c;
-            }
+            Path[] paths = p.curves
+                .stream()
+                .map(curveRef -> {
+                    Path c = getCurve(curveRef);
+                    if (c == null) {
+                        errors.add("Unable to evaluate a curve for a path");
+                        return null;
+                    } else {
+                        return c;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .toArray(Path[]::new);
             Path res = Paths.path(paths);
 
             if (p.globalInterpolator != null) {
@@ -546,7 +560,7 @@ public class PedroJsonLoader {
             return value;
         }
 
-        // 1. The Factory that catches generic RValue<T> instances
+        // The factory that catches generic RValue<T> instances (references)
         public static class AdapterFactory implements TypeAdapterFactory {
 
             @Override
@@ -555,23 +569,21 @@ public class PedroJsonLoader {
                 if (!RValue.class.isAssignableFrom(type.getRawType())) {
                     return null;
                 }
-
                 // Extract the inner type argument T (e.g., PoseDTO from RValue<PoseDTO>)
                 Type societalType = type.getType();
                 Type innerType = Object.class;
                 if (societalType instanceof ParameterizedType) {
                     innerType = ((ParameterizedType) societalType).getActualTypeArguments()[0];
                 }
-
                 // Get Gson's built-in adapter for the inner type
                 TypeAdapter<?> innerAdapter = gson.getAdapter(TypeToken.get(innerType));
-
                 // Return our custom RValue adapter bound to this specific inner type
+                //noinspection unchecked
                 return (TypeAdapter<T>) new RValueAdapter<>(innerAdapter);
             }
         }
 
-        // 2. The actual Adapter that handles serialization and deserialization
+        // The adapter that handles serialization and deserialization
         private static class RValueAdapter<T> extends TypeAdapter<RValue<T>> {
 
             private final TypeAdapter<T> innerAdapter;
@@ -586,19 +598,17 @@ public class PedroJsonLoader {
             }
 
             @Override
-            public RValue<T> read(JsonReader in) throws IOException {
+            public RValue<T> read(JsonReader in) {
                 // Parse incoming JSON into a tree structure for easy inspection
                 JsonParser jp = new JsonParser();
                 JsonElement element = jp.parse(in);
                 RValue<T> rVal = new RValue<>();
-
                 if (element.isJsonObject() && element.getAsJsonObject().has("ref")) {
                     rVal.ref = element.getAsJsonObject().get("ref").getAsString();
                 } else {
                     // Delegate reading the inline value back to the inner adapter
                     rVal.value = innerAdapter.fromJsonTree(element);
                 }
-
                 return rVal;
             }
         }
@@ -609,7 +619,7 @@ public class PedroJsonLoader {
         public double val;
     }
 
-    // A Line is 2 points
+    // A Line is just a 2 point curve
     public static class DTOCurve {
 
         public List<RValue<DTOPose>> points;
@@ -654,8 +664,8 @@ public class PedroJsonLoader {
 
     public static class DTOLinear extends DTOInterpolator {
 
-        public RValue<DTOHeading> startHeading;
-        public RValue<DTOHeading> endHeading;
+        public RValue<DTOHeading> start;
+        public RValue<DTOHeading> end;
         public boolean longWay = false;
     }
 
@@ -680,6 +690,7 @@ public class PedroJsonLoader {
                 if (!DTOInterpolator.class.isAssignableFrom(type.getRawType())) {
                     return null;
                 }
+                //noinspection unchecked
                 return (TypeAdapter<T>) new Adapter(gson);
             }
         }
@@ -698,7 +709,7 @@ public class PedroJsonLoader {
             }
 
             @Override
-            public DTOInterpolator read(JsonReader in) throws IOException {
+            public DTOInterpolator read(JsonReader in) {
                 // 1. Parse the incoming stream into a JsonObject tree
                 JsonParser jp = new JsonParser();
                 JsonObject jsonObject = jp.parse(in).getAsJsonObject();
@@ -715,8 +726,7 @@ public class PedroJsonLoader {
                 } else if (jsonObject.has("pieces")) {
                     targetClass = DTOPieceWise.class;
                 } else {
-                    String err =
-                        "Unrecognized child type for DTOInterpolator: " + jsonObject.toString();
+                    String err = "Unrecognized child type for DTOInterpolator: " + jsonObject;
                     throw new JsonParseException(err);
                 }
                 // Delegate the object mapping back to Gson for the specific subclass

@@ -9,7 +9,7 @@
 html,
 body {
   margin: 0;
-  height: 100vh;
+  height: 100%;
   width: 100vw;
   overflow: hidden; /* prevent phantom scrollbars */
 }
@@ -17,6 +17,7 @@ body {
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: 1fr; /* header + content */
+  height: 100vh;
 }
 .main {
   grid-row: 1;

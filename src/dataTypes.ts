@@ -71,6 +71,7 @@ const _InterpNamesArray = [
 export type InterpNames = (typeof _InterpNamesArray)[number];
 
 export type NamedValues = {
+  timeStamp?: number;
   values: Record<string, ValRef>;
   poses: Record<string, PoseRef>;
   interpolations: Record<string, InterpRef>;
@@ -168,13 +169,16 @@ export const chkPath = chkObjectOfExactType<Path>(
   { globalInterpolator: chkInterpRef },
 );
 
-export const chkNamedValues = chkObjectOfExactType<NamedValues>({
-  values: chkRecordOf(isString, chkValRef),
-  poses: chkRecordOf(isString, chkPoseRef),
-  curves: chkRecordOf(isString, chkCurveRef),
-  interpolations: chkRecordOf(isString, chkInterpRef),
-  paths: chkRecordOf(isString, chkPath),
-});
+export const chkNamedValues = chkObjectOfExactType<NamedValues>(
+  {
+    values: chkRecordOf(isString, chkValRef),
+    poses: chkRecordOf(isString, chkPoseRef),
+    curves: chkRecordOf(isString, chkCurveRef),
+    interpolations: chkRecordOf(isString, chkInterpRef),
+    paths: chkRecordOf(isString, chkPath),
+  },
+  { timeStamp: isNumber },
+);
 
 export function mkRef(ref: string): Ref {
   return { ref };
