@@ -4,11 +4,9 @@ import { isDefined, isUndefined } from '@freik/typechk';
 
 import { BotDrawStyle, BotShapes } from './ClientTypes';
 import { rotPt } from './DrawingHelpers';
-import { CurveDetail, EvalCurveDetail, Point } from './EvalTypes';
+import { CurveDetail, Point } from './EvalTypes';
+import { AnimationPath } from './state/Rendering';
 
-export type AnimationPath = {
-  curves: EvalCurveDetail[];
-};
 export type BotAnimationState = {
   name: string | undefined;
   curveIndex: number;

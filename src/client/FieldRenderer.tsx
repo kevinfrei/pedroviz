@@ -4,15 +4,17 @@ import {
   PointerEvent,
   ReactElement,
   useCallback,
+  useEffect,
   useRef,
   useState,
 } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 
+import { DebouncedDelay } from '@freik/sync';
 import { ErrorOr, isDefined, isError, isUndefined } from '@freik/typechk';
 
 import { chkRef } from '../dataTypes';
-import { animateBot, AnimationPath, BotAnimationState } from './BotAnimation';
+import { animateBot, BotAnimationState } from './BotAnimation';
 import {
   ControlPointStyle,
   CtrlPtStyles,
@@ -23,13 +25,13 @@ import { CloseTo } from './DrawingHelpers';
 import {
   EvalCurveDetail,
   EvalPose,
-  EvalSymbols,
   MovablePoint,
   ShallowCurveRef,
   ShallowPath,
 } from './EvalTypes';
 import { SetMovablePoint } from './PointUpdating';
 import {
+  animationPathAtom,
   evaluatedSymbolsAtom,
   movablePointsAtom,
   shallowSymbolsAtom,
@@ -81,7 +83,7 @@ export function FieldRenderer(): ReactElement {
   const theme = useAtomValue(ThemeAtom);
   const coordViz = useAtomValue(CoordVizPercentAtom);
 
-  const showPathHeadings = useAtomValue(ShowPathHeadingAtom);
+  const _showPathHeadings = useAtomValue(ShowPathHeadingAtom);
   const pathStyle = useAtomValue(PathOptionsAtom);
 
   const botStyle = useAtomValue(BotDrawStyleAtom);
@@ -190,7 +192,7 @@ export function FieldRenderer(): ReactElement {
       colors,
       coordViz,
       pathStyle,
-      showPathHeadings,
+      // _showPathHeadings,
       movablePoints,
       theme,
     ],
@@ -203,13 +205,10 @@ export function FieldRenderer(): ReactElement {
     count: 60,
     curves: [],
   });
+  const animationPath = useAtomValue(animationPathAtom);
   const animate = useCallback(
     (ctx: CanvasRenderingContext2D, _dpr: number) => {
-      if (isUndefined(selectedPathOrCurveKey)) {
-        return;
-      }
-      const animationPath = getAnimationPath(evaluated, selectedPathOrCurveKey);
-      if (isUndefined(animationPath)) {
+      if (isUndefined(selectedPathOrCurveKey) || isUndefined(animationPath)) {
         return;
       }
       ctx.save();
@@ -223,14 +222,24 @@ export function FieldRenderer(): ReactElement {
       );
       ctx.restore();
     },
-    [selectedPathOrCurveKey, evaluated, botStyle],
+    [selectedPathOrCurveKey, botStyle, animationPath],
+  );
+  // eslint-disable-next-line @eslint-react/exhaustive-deps
+  useEffect(
+    DebouncedDelay(() => {
+      // This just resets the animation position.
+      // I could make it calculate the animation path and update the state to
+      // try to maintain animation, instead...
+      animationStateRef.current.name = undefined;
+    }, 250),
+    [symbolTable],
   );
 
   return (
     <ResponsiveSquareCanvas
       anchor={{ x: 'left', y: 'top' }}
       render={renderField}
-      animate={isDefined(selectedPathOrCurveKey) ? animate : undefined}
+      animate={animate}
       onPointerDown={(_e, _p) => {
         if (hovering !== null) {
           setMoving(hovering);
@@ -287,24 +296,6 @@ export function FieldRenderer(): ReactElement {
   );
 }
 
-function getAnimationPath(
-  evaluated: EvalSymbols,
-  pathOrCurve: string,
-): AnimationPath | undefined {
-  const selectedPath = evaluated.paths.get(pathOrCurve);
-  if (!selectedPath) {
-    const selCurve = evaluated.curves.get(pathOrCurve);
-    if (!selCurve || isError(selCurve)) {
-      return;
-    } else {
-      return { curves: [selCurve.points] };
-    }
-  } else if (!isError(selectedPath)) {
-    return {
-      curves: selectedPath.curves.map((ec) => ec.points),
-    };
-  }
-}
 /*
 function drawFocusedPose(
   poseStyle: { Points: ControlPointStyle; Headings: HeadingStyle },

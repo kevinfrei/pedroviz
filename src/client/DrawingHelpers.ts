@@ -44,7 +44,6 @@ function calcCurve(controlPoints: Point[]): CurveDetail {
     lastPt = pt;
   }
   length += ptDistance(lastPt, controlPoints[controlPoints.length - 1]!);
-  points.push(lastPt);
   return { length, points };
 }
 
@@ -223,7 +222,7 @@ function calcSimpleHeading(
   }
   if (chkEvalInterpTangent(heading)) {
     const angle = getAngle(
-      ptDiff(prev !== null ? cur : nxt!, prev !== null ? prev : cur),
+      prev !== null ? ptDiff(cur, prev) : ptDiff(nxt!, cur),
     );
     return normalizeRadian(heading.reversed ? Math.PI + angle : angle);
   } else if (chkEvalInterpConstant(heading)) {

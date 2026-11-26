@@ -1,8 +1,11 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { atom } from 'jotai';
 
 import { isError } from '@freik/typechk';
 
 import {
+  EvalCurveDetail,
   EvalSymbols,
   MovablePoint,
   ShallowCurve,
@@ -17,7 +20,7 @@ import {
   notRef,
   ShallowEvaluateSymbols,
 } from '../Evaluation';
-import { symbolTableAtom } from './SymbolTable';
+import { lastSelectedCurveOrPathAtom, symbolTableAtom } from './SymbolTable';
 
 export const evaluatedSymbolsAtom = atom<Promise<EvalSymbols>>(async (get) =>
   EvaluateSymbols(await get(symbolTableAtom)),
@@ -61,3 +64,26 @@ export const movablePointsAtom = atom<Promise<MovablePoint[]>>(async (get) => {
     .filter(notNull);
   return [...pathPoints, ...curvePoints, ...posePoints];
 });
+export type AnimationPath = {
+  curves: EvalCurveDetail[];
+};
+
+export const animationPathAtom = atom(
+  async (get): Promise<AnimationPath | undefined> => {
+    const evaluated = await get(evaluatedSymbolsAtom);
+    const pathOrCurve = get(lastSelectedCurveOrPathAtom) || '';
+    const selectedPath = evaluated.paths.get(pathOrCurve);
+    if (!selectedPath) {
+      const selCurve = evaluated.curves.get(pathOrCurve);
+      if (!selCurve || isError(selCurve)) {
+        return;
+      } else {
+        return { curves: [selCurve.points] };
+      }
+    } else if (!isError(selectedPath)) {
+      return {
+        curves: selectedPath.curves.map((ec) => ec.points),
+      };
+    }
+  },
+);

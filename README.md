@@ -107,18 +107,18 @@ FTC students...)
 **Task TODO list, in some sort of order:**
 
 - [ ] Test paths on a robot!
-- [ ] BUG: Update the animation when the path changes
 - [ ] Create the PedroViz.java JSON loader in the robot source code (because
-      this would be "cleaner" than a library in Gradle, right? Right?)
-- [ ] Upload the file to the robot using ADB
-- [ ] Add 'delete uploaded file' capability
+      this would be "cleaner" than deploying a maven library in Gradle, right?
+      Right?)
+- [ ] Implement the 'upload the file to the robot using ADB' capability
+- [ ] Implement the 'delete uploaded file' capability
 - [ ] Prompt for code location, if it's not launched with one, or in a repo
 - [ ] Draw the interpolation arrows.
+- [ ] Add highlighting for the selected pose, curve, and path
+- [ ] Add an Undo buffer
 - [ ] Rename all ref's to a something when you rename the something.
 - [ ] Allow moving entire paths by grabbing them?
 - [ ] Prevent deleting items in use?
-- [ ] Add highlighting a selected pose
-- [ ] Add an Undo buffer
 - [ ] Highlight & display errors more obviously
 - [ ] Get test coverage up to something tolerable (I've just been disabling PPv2
       failing tests, because I'm a bad engineer)
@@ -159,6 +159,7 @@ FTC students...)
 - [x] Get the Java JSON loader up & going!
 - [x] Add a JSON Time Stamp, so that an ADB uploaded one will only override an
       older build asset
+- [x] BUG: Update the animation when the path changes
 
 ## Development
 
