@@ -7,6 +7,7 @@ import { isUndefined } from '@freik/typechk';
 
 import { CurveRef } from '../../dataTypes';
 import { NewMapAdd } from '../../helpers';
+import { Strings } from '../Constants';
 import { CurveRefEditor } from '../Editors/CurveRefEditor';
 import { ItemEditor } from '../Editors/ItemEditorWrapper';
 import {
@@ -31,7 +32,7 @@ export function CurveEditor(): ReactElement {
       setItems={setCurves}>
       <CurveRefEditor
         topLevel
-        label="Curve Definition"
+        label={Strings.CurveDef}
         item={activeCurve as CurveRef}
         name={activeKey}
         onChange={(updatedCurve: CurveRef) => {

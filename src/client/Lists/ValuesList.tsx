@@ -10,6 +10,7 @@ import {
 } from '@fluentui/react-components';
 
 import { ValRef } from '../../dataTypes';
+import { Strings } from '../Constants';
 import { SimpleValRef } from '../Editors/Viewers';
 import { DataType, symbolTableValuesAtom } from '../state/SymbolTable';
 import { SearchableTable } from './SearchableTable';
@@ -21,13 +22,13 @@ const columns: TableColumnDefinition<ListItem>[] = [
   createTableColumn<ListItem>({
     columnId: 'name',
     compare: (a, b) => a[0].localeCompare(b[0]),
-    renderHeaderCell: () => <Text weight="bold">Value Name</Text>,
+    renderHeaderCell: () => <Text weight="bold">{Strings.Name}</Text>,
     renderCell: (li) => <code>{li[0]}</code>,
   }),
   createTableColumn<ListItem>({
     columnId: 'value',
     compare: (a, b) => ValueSorter(a[1], b[1]),
-    renderHeaderCell: () => <Text weight="bold">Value / Reference</Text>,
+    renderHeaderCell: () => <Text weight="bold">{Strings.Val_Ref}</Text>,
     renderCell: (nv) => <SimpleValRef valref={nv[1]} />,
   }),
 ];

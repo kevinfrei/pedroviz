@@ -9,6 +9,7 @@ import { isDefined, isUndefined } from '@freik/typechk';
 
 import { InterpRef, Path } from '../../dataTypes';
 import { NewMapUpdate } from '../../helpers';
+import { Strings } from '../Constants';
 import { CurveRefEditor } from '../Editors/CurveRefEditor';
 import { InterpRefEditor } from '../Editors/InterpRefEditor';
 import { ItemEditor } from '../Editors/ItemEditorWrapper';
@@ -31,7 +32,7 @@ export function PathEditor(): ReactElement {
       type={DataType.Paths}
       items={paths}
       setItems={setPaths}>
-      <TitleWrapper title="Path Curves/Lines">
+      <TitleWrapper title={Strings.PathDef}>
         <Button
           appearance="primary"
           icon={<AddRegular />}
@@ -56,7 +57,7 @@ export function PathEditor(): ReactElement {
             };
             setPaths(NewMapUpdate(paths, activeKey!, updatedPath));
           }}>
-          Add Curve
+          {Strings.AddCurve}
         </Button>
         {(activePath?.curves || []).map((cRef, cIdx) => (
           // eslint-disable-next-line @eslint-react/no-array-index-key
@@ -64,9 +65,9 @@ export function PathEditor(): ReactElement {
             <CurveRefEditor
               label={
                 <>
-                  Segment {cIdx + 1}
+                  {Strings.Segment} {cIdx + 1}
                   <Button
-                    title="Remove Curve Segment"
+                    title={Strings.DelCurveSegment}
                     appearance="transparent"
                     style={{
                       marginLeft: '3px',
@@ -103,7 +104,7 @@ export function PathEditor(): ReactElement {
           </div>
         ))}
         <InterpRefEditor
-          label="Path-wide Interpolator (Optional)"
+          label={Strings.OptInterpOverride}
           showNone={true}
           item={activePath?.globalInterpolator}
           onChange={(globalInterpolator: InterpRef | null) => {

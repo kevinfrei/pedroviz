@@ -28,6 +28,7 @@ import {
   mkTangentInterp,
 } from '../../dataTypes';
 import { NewMapAdd } from '../../helpers';
+import { Strings } from '../Constants';
 import { searchAtom } from '../state/BasicState';
 import {
   activeTabAtom,
@@ -72,7 +73,7 @@ export function SearchToolbar(): ReactElement {
   }
 
   const name = DataTypeNames[activeTab];
-  const plural = name + 's';
+  const plural = Strings.Pluralize(name || '');
 
   const newItem = () => {
     const foo = getItemCreator(activeTab)();
@@ -103,7 +104,7 @@ export function SearchToolbar(): ReactElement {
         type="text"
         contentBefore={<SearchRegular />}
         value={search}
-        placeholder={`Search ${plural}`}
+        placeholder={Strings.Search(plural)}
         onChange={(_, d) => setSearch(d.value)}
       />
       &nbsp;
@@ -134,7 +135,7 @@ export function SearchableTable<T>({
   const [selected, setSelected] = useAtom(selectedItemKeyFamily(dataType));
 
   const name = DataTypeNames[dataType];
-  const plural = name + 's';
+  const plural = Strings.Pluralize(name || '');
   const selectedRows = getSelection(selected);
 
   const onSelChanged: DataGridProps['onSelectionChange'] = useCallback(
@@ -169,7 +170,7 @@ export function SearchableTable<T>({
   );
 
   return keys.size === 0 ? (
-    <Text>No {plural} found.</Text>
+    <Text>{Strings.NotFound(plural)}</Text>
   ) : (
     <DataGrid
       items={filteredItems}

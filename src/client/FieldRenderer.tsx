@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 
+import { tokens } from '@fluentui/react-components';
 import { DebouncedDelay } from '@freik/sync';
 import { ErrorOr, isDefined, isError, isUndefined } from '@freik/typechk';
 
@@ -19,10 +20,12 @@ import {
   ControlPointStyle,
   CtrlPtStyles,
   CurveStyle,
+  HeadingStyle,
   PathStyle,
 } from './ClientTypes';
-import { CloseTo } from './DrawingHelpers';
+import { CloseTo, ptDistance, vector } from './DrawingHelpers';
 import {
+  CurveDetail,
   EvalCurveDetail,
   EvalPose,
   MovablePoint,
@@ -296,8 +299,7 @@ export function FieldRenderer(): ReactElement {
   );
 }
 
-/*
-function drawFocusedPose(
+function _drawFocusedPose(
   poseStyle: { Points: ControlPointStyle; Headings: HeadingStyle },
   ctx: CanvasRenderingContext2D,
   focusedPose: EvalPose,
@@ -314,7 +316,6 @@ function drawFocusedPose(
     );
   }
 }
-*/
 
 function drawCurveLine(
   ctx: CanvasRenderingContext2D,
@@ -350,12 +351,12 @@ function drawCurve(
   color: string,
 ) {
   drawCurveLine(ctx, curve, color, pathStyle.Curves);
-  /*drawControlPoints(
+  drawControlPoints(
     ctx,
     pathStyle.Curves.ControlPoint,
     curve.controlPoints,
     color,
-  );*/
+  );
   // TODO: draw the heading interpolators
 }
 
@@ -410,8 +411,7 @@ function drawControlPoints(
   ctx.stroke();
 }
 
-/*
-function drawHeadingLines(
+function _drawHeadingLines(
   ctx: CanvasRenderingContext2D,
   color: string,
   curve: CurveDetail,
@@ -490,7 +490,6 @@ function drawHeadingLine(
   );
   ctx.stroke();
 }
-*/
 
 function drawLegend(
   ctx: CanvasRenderingContext2D,

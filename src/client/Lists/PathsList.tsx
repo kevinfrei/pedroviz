@@ -10,6 +10,7 @@ import {
 } from '@fluentui/react-components';
 
 import { Path } from '../../dataTypes';
+import { Strings } from '../Constants';
 import { SimpleInterpRef } from '../Editors/InterpRefEditor';
 import { DataType, symbolTablePathsAtom } from '../state/SymbolTable';
 import { SearchableTable } from './SearchableTable';
@@ -21,20 +22,27 @@ const columns: TableColumnDefinition<ListItem>[] = [
   createTableColumn<ListItem>({
     columnId: 'name',
     compare: (a, b) => a[0].localeCompare(b[0]),
-    renderHeaderCell: () => <Text weight="bold">Name</Text>,
+    renderHeaderCell: () => <Text weight="bold">{Strings.Name}</Text>,
     renderCell: (li) => <code>{li[0]}</code>,
   }),
   createTableColumn<ListItem>({
     columnId: 'curves',
     compare: (a, b) => CurveArraySorter(a[1].curves, b[1].curves),
-    renderHeaderCell: () => <Text weight="bold">Curve Count</Text>,
-    renderCell: (li) => <code>{li[1].curves.length} Curves/Lines</code>,
+    renderHeaderCell: () => <Text weight="bold">{Strings.CurveCount}</Text>,
+    renderCell: (li) => (
+      <code>
+        {li[1].curves.length}
+        {Strings.Curves}
+      </code>
+    ),
   }),
   createTableColumn<ListItem>({
     columnId: 'globInterp',
     compare: (a, b) =>
       MaybeInterpSorter(a[1].globalInterpolator, b[1].globalInterpolator),
-    renderHeaderCell: () => <Text weight="bold">Whole Path Interpolator</Text>,
+    renderHeaderCell: () => (
+      <Text weight="bold">{Strings.WholePathInterp}</Text>
+    ),
     renderCell: (li) => (
       <SimpleInterpRef interpref={li[1].globalInterpolator} />
     ),

@@ -19,7 +19,6 @@ import {
   HeadingRef,
   InterpPiece,
   InterpRef,
-  Path,
   PoseRef,
   SymbolTable,
   ValRef,
@@ -178,15 +177,4 @@ export function resolveCurveRef(
     ),
     interpolation: resolveInterpRef(curveRef.interpolation, dict, seen),
   };
-}
-
-function _resolvePath(path: Path, dict: SymbolTable) {
-  const curves = path.curves.map((curveRef) => resolveCurveRef(curveRef, dict));
-  if (hasField(path, 'globalInterpolator')) {
-    return {
-      curves,
-      globalInterpolator: resolveInterpRef(path.globalInterpolator!, dict),
-    };
-  }
-  return { curves };
 }

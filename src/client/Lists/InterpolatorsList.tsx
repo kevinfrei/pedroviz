@@ -10,6 +10,7 @@ import {
 } from '@fluentui/react-components';
 
 import { InterpRef } from '../../dataTypes';
+import { Strings } from '../Constants';
 import { SimpleInterpRef } from '../Editors/InterpRefEditor';
 import { DataType, symbolTableInterpolationsAtom } from '../state/SymbolTable';
 import { SearchableTable } from './SearchableTable';
@@ -21,13 +22,13 @@ const columns: TableColumnDefinition<ListItem>[] = [
   createTableColumn<ListItem>({
     columnId: 'name',
     compare: (a, b) => a[0].localeCompare(b[0]),
-    renderHeaderCell: () => <Text weight="bold">Name</Text>,
+    renderHeaderCell: () => <Text weight="bold">{Strings.Name}</Text>,
     renderCell: (li) => <code>{li[0]}</code>,
   }),
   createTableColumn<ListItem>({
-    columnId: 'Type / Reference',
+    columnId: 'Type/Reference',
     compare: (a, b) => InterpSorter(a[1], b[1]),
-    renderHeaderCell: () => <Text weight="bold">Type/Ref</Text>,
+    renderHeaderCell: () => <Text weight="bold">{Strings.Type_Ref}</Text>,
     renderCell: (li) => <SimpleInterpRef interpref={li[1]} />,
   }),
 ];

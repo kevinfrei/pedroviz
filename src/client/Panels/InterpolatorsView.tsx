@@ -7,6 +7,7 @@ import { isUndefined } from '@freik/typechk';
 
 import { InterpRef } from '../../dataTypes';
 import { NewMapAdd } from '../../helpers';
+import { Strings } from '../Constants';
 import { InterpRefEditor } from '../Editors/InterpRefEditor';
 import { ItemEditor } from '../Editors/ItemEditorWrapper';
 import {
@@ -35,7 +36,7 @@ export function InterpolatorEditor(): ReactElement {
       setItems={setInterpolations}>
       <InterpRefEditor
         topLevel
-        label="Interpolator Definition"
+        label={Strings.InterpDef}
         item={activeInterp as InterpRef}
         onChange={(updatedInterp: InterpRef) =>
           setInterpolations(

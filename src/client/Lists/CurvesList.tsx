@@ -10,6 +10,7 @@ import {
 } from '@fluentui/react-components';
 
 import { chkRef, CurveRef } from '../../dataTypes';
+import { Strings } from '../Constants';
 import { SimpleInterpRef } from '../Editors/InterpRefEditor';
 import { DataType, symbolTableCurvesAtom } from '../state/SymbolTable';
 import { SearchableTable } from './SearchableTable';
@@ -21,21 +22,22 @@ const columns: TableColumnDefinition<ListItem>[] = [
   createTableColumn<ListItem>({
     columnId: 'name',
     compare: (a, b) => a[0].localeCompare(b[0]),
-    renderHeaderCell: () => <Text weight="bold">Name</Text>,
+    renderHeaderCell: () => <Text weight="bold">{Strings.Name}</Text>,
     renderCell: (li) => <code>{li[0]}</code>,
   }),
   createTableColumn<ListItem>({
     columnId: 'Type',
     compare: (a, b) => CurveSorter(a[1], b[1]),
-    renderHeaderCell: () => <Text weight="bold">Type/Ref</Text>,
+    renderHeaderCell: () => <Text weight="bold">{Strings.Type_Ref}</Text>,
     renderCell: (li) =>
       chkRef(li[1]) ? (
         <Text>
-          <code>{li[1].ref}</code> (reference)
+          <code>"{li[1].ref}"</code>
         </Text>
       ) : (
         <Text>
-          {li[1].points.length} points,{' '}
+          {li[1].points.length}
+          {Strings.PointSuffix}
           <SimpleInterpRef interpref={li[1].interpolation} />
         </Text>
       ),

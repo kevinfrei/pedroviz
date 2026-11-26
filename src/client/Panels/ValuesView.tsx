@@ -6,6 +6,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import { isUndefined } from '@freik/typechk';
 
 import { NewMapAdd } from '../../helpers';
+import { Strings } from '../Constants';
 import { ItemEditor } from '../Editors/ItemEditorWrapper';
 import { ValRefEditor } from '../Editors/ValRefEditor';
 import {
@@ -29,7 +30,7 @@ export function ValueEditor(): ReactElement {
       setItems={setValues}>
       <ValRefEditor
         topLevel
-        label="Value or Reference"
+        label={Strings.ValueDefinition}
         item={activeValue!}
         name={activeKey}
         onChange={(newVal) => setValues(NewMapAdd(values, activeKey!, newVal))}

@@ -6,6 +6,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import { isUndefined } from '@freik/typechk';
 
 import { NewMapAdd } from '../../helpers';
+import { Strings } from '../Constants';
 import { ItemEditor } from '../Editors/ItemEditorWrapper';
 import { PoseRefEditor } from '../Editors/PoseRefEditor';
 import {
@@ -27,7 +28,7 @@ export function PoseEditor(): ReactElement {
       setItems={setPoses}>
       <PoseRefEditor
         topLevel
-        label="Pose Coordinates & Heading"
+        label={Strings.PoseDef}
         item={activePose!}
         name={activeKey}
         onChange={(updatedPose) => {
