@@ -145,7 +145,7 @@ export const PathCurveOptionsAtom = focusAtom(PathOptionsAtom, (o) =>
 const PathPointOptionsAtom = focusAtom(PathCurveOptionsAtom, (o) =>
   o.prop('ControlPoint'),
 );
-/*export*/ const PathHeadingOptionsAtom = focusAtom(PathOptionsAtom, (o) =>
+export const PathHeadingOptionsAtom = focusAtom(PathOptionsAtom, (o) =>
   o.prop('Heading'),
 );
 export const PathPointSizeAtom = focusAtom(PathPointOptionsAtom, (o) =>

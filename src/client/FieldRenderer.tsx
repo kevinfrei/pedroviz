@@ -29,6 +29,7 @@ import {
   EvalCurveDetail,
   EvalPose,
   MovablePoint,
+  Point,
   ShallowCurveRef,
   ShallowPath,
 } from './EvalTypes';
@@ -42,6 +43,8 @@ import {
 import {
   BotDrawStyleAtom,
   CoordVizPercentAtom,
+  PathHeadingCountAtom,
+  PathHeadingOptionsAtom,
   PathOptionsAtom,
   ShowPathHeadingAtom,
   ThemeAtom,
@@ -86,9 +89,10 @@ export function FieldRenderer(): ReactElement {
   const theme = useAtomValue(ThemeAtom);
   const coordViz = useAtomValue(CoordVizPercentAtom);
 
-  const _showPathHeadings = useAtomValue(ShowPathHeadingAtom);
+  const showPathHeadings = useAtomValue(ShowPathHeadingAtom);
   const pathStyle = useAtomValue(PathOptionsAtom);
-
+  const headingStyle = useAtomValue(PathHeadingOptionsAtom);
+  const headingCount = useAtomValue(PathHeadingCountAtom);
   const botStyle = useAtomValue(BotDrawStyleAtom);
 
   const colors = useAtomValue(ColorsAtom);
@@ -143,6 +147,15 @@ export function FieldRenderer(): ReactElement {
               }
               // Need to make an EvalCurveDetail from the list of control points...
               drawCurve(ctx, evalCurve.points, pathStyle, colors[3]!);
+              if (showPathHeadings) {
+                drawHeadingLines(
+                  ctx,
+                  colors[3]!,
+                  evalCurve.points,
+                  headingCount,
+                  headingStyle,
+                );
+              }
             },
           );
         },
@@ -164,6 +177,15 @@ export function FieldRenderer(): ReactElement {
           }
           // Need to make an EvalCurveDetail from the list of control points...
           drawCurve(ctx, evalCurve.points, pathStyle, colors[4]!);
+          if (showPathHeadings) {
+            drawHeadingLines(
+              ctx,
+              colors[4]!,
+              evalCurve.points,
+              headingCount,
+              headingStyle,
+            );
+          }
         },
       );
       // TODO: Draw the selected curve differently?
@@ -190,12 +212,14 @@ export function FieldRenderer(): ReactElement {
       evaluated.curves,
       evaluated.paths,
       hovering,
+      headingCount,
+      headingStyle,
       moving,
       shallow,
       colors,
       coordViz,
       pathStyle,
-      // _showPathHeadings,
+      showPathHeadings,
       movablePoints,
       theme,
     ],
@@ -302,12 +326,12 @@ export function FieldRenderer(): ReactElement {
 function _drawFocusedPose(
   poseStyle: { Points: ControlPointStyle; Headings: HeadingStyle },
   ctx: CanvasRenderingContext2D,
-  focusedPose: EvalPose,
+  focusedPose: Point,
 ) {
   ctx.strokeStyle = tokens.colorNeutralForeground1; // TODO: Update this
   drawPoint(ctx, focusedPose, poseStyle.Points);
   ctx.stroke();
-  if (isDefined(focusedPose.radians)) {
+  if (isDefined(focusedPose.h)) {
     drawHeadingLine(
       ctx,
       poseStyle.Headings,
@@ -411,7 +435,7 @@ function drawControlPoints(
   ctx.stroke();
 }
 
-function _drawHeadingLines(
+function drawHeadingLines(
   ctx: CanvasRenderingContext2D,
   color: string,
   curve: CurveDetail,
@@ -439,7 +463,7 @@ function _drawHeadingLines(
       // the furthest away point...
       const nextPortion = (curTarget - totalDist) / ptDist;
       const prevPortion = (newDist - curTarget) / ptDist;
-      const avg = {
+      const avg: Point = {
         x: prevPortion * lastPoint.x + nextPortion * curPoint.x,
         y: prevPortion * lastPoint.y + nextPortion * curPoint.y,
         h: prevPortion * lastPoint.h! + nextPortion * curPoint.h!,
@@ -459,9 +483,9 @@ function drawHeadingLine(
   ctx: CanvasRenderingContext2D,
   style: HeadingStyle,
   color: string,
-  point: EvalPose,
+  point: Point,
 ) {
-  if (isUndefined(point.radians)) {
+  if (isUndefined(point.h)) {
     return;
   }
   ctx.beginPath();
@@ -469,7 +493,7 @@ function drawHeadingLine(
   ctx.lineWidth = style.Thickness;
   ctx.strokeStyle = color;
   ctx.moveTo(point.x, point.y);
-  const displacement = vector(point.radians, style.Length);
+  const displacement = vector(point.h, style.Length);
   const endx = point.x + displacement.x;
   const endy = point.y + displacement.y;
   ctx.lineTo(endx, endy);

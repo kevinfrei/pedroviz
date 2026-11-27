@@ -111,7 +111,6 @@ FTC students...)
 - [ ] Test paths on a robot! (I've got 20403's pre-tuned bot in my garage this
       weekend explicitly so I can do this without trying to get Mouse/LearnBot
       back up and running)
-- [ ] Draw the interpolation arrows.
 - [ ] Add highlighting for the selected pose, curve, and path
 - [ ] Rename all ref's to a something when you rename the something.
 - [ ] Add an Undo buffer
@@ -165,6 +164,7 @@ FTC students...)
       this would be "cleaner" than deploying a maven library in Gradle, right?
       Right?)
 - [x] Make work with nodejs (`npx`) as well?
+- [x] Draw the interpolation arrows.
 
 ## Development
 
