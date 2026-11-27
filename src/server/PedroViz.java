@@ -182,6 +182,7 @@ public class PedroViz {
 
     static class NamedItems {
 
+        public int schema;
         public double timeStamp;
         public Map<String, RValue<DTOValue>> values;
         public Map<String, RValue<DTOPose>> poses;

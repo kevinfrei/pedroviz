@@ -111,31 +111,25 @@ FTC students...)
 - [ ] Test paths on a robot! (I've got 20403's pre-tuned bot in my garage this
       weekend explicitly so I can do this without trying to get Mouse/LearnBot
       back up and running)
-- [ ] Create the PedroViz.java JSON loader in the robot source code (because
-      this would be "cleaner" than deploying a maven library in Gradle, right?
-      Right?)
-- [ ] Add an Undo buffer
-- [ ] Prompt for code location, if it's not launched with one, or in a repo
 - [ ] Draw the interpolation arrows.
 - [ ] Add highlighting for the selected pose, curve, and path
 - [ ] Rename all ref's to a something when you rename the something.
+- [ ] Add an Undo buffer
+- [ ] Prompt for code location, if it's not launched with one, or in a repo
 - [ ] Allow moving entire paths by grabbing them?
-- [ ] Prevent deleting items in use?
+- [ ] Confirm deletion of items that are in use
 - [ ] Add a "recover my pedropaths.json file from the robot directly"
       bacon-saving feature?
-- [ ] Highlight & display errors more obviously
+- [ ] Highlight & display errors more obviously: display JSON issues so users
+      can see if they should fix their JSON, or send their JSON to me.
 - [ ] Maybe createa a @Utility opmode to do some basic stuff with the file, too?
 - [ ] Get test coverage up to something tolerable (I've just been disabling PPv2
       failing tests, because I'm a bad engineer)
-- [ ] Display JSON issues so users can see if they should fix their JSON, or
-      send their JSON to me.
 - [ ] Get this stuff working on Safari. I've enabled dev mode, and it looks like
       something with the ResizeObserver for the Canvas isn't working. Works fine
       on Firefox, Chrome, and Brave on Mac, Linux, and Windows (and Edge works,
       too).
-- [ ] Enable "warning" lines: warn if the robot crosses a line on a path
-- [ ] Make work with nodejs (`npx`) as well?
-  - Kinda works, last time I checked...
+- [ ] Enable "warning" lines: warn if the robot crosses a line on a path?
 
 **Task List - done list:**
 
@@ -167,6 +161,10 @@ FTC students...)
 - [x] Add a JSON _schema_ version number, for future compatibility issues
 - [x] Implement the 'upload the file to the robot using ADB' capability
 - [x] Implement the 'delete uploaded file' capability
+- [x] Create the PedroViz.java JSON loader in the robot source code (because
+      this would be "cleaner" than deploying a maven library in Gradle, right?
+      Right?)
+- [x] Make work with nodejs (`npx`) as well?
 
 ## Development
 

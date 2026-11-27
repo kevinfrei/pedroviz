@@ -1,6 +1,5 @@
 // build.ts
 import { $ } from 'bun';
-
 import esbuild from 'esbuild';
 
 try {
@@ -15,6 +14,7 @@ await esbuild.build({
   minify: true,
   format: 'cjs',
   platform: 'node',
+  loader: { '.java': 'text' },
 });
 
 await $`cp src/static/* dist/`;

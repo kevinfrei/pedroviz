@@ -14,6 +14,7 @@ import {
   GetTeams,
   GetValidTeams,
   HasFieldImage,
+  InstallJsonLoader,
   KillAssetPathFile,
   LoadPaths,
   SavePaths,
@@ -32,7 +33,6 @@ if (isDefined(__dirname)) {
 
 const app = new Hono();
 
-// TODO: Add the capability to push a particular JSON file to the robot
 app.get('/img/field/:theme', async (c) => GetFieldImage(c.req.param('theme')));
 app.get('/img/svg/:theme', async (c) => GetFieldSvg(c.req.param('theme')));
 app.get('/api/extimage', async () => HasFieldImage());
@@ -44,6 +44,9 @@ app.put('/api/put/:team', async (c) =>
 );
 app.put('/api/adb', async (c) => UploadPaths(await c.req.json<object>()));
 app.get('/api/trash', async () => KillAssetPathFile());
+app.get('/api/install/:team', async (c) =>
+  InstallJsonLoader(c.req.param('team')),
+);
 app.get(
   '/',
   serveStatic({

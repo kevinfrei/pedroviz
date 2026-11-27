@@ -4,14 +4,14 @@ import { ReactElement, useEffect } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 
 import { Button } from '@fluentui/react-components';
-import { BotAddFilled, DeleteFilled, SaveFilled } from '@fluentui/react-icons';
+import { BotAddFilled, SaveFilled } from '@fluentui/react-icons';
 
 import { Strings } from './Constants';
-import { AdbPaths, KillAdb, PutPaths } from './state/API';
+import { AdbPaths, PutPaths } from './state/API';
 import { pathsFileFamily, SelectedTeamAtom, TeamsAtom } from './state/UserCode';
 import { AutoSelector } from './ui-tools/AutoSelector';
 
-export function TeamSelector(): ReactElement {
+export function TeamSelector({ id }: { id?: string }): ReactElement {
   const teams = useAtomValue(TeamsAtom); //['TeamCode', 'LearnBot'];
   const [selectedTeam, selectTeam] = useAtom(SelectedTeamAtom);
   useEffect(() => {
@@ -21,6 +21,7 @@ export function TeamSelector(): ReactElement {
   }, [teams, selectTeam]);
   return teams.length > 1 ? (
     <AutoSelector
+      id={id}
       prompt={Strings.select_a_bot}
       items={[...teams]}
       selected={selectedTeam || ''}
@@ -62,17 +63,6 @@ export function UploadToRobot(): ReactElement {
         }
       }}>
       {Strings.upload_to_bot}
-    </Button>
-  );
-}
-
-export function RemoveUpload(): ReactElement {
-  return (
-    <Button
-      appearance="primary"
-      icon={<DeleteFilled />}
-      onClick={() => KillAdb().then((resp) => window.alert(resp.toString()))}>
-      {Strings.delete_upload}
     </Button>
   );
 }

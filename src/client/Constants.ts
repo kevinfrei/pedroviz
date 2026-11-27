@@ -11,6 +11,8 @@ export const Strings = {
   Viz4Pedro: 'Viz 4 Pedro',
   Reset: 'Reset',
   pedropaths_json_file_name: 'PedroPaths.json',
+  create_java: 'Create PedroViz.java',
+  RemoveAdbFile: 'Remove ADB-installed path file',
   // Editors stuff:
   Values: 'Values',
   Poses: 'Poses',
