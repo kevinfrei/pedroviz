@@ -10,8 +10,10 @@
    runtime.
 2. Either (easiest):
    1. Open up a command line inside Android Studio
-   2. type `bunx @freik/pedroviz` (or `npx @freik/pedroviz`) and hit _`enter`_
-      (because Android Studio puts you in the right directory automagically)
+      ![picture of button](./docs/commandline.jpg)
+   2. type `bunx @freik/pedroviz@latest` (or `npx @freik/pedroviz@latest`) and
+      hit _`enter`_ (because Android Studio puts you in the right directory
+      automagically)
 3. Or (a little more complicated):
    1. Navigate to the root of your robot source code directory from a command
       line
@@ -106,20 +108,23 @@ FTC students...)
 
 **Task TODO list, in some sort of order:**
 
-- [ ] Test paths on a robot!
+- [ ] Test paths on a robot! (I've got 20403's pre-tuned bot in my garage this
+      weekend explicitly so I can do this without trying to get Mouse/LearnBot
+      back up and running)
 - [ ] Create the PedroViz.java JSON loader in the robot source code (because
       this would be "cleaner" than deploying a maven library in Gradle, right?
       Right?)
 - [ ] Add an Undo buffer
-- [ ] Add a "recover my pedropaths.json file from the robot directly"
-      bacon-saving feature?
 - [ ] Prompt for code location, if it's not launched with one, or in a repo
 - [ ] Draw the interpolation arrows.
 - [ ] Add highlighting for the selected pose, curve, and path
 - [ ] Rename all ref's to a something when you rename the something.
 - [ ] Allow moving entire paths by grabbing them?
 - [ ] Prevent deleting items in use?
+- [ ] Add a "recover my pedropaths.json file from the robot directly"
+      bacon-saving feature?
 - [ ] Highlight & display errors more obviously
+- [ ] Maybe createa a @Utility opmode to do some basic stuff with the file, too?
 - [ ] Get test coverage up to something tolerable (I've just been disabling PPv2
       failing tests, because I'm a bad engineer)
 - [ ] Display JSON issues so users can see if they should fix their JSON, or
