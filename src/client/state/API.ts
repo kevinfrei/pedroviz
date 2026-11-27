@@ -51,3 +51,7 @@ export async function AdbPaths(db: PathsFile): Promise<string> {
 export async function KillAdb(): Promise<string> {
   return postApi('trash');
 }
+
+export async function CreatePedroVizJava(team: Team): Promise<string> {
+  return postApi(`install/${team}`);
+}

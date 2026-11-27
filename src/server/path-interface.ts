@@ -154,17 +154,15 @@ function isTeamDirectory(repoRoot: string, dir: fs.Dirent): boolean {
   */
   return true;
 }
-/*
-export function GetProjectFilePath(repo: string, team: string, filename: string): string {
-  return path.join(
-    repo,
-    team,
-    FirstFtcSrc,
-    team.toLocaleLowerCase(),
-    filename,
-  );
+
+export function GetProjectFilePath(
+  repo: string,
+  team: string,
+  filename: string,
+): string {
+  return path.join(repo, team, FirstFtcSrc, 'teamcode', filename);
 }
-*/
+
 function GetJsonFilePath(repo: string, team: string): string {
   return path.join(repo, team, RelativePathsJsonFile);
 }

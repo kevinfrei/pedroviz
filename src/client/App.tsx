@@ -16,12 +16,7 @@ import { Group, Panel, Separator } from 'react-resizable-panels';
 
 import { CodeIssues } from './CodeIssues';
 import { FieldRenderer } from './FieldRenderer';
-import {
-  RemoveUpload,
-  SaveButton,
-  TeamSelector,
-  UploadToRobot,
-} from './FileChoosing';
+import { SaveButton, TeamSelector, UploadToRobot } from './FileChoosing';
 import { SearchToolbar } from './Lists/SearchableTable';
 import {
   DataTabList,
@@ -32,6 +27,7 @@ import { Settings } from './Settings';
 import { ToastId } from './state/BasicState';
 import { ThemeAtom } from './state/SavedSettings';
 import { getStore } from './state/Storage';
+import { Toolbox } from './Toolbox';
 
 const useStyles = makeStyles({
   gridPanelContainer: {
@@ -101,7 +97,7 @@ function MyApp(): ReactElement {
             <TeamSelector />
             <SaveButton />
             <UploadToRobot />
-            <RemoveUpload />
+            <Toolbox />
             <Settings />
           </Toolbar>
           <Toaster toasterId={ToastId} position="bottom" />
