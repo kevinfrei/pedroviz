@@ -160,7 +160,7 @@ export function GetProjectFilePath(
   team: string,
   filename: string,
 ): string {
-  return path.join(repo, team, FirstFtcSrc, 'teamcode', filename);
+  return path.join(repo, team, FirstFtcSrc, team.toLocaleLowerCase(), filename);
 }
 
 function GetJsonFilePath(repo: string, team: string): string {
