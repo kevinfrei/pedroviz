@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+import { Team } from '.././ipcTypes';
 import { SymbolTable } from '../dataTypes';
 
 export const Strings = {
@@ -10,6 +11,7 @@ export const Strings = {
   rescan_source: 'Rescan',
   Viz4Pedro: 'Viz 4 Pedro',
   Reset: 'Reset',
+  Toolbox: 'Toolbox',
   pedropaths_json_file_name: 'PedroPaths.json',
   create_java: 'Create PedroViz.java',
   RemoveAdbFile: 'Remove ADB-installed path file',
@@ -39,11 +41,16 @@ export const Strings = {
   Val_Ref: 'Value / Reference',
   CurveCount: 'Curve Count',
   WholePathInterp: 'Whole Path Interpolator',
+  KillSuccess: 'Successfully removed the ADB JSON from your robot!',
+  SaveSuccess: 'Successfully saved the JSON file to your source repo!',
+  UploadSuccess: 'Successfully uploaded the JSON file to your robot!',
   // Localization functions (I'm *sure* this is as complicated
   // as localization gets. Definitely...):
   Pluralize: (nm: string) => nm + 's',
   NotFound: (item: string) => `No ${item} found.`,
   Search: (item: string) => `Search ${item}`,
+  CreateJavaSuccess: (team: Team) =>
+    `Created the PedroViz.Java file for ${team}!`,
 };
 
 export const EMPTY_SYMBOL_TABLE: SymbolTable = {

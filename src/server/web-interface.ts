@@ -87,7 +87,7 @@ export async function SavePaths(team: Team, json: object): Promise<Response> {
   json.schema = 0;
   await fsp.writeFile(jsonPath, JSON.stringify(json, undefined, 2), 'utf8');
   // console.error('File written!');
-  return Response.json({ okay: true });
+  return Response.json({ result: 0 });
 }
 
 async function mkdirIfNotThere(jsonPath: string) {

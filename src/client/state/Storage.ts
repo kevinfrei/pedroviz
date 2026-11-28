@@ -55,9 +55,9 @@ export async function fetchApi<T>(
 export async function postApi(key: string): Promise<string> {
   const post = await fetch('/api/' + key);
   if (post.ok) {
-    return await post.text();
+    return await post.json();
   } else {
-    return `post didn't return okay: ${post}`;
+    return `post /api/${key} error: ${post}`;
   }
 }
 

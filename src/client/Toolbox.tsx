@@ -22,20 +22,45 @@ import {
   Dismiss24Regular,
   ToolboxFilled,
 } from '@fluentui/react-icons';
-import { isUndefined } from 'node_modules/@freik/typechk/lib/esm';
+import { hasField, hasFieldOf, isNumber, isUndefined } from '@freik/typechk';
 
 import { Strings } from './Constants';
 import { TeamSelector } from './FileChoosing';
 import { CreatePedroVizJava, KillAdb } from './state/API';
-import { SelectedTeamAtom } from './state/UserCode';
+import { SelectedTeamAtom, TeamsAtom } from './state/UserCode';
+import { useToast } from './ui-tools/NotificationToast';
 
 export function Toolbox(): ReactElement {
+  const setToast = useToast();
+  const teams = useAtomValue(TeamsAtom); //['TeamCode', 'LearnBot'];
   const team = useAtomValue(SelectedTeamAtom);
+  const showRes = (prom: Promise<unknown>, success: string) => {
+    return prom.then((resp) => {
+      if (hasFieldOf(resp, 'result', isNumber) && resp.result === 0) {
+        setToast(success, 'success');
+      } else if (hasField(resp, 'error')) {
+        setToast(String(resp.error), 'error');
+      } else {
+        setToast('Unexpected error: ' + JSON.stringify(resp), 'error');
+      }
+    });
+  };
+  const teamSel =
+    teams.length < 2 ? (
+      <></>
+    ) : (
+      <>
+        <Label htmlFor="chooseTeam" style={{ fontWeight: 'bold' }}>
+          {Strings.select_a_bot}
+        </Label>
+        <TeamSelector id="chooseTeam" />
+      </>
+    );
   return (
     <DraggableDialog modalType="modal">
       <DialogTrigger disableButtonEnhancement>
         <Button appearance="primary" icon={<ToolboxFilled />}>
-          Toolbox
+          {Strings.Toolbox}
         </Button>
       </DialogTrigger>
       <DraggableDialogSurface>
@@ -52,14 +77,11 @@ export function Toolbox(): ReactElement {
                 </DialogTrigger>
               }
               style={{ textAlign: 'center' }}>
-              Settings
+              {Strings.Toolbox}
             </DialogTitle>
           </DraggableDialogHandle>
           <DialogContent className="two-column">
-            <Label htmlFor="chooseTeam" style={{ fontWeight: 'bold' }}>
-              {Strings.select_a_bot}
-            </Label>
-            <TeamSelector id="chooseTeam" />
+            {teamSel}
             <Label htmlFor="removeUpload" style={{ fontWeight: 'bold' }}>
               {Strings.RemoveAdbFile}
             </Label>
@@ -67,9 +89,7 @@ export function Toolbox(): ReactElement {
               id="removeUpload"
               appearance="primary"
               icon={<DeleteFilled />}
-              onClick={() =>
-                KillAdb().then((resp) => window.alert(resp.toString()))
-              }>
+              onClick={() => showRes(KillAdb(), Strings.KillSuccess)}>
               {Strings.delete_upload}
             </Button>
             <Label htmlFor="createJava" style={{ fontWeight: 'bold' }}>
@@ -81,8 +101,9 @@ export function Toolbox(): ReactElement {
               appearance="primary"
               icon={<CodeBlockFilled />}
               onClick={() =>
-                CreatePedroVizJava(team!).then((resp) =>
-                  window.alert(resp.toString()),
+                showRes(
+                  CreatePedroVizJava(team!),
+                  Strings.CreateJavaSuccess(team!),
                 )
               }>
               {Strings.create_java}

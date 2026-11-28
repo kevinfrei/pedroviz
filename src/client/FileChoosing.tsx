@@ -10,10 +10,12 @@ import { Strings } from './Constants';
 import { AdbPaths, PutPaths } from './state/API';
 import { pathsFileFamily, SelectedTeamAtom, TeamsAtom } from './state/UserCode';
 import { AutoSelector } from './ui-tools/AutoSelector';
+import { useToast } from './ui-tools/NotificationToast';
 
 export function TeamSelector({ id }: { id?: string }): ReactElement {
   const teams = useAtomValue(TeamsAtom); //['TeamCode', 'LearnBot'];
   const [selectedTeam, selectTeam] = useAtom(SelectedTeamAtom);
+
   useEffect(() => {
     if (teams.length === 1) {
       selectTeam(teams[0]!);
@@ -35,6 +37,7 @@ export function TeamSelector({ id }: { id?: string }): ReactElement {
 export function SaveButton(): ReactElement {
   const team = useAtomValue(SelectedTeamAtom);
   const [get, refresher] = useAtom(pathsFileFamily(team!));
+  const setToast = useToast();
   return (
     <Button
       appearance="primary"
@@ -42,7 +45,14 @@ export function SaveButton(): ReactElement {
       disabled={!team}
       onClick={() => {
         if (get && team) {
-          PutPaths(team, get).then(() => refresher());
+          PutPaths(team, get).then((res) => {
+            refresher();
+            if (res === '{"result":0}') {
+              setToast(Strings.SaveSuccess, 'success');
+            } else {
+              setToast(res, 'error');
+            }
+          });
         }
       }}>
       {Strings.save_json}
@@ -53,13 +63,20 @@ export function SaveButton(): ReactElement {
 export function UploadToRobot(): ReactElement {
   const team = useAtomValue(SelectedTeamAtom);
   const pf = useAtomValue(pathsFileFamily(team!));
+  const setToast = useToast();
   return (
     <Button
       appearance="primary"
       icon={<BotAddFilled />}
       onClick={() => {
         if (pf && team) {
-          AdbPaths(pf).then((resp) => window.alert(resp.toString()));
+          AdbPaths(pf).then((res) => {
+            if (res === '') {
+              setToast(Strings.UploadSuccess, 'success');
+            } else {
+              setToast(res, 'error');
+            }
+          });
         }
       }}>
       {Strings.upload_to_bot}
