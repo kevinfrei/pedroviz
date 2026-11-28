@@ -25,8 +25,7 @@ public class PedroViz {
     private static String selected = "";
     private static PedroItems items;
 
-    private final Context context;
-    public final boolean loaded;
+    public static boolean loaded;
 
     static <T> int getSz(Map<String, T> m) {
         return m == null ? -1 : m.size();
@@ -38,7 +37,7 @@ public class PedroViz {
     }
 
     @Nullable
-    private InputStream getAdbStream() {
+    private static InputStream getAdbStream(Context context) {
         try {
             File adbFile = new File(context.getExternalFilesDir(null), ExternalFileName);
             //noinspection IOStreamConstructor
@@ -48,7 +47,7 @@ public class PedroViz {
     }
 
     @Nullable
-    private InputStream getAssetStream() {
+    private static InputStream getAssetStream(Context context) {
         AssetManager assetManager = context.getAssets();
         try {
             return assetManager.open(AssetFileName);
@@ -56,7 +55,7 @@ public class PedroViz {
         return null;
     }
 
-    private NamedItems loadJson(@Nullable InputStream inputStream) {
+    private static NamedItems loadJson(@Nullable InputStream inputStream) {
         if (inputStream == null) {
             return null;
         }
@@ -72,7 +71,7 @@ public class PedroViz {
         }
     }
 
-    private NamedItems selectedLatest(@Nullable NamedItems adb, @Nullable NamedItems asset) {
+    private static NamedItems selectedLatest(@Nullable NamedItems adb, @Nullable NamedItems asset) {
         if (adb == null && asset == null) {
             selected = "empty";
             return null;
@@ -90,9 +89,9 @@ public class PedroViz {
     }
 
     // TODO: add loading from the 'upload only the paths' path, too...
-    private boolean loadPathFromJson() {
-        InputStream adb = getAdbStream();
-        InputStream asset = getAssetStream();
+    private static boolean loadPathFromJson(Context context) {
+        InputStream adb = getAdbStream(context);
+        InputStream asset = getAssetStream(context);
         if (adb == null && asset == null) {
             status = "No pedropath.json file found";
             return false;
@@ -120,20 +119,15 @@ public class PedroViz {
         return true;
     }
 
-    private PedroViz(Context ctxt) {
-        context = ctxt;
-        loaded = loadPathFromJson();
-    }
-
     /**
-     * Load the asset or adb json file.
+     * Load the asset or adb json file. Just call it in your Init phase:
+     * `PedroViz.LoadJSON(hardwareMap);`
+     *
      * @param map The HardwareMap for the robot
-     * @return null for error, 'asset' or 'adb' for success
+     * @return 'error' for error, 'asset' or 'adb' for success (indicating which file was read)
      */
-    @Nullable
     public static String LoadJSON(HardwareMap map) {
-        PedroViz loader = new PedroViz(map.appContext);
-        return loader.loaded ? selected : null;
+        return loadPathFromJson(map.appContext) && loaded ? selected : "error";
     }
 
     /**
@@ -147,6 +141,12 @@ public class PedroViz {
         return items != null && items.paths != null ? items.paths.get(name) : null;
     }
 
+    public static List<String> getPathNames() {
+        return items == null || items.paths == null
+            ? new ArrayList<>()
+            : new ArrayList<>(items.paths.keySet());
+    }
+
     /**
      * Get a curve or line by case-sensitive name that was specified in the JSON file
      *
@@ -156,6 +156,12 @@ public class PedroViz {
     @Nullable
     public static Path getCurve(String name) {
         return items != null && items.curves != null ? items.curves.get(name) : null;
+    }
+
+    public static List<String> getCurveNames() {
+        return items == null || items.curves == null
+            ? new ArrayList<>()
+            : new ArrayList<>(items.curves.keySet());
     }
 
     /**
@@ -169,6 +175,12 @@ public class PedroViz {
         return items != null && items.poses != null ? items.poses.get(name) : null;
     }
 
+    public static List<String> getPoseNames() {
+        return items == null || items.poses == null
+            ? new ArrayList<>()
+            : new ArrayList<>(items.poses.keySet());
+    }
+
     /**
      * Get a numeric value by case-sensitive name that was specified in the JSON file
      *
@@ -178,6 +190,12 @@ public class PedroViz {
     @Nullable
     public static Double getValue(String name) {
         return items != null && items.values != null ? items.values.get(name) : null;
+    }
+
+    public static List<String> getValueNames() {
+        return items == null || items.values == null
+            ? new ArrayList<>()
+            : new ArrayList<>(items.values.keySet());
     }
 
     static class NamedItems {
