@@ -7,7 +7,7 @@ import { serveStatic } from '@hono/node-server/serve-static';
 import { Hono } from 'hono';
 import { isDefined } from '@freik/typechk';
 
-import { GetGlobalDirname, IsProd, OverrideDirname } from './is-prod';
+import { GetGlobalDirname, OverrideDirname } from './repo-discovery';
 import {
   GetFieldImage,
   GetFieldSvg,
@@ -15,6 +15,7 @@ import {
   GetValidTeams,
   HasFieldImage,
   InstallJsonLoader,
+  IsProd,
   KillAssetPathFile,
   LoadPaths,
   SavePaths,

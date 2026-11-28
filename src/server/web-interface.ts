@@ -21,8 +21,29 @@ import {
   LoadPathsForTeam,
 } from './path-interface';
 import jsonLoaderSource from './PedroViz.java';
-import { GetRelativeRepoRoot } from './repo-discovery';
+import { GetRelativeRepoRoot, real_dirname } from './repo-discovery';
 import { isDirectory } from './utility-funcs';
+
+const _isProduction = IsProd();
+// Dynamically select the right path/asset reference
+// const index = isProduction ? prodHtml as string : devHtml;
+export function IsProd(): boolean {
+  try {
+    if (
+      isDefined(import.meta) &&
+      isDefined(import.meta.env) &&
+      isDefined(import.meta.dir)
+    ) {
+      const prod =
+        import.meta.env.NODE_ENV === 'production' ||
+        import.meta.dir.includes('node_modules');
+      return prod;
+    }
+  } catch {}
+  return (
+    process.env.NODE_ENV === 'production' || real_dirname.endsWith('/dist')
+  );
+}
 
 export async function GetFieldImage(theme: string): Promise<Response> {
   const theTheme = theme !== 'dark' && theme !== 'light' ? 'dark' : theme;

@@ -2,10 +2,10 @@
 
 import { promises as fsp } from 'node:fs';
 import path from 'node:path';
+import url from 'node:url';
 
-import { isNull, isString } from '@freik/typechk';
+import { isDefined, isNull, isString } from '@freik/typechk';
 
-import { GetGlobalDirname } from './is-prod';
 import { isDirectory } from './utility-funcs';
 
 let RepoRoot: string | null = null;
@@ -64,4 +64,16 @@ async function isRepoRoot(currentPath: string) {
     (await fsp.exists(path.join(currentPath, 'FtcRobotController'))) &&
     (await isDirectory(path.join(currentPath, 'FtcRobotController')))
   );
+}
+
+export let real_dirname = isDefined(__dirname)
+  ? __dirname
+  : path.dirname(url.fileURLToPath(import.meta.url));
+
+export function OverrideDirname(newDirname: string): void {
+  real_dirname = newDirname;
+}
+
+export function GetGlobalDirname(): string {
+  return real_dirname;
 }
