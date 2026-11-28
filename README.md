@@ -108,9 +108,7 @@ FTC students...)
 
 **Task TODO list, in some sort of order:**
 
-- [ ] Test paths on a robot! (I've got 20403's pre-tuned bot in my garage this
-      weekend explicitly so I can do this without trying to get Mouse/LearnBot
-      back up and running)
+- [ ] Add PedroViz API to get the available names of values, curves, etc...
 - [ ] Add highlighting for the selected pose, curve, and path
 - [ ] Rename all ref's to a something when you rename the something.
 - [ ] Add an Undo buffer
@@ -165,6 +163,10 @@ FTC students...)
       Right?)
 - [x] Make work with nodejs (`npx`) as well?
 - [x] Draw the interpolation arrows.
+- [x] Test paths on a robot! (I've got 20403's pre-tuned bot in my garage this
+      weekend explicitly so I can do this without trying to get Mouse/LearnBot
+      back up and running)
+- [x] Improve notification of upload/save/deletion.
 
 ## Development
 
