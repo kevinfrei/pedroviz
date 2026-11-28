@@ -1,85 +1,118 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import * as path from 'node:path';
-import { afterEach, beforeEach, describe, test } from 'bun:test';
+
+import { Team } from 'src/ipcTypes';
+
+import { chkNamedValues } from '../../dataTypes';
+import {
+  FindRelativeRepoRoot,
+  GetGlobalDirname,
+  OverrideDirname,
+} from '../repo-discovery';
+import {
+  GetFieldImage,
+  GetFieldSvg,
+  GetTeams,
+  GetValidTeams,
+  HasFieldImage,
+  IsProd,
+  LoadPaths,
+} from '../web-interface';
+
+function getTestRepoPath(): string {
+  return path.resolve(__dirname, 'test-repo-root');
+}
+
+function getTeamCodePath(): string {
+  return path.resolve(__dirname, 'teamcode-repo');
+}
 
 const originalCwd = process.cwd();
 
-beforeEach(() => {
-  // Change to a specific test directory before each test
-  process.chdir(path.join(__dirname, 'test-repo-root', 'docs'));
+describe('Multi-bot web interfaces', () => {
+  beforeEach(() => {
+    // Change to a specific test directory before each test
+    process.chdir(path.join(getTestRepoPath(), 'docs'));
+  });
+  afterEach(() => {
+    // Always restore the original working directory so subsequent tests aren't broken
+    process.chdir(originalCwd);
+  });
+  test('Field Image support', async () => {
+    const hasImage = await HasFieldImage();
+    expect(hasImage.ok).toBeTrue();
+    expect(hasImage.status).toEqual(200);
+    const res = await hasImage.text();
+    expect(res).toEqual('false');
+    const fieldImage = await GetFieldImage('dark');
+    expect(fieldImage.ok).toBeTrue();
+    const blob = await fieldImage.blob();
+    expect(blob.type).toEqual('image/svg+xml');
+  });
+  test('Is Production', () => {
+    const isProd = IsProd();
+    expect(isProd).toBeFalse();
+    const global = GetGlobalDirname();
+    OverrideDirname('asdf');
+    const global2 = GetGlobalDirname();
+    expect(global).not.toEqual(global2);
+    expect(global2).toBe('asdf');
+  });
 });
 
-afterEach(() => {
-  // Always restore the original working directory so subsequent tests aren't broken
-  process.chdir(originalCwd);
-});
-
-describe('The basic web interfaces', () => {
-  test.skip('LoadDatabase', async () => {
-    // const dbRes = await LoadDatabase();
-    // expect(dbRes.ok).toBeTrue();
-    // expect(dbRes.status).toEqual(200);
-    // const json = await dbRes.json();
-    // const data = Unpickle(JSON.stringify(json));
-    // expect(data).toBeDefined();
-    // expect(chkPathDatabase(data)).toBeTrue();
-    // if (!chkPathDatabase(data)) {
-    //   return false;
-    // }
-    // expect(data.TeamPath.size).toEqual(2);
-    // const dbRes2 = await LoadDatabase();
-    // expect(dbRes2.ok).toBeTrue();
-    // expect(dbRes2.status).toEqual(200);
-    // const json2 = await dbRes2.json();
-    // const data2 = Unpickle(JSON.stringify(json2));
-    // expect(data2).toBeDefined();
-    // expect(chkPathDatabase(data2)).toBeTrue();
-    // if (!chkPathDatabase(data2)) {
-    //   return false;
-    // }
-    // expect(data2.TeamPath.has('LearnBot' as Team)).toBeTrue();
+describe('Single-bot repo web interface tests', () => {
+  beforeEach(() => {
+    // Change to a specific test directory before each test
+    process.chdir(getTeamCodePath());
   });
-  test.skip('LoadPath', async () => {
-    // await RescanSourceCode();
-    // const res = await LoadPath('LearnBot', 'TestPaths.java');
-    // expect(res.ok).toBeTrue();
-    // expect(res.status).toEqual(200);
-    // const json = await res.json();
-    // const data = Unpickle(JSON.stringify(json));
-    // expect(data).toBeDefined();
-    // // console.log(data);
+  afterEach(() => {
+    // Always restore the original working directory so subsequent tests aren't broken
+    process.chdir(originalCwd);
   });
-  test.skip('SaveDatabase', async () => {
-    // ResetDatabase();
-    // await RescanSourceCode();
-    // const dbRes2 = await LoadDatabase();
-    // expect(dbRes2.ok).toBeTrue();
-    // expect(dbRes2.status).toEqual(200);
-    // const json2 = await dbRes2.json();
-    // const data2 = Unpickle(JSON.stringify(json2));
-    // expect(data2).toBeDefined();
-    // expect(chkPathDatabase(data2)).toBeTrue();
-    // if (!chkPathDatabase(data2)) {
-    //   return false;
-    // }
-    // expect(data2.TeamPath.has('LearnBot' as Team)).toBeTrue();
-    // const newDB = {
-    //   TeamPaths: MakeMultiMap(),
-    //   PathClasses: MakeMultiMap(),
-    //   ParsedClasses: new Map(),
-    // };
-    // await SaveDatabase(Pickle(newDB));
-    // const dbRes = await LoadDatabase();
-    // expect(dbRes.ok).toBeTrue();
-    // expect(dbRes.status).toEqual(200);
-    // const json = await dbRes.json();
-    // const data = Unpickle(JSON.stringify(json));
-    // expect(data).toBeDefined();
-    // expect(chkPathDatabase(data)).toBeTrue();
-    // if (!chkPathDatabase(data)) {
-    //   return false;
-    // }
-    // expect(data.TeamPath.size).toEqual(2);
+  test('Set the repo to the next one', async () => {
+    const currentPath = getTeamCodePath();
+    const repoRoot = await FindRelativeRepoRoot(currentPath);
+    expect(repoRoot).toBe(currentPath);
+  });
+  test('Field Image support', async () => {
+    const hasImage = await HasFieldImage();
+    expect(hasImage.ok).toBeTrue();
+    expect(hasImage.status).toEqual(200);
+    const res = await hasImage.text();
+    expect(res).toEqual('true');
+    const fieldImage = await GetFieldImage('dark');
+    expect(fieldImage.ok).toBeTrue();
+    const blob = await fieldImage.blob();
+    expect(blob.type).toEqual('image/jpeg');
+    const fieldLImage = await GetFieldImage('light');
+    expect(fieldLImage.ok).toBeTrue();
+    const blob2 = await fieldLImage.blob();
+    expect(blob2.type).toEqual('image/png');
+    const svg = await GetFieldSvg('light');
+    expect(svg.ok).toBeTrue();
+    const sblob = await svg.blob();
+    expect(sblob.type).toEqual('image/svg+xml');
+  });
+  test('Team listing stuff', async () => {
+    const teamsResp = await GetTeams();
+    expect(teamsResp.ok).toBeTrue();
+    const teams = await teamsResp.json();
+    expect(teams).toBeArrayOfSize(1);
+    expect(teams).toEqual(['TeamCode']);
+    const vteamsResp = await GetValidTeams();
+    expect(vteamsResp.ok).toBeTrue();
+    const vteams = await vteamsResp.json();
+    expect(vteams).toBeArrayOfSize(1);
+    const pathsResp = await LoadPaths('TeamCode' as Team);
+    expect(pathsResp.ok).toBeTrue();
+    const paths = await pathsResp.json();
+    expect(chkNamedValues(paths)).toBeTrue();
+    if (!chkNamedValues(paths)) return;
+    expect(paths.timeStamp).toBeGreaterThan(10000);
+    expect(paths.schema).toEqual(0);
+    expect(Object.keys(paths.values)).toEqual(['newValue1']);
+    expect(paths.values['newValue1']).toEqual({ val: 95 });
   });
 });

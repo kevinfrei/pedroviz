@@ -52,7 +52,6 @@ async function GetPathFile(
 
 export async function GetTeamNames(): Promise<Team[]> {
   const repo = await GetRelativeRepoRoot();
-  console.log('Repo:', repo);
   const entries = await fsp.readdir(repo, { withFileTypes: true });
   const teamDirs = entries
     .filter((dir) => isTeamDirectory(repo!, dir))
@@ -68,23 +67,23 @@ export async function LoadPathsForTeam(team: Team): Promise<PathsFile> {
     if (isUndefined(res)) {
       // Dig much further into why the JSON file is malformed
       const r = JSON.parse(data);
-      console.log(
+      console.error(
         'Values',
         hasFieldOf(r, 'values', chkRecordOf(isString, chkValRef)),
       );
-      console.log(
+      console.error(
         'Poses',
         hasFieldOf(r, 'poses', chkRecordOf(isString, chkPoseRef)),
       );
-      console.log(
+      console.error(
         'Interps',
         hasFieldOf(r, 'interpolations', chkRecordOf(isString, chkInterpRef)),
       );
-      console.log(
+      console.error(
         'Curves',
         hasFieldOf(r, 'curves', chkRecordOf(isString, chkCurveRef)),
       );
-      console.log(
+      console.error(
         'Paths',
         hasFieldOf(r, 'paths', chkRecordOf(isString, chkPath)),
       );

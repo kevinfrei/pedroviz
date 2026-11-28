@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import path from 'node:path';
 
 import { isError } from 'node_modules/@freik/typechk/lib/esm';
 
@@ -46,7 +46,6 @@ describe('Multi-team path exploration', () => {
       __dirname,
       '../../../../../nonexistent/path',
     );
-    console.log(invalidPath);
     expect(await FindRelativeRepoRoot(invalidPath)).toBeNull();
   });
 
@@ -103,7 +102,6 @@ describe('single-team path exploration', () => {
       __dirname,
       '../../../../../nonexistent/path',
     );
-    console.log(invalidPath);
     expect(await FindRelativeRepoRoot(invalidPath)).toBeNull();
   });
 
