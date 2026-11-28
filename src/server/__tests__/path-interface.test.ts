@@ -3,8 +3,15 @@
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 
+import { isError } from 'node_modules/@freik/typechk/lib/esm';
+
 import { Team } from '../../ipcTypes';
-import { GetTeamNames, GetTeamsWithPaths } from '../path-interface';
+import {
+  GetProjectFilePath,
+  GetTeamNames,
+  GetTeamsWithPaths,
+  LoadPathsForTeam,
+} from '../path-interface';
 import { FindRelativeRepoRoot } from '../repo-discovery';
 
 function getTestRepoPath(): string {
@@ -59,9 +66,18 @@ describe('Multi-team path exploration', () => {
     expect(teamDirs).toContain('LearnBot' as Team);
   });
 
-  test.failing('GetTeamsWithPaths finds team directories', async () => {
+  test('GetTeamsWithPaths finds team directories', async () => {
     const teamDirs = await GetTeamsWithPaths();
     expect(teamDirs).toBeArrayOfSize(3);
+  });
+
+  test('LoadPathsForTeam', async () => {
+    const badPathsFile = await LoadPathsForTeam('TeamB');
+    expect(badPathsFile).toBeDefined();
+    expect(isError(badPathsFile)).toBeTrue();
+    const pathsFile = await LoadPathsForTeam('TeamA');
+    expect(pathsFile).toBeDefined();
+    expect(isError(pathsFile)).toBeTrue();
   });
 });
 
@@ -108,6 +124,30 @@ describe('single-team path exploration', () => {
 
   test('GetTeamsWithPaths finds team directories', async () => {
     const teamDirs = await GetTeamsWithPaths();
-    expect(teamDirs).toBeArrayOfSize(0);
+    expect(teamDirs).toBeArrayOfSize(1);
+    expect(teamDirs).toContain('TeamCode');
+  });
+
+  test('LoadPathsForTeam', async () => {
+    const pathsFile = await LoadPathsForTeam('TeamCode');
+    expect(pathsFile).toBeDefined();
+    expect(isError(pathsFile)).toBeFalse();
+    if (isError(pathsFile)) return;
+    expect(pathsFile.timeStamp).toBeDefined();
+    expect(pathsFile.schema).toEqual(0);
+    expect(pathsFile.values).toBeObject();
+    const valKeys = Object.keys(pathsFile.values);
+    expect(valKeys).toBeArrayOfSize(1);
+    expect(pathsFile.values[valKeys[0]!]).toEqual({ val: 95 });
+    expect(pathsFile.poses).toBeObject();
+    expect(pathsFile.interpolations).toBeObject();
+    expect(pathsFile.curves).toBeObject();
+    expect(pathsFile.paths).toBeObject();
+  });
+  test('GetProjectFilePath', () => {
+    const filePath = GetProjectFilePath('abc', 'TeamCode', 'filename.java');
+    expect(filePath).toEqual(
+      'abc/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/filename.java',
+    );
   });
 });

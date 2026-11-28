@@ -68,15 +68,6 @@ export async function LoadPathsForTeam(team: Team): Promise<PathsFile> {
     if (isUndefined(res)) {
       // Dig much further into why the JSON file is malformed
       const r = JSON.parse(data);
-      console.log(Object.keys(r));
-      for (const k of Object.keys(r)) {
-        if (k === 'interpolations') {
-          const i = r[k];
-          for (const ik of Object.keys(i)) {
-            console.log(ik, i[ik], chkInterpRef(i[ik]));
-          }
-        }
-      }
       console.log(
         'Values',
         hasFieldOf(r, 'values', chkRecordOf(isString, chkValRef)),

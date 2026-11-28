@@ -1,0 +1,16 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+import fs from 'node:fs';
+import path from 'node:path';
+import { expect /* beforeAll, afterAll */, test } from 'bun:test';
+
+import { isDirectory } from '../utility-funcs';
+
+test('isDirectory testing', async () => {
+  expect(await isDirectory(__dirname)).toBe(true);
+  expect(await isDirectory(path.join(__dirname, 'nonexistent_directory'))).toBe(
+    false,
+  );
+  expect(fs.existsSync(__filename)).toBe(true);
+  expect(await isDirectory(__filename)).toBe(false);
+});
